@@ -1,7 +1,8 @@
-// API base automático: mismo host que el frontend, puerto 8000
-// ✅ Esto permite borrar VITE_API_BASE del .env y funciona en casa/trabajo
+// API base:
+// - En desarrollo usa VITE_API_BASE (definido en .env)
+// - En producción usa el backend desplegado en Render
 export const API_BASE =
-  import.meta.env.VITE_API_BASE || "http://127.0.0.1:8000";
+  import.meta.env.VITE_API_BASE || "https://app-backend-jd8f.onrender.com";
 
 export async function api(
   path,
@@ -30,7 +31,6 @@ export async function api(
     data = text;
   }
 
-  // Token inválido/expirado
   if (res.status === 401) {
     localStorage.removeItem("token");
     throw new Error("Sesión expirada");
@@ -45,7 +45,8 @@ export async function api(
   return data;
 }
 
-// ✅ Helpers (opcionales): no rompen nada existente
+// Helpers
+
 export const apiJoinMeetup = (meetupId, token) =>
   api(`/meetups/${meetupId}/join`, { method: "POST", token });
 
@@ -61,12 +62,11 @@ export const apiGroupMeetups = (groupId, token) =>
 export const apiMeetupSearch = (filters = {}, token) => {
   const params = new URLSearchParams();
 
-  // El backend espera: q, level, from, to, pace_min, pace_max, only_open, limit, offset
   const map = {
     q: filters.q,
     level: filters.level,
-    from: filters.from, // alias "from" en FastAPI
-    to: filters.to, // alias "to" en FastAPI
+    from: filters.from,
+    to: filters.to,
     pace_min: filters.pace_min,
     pace_max: filters.pace_max,
     only_open: filters.only_open,
@@ -96,7 +96,6 @@ export const apiMyMeetups = (token, params = {}) => {
   return api(`/me/meetups${qs ? `?${qs}` : ""}`, { token });
 };
 
-// ✅ NUEVO: eliminar cuenta
 export const apiDeleteMe = (token) =>
   api(`/me`, { method: "DELETE", token });
 
@@ -113,7 +112,11 @@ export const apiDMMessages = (threadId, token) =>
   api(`/dm/threads/${threadId}/messages`, { token });
 
 export const apiDMSend = (threadId, text, token) =>
-  api(`/dm/threads/${threadId}/messages`, { method: "POST", token, body: { text } });
+  api(`/dm/threads/${threadId}/messages`, {
+    method: "POST",
+    token,
+    body: { text },
+  });
 
 export const apiVerifyEmailStart = (token) =>
   api(`/me/verify/start`, { method: "POST", token });
@@ -122,4 +125,8 @@ export const apiVerifyEmailConfirm = (code, token) =>
   api(`/me/verify/confirm`, { method: "POST", token, body: { code } });
 
 export const apiVerifyLocation = (lat, lng, accuracy_m, token) =>
-  api(`/me/location/verify`, { method: "POST", token, body: { lat, lng, accuracy_m } });
+  api(`/me/location/verify`, {
+    method: "POST",
+    token,
+    body: { lat, lng, accuracy_m },
+  });
