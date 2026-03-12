@@ -4,6 +4,8 @@ import { useToast } from "../hooks/useToast";
 import { API_BASE } from "../services/api";
 import { useLocation, useNavigate } from "react-router-dom";
 import Cropper from "react-easy-crop";
+import { Button, EmptyState } from "./ui";
+import "../styles/posts-grid.css";
 
 /* =========================
    Helpers
@@ -722,87 +724,102 @@ export default function PostsGrid() {
   }
 
   return (
-    <div className="igpg">
-      <div className="quartz-shell quartz-card">
-        <div className="igpg-head">
-          <div className="igpg-actions">
-            <button
-              type="button"
-              className="pc-icon pc-gold"
-              onClick={() => {
-                nextOffsetRef.current = 0;
-                setHasMore(true);
-                setItems([]);
-                loadPage(0, { replace: true });
-              }}
-              aria-label="Actualizar"
-              title="Actualizar"
-            >
-              <IconRefresh />
-            </button>
-
-            <button
-              type="button"
-              className="pc-icon pc-gold"
-              onClick={openPicker}
-              aria-label="Nueva publicación"
-              title="Nueva publicación"
-            >
-              <IconPlus />
-            </button>
-
-            <input ref={fileRef} type="file" accept="image/*" hidden onChange={onPickFile} />
-          </div>
+    <div className="postsGrid">
+      <section className="postsGrid__header">
+        <div className="postsGrid__titleBlock">
+          <p className="postsGrid__eyebrow">Perfil</p>
+          <h2 className="postsGrid__title">Publicaciones</h2>
+          <p className="postsGrid__description">
+            Grid visual de tus fotos con una presentación más limpia y social.
+          </p>
         </div>
 
-        {err ? (
-          <div className="auth-msg error" style={{ marginTop: 10 }}>
-            {err}
+        <div className="postsGrid__toolbar">
+          <div className="postsGrid__metaPill">
+            {normalized.length} {normalized.length === 1 ? "post" : "posts"}
           </div>
-        ) : null}
 
-        {normalized.length === 0 ? (
-          <div className="ui-card igpg-empty igpg-empty--panel">
-            Aún no tienes publicaciones. Pulsa el botón <b>+</b> para subir tu primera foto.
-          </div>
-        ) : (
-          <div className="igpg-grid">
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            onClick={() => {
+              nextOffsetRef.current = 0;
+              setHasMore(true);
+              setItems([]);
+              loadPage(0, { replace: true });
+            }}
+          >
+            <IconRefresh size={16} />
+            Actualizar
+          </Button>
+
+          <Button type="button" size="sm" onClick={openPicker}>
+            <IconPlus size={16} />
+            Nueva publicación
+          </Button>
+
+          <input ref={fileRef} type="file" accept="image/*" hidden onChange={onPickFile} />
+        </div>
+      </section>
+
+      {err ? <div className="postsGrid__error">{err}</div> : null}
+
+      {normalized.length === 0 ? (
+        <div className="postsGrid__empty">
+          <EmptyState
+            icon="✦"
+            title="Aún no tienes publicaciones"
+            description="Sube tu primera imagen para empezar a construir tu perfil visual."
+            actionLabel="Crear publicación"
+            onAction={openPicker}
+          />
+        </div>
+      ) : (
+        <div className="postsGrid__gridWrap">
+          <div className="postsGrid__grid" role="list" aria-label="Publicaciones">
             {normalized.map((p) => (
-              <button key={p.id} type="button" className="igpg-tile" onClick={() => openPost(p)} title="Ver">
-                <img src={p.image_url} alt="post" loading="lazy" />
+              <button
+                key={p.id}
+                type="button"
+                className="postsGrid__tile"
+                onClick={() => openPost(p)}
+                title="Ver publicación"
+              >
+                <img src={p.image_url} alt="post" loading="lazy" className="postsGrid__image" />
 
-                {p.caption ? (
-                  <div className="igpg-tileCaption" aria-hidden="true">
-                    {p.caption}
+                <div className="postsGrid__overlay" aria-hidden="true">
+                  <div className="postsGrid__overlayStats">
+                    <span className="postsGrid__overlayItem">
+                      <IconHeart size={15} />
+                      <span>{p.likes_count || 0}</span>
+                    </span>
+                    <span className="postsGrid__overlayItem">
+                      <IconComment size={15} />
+                      <span>{p.comments_count || 0}</span>
+                    </span>
                   </div>
-                ) : null}
 
-                <div className="igpg-overlay" aria-hidden="true">
-                  <div className="igpg-oc">
-                    <span className="igpg-ocItem">
-                      <IconHeart size={16} />
-                      <span className="igpg-ocN">{p.likes_count || 0}</span>
-                    </span>
-                    <span className="igpg-ocSep">·</span>
-                    <span className="igpg-ocItem">
-                      <IconComment size={16} />
-                      <span className="igpg-ocN">{p.comments_count || 0}</span>
-                    </span>
-                  </div>
+                  {p.caption ? (
+                    <div className="postsGrid__captionPreview">{p.caption}</div>
+                  ) : null}
                 </div>
               </button>
             ))}
-            <div ref={sentinelRef} className="igpg-sentinel" />
+            <div ref={sentinelRef} className="postsGrid__sentinel" />
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {activePost ? (
         <div className="ui-modal" role="dialog" aria-modal="true" onMouseDown={closePost}>
-          <div className="ui-glass ui-modalPanel igpg-modalPanel" onMouseDown={(e) => e.stopPropagation()}>
+          <div
+            className="ui-glass ui-modalPanel postsGridModal"
+            onMouseDown={(e) => e.stopPropagation()}
+          >
             <button
               type="button"
-              className="ui-iconBtn ui-iconBtn--gold igpg-closeBtn"
+              className="ui-iconBtn ui-iconBtn--gold postsGridModal__close"
               onClick={closePost}
               aria-label="Cerrar"
               title="Cerrar"
@@ -832,9 +849,9 @@ export default function PostsGrid() {
               <IconChevronRight />
             </button>
 
-            <div className="igpg-modal__grid">
+            <div className="postsGridModal__grid">
               <div
-                className="igpg-modal__media igpg-swipeArea"
+                className="postsGridModal__media igpg-swipeArea"
                 onPointerDown={onSwipePointerDown}
                 onPointerMove={onSwipePointerMove}
                 onPointerUp={onSwipePointerUp}
@@ -850,27 +867,29 @@ export default function PostsGrid() {
                 <img src={activePost.image_url} alt="post" draggable={false} />
               </div>
 
-              <div className="igpg-modal__side">
-                <div className="igpg-side__top">
-                  <div className="igpg-side__title">Publicación</div>
-                  <div className="igpg-side__date">{fmtDate(activePost.created_at)}</div>
+              <div className="postsGridModal__side">
+                <div className="postsGridModal__top">
+                  <div className="postsGridModal__title">Publicación</div>
+                  <div className="postsGridModal__date">{fmtDate(activePost.created_at)}</div>
                 </div>
 
-                <div className="igpg-side__body">
-                  <div className="igpg-side__stats">
-                    <span className="igpg-side__stat">
+                <div className="postsGridModal__body">
+                  <div className="postsGridModal__stats">
+                    <span className="postsGridModal__stat">
                       <IconHeart size={16} /> <b>{activePost.likes_count || 0}</b>
                     </span>
-                    <span className="igpg-side__dot">·</span>
-                    <span className="igpg-side__stat">
+                    <span className="postsGridModal__dot">·</span>
+                    <span className="postsGridModal__stat">
                       <IconComment size={16} /> <b>{activePost.comments_count || 0}</b>
                     </span>
                   </div>
 
-                  {activePost.caption ? <div className="igpg-captionView">{activePost.caption}</div> : null}
+                  {activePost.caption ? (
+                    <div className="postsGridModal__caption">{activePost.caption}</div>
+                  ) : null}
                 </div>
 
-                <div className="igpg-side__bottom">
+                <div className="postsGridModal__bottom">
                   <button
                     type="button"
                     className="ui-iconBtn ui-iconBtn--gold ui-iconBtn--lg"
@@ -915,11 +934,13 @@ export default function PostsGrid() {
       {previewUrl ? (
         <div className="ui-modal" role="dialog" aria-modal="true" onMouseDown={closeUploadModal}>
           <div
-            className="ui-glass ui-modalPanel ui-modalPanel--small igpg-uploadModal"
+            className="ui-glass ui-modalPanel ui-modalPanel--small postsGridUpload"
             onMouseDown={(e) => e.stopPropagation()}
           >
             <div className="ui-modalHead">
-              <div className="ui-modalTitle">{step === "crop" ? "Recortar foto" : "Nueva publicación"}</div>
+              <div className="ui-modalTitle">
+                {step === "crop" ? "Recortar foto" : "Nueva publicación"}
+              </div>
               <button
                 type="button"
                 className="ui-iconBtn ui-iconBtn--gold ui-iconBtn--sm"
@@ -934,7 +955,7 @@ export default function PostsGrid() {
 
             {step === "crop" ? (
               <>
-                <div className="igpg-cropWrap">
+                <div className="postsGridUpload__cropWrap">
                   <Cropper
                     image={previewUrl}
                     crop={crop}
@@ -946,8 +967,8 @@ export default function PostsGrid() {
                   />
                 </div>
 
-                <div className="igpg-cropControls">
-                  <label className="igpg-cropLabel">
+                <div className="postsGridUpload__controls">
+                  <label className="postsGridUpload__zoomLabel">
                     Zoom
                     <input
                       type="range"
@@ -964,21 +985,26 @@ export default function PostsGrid() {
                   <button type="button" onClick={closeUploadModal} disabled={uploading}>
                     Cancelar
                   </button>
-                  <button type="button" className="btn-primary" onClick={confirmCrop} disabled={uploading}>
+                  <button
+                    type="button"
+                    className="btn-primary"
+                    onClick={confirmCrop}
+                    disabled={uploading}
+                  >
                     Continuar
                   </button>
                 </div>
               </>
             ) : (
               <>
-                <div className="igpg-uploadPreview">
+                <div className="postsGridUpload__preview">
                   <img src={previewUrl} alt="preview" />
                 </div>
 
-                <label className="igpg-captionLabel">
+                <label className="postsGridUpload__captionLabel">
                   Estado
                   <textarea
-                    className="igpg-caption"
+                    className="postsGridUpload__caption"
                     rows={3}
                     placeholder="Escribe algo…"
                     value={caption}
@@ -991,7 +1017,12 @@ export default function PostsGrid() {
                   <button type="button" onClick={() => setStep("crop")} disabled={uploading}>
                     ← Editar
                   </button>
-                  <button type="button" className="btn-primary" onClick={upload} disabled={uploading}>
+                  <button
+                    type="button"
+                    className="btn-primary"
+                    onClick={upload}
+                    disabled={uploading}
+                  >
                     {uploading ? "Subiendo…" : "Publicar"}
                   </button>
                 </div>
