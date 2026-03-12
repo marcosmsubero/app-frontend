@@ -6,33 +6,9 @@ function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || "").trim());
 }
 
-const shellInlineStyle = {
-  width: "100%",
-  maxWidth: "460px",
-  margin: "0 auto",
-  display: "grid",
-  gap: "16px",
-};
-
-const helperCardStyle = {
-  borderRadius: "20px",
-  padding: "14px 16px",
-  border: "1px solid rgba(255,255,255,0.08)",
-  background: "rgba(255,255,255,0.03)",
-};
-
-const helperTitleStyle = {
-  fontSize: "13px",
-  fontWeight: 800,
-  color: "var(--textStrong)",
-  marginBottom: "4px",
-};
-
-const helperTextStyle = {
-  fontSize: "13px",
-  color: "var(--muted)",
-  lineHeight: 1.45,
-};
+function FeaturePill({ children }) {
+  return <span className="authFeaturePill">{children}</span>;
+}
 
 export default function AuthPage({ defaultTab = "login" }) {
   const { login, register, isAuthed } = useAuth();
@@ -78,10 +54,6 @@ export default function AuthPage({ defaultTab = "login" }) {
 
   function setSuccess(text) {
     setMsg({ type: "success", text });
-  }
-
-  function setInfo(text) {
-    setMsg({ type: "info", text });
   }
 
   async function handleSubmit(e) {
@@ -132,6 +104,7 @@ export default function AuthPage({ defaultTab = "login" }) {
       setPassword("");
       setPassword2("");
       setEmailRO(true);
+
       nav("/onboarding", {
         replace: true,
         state: { fromRegister: true, registeredEmail: cleanEmail },
@@ -167,133 +140,152 @@ export default function AuthPage({ defaultTab = "login" }) {
   const isLogin = tab === "login";
 
   return (
-    <div className="auth-page-bg">
-      <div className="page" style={{ paddingBottom: 24 }}>
-        <div className="auth-shell" style={shellInlineStyle}>
-          <div className="auth-card">
-            <div className="auth-head">
-              <div className="auth-kicker">
-                {isLogin ? "Acceso" : "Crear cuenta"}
-              </div>
-              <h1 style={{ margin: 0 }}>
-                {isLogin ? "Iniciar sesión" : "Empieza tu perfil deportivo"}
-              </h1>
-              <p className="auth-copy" style={{ margin: 0 }}>
-                {isLogin
-                  ? "Accede a tu perfil, grupos, mensajes y actividades."
-                  : "Crea tu cuenta y pasa directamente al onboarding para dejar listo tu perfil."}
-              </p>
-            </div>
+    <div className="authScreen">
+      <div className="authLayout">
+        <section className="authHeroCard">
+          <div className="authHeroGlow" />
+          <div className="authKicker">App social deportiva</div>
+          <h1 className="authTitle">
+            Encuentra gente para correr, rodar y salir a la montaña.
+          </h1>
+          <p className="authSubtitle">
+            Una experiencia pensada para quedar, descubrir grupos, hablar por mensajes y
+            crear una identidad deportiva sólida desde el primer minuto.
+          </p>
 
-            <div className="neutral-tabs" role="tablist" aria-label="Autenticación">
-              <button
-                type="button"
-                className={`neutral-tab ${isLogin ? "active" : ""}`}
-                onClick={() => {
-                  resetMsg();
-                  setTab("login");
-                  setInfo("Introduce tu email y contraseña.");
-                }}
-                disabled={loading}
-              >
-                Login
-              </button>
-
-              <button
-                type="button"
-                className={`neutral-tab ${!isLogin ? "active" : ""}`}
-                onClick={() => {
-                  resetMsg();
-                  setTab("register");
-                  setInfo("Crea tu cuenta y continúa con el onboarding.");
-                }}
-                disabled={loading}
-              >
-                Registro
-              </button>
-            </div>
-
-            <form className="stack auth-form" onSubmit={handleSubmit}>
-              <input
-                className="auth-trapInput"
-                type="email"
-                tabIndex={-1}
-                autoComplete="username"
-                value=""
-                readOnly
-                aria-hidden="true"
-              />
-
-              <label className="auth-label">
-                <span className="auth-labelText">Email</span>
-                <input
-                  className="auth-input"
-                  type="email"
-                  placeholder="tu@email.com"
-                  autoComplete="email"
-                  readOnly={emailRO}
-                  onFocus={() => setEmailRO(false)}
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  disabled={loading}
-                />
-              </label>
-
-              <label className="auth-label">
-                <span className="auth-labelText">Contraseña</span>
-                <input
-                  className="auth-input"
-                  type="password"
-                  placeholder="Introduce tu contraseña"
-                  autoComplete={isLogin ? "current-password" : "new-password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  disabled={loading}
-                />
-              </label>
-
-              {!isLogin && (
-                <label className="auth-label">
-                  <span className="auth-labelText">Repite contraseña</span>
-                  <input
-                    className="auth-input"
-                    type="password"
-                    placeholder="Repite tu contraseña"
-                    autoComplete="new-password"
-                    value={password2}
-                    onChange={(e) => setPassword2(e.target.value)}
-                    disabled={loading}
-                  />
-                </label>
-              )}
-
-              {msg.text && (
-                <div className={`auth-msg auth-msg--${msg.type || "info"}`}>
-                  {msg.text}
-                </div>
-              )}
-
-              <button className="auth-primary" type="submit" disabled={loading}>
-                {loading
-                  ? "Enviando…"
-                  : isLogin
-                  ? "Entrar"
-                  : "Crear cuenta y continuar"}
-              </button>
-            </form>
+          <div className="authFeatureGrid">
+            <FeaturePill>Grupos y meetups</FeaturePill>
+            <FeaturePill>Mensajes directos</FeaturePill>
+            <FeaturePill>Notificaciones en tiempo real</FeaturePill>
+            <FeaturePill>Perfil deportivo completo</FeaturePill>
           </div>
 
-          <div style={helperCardStyle}>
-            <div style={helperTitleStyle}>
-              {isLogin ? "Qué ocurre después" : "Siguiente paso"}
+          <div className="authHeroStats">
+            <div className="authHeroStat">
+              <strong>Mobile-first</strong>
+              <span>Interfaz pensada como app social real</span>
             </div>
-            <div style={helperTextStyle}>
+            <div className="authHeroStat">
+              <strong>Onboarding rápido</strong>
+              <span>Cuenta, verificación y perfil en pocos pasos</span>
+            </div>
+          </div>
+        </section>
+
+        <section className="authCard">
+          <div className="authTabs" role="tablist" aria-label="Autenticación">
+            <button
+              type="button"
+              className={`authTabs__item ${isLogin ? "is-active" : ""}`}
+              onClick={() => {
+                resetMsg();
+                setTab("login");
+              }}
+              disabled={loading}
+            >
+              Login
+            </button>
+
+            <button
+              type="button"
+              className={`authTabs__item ${!isLogin ? "is-active" : ""}`}
+              onClick={() => {
+                resetMsg();
+                setTab("register");
+              }}
+              disabled={loading}
+            >
+              Registro
+            </button>
+          </div>
+
+          <div className="authCard__header">
+            <div className="authKicker">{isLogin ? "Acceso" : "Alta de usuario"}</div>
+            <h2 className="authCard__title">
+              {isLogin ? "Bienvenido de nuevo" : "Crea tu cuenta"}
+            </h2>
+            <p className="authCard__copy">
               {isLogin
-                ? "Si tu perfil todavía no está completo, la app te llevará automáticamente al onboarding."
-                : "Tras crear la cuenta entrarás directamente al onboarding para verificar tu email y completar tu identidad deportiva."}
-            </div>
+                ? "Accede a tu perfil, tus grupos y tus conversaciones."
+                : "Regístrate y continúa directamente al onboarding para dejar tu perfil listo."}
+            </p>
           </div>
-        </div>
+
+          <form className="authForm" onSubmit={handleSubmit}>
+            <input
+              className="authTrapInput"
+              type="email"
+              tabIndex={-1}
+              autoComplete="username"
+              value=""
+              readOnly
+              aria-hidden="true"
+            />
+
+            <label className="field">
+              <span className="field__label">Email</span>
+              <input
+                className="field__input"
+                type="email"
+                placeholder="tu@email.com"
+                autoComplete="email"
+                readOnly={emailRO}
+                onFocus={() => setEmailRO(false)}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={loading}
+              />
+            </label>
+
+            <label className="field">
+              <span className="field__label">Contraseña</span>
+              <input
+                className="field__input"
+                type="password"
+                placeholder="Introduce tu contraseña"
+                autoComplete={isLogin ? "current-password" : "new-password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                disabled={loading}
+              />
+            </label>
+
+            {!isLogin && (
+              <label className="field">
+                <span className="field__label">Repite contraseña</span>
+                <input
+                  className="field__input"
+                  type="password"
+                  placeholder="Repite tu contraseña"
+                  autoComplete="new-password"
+                  value={password2}
+                  onChange={(e) => setPassword2(e.target.value)}
+                  disabled={loading}
+                />
+              </label>
+            )}
+
+            {msg.text && (
+              <div className={`statusMessage statusMessage--${msg.type || "info"}`}>
+                {msg.text}
+              </div>
+            )}
+
+            <button className="btn btn--primary btn--block" type="submit" disabled={loading}>
+              {loading
+                ? "Procesando…"
+                : isLogin
+                ? "Entrar en la app"
+                : "Crear cuenta y continuar"}
+            </button>
+          </form>
+
+          <div className="authFootNote">
+            {isLogin
+              ? "Si tu perfil no está completo, te llevaremos automáticamente al onboarding."
+              : "Después del registro verificarás tu email y completarás tu identidad deportiva."}
+          </div>
+        </section>
       </div>
     </div>
   );
