@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "./hooks/useAuth";
 
 import AuthPage from "./pages/AuthPage";
@@ -48,8 +48,14 @@ function WithOnboardingGate({ needsOnboarding, children }) {
 }
 
 function PrivateRoutes({ me, needsOnboarding }) {
+  const location = useLocation();
+  const isOnboardingRoute = location.pathname === "/onboarding";
+
   return (
-    <div className="page" style={{ paddingBottom: 90 }}>
+    <div
+      className="page"
+      style={{ paddingBottom: isOnboardingRoute ? 18 : 90 }}
+    >
       <SSEListener />
 
       <Routes>
@@ -162,7 +168,7 @@ function PrivateRoutes({ me, needsOnboarding }) {
         <Route path="*" element={<p>404 · Página no encontrada</p>} />
       </Routes>
 
-      <BottomNav me={me} />
+      {!isOnboardingRoute && <BottomNav me={me} />}
     </div>
   );
 }
