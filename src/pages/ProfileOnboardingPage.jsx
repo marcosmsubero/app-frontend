@@ -101,15 +101,9 @@ export default function ProfileOnboardingPage() {
     return "";
   }
 
-  function goToPreviousScreen() {
+  function goToLogin() {
     if (saving) return;
     clearMsg();
-
-    if (window.history.length > 1) {
-      nav(-1);
-      return;
-    }
-
     nav("/login", { replace: true });
   }
 
@@ -408,10 +402,10 @@ export default function ProfileOnboardingPage() {
                   <button
                     type="button"
                     className="auth-link"
-                    onClick={goToPreviousScreen}
+                    onClick={goToLogin}
                     disabled={saving}
                   >
-                    ← Volver
+                    ← Volver al login
                   </button>
 
                   <button className="auth-primary" onClick={goNext} disabled={saving}>
