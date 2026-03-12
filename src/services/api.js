@@ -1,20 +1,25 @@
+import API_BASE, { buildApiUrl } from "../config/apiBase.js";
+
 // API base:
-// - En desarrollo usa VITE_API_BASE (definido en .env)
+// - En desarrollo usa VITE_API_BASE si existe
 // - En producción usa el backend desplegado en Render
-export const API_BASE =
-  import.meta.env.VITE_API_BASE || "https://app-backend-jd8f.onrender.com";
+export { API_BASE };
 
 export async function api(
   path,
   { method = "GET", token = localStorage.getItem("token"), body } = {}
 ) {
-  const headers = { Accept: "application/json" };
+  const headers = {
+    Accept: "application/json",
+  };
+
   if (body !== undefined) headers["Content-Type"] = "application/json";
   if (token) headers["Authorization"] = `Bearer ${token}`;
 
   let res;
+
   try {
-    res = await fetch(`${API_BASE}${path}`, {
+    res = await fetch(buildApiUrl(path), {
       method,
       headers,
       body: body !== undefined ? JSON.stringify(body) : undefined,
@@ -24,6 +29,7 @@ export async function api(
   }
 
   const text = await res.text();
+
   let data;
   try {
     data = text ? JSON.parse(text) : null;
@@ -46,7 +52,6 @@ export async function api(
 }
 
 // Helpers
-
 export const apiJoinMeetup = (meetupId, token) =>
   api(`/meetups/${meetupId}/join`, { method: "POST", token });
 
@@ -122,7 +127,11 @@ export const apiVerifyEmailStart = (token) =>
   api(`/me/verify/start`, { method: "POST", token });
 
 export const apiVerifyEmailConfirm = (code, token) =>
-  api(`/me/verify/confirm`, { method: "POST", token, body: { code } });
+  api(`/me/verify/confirm`, {
+    method: "POST",
+    token,
+    body: { code },
+  });
 
 export const apiVerifyLocation = (lat, lng, accuracy_m, token) =>
   api(`/me/location/verify`, {
