@@ -1,3 +1,4 @@
+import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { HashRouter } from "react-router-dom";
 import App from "./App.jsx";
@@ -6,11 +7,13 @@ import { AuthProvider } from "./hooks/useAuth";
 import "./index.css";
 
 createRoot(document.getElementById("root")).render(
-  <HashRouter>
-    <AuthProvider>
+  <StrictMode>
+    <HashRouter>
       <ToastProvider>
-        <App />
+        <AuthProvider>
+          <App />
+        </AuthProvider>
       </ToastProvider>
-    </AuthProvider>
-  </HashRouter>
+    </HashRouter>
+  </StrictMode>
 );
