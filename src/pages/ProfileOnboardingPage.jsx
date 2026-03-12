@@ -19,54 +19,14 @@ function normalizeHandle(v) {
     .replace(/[^a-z0-9._-]/g, "");
 }
 
-const topInfoCardStyle = {
-  borderRadius: "18px",
-  padding: "12px 14px",
-  border: "1px solid rgba(255,255,255,0.08)",
-  background: "rgba(255,255,255,0.03)",
-  display: "grid",
-  gap: "6px",
-  marginBottom: "14px",
-};
-
-const microLabelStyle = {
-  fontSize: "12px",
-  fontWeight: 800,
-  letterSpacing: "0.03em",
-  color: "var(--muted)",
-  textTransform: "uppercase",
-};
-
-const infoRowStyle = {
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-  gap: "12px",
-  flexWrap: "wrap",
-};
-
-const badgeStyle = (active) => ({
-  display: "inline-flex",
-  alignItems: "center",
-  minHeight: "28px",
-  padding: "0 10px",
-  borderRadius: "999px",
-  border: active
-    ? "1px solid rgba(66, 193, 118, 0.28)"
-    : "1px solid rgba(255,255,255,0.08)",
-  background: active ? "rgba(66, 193, 118, 0.12)" : "rgba(255,255,255,0.04)",
-  color: active ? "#9be7b4" : "var(--muted)",
-  fontSize: "12px",
-  fontWeight: 800,
-});
-
-const stepHintStyle = {
-  fontSize: "13px",
-  color: "var(--muted)",
-  lineHeight: 1.45,
-  marginTop: "-2px",
-  marginBottom: "10px",
-};
+function StepPill({ active, done, number, label }) {
+  return (
+    <div className={`onboardingStepPill ${active ? "is-active" : ""} ${done ? "is-done" : ""}`}>
+      <span>{number}</span>
+      <strong>{label}</strong>
+    </div>
+  );
+}
 
 export default function ProfileOnboardingPage() {
   const nav = useNavigate();
@@ -158,7 +118,7 @@ export default function ProfileOnboardingPage() {
     if (!h || h.length < 3) return "Tu @ debe tener al menos 3 caracteres.";
     if (h.length > 20) return "Tu @ no puede tener más de 20 caracteres.";
     if (!form.full_name?.trim()) return "Introduce tu nombre completo.";
-    if (!form.role) return "Selecciona tu perfil (deportista/grupo/entrenador).";
+    if (!form.role) return "Selecciona tu perfil.";
 
     return "";
   }
@@ -184,7 +144,7 @@ export default function ProfileOnboardingPage() {
 
     try {
       await apiVerifyEmailStart(token);
-      setInfo("Código enviado. Revisa tu email.");
+      setInfo("Código enviado. Revisa tu bandeja de entrada.");
     } catch (e) {
       setError(e?.message || "No se pudo enviar el código.");
     } finally {
@@ -207,7 +167,7 @@ export default function ProfileOnboardingPage() {
     try {
       await apiVerifyEmailConfirm(cleanCode, token);
       await refreshMe(token);
-      setInfo("Email verificado.");
+      setInfo("Email verificado correctamente.");
     } catch (e) {
       setError(e?.message || "Código inválido.");
     } finally {
@@ -313,330 +273,272 @@ export default function ProfileOnboardingPage() {
   }
 
   const title = isNewProfile ? "Completa tu perfil" : "Actualizar perfil";
-  const kicker = isNewProfile ? "Primer acceso" : "Editar perfil";
   const subtitle = cameFromRegister
-    ? "Tu cuenta ya está creada. Solo faltan unos pasos para empezar a usar la app."
+    ? "Tu cuenta ya está creada. Solo faltan unos pasos para entrar a la app con el perfil listo."
     : "Configura tu identidad, verifica tu cuenta y añade tus disciplinas.";
 
   return (
-    <div className="onboarding-page-bg">
-      <div className="page onboarding-page">
-        <div className="onboarding-shell">
-          <div className="onboarding-card">
-            <div className="onboarding-head">
-              <div className="auth-kicker">{kicker}</div>
-              <h1 style={{ margin: 0 }}>{title}</h1>
-              <p className="auth-copy" style={{ margin: 0 }}>
-                {subtitle}
+    <div className="onboardingScreen">
+      <div className="onboardingLayout">
+        <section className="onboardingIntroCard">
+          <div className="authKicker">{isNewProfile ? "Primer acceso" : "Perfil"}</div>
+          <h1 className="onboardingTitle">{title}</h1>
+          <p className="onboardingSubtitle">{subtitle}</p>
+
+          <div className="onboardingAccountCard">
+            <div>
+              <span className="onboardingAccountLabel">Cuenta actual</span>
+              <strong>{me?.email || location.state?.registeredEmail || "Email no disponible"}</strong>
+            </div>
+
+            <div className="onboardingBadges">
+              <span className={`miniBadge ${isEmailVerified ? "is-positive" : ""}`}>
+                {isEmailVerified ? "Email verificado" : "Email pendiente"}
+              </span>
+              <span className={`miniBadge ${isLocVerified ? "is-positive" : ""}`}>
+                {isLocVerified ? "Ubicación verificada" : "Ubicación opcional"}
+              </span>
+            </div>
+          </div>
+
+          <div className="onboardingStepBar">
+            <StepPill number="1" label="Perfil" active={step === 1} done={step > 1} />
+            <StepPill number="2" label="Intereses" active={step === 2} done={false} />
+          </div>
+        </section>
+
+        <section className="onboardingCard">
+          {!isEmailVerified && (
+            <div className="verificationPanel">
+              <div className="verificationPanel__header">
+                <h2>Verifica tu email</h2>
+                <p>Necesitas completar esta verificación antes de continuar.</p>
+              </div>
+
+              <div className="verificationPanel__actions">
+                <button
+                  type="button"
+                  className="btn btn--primary"
+                  onClick={sendCode}
+                  disabled={sendingCode || saving}
+                >
+                  {sendingCode ? "Enviando…" : "Enviar código"}
+                </button>
+
+                <label className="field field--compact">
+                  <span className="field__label">Código</span>
+                  <input
+                    className="field__input"
+                    placeholder="Introduce el código"
+                    value={code}
+                    onChange={(e) => setCode(e.target.value)}
+                    disabled={confirmingCode || saving}
+                  />
+                </label>
+
+                <button
+                  type="button"
+                  className="btn btn--ghost"
+                  onClick={confirmCode}
+                  disabled={confirmingCode || saving}
+                >
+                  {confirmingCode ? "Confirmando…" : "Confirmar código"}
+                </button>
+              </div>
+            </div>
+          )}
+
+          <div className="verificationPanel verificationPanel--soft">
+            <div className="verificationPanel__header">
+              <h2>Ubicación</h2>
+              <p>
+                Es opcional, pero ayuda a mostrar mejor tu perfil y tus planes deportivos cercanos.
               </p>
             </div>
 
-            <div style={topInfoCardStyle}>
-              <div style={infoRowStyle}>
-                <div>
-                  <div style={microLabelStyle}>Cuenta actual</div>
-                  <div style={{ fontWeight: 800, color: "var(--textStrong)" }}>
-                    {me?.email || location.state?.registeredEmail || "Email no disponible"}
-                  </div>
-                </div>
-
-                <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-                  <span style={badgeStyle(isEmailVerified)}>
-                    {isEmailVerified ? "Email verificado" : "Email pendiente"}
-                  </span>
-                  <span style={badgeStyle(isLocVerified)}>
-                    {isLocVerified ? "Ubicación verificada" : "Ubicación opcional"}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="onboarding-stepbar">
-              <div className={`onboarding-step ${step === 1 ? "done" : ""}`}>
-                <span>1</span>
-                <strong>Perfil</strong>
-              </div>
-              <div className={`onboarding-step ${step === 2 ? "done" : ""}`}>
-                <span>2</span>
-                <strong>Redes</strong>
-              </div>
-            </div>
-
-            {!isEmailVerified && (
-              <div className="stack auth-form" style={{ marginBottom: 16 }}>
-                <div style={stepHintStyle}>
-                  La verificación del email es obligatoria antes de continuar.
-                </div>
-
-                <div className="stack" style={{ gap: 10 }}>
-                  <button
-                    type="button"
-                    className="auth-primary"
-                    onClick={sendCode}
-                    disabled={sendingCode || saving}
-                  >
-                    {sendingCode ? "Enviando…" : "Enviar código"}
-                  </button>
-
-                  <label className="auth-label">
-                    <span className="auth-labelText">Código de verificación</span>
-                    <input
-                      className="auth-input"
-                      placeholder="Introduce el código"
-                      value={code}
-                      onChange={(e) => setCode(e.target.value)}
-                      disabled={confirmingCode || saving}
-                    />
-                  </label>
-
-                  <button
-                    type="button"
-                    className="auth-link"
-                    onClick={confirmCode}
-                    disabled={confirmingCode || saving}
-                  >
-                    {confirmingCode ? "Confirmando…" : "Confirmar código"}
-                  </button>
-                </div>
-              </div>
-            )}
-
-            <div className="stack auth-form" style={{ marginBottom: 16 }}>
-              <div style={stepHintStyle}>
-                La ubicación es opcional, pero puede ayudarte a mostrar mejor tu perfil y tus planes deportivos cercanos.
-              </div>
-
-              <button
-                type="button"
-                className="auth-link"
-                onClick={verifyLoc}
-                disabled={verifyingLoc || saving}
-              >
-                {verifyingLoc
-                  ? "Verificando…"
-                  : isLocVerified
-                  ? "Re-verificar ubicación"
-                  : "Verificar ubicación"}
-              </button>
-            </div>
-
-            {msg.text && (
-              <div className={`auth-msg auth-msg--${msg.type || "info"}`} style={{ marginBottom: 16 }}>
-                {msg.text}
-              </div>
-            )}
-
-            {step === 1 && (
-              <div className="onboarding-stepPanel">
-                <div className="stack auth-form">
-                  <label className="auth-label">
-                    <span className="auth-labelText">@ (único)</span>
-                    <input
-                      className="auth-input"
-                      placeholder="@tuusuario"
-                      value={form.handle}
-                      onChange={(e) => setField("handle", e.target.value)}
-                      disabled={saving}
-                    />
-                  </label>
-
-                  {!isEmailVerified && (
-                    <div style={stepHintStyle}>
-                      Necesitas email verificado para continuar.
-                    </div>
-                  )}
-
-                  <label className="auth-label">
-                    <span className="auth-labelText">Nombre completo</span>
-                    <input
-                      className="auth-input"
-                      placeholder="Tu nombre"
-                      value={form.full_name}
-                      onChange={(e) => setField("full_name", e.target.value)}
-                      disabled={saving}
-                    />
-                  </label>
-
-                  <label className="auth-label">
-                    <span className="auth-labelText">Perfil</span>
-                    <select
-                      className="auth-input"
-                      value={form.role}
-                      onChange={(e) => setField("role", e.target.value)}
-                      disabled={saving}
-                    >
-                      <option value="">Selecciona tu perfil</option>
-                      <option value="athlete">Deportista</option>
-                      <option value="group">Grupo</option>
-                      <option value="coach">Entrenador</option>
-                    </select>
-                  </label>
-
-                  <label className="auth-label">
-                    <span className="auth-labelText">Ubicación (texto)</span>
-                    <input
-                      className="auth-input"
-                      placeholder="Alicante, Valencia, Madrid…"
-                      value={form.location}
-                      onChange={(e) => setField("location", e.target.value)}
-                      disabled={saving}
-                    />
-                  </label>
-
-                  <div style={stepHintStyle}>
-                    Opcional: si rellenas la ubicación, podrá verse en tu perfil.
-                  </div>
-
-                  <label className="auth-label">
-                    <span className="auth-labelText">Descripción</span>
-                    <textarea
-                      className="auth-input"
-                      placeholder="Cuéntanos qué deportes practicas o qué buscas en la app"
-                      value={form.bio}
-                      onChange={(e) => setField("bio", e.target.value)}
-                      disabled={saving}
-                      rows={4}
-                      style={{ resize: "vertical" }}
-                    />
-                  </label>
-                </div>
-
-                <div
-                  className="onboarding-actions onboarding-actions--split"
-                  style={{
-                    display: "flex",
-                    gap: 10,
-                    justifyContent: "space-between",
-                    marginTop: 16,
-                    flexWrap: "wrap",
-                  }}
-                >
-                  <button
-                    type="button"
-                    className="auth-link"
-                    onClick={handleExit}
-                    disabled={saving}
-                  >
-                    {isNewProfile ? "Cerrar sesión" : "Cancelar"}
-                  </button>
-
-                  <button
-                    type="button"
-                    className="auth-primary"
-                    onClick={goNext}
-                    disabled={saving}
-                    style={{ width: "auto", minWidth: 140 }}
-                  >
-                    Siguiente →
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {step === 2 && (
-              <div className="onboarding-stepPanel">
-                <div className="stack auth-form">
-                  <div>
-                    <div className="auth-labelText" style={{ marginBottom: 8 }}>
-                      Disciplina / modalidad
-                    </div>
-
-                    <div
-                      className="onboarding-chipGrid"
-                      style={{
-                        display: "flex",
-                        flexWrap: "wrap",
-                        gap: 8,
-                      }}
-                    >
-                      {DISCIPLINES.map((d) => {
-                        const current = Array.isArray(form.disciplines)
-                          ? form.disciplines
-                          : [];
-                        const active = current.includes(d);
-
-                        return (
-                          <button
-                            key={d}
-                            type="button"
-                            onClick={() => toggleDiscipline(d)}
-                            disabled={saving}
-                            className={`chip ${active ? "is-active" : ""}`}
-                          >
-                            {d}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  <label className="auth-label">
-                    <span className="auth-labelText">Strava</span>
-                    <input
-                      className="auth-input"
-                      placeholder="https://www.strava.com/athletes/..."
-                      value={form.links?.strava || ""}
-                      onChange={(e) => setLinkField("strava", e.target.value)}
-                      disabled={saving}
-                    />
-                  </label>
-
-                  <label className="auth-label">
-                    <span className="auth-labelText">Instagram</span>
-                    <input
-                      className="auth-input"
-                      placeholder="https://instagram.com/..."
-                      value={form.links?.instagram || ""}
-                      onChange={(e) => setLinkField("instagram", e.target.value)}
-                      disabled={saving}
-                    />
-                  </label>
-
-                  <label className="auth-label">
-                    <span className="auth-labelText">Web</span>
-                    <input
-                      className="auth-input"
-                      placeholder="https://..."
-                      value={form.links?.website || ""}
-                      onChange={(e) => setLinkField("website", e.target.value)}
-                      disabled={saving}
-                    />
-                  </label>
-                </div>
-
-                <div
-                  className="onboarding-actions onboarding-actions--split"
-                  style={{
-                    display: "flex",
-                    gap: 10,
-                    justifyContent: "space-between",
-                    marginTop: 16,
-                    flexWrap: "wrap",
-                  }}
-                >
-                  <button
-                    type="button"
-                    className="auth-link"
-                    onClick={goBack}
-                    disabled={saving}
-                  >
-                    ← Atrás
-                  </button>
-
-                  <button
-                    type="button"
-                    className="auth-primary"
-                    onClick={finish}
-                    disabled={saving}
-                    style={{ width: "auto", minWidth: 160 }}
-                  >
-                    {saving ? "Guardando…" : "Finalizar"}
-                  </button>
-                </div>
-              </div>
-            )}
+            <button
+              type="button"
+              className="btn btn--ghost"
+              onClick={verifyLoc}
+              disabled={verifyingLoc || saving}
+            >
+              {verifyingLoc
+                ? "Verificando…"
+                : isLocVerified
+                ? "Re-verificar ubicación"
+                : "Verificar ubicación"}
+            </button>
           </div>
-        </div>
+
+          {msg.text && (
+            <div className={`statusMessage statusMessage--${msg.type || "info"}`}>
+              {msg.text}
+            </div>
+          )}
+
+          {step === 1 && (
+            <div className="onboardingForm">
+              <label className="field">
+                <span className="field__label">@ único</span>
+                <input
+                  className="field__input"
+                  placeholder="@tuusuario"
+                  value={form.handle}
+                  onChange={(e) => setField("handle", e.target.value)}
+                  disabled={saving}
+                />
+              </label>
+
+              <label className="field">
+                <span className="field__label">Nombre completo</span>
+                <input
+                  className="field__input"
+                  placeholder="Tu nombre"
+                  value={form.full_name}
+                  onChange={(e) => setField("full_name", e.target.value)}
+                  disabled={saving}
+                />
+              </label>
+
+              <label className="field">
+                <span className="field__label">Perfil</span>
+                <select
+                  className="field__input"
+                  value={form.role}
+                  onChange={(e) => setField("role", e.target.value)}
+                  disabled={saving}
+                >
+                  <option value="">Selecciona tu perfil</option>
+                  <option value="athlete">Deportista</option>
+                  <option value="group">Grupo</option>
+                  <option value="coach">Entrenador</option>
+                </select>
+              </label>
+
+              <label className="field">
+                <span className="field__label">Ubicación</span>
+                <input
+                  className="field__input"
+                  placeholder="Alicante, Valencia, Madrid…"
+                  value={form.location}
+                  onChange={(e) => setField("location", e.target.value)}
+                  disabled={saving}
+                />
+              </label>
+
+              <label className="field">
+                <span className="field__label">Descripción</span>
+                <textarea
+                  className="field__input field__input--textarea"
+                  placeholder="Qué deportes practicas, qué buscas o cómo entrenas."
+                  value={form.bio}
+                  onChange={(e) => setField("bio", e.target.value)}
+                  disabled={saving}
+                  rows={4}
+                />
+              </label>
+
+              <div className="onboardingActions">
+                <button
+                  type="button"
+                  className="btn btn--ghost"
+                  onClick={handleExit}
+                  disabled={saving}
+                >
+                  {isNewProfile ? "Cerrar sesión" : "Cancelar"}
+                </button>
+
+                <button
+                  type="button"
+                  className="btn btn--primary"
+                  onClick={goNext}
+                  disabled={saving}
+                >
+                  Siguiente
+                </button>
+              </div>
+            </div>
+          )}
+
+          {step === 2 && (
+            <div className="onboardingForm">
+              <div className="field">
+                <span className="field__label">Disciplina / modalidad</span>
+                <div className="chipGrid">
+                  {DISCIPLINES.map((d) => {
+                    const current = Array.isArray(form.disciplines) ? form.disciplines : [];
+                    const active = current.includes(d);
+
+                    return (
+                      <button
+                        key={d}
+                        type="button"
+                        onClick={() => toggleDiscipline(d)}
+                        disabled={saving}
+                        className={`chip ${active ? "is-active" : ""}`}
+                      >
+                        {d}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <label className="field">
+                <span className="field__label">Strava</span>
+                <input
+                  className="field__input"
+                  placeholder="https://www.strava.com/athletes/..."
+                  value={form.links?.strava || ""}
+                  onChange={(e) => setLinkField("strava", e.target.value)}
+                  disabled={saving}
+                />
+              </label>
+
+              <label className="field">
+                <span className="field__label">Instagram</span>
+                <input
+                  className="field__input"
+                  placeholder="https://instagram.com/..."
+                  value={form.links?.instagram || ""}
+                  onChange={(e) => setLinkField("instagram", e.target.value)}
+                  disabled={saving}
+                />
+              </label>
+
+              <label className="field">
+                <span className="field__label">Web</span>
+                <input
+                  className="field__input"
+                  placeholder="https://..."
+                  value={form.links?.website || ""}
+                  onChange={(e) => setLinkField("website", e.target.value)}
+                  disabled={saving}
+                />
+              </label>
+
+              <div className="onboardingActions">
+                <button
+                  type="button"
+                  className="btn btn--ghost"
+                  onClick={goBack}
+                  disabled={saving}
+                >
+                  Atrás
+                </button>
+
+                <button
+                  type="button"
+                  className="btn btn--primary"
+                  onClick={finish}
+                  disabled={saving}
+                >
+                  {saving ? "Guardando…" : "Finalizar perfil"}
+                </button>
+              </div>
+            </div>
+          )}
+        </section>
       </div>
     </div>
   );
