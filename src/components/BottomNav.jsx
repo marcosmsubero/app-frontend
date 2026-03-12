@@ -87,18 +87,105 @@ function isRunningUser(me) {
 }
 
 /* =========================
+   STYLES
+========================= */
+
+const shellStyle = {
+  position: "fixed",
+  left: 0,
+  right: 0,
+  bottom: 0,
+  zIndex: 40,
+  padding: "0 12px calc(12px + env(safe-area-inset-bottom, 0px))",
+  pointerEvents: "none",
+};
+
+const innerStyle = {
+  width: "100%",
+  maxWidth: "560px",
+  margin: "0 auto",
+  display: "grid",
+  gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
+  gap: "8px",
+  padding: "8px",
+  borderRadius: "24px",
+  border: "1px solid rgba(255,255,255,0.08)",
+  background:
+    "linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03)), rgba(11,19,32,0.86)",
+  boxShadow:
+    "0 18px 48px rgba(0,0,0,0.34), inset 0 1px 0 rgba(255,255,255,0.05)",
+  backdropFilter: "blur(18px)",
+  WebkitBackdropFilter: "blur(18px)",
+  pointerEvents: "auto",
+};
+
+const baseItemStyle = {
+  minHeight: "56px",
+  borderRadius: "18px",
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: "4px",
+  textDecoration: "none",
+  transition:
+    "transform 0.16s ease, background 0.16s ease, color 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease",
+  WebkitTapHighlightColor: "transparent",
+};
+
+const activeItemStyle = {
+  color: "#f5f7fb",
+  background:
+    "linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.04))",
+  border: "1px solid rgba(255,255,255,0.10)",
+  boxShadow: "inset 0 1px 0 rgba(255,255,255,0.06)",
+};
+
+const inactiveItemStyle = {
+  color: "rgba(230,235,245,0.68)",
+  background: "transparent",
+  border: "1px solid transparent",
+  boxShadow: "none",
+};
+
+const iconWrapStyle = {
+  width: "22px",
+  height: "22px",
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+};
+
+const labelStyle = {
+  fontSize: "11px",
+  lineHeight: 1,
+  fontWeight: 800,
+  letterSpacing: "0.01em",
+  whiteSpace: "nowrap",
+};
+
+/* =========================
    ITEM
 ========================= */
 
-function Item({ to, icon, aria }) {
+function Item({ to, icon, label, aria }) {
   return (
     <NavLink
       to={to}
       end={to === "/perfil"}
       aria-label={aria}
       className={({ isActive }) => `bn-item ${isActive ? "active" : ""}`}
+      style={({ isActive }) => ({
+        ...baseItemStyle,
+        ...(isActive ? activeItemStyle : inactiveItemStyle),
+      })}
     >
-      <span className="bn-ico">{icon}</span>
+      <span className="bn-ico" style={iconWrapStyle}>
+        {icon}
+      </span>
+      <span className="bn-label" style={labelStyle}>
+        {label}
+      </span>
     </NavLink>
   );
 }
@@ -112,12 +199,16 @@ export default function BottomNav({ me }) {
   const groupIcon = running ? <IconShoe /> : <IconBike />;
 
   return (
-    <nav className="bottom-nav" aria-label="Navegación principal">
-      <div className="bottom-nav__inner">
-        <Item to="/perfil" icon={<IconCircle />} aria="Perfil" />
-        <Item to="/explorar" icon={<IconCompass />} aria="Explorar" />
-        <Item to="/groups" icon={groupIcon} aria="Grupos" />
-        <Item to="/ajustes" icon={<IconSettings />} aria="Ajustes" />
+    <nav
+      className="bottom-nav"
+      aria-label="Navegación principal"
+      style={shellStyle}
+    >
+      <div className="bottom-nav__inner" style={innerStyle}>
+        <Item to="/perfil" icon={<IconCircle />} label="Perfil" aria="Perfil" />
+        <Item to="/explorar" icon={<IconCompass />} label="Explorar" aria="Explorar" />
+        <Item to="/groups" icon={groupIcon} label="Grupos" aria="Grupos" />
+        <Item to="/ajustes" icon={<IconSettings />} label="Ajustes" aria="Ajustes" />
       </div>
     </nav>
   );
