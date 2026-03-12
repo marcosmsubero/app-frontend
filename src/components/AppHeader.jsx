@@ -1,47 +1,46 @@
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useAuth } from "../hooks/useAuth";
-import { useToast } from "../hooks/useToast";
+import { useNavigate } from "react-router-dom";
 
-export default function AppHeader() {
-  const location = useLocation();
+export default function AppHeader({
+  title,
+  subtitle,
+  back = false,
+  onBack,
+  actions = null,
+  eyebrow = null,
+}) {
   const nav = useNavigate();
-  const toast = useToast();
-  const { isAuthed, logout } = useAuth();
 
-  const path = location.pathname;
-  const isActive = (p) => path === p;
-
-  // Si no hay sesión, no mostramos barra
-  if (!isAuthed) return null;
+  function handleBack() {
+    if (typeof onBack === "function") {
+      onBack();
+      return;
+    }
+    nav(-1);
+  }
 
   return (
-    <div className="bottom-nav">
-      <Link className={`bn-item ${isActive("/perfil") ? "active" : ""}`} to="/perfil">
-        <span className="bn-ico">👤</span>
-        <span className="bn-txt">Perfil</span>
-      </Link>
+    <header className="sectionHeader">
+      <div className="sectionHeader__main">
+        {back && (
+          <button
+            type="button"
+            className="iconButton"
+            onClick={handleBack}
+            aria-label="Volver"
+            title="Volver"
+          >
+            ←
+          </button>
+        )}
 
-      <Link className={`bn-item ${isActive("/explorar") ? "active" : ""}`} to="/explorar">
-        <span className="bn-ico">🔎</span>
-        <span className="bn-txt">Explorar</span>
-      </Link>
+        <div className="sectionHeader__copy">
+          {eyebrow ? <div className="sectionHeader__eyebrow">{eyebrow}</div> : null}
+          <h1 className="sectionHeader__title">{title}</h1>
+          {subtitle ? <p className="sectionHeader__subtitle">{subtitle}</p> : null}
+        </div>
+      </div>
 
-      <Link className={`bn-item ${isActive("/groups") ? "active" : ""}`} to="/groups">
-        <span className="bn-ico">👥</span>
-        <span className="bn-txt">Grupos</span>
-      </Link>
-
-      <button
-        className="bn-item"
-        onClick={() => {
-          logout();
-          toast?.info?.("Sesión cerrada");
-          nav("/", { replace: true });
-        }}
-      >
-        <span className="bn-ico">🚪</span>
-        <span className="bn-txt">Salir</span>
-      </button>
-    </div>
+      {actions ? <div className="sectionHeader__actions">{actions}</div> : null}
+    </header>
   );
 }
