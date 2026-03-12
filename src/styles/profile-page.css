@@ -1,0 +1,109 @@
+.profile-view {
+  padding: var(--space-4);
+  padding-bottom: calc(var(--space-12) + 72px);
+}
+
+.profile-view__hero {
+  width: 100%;
+}
+
+.profile-view__tabs {
+  gap: var(--space-2);
+}
+
+.profile-view__panel {
+  overflow: hidden;
+}
+
+.profile-view__header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.profile-view__activity-list {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.profile-view__activity-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: var(--space-3);
+  align-items: center;
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: rgba(15, 23, 42, 0.52);
+}
+
+.profile-view__activity-avatar {
+  flex-shrink: 0;
+}
+
+.profile-view__activity-main {
+  min-width: 0;
+}
+
+.profile-view__activity-top {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.profile-view__activity-title {
+  margin: 0;
+  font-size: var(--text-md);
+  font-weight: 700;
+  line-height: var(--leading-tight);
+  color: var(--color-text);
+}
+
+.profile-view__activity-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.profile-view__activity-meta {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  line-height: var(--leading-normal);
+}
+
+.profile-view__activity-side {
+  text-align: right;
+  min-width: 72px;
+}
+
+.profile-view__activity-count {
+  font-size: var(--text-lg);
+  font-weight: 800;
+  line-height: 1;
+  color: var(--color-text);
+}
+
+.profile-view__activity-label {
+  margin-top: var(--space-1);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+@media (min-width: 768px) {
+  .profile-view {
+    padding: var(--space-6);
+    padding-bottom: var(--space-12);
+  }
+
+  .profile-view__activity-item {
+    padding: var(--space-4);
+  }
+
+  .profile-view__activity-top {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
