@@ -36,8 +36,8 @@ export default function ProfileOnboardingPage() {
       disciplines: isNewProfile
         ? []
         : Array.isArray(me?.disciplines)
-        ? me.disciplines
-        : [],
+          ? me.disciplines
+          : [],
       links: {
         strava: isNewProfile ? "" : me?.links?.strava || "",
         instagram: isNewProfile ? "" : me?.links?.instagram || "",
@@ -99,6 +99,18 @@ export default function ProfileOnboardingPage() {
     if (!form.full_name?.trim()) return "Introduce tu nombre completo.";
     if (!form.role) return "Selecciona tu perfil (deportista/grupo/entrenador).";
     return "";
+  }
+
+  function goToPreviousScreen() {
+    if (saving) return;
+    clearMsg();
+
+    if (window.history.length > 1) {
+      nav(-1);
+      return;
+    }
+
+    nav("/login", { replace: true });
   }
 
   async function sendCode() {
@@ -308,8 +320,8 @@ export default function ProfileOnboardingPage() {
                   {verifyingLoc
                     ? "Verificando…"
                     : isLocVerified
-                    ? "Re-verificar ubicación"
-                    : "Verificar ubicación"}
+                      ? "Re-verificar ubicación"
+                      : "Verificar ubicación"}
                 </button>
               </div>
             </div>
@@ -392,7 +404,16 @@ export default function ProfileOnboardingPage() {
                   </label>
                 </div>
 
-                <div className="onboarding-actions">
+                <div className="onboarding-actions onboarding-actions--split">
+                  <button
+                    type="button"
+                    className="auth-link"
+                    onClick={goToPreviousScreen}
+                    disabled={saving}
+                  >
+                    ← Volver
+                  </button>
+
                   <button className="auth-primary" onClick={goNext} disabled={saving}>
                     Siguiente →
                   </button>
