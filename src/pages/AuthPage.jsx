@@ -6,6 +6,34 @@ function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || "").trim());
 }
 
+const shellInlineStyle = {
+  width: "100%",
+  maxWidth: "460px",
+  margin: "0 auto",
+  display: "grid",
+  gap: "16px",
+};
+
+const helperCardStyle = {
+  borderRadius: "20px",
+  padding: "14px 16px",
+  border: "1px solid rgba(255,255,255,0.08)",
+  background: "rgba(255,255,255,0.03)",
+};
+
+const helperTitleStyle = {
+  fontSize: "13px",
+  fontWeight: 800,
+  color: "var(--textStrong)",
+  marginBottom: "4px",
+};
+
+const helperTextStyle = {
+  fontSize: "13px",
+  color: "var(--muted)",
+  lineHeight: 1.45,
+};
+
 export default function AuthPage({ defaultTab = "login" }) {
   const { login, register, isAuthed } = useAuth();
   const location = useLocation();
@@ -18,19 +46,27 @@ export default function AuthPage({ defaultTab = "login" }) {
   }, [defaultTab, location.pathname]);
 
   const [tab, setTab] = useState(initialTab);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [password2, setPassword2] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [msg, setMsg] = useState({ type: "", text: "" });
+  const [emailRO, setEmailRO] = useState(true);
 
   useEffect(() => {
     if (location.pathname === "/register") setTab("register");
     else setTab("login");
   }, [location.pathname]);
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [password2, setPassword2] = useState("");
-
-  const [loading, setLoading] = useState(false);
-  const [msg, setMsg] = useState({ type: "", text: "" });
-  const [emailRO, setEmailRO] = useState(true);
+  useEffect(() => {
+    setEmail("");
+    setPassword("");
+    setPassword2("");
+    setEmailRO(true);
+    setMsg({ type: "", text: "" });
+    const t = setTimeout(() => setEmail(""), 0);
+    return () => clearTimeout(t);
+  }, [location.pathname, tab]);
 
   function resetMsg() {
     setMsg({ type: "", text: "" });
@@ -48,74 +84,76 @@ export default function AuthPage({ defaultTab = "login" }) {
     setMsg({ type: "info", text });
   }
 
-  useEffect(() => {
-    setEmail("");
-    setPassword("");
-    setPassword2("");
-    setEmailRO(true);
-    resetMsg();
-
-    const t = setTimeout(() => setEmail(""), 0);
-    return () => clearTimeout(t);
-  }, [location.pathname]);
-
-  useEffect(() => {
-    setEmail("");
-    setPassword("");
-    setPassword2("");
-    setEmailRO(true);
-    resetMsg();
-
-    const t = setTimeout(() => setEmail(""), 0);
-    return () => clearTimeout(t);
-  }, [tab]);
-
   async function handleSubmit(e) {
     e.preventDefault();
     resetMsg();
 
-    const e1 = email.trim();
+    const cleanEmail = email.trim();
 
-    if (!isValidEmail(e1)) return setError("Introduce un email válido.");
-    if (!password) return setError("Introduce contraseña.");
-    if (password.length < 4) return setError("La contraseña debe tener al menos 4 caracteres.");
+    if (!isValidEmail(cleanEmail)) {
+      return setError("Introduce un email válido.");
+    }
+
+    if (!password) {
+      return setError("Introduce contraseña.");
+    }
+
+    if (password.length < 4) {
+      return setError("La contraseña debe tener al menos 4 caracteres.");
+    }
 
     if (tab === "register") {
-      if (!password2) return setError("Repite la contraseña.");
-      if (password !== password2) return setError("Las contraseñas no coinciden.");
+      if (!password2) {
+        return setError("Repite la contraseña.");
+      }
+
+      if (password !== password2) {
+        return setError("Las contraseñas no coinciden.");
+      }
     }
 
     setLoading(true);
+
     try {
       if (tab === "login") {
-        await login(e1, password);
-        setSuccess("✔ Login correcto");
-
+        await login(cleanEmail, password);
+        setSuccess("Acceso correcto.");
         setEmail("");
         setPassword("");
         setPassword2("");
         setEmailRO(true);
-
-        nav("/perfil");
+        nav("/perfil", { replace: true });
         return;
       }
 
-      await register(e1, password);
-      setSuccess("✔ Cuenta creada");
-
+      await register(cleanEmail, password);
+      setSuccess("Cuenta creada. Vamos a completar tu perfil.");
       setEmail("");
       setPassword("");
       setPassword2("");
       setEmailRO(true);
+      nav("/onboarding", {
+        replace: true,
+        state: { fromRegister: true, registeredEmail: cleanEmail },
+      });
+    } catch (err) {
+      const message = err?.message?.toLowerCase?.() || "";
 
-      nav("/onboarding");
-    } catch (e2) {
-      const m = e2?.message?.toLowerCase?.() || "";
-      if (m.includes("invalid")) setError("Email o contraseña incorrectos");
-      else if (m.includes("network") || m.includes("conectar") || m.includes("fetch")) {
-        setError("No se puede conectar con el servidor");
+      if (message.includes("invalid")) {
+        setError("Email o contraseña incorrectos.");
+      } else if (
+        message.includes("network") ||
+        message.includes("conectar") ||
+        message.includes("fetch")
+      ) {
+        setError("No se puede conectar con el servidor.");
       } else {
-        setError(e2?.message || (tab === "login" ? "Error al iniciar sesión" : "Error al registrar"));
+        setError(
+          err?.message ||
+            (tab === "login"
+              ? "Error al iniciar sesión."
+              : "Error al registrar la cuenta.")
+        );
       }
     } finally {
       setLoading(false);
@@ -126,127 +164,135 @@ export default function AuthPage({ defaultTab = "login" }) {
     return <Navigate to="/perfil" replace />;
   }
 
+  const isLogin = tab === "login";
+
   return (
     <div className="auth-page-bg">
-      <div className="auth-shell">
-        <div className="auth-card neutral-card">
-          <div className="auth-head">
-            <h2 className="m0">{tab === "login" ? "Iniciar sesión" : "Crear cuenta"}</h2>
-            <p className="auth-copy m0">
-              {tab === "login"
-                ? "Accede a tu perfil, publicaciones y actividades."
-                : "Crea tu cuenta y completa tu perfil en pocos pasos."}
-            </p>
-          </div>
+      <div className="page" style={{ paddingBottom: 24 }}>
+        <div className="auth-shell" style={shellInlineStyle}>
+          <div className="auth-card">
+            <div className="auth-head">
+              <div className="auth-kicker">
+                {isLogin ? "Acceso" : "Crear cuenta"}
+              </div>
+              <h1 style={{ margin: 0 }}>
+                {isLogin ? "Iniciar sesión" : "Empieza tu perfil deportivo"}
+              </h1>
+              <p className="auth-copy" style={{ margin: 0 }}>
+                {isLogin
+                  ? "Accede a tu perfil, grupos, mensajes y actividades."
+                  : "Crea tu cuenta y pasa directamente al onboarding para dejar listo tu perfil."}
+              </p>
+            </div>
 
-          <div className="neutral-tabs">
-            <button
-              type="button"
-              className={`neutral-tab ${tab === "login" ? "active" : ""}`}
-              onClick={() => {
-                resetMsg();
-                setTab("login");
-                setInfo("Introduce tu email y contraseña.");
-              }}
-              disabled={loading}
-            >
-              Login
-            </button>
+            <div className="neutral-tabs" role="tablist" aria-label="Autenticación">
+              <button
+                type="button"
+                className={`neutral-tab ${isLogin ? "active" : ""}`}
+                onClick={() => {
+                  resetMsg();
+                  setTab("login");
+                  setInfo("Introduce tu email y contraseña.");
+                }}
+                disabled={loading}
+              >
+                Login
+              </button>
 
-            <button
-              type="button"
-              className={`neutral-tab ${tab === "register" ? "active" : ""}`}
-              onClick={() => {
-                resetMsg();
-                setTab("register");
-                setInfo("Crea tu cuenta y entra directamente.");
-              }}
-              disabled={loading}
-            >
-              Registro
-            </button>
-          </div>
+              <button
+                type="button"
+                className={`neutral-tab ${!isLogin ? "active" : ""}`}
+                onClick={() => {
+                  resetMsg();
+                  setTab("register");
+                  setInfo("Crea tu cuenta y continúa con el onboarding.");
+                }}
+                disabled={loading}
+              >
+                Registro
+              </button>
+            </div>
 
-          <form
-            className="stack auth-form"
-            onSubmit={handleSubmit}
-            autoComplete="off"
-            key={`${tab}-${location.pathname}`}
-          >
-            <input
-              type="text"
-              name="fakeusernameremembered"
-              autoComplete="username"
-              tabIndex={-1}
-              aria-hidden="true"
-              className="auth-trapInput"
-            />
-            <input
-              type="password"
-              name="fakepasswordremembered"
-              autoComplete="current-password"
-              tabIndex={-1}
-              aria-hidden="true"
-              className="auth-trapInput"
-            />
-
-            <label className="auth-label">
-              <span className="auth-labelText">Email</span>
+            <form className="stack auth-form" onSubmit={handleSubmit}>
               <input
-                className="auth-input"
+                className="auth-trapInput"
                 type="email"
-                name={`username_${tab}`}
-                placeholder="user@example.com"
-                value={email}
-                inputMode="email"
-                autoComplete="off"
-                readOnly={emailRO}
-                onFocus={() => setEmailRO(false)}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={loading}
+                tabIndex={-1}
+                autoComplete="username"
+                value=""
+                readOnly
+                aria-hidden="true"
               />
-            </label>
 
-            <label className="auth-label">
-              <span className="auth-labelText">Contraseña</span>
-              <input
-                className="auth-input"
-                type="password"
-                name={`password_${tab}`}
-                placeholder="**********"
-                value={password}
-                autoComplete={tab === "login" ? "current-password" : "new-password"}
-                onChange={(e) => setPassword(e.target.value)}
-                disabled={loading}
-              />
-            </label>
-
-            {tab === "register" && (
               <label className="auth-label">
-                <span className="auth-labelText">Repite contraseña</span>
+                <span className="auth-labelText">Email</span>
                 <input
                   className="auth-input"
-                  type="password"
-                  name="passwordConfirm"
-                  placeholder="**********"
-                  value={password2}
-                  autoComplete="new-password"
-                  onChange={(e) => setPassword2(e.target.value)}
+                  type="email"
+                  placeholder="tu@email.com"
+                  autoComplete="email"
+                  readOnly={emailRO}
+                  onFocus={() => setEmailRO(false)}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   disabled={loading}
                 />
               </label>
-            )}
 
-            {msg.text && (
-              <div className={`auth-msg ${msg.type}`} role="status" aria-live="polite">
-                {msg.text}
-              </div>
-            )}
+              <label className="auth-label">
+                <span className="auth-labelText">Contraseña</span>
+                <input
+                  className="auth-input"
+                  type="password"
+                  placeholder="Introduce tu contraseña"
+                  autoComplete={isLogin ? "current-password" : "new-password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  disabled={loading}
+                />
+              </label>
 
-            <button className="auth-primary" disabled={loading}>
-              {loading ? "Enviando…" : tab === "login" ? "Entrar" : "Registrarme"}
-            </button>
-          </form>
+              {!isLogin && (
+                <label className="auth-label">
+                  <span className="auth-labelText">Repite contraseña</span>
+                  <input
+                    className="auth-input"
+                    type="password"
+                    placeholder="Repite tu contraseña"
+                    autoComplete="new-password"
+                    value={password2}
+                    onChange={(e) => setPassword2(e.target.value)}
+                    disabled={loading}
+                  />
+                </label>
+              )}
+
+              {msg.text && (
+                <div className={`auth-msg auth-msg--${msg.type || "info"}`}>
+                  {msg.text}
+                </div>
+              )}
+
+              <button className="auth-primary" type="submit" disabled={loading}>
+                {loading
+                  ? "Enviando…"
+                  : isLogin
+                  ? "Entrar"
+                  : "Crear cuenta y continuar"}
+              </button>
+            </form>
+          </div>
+
+          <div style={helperCardStyle}>
+            <div style={helperTitleStyle}>
+              {isLogin ? "Qué ocurre después" : "Siguiente paso"}
+            </div>
+            <div style={helperTextStyle}>
+              {isLogin
+                ? "Si tu perfil todavía no está completo, la app te llevará automáticamente al onboarding."
+                : "Tras crear la cuenta entrarás directamente al onboarding para verificar tu email y completar tu identidad deportiva."}
+            </div>
+          </div>
         </div>
       </div>
     </div>
