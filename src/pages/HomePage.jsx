@@ -1,307 +1,295 @@
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import UpcomingMeetups from "../components/UpcomingMeetups";
 import Toasts from "../components/Toasts";
 import { useAuth } from "../hooks/useAuth";
 import { useLiveMeetupEvents } from "../hooks/useLiveMeetupEvents";
 
-function BenefitCard({ badgeClass, badgeText, title, text }) {
+function MetricCard({ value, label, description }) {
   return (
-    <article className="app-card app-card--soft feed-card">
-      <div className="feed-card__body">
-        <div className={`app-badge ${badgeClass}`}>{badgeText}</div>
-        <div className="feed-card__title">{title}</div>
-        <p className="feed-card__text">{text}</p>
+    <article className="app-card">
+      <div className="app-stack app-stack--sm">
+        <span className="app-badge app-badge--primary">{label}</span>
+        <strong
+          style={{
+            fontSize: "clamp(1.8rem, 4vw, 2.35rem)",
+            lineHeight: 1,
+            letterSpacing: "-0.04em",
+          }}
+        >
+          {value}
+        </strong>
+        <p className="app-card__description">{description}</p>
       </div>
     </article>
   );
 }
 
-function DesktopMetric({ value, label, text }) {
+function FeatureCard({ badge, title, text, to, cta }) {
   return (
-    <div className="home-desktop-metric">
-      <div className="home-desktop-metric__value">{value}</div>
-      <div className="home-desktop-metric__label">{label}</div>
-      <div className="home-desktop-metric__text">{text}</div>
-    </div>
+    <article className="app-card app-card--interactive">
+      <div className="app-card__header">
+        <span className="app-badge">{badge}</span>
+        <h3 className="app-card__title">{title}</h3>
+        <p className="app-card__description">{text}</p>
+      </div>
+
+      <div className="app-card__footer">
+        <Link to={to} className="app-button app-button--secondary app-button--sm">
+          {cta}
+        </Link>
+      </div>
+    </article>
+  );
+}
+
+function QuickAction({ to, title, text }) {
+  return (
+    <Link to={to} className="app-card app-card--interactive" style={{ textDecoration: "none" }}>
+      <div className="app-card__header">
+        <span className="app-badge app-badge--primary">Acceso rápido</span>
+        <h3 className="app-card__title">{title}</h3>
+        <p className="app-card__description">{text}</p>
+      </div>
+    </Link>
   );
 }
 
 export default function HomePage() {
   const { isAuthed, me } = useAuth();
-  const [hasAgendaUpdates, setHasAgendaUpdates] = useState(false);
+  const [agendaVersion, setAgendaVersion] = useState(0);
 
   const { toasts, removeToast } = useLiveMeetupEvents({
     enabled: isAuthed,
-    onAgendaUpdate: () => setHasAgendaUpdates(true),
+    onAgendaUpdate: () => setAgendaVersion((current) => current + 1),
   });
 
-  return (
-    <section className="page home-page">
-      <div className="page__hero home-hero">
-        <div className="home-hero__body">
-          <div className="home-hero__content">
-            <div className="page__header home-hero__header">
-              <span className="page__eyebrow">
-                {isAuthed ? "Dashboard" : "App social deportiva"}
-              </span>
+  const profileCompletion = useMemo(() => {
+    if (!isAuthed) return 0;
 
-              <h1 className="page__title home-hero__title">
-                {isAuthed
-                  ? `Hola${me?.handle ? `, ${me.handle}` : ""}`
-                  : "Conecta deporte, comunidad y actividad"}
-              </h1>
+    let score = 0;
+    if (me?.handle) score += 40;
+    if (me?.full_name || me?.name) score += 25;
+    if (me?.email) score += 20;
+    if (me?.bio) score += 15;
 
-              <p className="page__subtitle home-hero__subtitle">
-                {isAuthed
-                  ? "Consulta tu agenda, revisa novedades y accede rápido a grupos, mensajes y quedadas."
-                  : "Tu punto de encuentro para descubrir grupos, planificar salidas y mantener tu actividad deportiva conectada."}
-              </p>
-            </div>
+    return Math.min(score, 100);
+  }, [isAuthed, me]);
 
-            {isAuthed ? (
-              <div className="stats-strip">
-                <div className="app-stat">
-                  <div className="app-stat__value">{me?.handle ? `@${me.handle}` : "Activa"}</div>
-                  <div className="app-stat__label">Cuenta</div>
-                </div>
-
-                <div className="app-stat">
-                  <div className="app-stat__value">{me?.city || "Sin ciudad"}</div>
-                  <div className="app-stat__label">Ubicación</div>
-                </div>
-
-                <div className="app-stat">
-                  <div className="app-stat__value">
-                    {Array.isArray(me?.disciplines) && me.disciplines.length > 0
-                      ? me.disciplines.length
-                      : me?.discipline || me?.sport
-                        ? 1
-                        : 0}
-                  </div>
-                  <div className="app-stat__label">Disciplinas</div>
-                </div>
-
-                <div className="app-stat">
-                  <div className="app-stat__value">{hasAgendaUpdates ? "Nuevo" : "Al día"}</div>
-                  <div className="app-stat__label">Agenda</div>
-                </div>
-              </div>
-            ) : (
-              <>
-                <div className="split-actions">
-                  <Link to="/login" className="app-btn app-btn--primary app-btn--lg">
-                    Iniciar sesión
-                  </Link>
-                  <Link to="/register" className="app-btn app-btn--secondary app-btn--lg">
-                    Crear cuenta
-                  </Link>
-                </div>
-
-                <div className="home-desktop-metrics">
-                  <DesktopMetric
-                    value="Explora"
-                    label="Actividad local"
-                    text="Encuentra planes, rutas y quedadas deportivas cerca de ti."
-                  />
-                  <DesktopMetric
-                    value="Conecta"
-                    label="Comunidad"
-                    text="Únete a grupos por ciudad, nivel o disciplina."
-                  />
-                  <DesktopMetric
-                    value="Organiza"
-                    label="Agenda"
-                    text="Confirma asistencia y mantén tus salidas bajo control."
-                  />
-                </div>
-              </>
-            )}
-          </div>
-
-          {!isAuthed ? (
-            <div className="home-hero__aside">
-              <div className="home-hero-card">
-                <div className="home-hero-card__eyebrow">Primera impresión</div>
-                <div className="home-hero-card__title">
-                  Una app social deportiva pensada como producto real
-                </div>
-
-                <div className="home-hero-card__list">
-                  <div className="home-hero-card__item">
-                    <span className="app-badge app-badge--primary">Explorar</span>
-                    <span>Descubre actividad local y planes cercanos.</span>
-                  </div>
-
-                  <div className="home-hero-card__item">
-                    <span className="app-badge app-badge--success">Comunidad</span>
-                    <span>Crea o únete a grupos por deporte, ciudad o nivel.</span>
-                  </div>
-
-                  <div className="home-hero-card__item">
-                    <span className="app-badge app-badge--warning">Mensajes</span>
-                    <span>Coordina rutas, entrenos y quedadas sin salir de la app.</span>
-                  </div>
-                </div>
-
-                <div className="split-actions">
-                  <Link to="/register" className="app-btn app-btn--primary">
-                    Empezar ahora
-                  </Link>
-                  <Link to="/login" className="app-btn app-btn--ghost">
-                    Ya tengo cuenta
-                  </Link>
-                </div>
-              </div>
-            </div>
-          ) : null}
-        </div>
-      </div>
-
-      {isAuthed ? (
-        <div className="feed-layout home-dashboard-layout">
-          <div className="feed-column">
-            <div className="app-card">
-              <div className="app-card__header">
-                <div className="app-section-header">
-                  <div>
-                    <div className="app-section-header__title">Tu agenda</div>
-                    <div className="app-section-header__subtitle">
-                      Próximas quedadas y actividad sincronizada en tiempo real.
-                    </div>
-                  </div>
-
-                  <Link to="/explorar" className="app-btn app-btn--secondary app-btn--sm">
-                    Explorar
-                  </Link>
-                </div>
+  if (!isAuthed) {
+    return (
+      <>
+        <div className="app-page home-shell">
+          <section className="app-card hero-card">
+            <div className="app-stack app-stack--lg">
+              <div className="app-stack app-stack--sm">
+                <p className="app-kicker">App social deportiva</p>
+                <h2 className="app-title">
+                  Organiza grupos, actividades y mensajes desde una interfaz clara y preparada para crecer.
+                </h2>
+                <p className="app-copy" style={{ margin: 0, maxWidth: "62ch" }}>
+                  Una experiencia pensada para runners, ciclistas y deportistas que quieren descubrir planes, coordinar
+                  quedadas y mantener su comunidad activa tanto en móvil como en escritorio.
+                </p>
               </div>
 
-              <div className="app-card__body">
-                <UpcomingMeetups
-                  hasUpdates={hasAgendaUpdates}
-                  onClearUpdates={() => setHasAgendaUpdates(false)}
+              <div className="app-inline">
+                <Link to="/login" className="app-button app-button--primary">
+                  Iniciar sesión
+                </Link>
+                <Link to="/register" className="app-button app-button--secondary">
+                  Crear cuenta
+                </Link>
+              </div>
+
+              <div className="app-grid app-grid--cards">
+                <MetricCard
+                  value="24/7"
+                  label="Disponibilidad"
+                  description="Comunidad, agenda y conversaciones accesibles en cualquier momento."
+                />
+                <MetricCard
+                  value="1"
+                  label="Sistema visual"
+                  description="Una base coherente para escalar producto sin fragmentar la UI."
+                />
+                <MetricCard
+                  value="Mobile"
+                  label="Primero"
+                  description="Diseño compacto, navegación inferior y adaptación fluida a desktop."
                 />
               </div>
             </div>
+
+            <div className="app-stack">
+              <article className="app-card">
+                <div className="app-card__header">
+                  <span className="app-badge app-badge--success">Qué puedes hacer</span>
+                  <h3 className="app-card__title">Tu espacio deportivo en una sola app</h3>
+                  <p className="app-card__description">
+                    La home debe funcionar como punto de entrada, resumen de actividad y lanzadera hacia el resto del
+                    producto.
+                  </p>
+                </div>
+
+                <div className="app-stack app-stack--sm">
+                  <div className="app-inline">
+                    <span className="app-badge">Grupos</span>
+                    <span className="app-badge">Agenda</span>
+                    <span className="app-badge">Mensajes</span>
+                    <span className="app-badge">Perfil</span>
+                    <span className="app-badge">Actividad</span>
+                  </div>
+
+                  <div className="app-divider" />
+
+                  <p className="app-card__description" style={{ margin: 0 }}>
+                    Esta pantalla queda preparada para evolucionar después con métricas reales, onboarding contextual y
+                    bloques dinámicos conectados al backend.
+                  </p>
+                </div>
+              </article>
+            </div>
+          </section>
+
+          <section className="app-grid app-grid--cards">
+            <FeatureCard
+              badge="Comunidad"
+              title="Explora actividad cerca de ti"
+              text="Encuentra nuevas rutas, entrenamientos compartidos y planes deportivos con mejor visibilidad."
+              to="/explorar"
+              cta="Ir a explorar"
+            />
+            <FeatureCard
+              badge="Coordinación"
+              title="Crea o únete a grupos"
+              text="Organiza quedadas, comparte contexto y da continuidad a la comunidad deportiva."
+              to="/groups"
+              cta="Ver grupos"
+            />
+            <FeatureCard
+              badge="Conversación"
+              title="Mantén vivo el plan"
+              text="Una mensajería más limpia para cerrar detalles sin fricción entre participantes."
+              to="/mensajes"
+              cta="Abrir mensajes"
+            />
+          </section>
+        </div>
+
+        <Toasts toasts={toasts} onClose={removeToast} />
+      </>
+    );
+  }
+
+  return (
+    <>
+      <div className="app-page home-shell">
+        <section className="app-card hero-card">
+          <div className="app-stack app-stack--lg">
+            <div className="app-stack app-stack--sm">
+              <p className="app-kicker">Workspace deportivo</p>
+              <h2 className="app-title">
+                Bienvenido{me?.handle ? `, ${me.handle}` : ""}. Tu actividad y tu agenda quedan visibles desde aquí.
+              </h2>
+              <p className="app-copy" style={{ margin: 0, maxWidth: "62ch" }}>
+                Usa esta pantalla como dashboard principal: acceso rápido a grupos, mensajes, perfil y próximas
+                quedadas, con un lenguaje visual más estable y profesional.
+              </p>
+            </div>
+
+            <div className="app-grid app-grid--cards metrics-grid">
+              <MetricCard
+                value={`${profileCompletion}%`}
+                label="Perfil"
+                description="Indicador simple para priorizar onboarding y mejorar la identidad del usuario."
+              />
+              <MetricCard
+                value="Live"
+                label="Agenda"
+                description="Las novedades de quedadas se refrescan desde eventos en tiempo real."
+              />
+              <MetricCard
+                value="Ready"
+                label="Producto"
+                description="Base visual más sólida para seguir refinando pantallas sociales y flujos internos."
+              />
+            </div>
           </div>
 
-          <aside className="feed-column home-dashboard-side">
-            <div className="app-card app-card--soft">
-              <div className="app-card__body app-stack">
-                <div>
-                  <div className="app-section-header__title">Accesos rápidos</div>
-                  <div className="app-section-header__subtitle">
-                    Muévete por la app sin perder el hilo de tu actividad.
-                  </div>
-                </div>
+          <div className="app-stack">
+            <UpcomingMeetups key={agendaVersion} />
 
-                <div className="home-quick-grid">
-                  <Link to="/groups" className="home-quick-card">
-                    <span className="app-badge app-badge--primary">Grupos</span>
-                    <strong>Ver grupos</strong>
-                    <span>Descubre comunidad y organiza planes.</span>
-                  </Link>
-
-                  <Link to="/mensajes" className="home-quick-card">
-                    <span className="app-badge app-badge--success">Mensajes</span>
-                    <strong>Conversaciones</strong>
-                    <span>Coordina quedadas y responde rápido.</span>
-                  </Link>
-
-                  <Link to="/perfil" className="home-quick-card">
-                    <span className="app-badge app-badge--warning">Perfil</span>
-                    <strong>Mi perfil</strong>
-                    <span>Gestiona identidad, agenda y publicaciones.</span>
-                  </Link>
-
-                  <Link to="/notificaciones" className="home-quick-card">
-                    <span className="app-badge app-badge--neutral">Avisos</span>
-                    <strong>Notificaciones</strong>
-                    <span>Consulta novedades y cambios recientes.</span>
-                  </Link>
-                </div>
-              </div>
-            </div>
-
-            <div className="app-card">
-              <div className="app-card__body app-stack">
-                <div className="app-section-header__title">Siguiente paso</div>
-                <p className="app-text-soft">
-                  Crea un grupo, únete a una comunidad o lanza una quedada para esta semana.
+            <article className="app-card">
+              <div className="app-card__header">
+                <span className="app-badge app-badge--warning">Siguiente paso recomendado</span>
+                <h3 className="app-card__title">Completa tu perfil y activa mejor la comunidad</h3>
+                <p className="app-card__description">
+                  Un perfil más completo mejora descubrimiento, confianza y calidad percibida dentro del producto.
                 </p>
-
-                <div className="split-actions">
-                  <Link to="/groups" className="app-btn app-btn--primary">
-                    Crear o unirme
-                  </Link>
-                  <Link to="/explorar" className="app-btn app-btn--ghost">
-                    Descubrir actividad
-                  </Link>
-                </div>
               </div>
-            </div>
-          </aside>
-        </div>
-      ) : (
-        <div className="home-public-columns">
-          <div className="home-public-main">
-            <div className="app-card">
-              <div className="app-card__body app-stack app-stack--lg">
-                <div>
-                  <div className="app-section-header__title">Qué puedes hacer</div>
-                  <div className="app-section-header__subtitle">
-                    Una app social deportiva pensada para planificar, conectar y salir a entrenar.
-                  </div>
-                </div>
 
-                <div className="app-grid app-grid--cards">
-                  <BenefitCard
-                    badgeClass="app-badge--primary"
-                    badgeText="Explorar"
-                    title="Descubre actividad local"
-                    text="Encuentra quedadas, rutas y planes deportivos cerca de ti."
-                  />
-                  <BenefitCard
-                    badgeClass="app-badge--success"
-                    badgeText="Comunidad"
-                    title="Crea o únete a grupos"
-                    text="Organiza comunidades por deporte, ciudad o nivel de actividad."
-                  />
-                  <BenefitCard
-                    badgeClass="app-badge--warning"
-                    badgeText="Agenda"
-                    title="Coordina tus salidas"
-                    text="Sigue la agenda, confirma asistencia y mantén tus planes actualizados."
-                  />
-                </div>
+              <div className="app-card__footer">
+                <Link to="/perfil" className="app-button app-button--primary app-button--sm">
+                  Revisar perfil
+                </Link>
+                <Link to="/ajustes" className="app-button app-button--ghost app-button--sm">
+                  Ajustes
+                </Link>
               </div>
-            </div>
+            </article>
           </div>
+        </section>
 
-          <aside className="home-public-aside">
-            <div className="app-card">
-              <div className="app-card__body app-stack">
-                <div className="app-section-header__title">Empieza ahora</div>
-                <p className="app-text-soft">
-                  Regístrate para acceder a grupos, mensajes, perfil y quedadas.
-                </p>
+        <section className="app-grid app-grid--cards quick-actions">
+          <QuickAction
+            to="/explorar"
+            title="Explorar actividad"
+            text="Descubre nuevas quedadas, rutas y movimiento reciente."
+          />
+          <QuickAction
+            to="/groups"
+            title="Gestionar grupos"
+            text="Entra en tus comunidades y organiza la siguiente salida."
+          />
+          <QuickAction
+            to="/mensajes"
+            title="Abrir mensajes"
+            text="Continúa conversaciones y concreta detalles del próximo plan."
+          />
+          <QuickAction
+            to="/notificaciones"
+            title="Ver avisos"
+            text="Consulta cambios, novedades y actualizaciones importantes."
+          />
+        </section>
 
-                <div className="split-actions">
-                  <Link to="/register" className="app-btn app-btn--primary">
-                    Crear cuenta
-                  </Link>
-                  <Link to="/login" className="app-btn app-btn--secondary">
-                    Ya tengo cuenta
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </aside>
-        </div>
-      )}
+        <section className="app-grid app-grid--cards">
+          <FeatureCard
+            badge="Jerarquía"
+            title="Home más clara y menos densa"
+            text="La información principal pasa a estar agrupada por prioridad y no por acumulación visual."
+            to="/explorar"
+            cta="Explorar"
+          />
+          <FeatureCard
+            badge="Responsive"
+            title="Preparada para móvil y desktop"
+            text="El contenido se apila en móvil y aprovecha mejor el ancho disponible en escritorio."
+            to="/groups"
+            cta="Ver grupos"
+          />
+          <FeatureCard
+            badge="Escalabilidad"
+            title="Base útil para siguientes pantallas"
+            text="Este patrón permite replicar cards, acciones y bloques informativos en el resto del producto."
+            to="/perfil"
+            cta="Abrir perfil"
+          />
+        </section>
+      </div>
 
-      <Toasts toasts={toasts} onRemove={removeToast} />
-    </section>
+      <Toasts toasts={toasts} onClose={removeToast} />
+    </>
   );
 }
