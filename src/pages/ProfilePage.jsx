@@ -3,34 +3,21 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { useToast } from "../hooks/useToast";
 import { useMyMeetups } from "../hooks/useMyMeetups";
-
 import MeetupCalendar from "../components/MeetupCalendar";
 import PostsGrid from "../components/PostsGrid";
-
-import {
-  Avatar,
-  Badge,
-  Button,
-  Card,
-  CardBody,
-  Chip,
-  EmptyState,
-  Loader,
-  SectionHeader,
-} from "../components/ui";
-
 import { timeLabel } from "../utils/dates";
-import "../styles/profile-page.css";
 
 function getInitials(me) {
   const name = (me?.full_name || me?.name || "").trim();
+
   if (name) {
     const parts = name.split(/\s+/).filter(Boolean);
     return parts
       .slice(0, 2)
-      .map((p) => p[0]?.toUpperCase() || "")
+      .map((part) => part[0]?.toUpperCase() || "")
       .join("");
   }
+
   return (me?.email?.[0] || "U").toUpperCase();
 }
 
@@ -70,47 +57,53 @@ function normalizeDisciplines(me) {
   if (me?.primary_discipline) out.push(me.primary_discipline);
   if (me?.sport) out.push(me.sport);
 
-  return [...new Set(out.filter(Boolean))].slice(0, 3);
+  return [...new Set(out.filter(Boolean))].slice(0, 5);
 }
 
-function Stat({ value, label }) {
-  return (
-    <div className="profilePage__stat">
-      <strong className="profilePage__statValue">{value}</strong>
-      <span className="profilePage__statLabel">{label}</span>
+function ProfileStat({ value, label, to }) {
+  const content = (
+    <div className="profile-stat">
+      <div className="profile-stat__value">{value}</div>
+      <div className="profile-stat__label">{label}</div>
     </div>
+  );
+
+  if (!to) return content;
+
+  return (
+    <Link to={to} className="profile-stat-link">
+      {content}
+    </Link>
   );
 }
 
-function ActivityItem({ meetup, me }) {
+function ActivityRow({ meetup }) {
   return (
-    <article className="profilePage__activityItem">
-      <div className="profilePage__activityMain">
-        <div className="profilePage__activityAvatar">
-          <Avatar
-            size="sm"
-            name={me?.full_name || me?.email || "Usuario"}
-            alt={me?.full_name || me?.email || "Usuario"}
-          />
-        </div>
+    <article className="profile-activity-row">
+      <div className="profile-activity-row__main">
+        <div className="profile-activity-row__icon">🏃</div>
 
-        <div className="profilePage__activityContent">
-          <h3 className="profilePage__activityTitle">
+        <div className="profile-activity-row__content">
+          <div className="profile-activity-row__title">
             {meetup?.meeting_point || meetup?.title || "Quedada"}
-          </h3>
+          </div>
 
-          <p className="profilePage__activityTime">{timeLabel(meetup?.starts_at)}</p>
+          <div className="profile-activity-row__time">
+            {timeLabel(meetup?.starts_at) || "Fecha pendiente"}
+          </div>
 
-          <div className="profilePage__activityMeta">
-            {meetup?.group_name ? <Badge variant="neutral">{meetup.group_name}</Badge> : null}
-            {meetup?.level_tag ? <Badge variant="primary">{meetup.level_tag}</Badge> : null}
+          <div className="profile-activity-row__meta">
+            {meetup?.group_name ? (
+              <span className="app-chip app-chip--active">{meetup.group_name}</span>
+            ) : null}
+
+            {meetup?.level_tag ? <span className="app-chip">{meetup.level_tag}</span> : null}
+
+            <span className="app-chip">
+              {meetup?.participants_count ?? 0} inscritos
+            </span>
           </div>
         </div>
-      </div>
-
-      <div className="profilePage__activitySide">
-        <strong>{meetup?.participants_count ?? 0}</strong>
-        <span>inscritos</span>
       </div>
     </article>
   );
@@ -152,15 +145,6 @@ export default function ProfilePage() {
 
   const nextMeetups = useMemo(() => sortedMeetups.slice(0, 4), [sortedMeetups]);
 
-  const stats = useMemo(
-    () => [
-      { value: me?.posts_count ?? 0, label: "publicaciones" },
-      { value: me?.followers_count ?? 0, label: "seguidores" },
-      { value: me?.following_count ?? 0, label: "siguiendo" },
-    ],
-    [me]
-  );
-
   function handleLogout() {
     logout();
     toast?.info?.("Sesión cerrada");
@@ -169,6 +153,7 @@ export default function ProfilePage() {
 
   function updateTab(nextTab) {
     setTab(nextTab);
+
     setParams((prev) => {
       const next = new URLSearchParams(prev);
       if (nextTab === "posts") next.set("tab", "posts");
@@ -178,197 +163,275 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="ui-page profilePage">
-      <section className="profilePage__hero">
-        <div className="profilePage__heroMain">
-          <div className="profilePage__identityBlock">
-            <div className="profilePage__avatarSlot">
+    <section className="page">
+      <div className="page__hero profile-hero">
+        <div className="profile-hero__main">
+          <div className="profile-hero__identity">
+            <div className="profile-hero__avatar-slot">
               {me?.avatar_url || me?.profile_picture ? (
-                <Avatar
-                  size="xl"
-                  src={me?.avatar_url || me?.profile_picture}
-                  alt={displayName}
-                  name={displayName}
-                  className="profilePage__avatar"
-                />
+                <div className="app-avatar app-avatar--xl profile-hero__avatar">
+                  <img
+                    src={me.avatar_url || me.profile_picture}
+                    alt={displayName}
+                  />
+                </div>
               ) : (
-                <div className="profilePage__avatarFallback" aria-label={displayName}>
+                <div className="app-avatar app-avatar--xl profile-hero__avatar-fallback">
                   {initials}
                 </div>
               )}
             </div>
 
-            <div className="profilePage__identityText">
-              <div className="profilePage__titleRow">
-                <h1 className="profilePage__name">{displayName}</h1>
-                {handle ? <span className="profilePage__handle">{handle}</span> : null}
+            <div className="profile-hero__copy">
+              <div className="page__header">
+                <span className="page__eyebrow">Perfil</span>
+                <h1 className="page__title">{displayName}</h1>
+                {handle ? <div className="profile-hero__handle">{handle}</div> : null}
+                <p className="page__subtitle">{bio}</p>
               </div>
 
-              <div className="profilePage__stats">
-                {stats.map((stat) => (
-                  <Stat key={stat.label} value={stat.value} label={stat.label} />
-                ))}
-              </div>
-
-              <p className="profilePage__bio">{bio}</p>
-
-              <div className="profilePage__meta">
-                {location ? <Badge variant="neutral">{location}</Badge> : null}
+              <div className="profile-hero__meta">
+                {location ? <span className="app-chip app-chip--active">{location}</span> : null}
                 {disciplines.map((item) => (
-                  <Badge key={item} variant="primary">
+                  <span key={item} className="app-chip">
                     {item}
-                  </Badge>
+                  </span>
                 ))}
+              </div>
+
+              <div className="profile-stats-grid">
+                <ProfileStat value={me?.posts_count ?? 0} label="Publicaciones" />
+                <ProfileStat
+                  value={me?.followers_count ?? 0}
+                  label="Seguidores"
+                  to="/seguidores"
+                />
+                <ProfileStat
+                  value={me?.following_count ?? 0}
+                  label="Siguiendo"
+                  to="/siguiendo"
+                />
+              </div>
+
+              <div className="split-actions">
+                <Link to="/onboarding" className="app-btn app-btn--primary">
+                  Editar perfil
+                </Link>
+                <Link to="/seguidores" className="app-btn app-btn--secondary">
+                  Seguidores
+                </Link>
+                <Link to="/siguiendo" className="app-btn app-btn--secondary">
+                  Siguiendo
+                </Link>
+                <button
+                  type="button"
+                  className="app-btn app-btn--ghost"
+                  onClick={handleLogout}
+                >
+                  Cerrar sesión
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="page__columns profile-page-columns">
+        <div className="app-stack app-stack--lg">
+          <div className="app-card">
+            <div className="app-card__body">
+              <div className="app-tabs profile-tabs">
+                <button
+                  type="button"
+                  className={`app-tab${tab === "activity" ? " app-tab--active" : ""}`}
+                  onClick={() => updateTab("activity")}
+                  aria-pressed={tab === "activity"}
+                >
+                  Actividad
+                </button>
+
+                <button
+                  type="button"
+                  className={`app-tab${tab === "posts" ? " app-tab--active" : ""}`}
+                  onClick={() => updateTab("posts")}
+                  aria-pressed={tab === "posts"}
+                >
+                  Publicaciones
+                </button>
               </div>
             </div>
           </div>
 
-          <div className="profilePage__actions">
-            <Button as={Link} to="/ajustes" variant="secondary" size="sm" block>
-              Editar perfil
-            </Button>
-            <Button as={Link} to="/seguidores" variant="secondary" size="sm" block>
-              Seguidores
-            </Button>
-            <Button as={Link} to="/siguiendo" variant="secondary" size="sm" block>
-              Siguiendo
-            </Button>
-            <Button variant="ghost" size="sm" block onClick={handleLogout}>
-              Cerrar sesión
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      <div className="profilePage__tabs" role="tablist" aria-label="Secciones del perfil">
-        <Chip
-          active={tab === "activity"}
-          onClick={() => updateTab("activity")}
-          aria-pressed={tab === "activity"}
-          size="lg"
-        >
-          Actividad
-        </Chip>
-        <Chip
-          active={tab === "posts"}
-          onClick={() => updateTab("posts")}
-          aria-pressed={tab === "posts"}
-          size="lg"
-        >
-          Publicaciones
-        </Chip>
-      </div>
-
-      <section className="profilePage__layout">
-        <div className="profilePage__main">
           {tab === "activity" ? (
-            <div className="profilePage__activityView">
-              <Card className="profilePage__calendarCard">
-                <CardBody>
-                  <SectionHeader
-                    eyebrow="Calendario"
-                    title="Tu actividad"
-                    description="Aquí ves tus quedadas y entrenamientos programados."
-                    action={
-                      <Button
-                        variant="secondary"
-                        size="sm"
+            <div className="app-stack app-stack--lg">
+              <div className="app-card">
+                <div className="app-card__header">
+                  <div className="app-section-header">
+                    <div>
+                      <div className="app-section-header__title">Calendario</div>
+                      <div className="app-section-header__subtitle">
+                        Vista rápida de tu agenda deportiva y próximas actividades.
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="app-card__body">
+                  <div className="profile-calendar-wrap">
+                    <MeetupCalendar items={sortedMeetups} />
+                  </div>
+                </div>
+              </div>
+
+              <div className="app-card">
+                <div className="app-card__header">
+                  <div className="app-section-header">
+                    <div>
+                      <div className="app-section-header__title">Próximas quedadas</div>
+                      <div className="app-section-header__subtitle">
+                        Tus próximos planes confirmados o pendientes.
+                      </div>
+                    </div>
+
+                    <div className="split-actions">
+                      <button
+                        type="button"
+                        className="app-btn app-btn--secondary app-btn--sm"
                         onClick={reload}
                         disabled={meetupsLoading}
                       >
-                        {meetupsLoading ? "Actualizando..." : "Actualizar"}
-                      </Button>
-                    }
-                  />
+                        {meetupsLoading ? "Actualizando…" : "Actualizar"}
+                      </button>
 
-                  <div className="profilePage__calendarWrap">
-                    <MeetupCalendar
-                      meetups={myMeetups}
-                      me={me}
-                      onAdd={() => toast?.info?.("Añadir actividad próximamente")}
-                    />
+                      <button
+                        type="button"
+                        className="app-btn app-btn--ghost app-btn--sm"
+                        onClick={() => toast?.info?.("Añadir actividad próximamente")}
+                      >
+                        Añadir actividad
+                      </button>
+                    </div>
                   </div>
-                </CardBody>
-              </Card>
+                </div>
 
-              <Card className="profilePage__upcomingCard">
-                <CardBody>
-                  <SectionHeader
-                    eyebrow="Resumen"
-                    title="Próximas actividades"
-                    description="Vista rápida de tus siguientes planes."
-                  />
-
+                <div className="app-card__body">
                   {meetupsError ? (
-                    <EmptyState
-                      icon="⚠"
-                      title="No se pudieron cargar las actividades"
-                      description={meetupsError}
-                      actionLabel="Reintentar"
-                      onAction={reload}
-                    />
+                    <div className="app-empty-state">
+                      <div className="app-empty-state__title">
+                        No se pudo cargar tu actividad
+                      </div>
+                      <div className="app-empty-state__text">{meetupsError}</div>
+                    </div>
                   ) : meetupsLoading ? (
-                    <Loader block label="Cargando actividades..." />
+                    <div className="app-empty-state">
+                      <div className="app-empty-state__title">Cargando actividad</div>
+                      <div className="app-empty-state__text">
+                        Estamos actualizando tus próximas quedadas.
+                      </div>
+                    </div>
                   ) : nextMeetups.length === 0 ? (
-                    <EmptyState
-                      icon="📅"
-                      title="No tienes actividades próximas"
-                      description="Cuando te unas o crees una actividad aparecerá aquí."
-                    />
+                    <div className="app-empty-state">
+                      <div className="app-empty-state__title">
+                        Aún no tienes actividad próxima
+                      </div>
+                      <div className="app-empty-state__text">
+                        Únete a un grupo o explora quedadas para empezar a llenar tu agenda.
+                      </div>
+                    </div>
                   ) : (
-                    <div className="profilePage__activityList">
+                    <div className="profile-activity-list">
                       {nextMeetups.map((meetup) => (
-                        <ActivityItem key={meetup.id} meetup={meetup} me={me} />
+                        <ActivityRow key={meetup.id} meetup={meetup} />
                       ))}
                     </div>
                   )}
-                </CardBody>
-              </Card>
+                </div>
+              </div>
             </div>
           ) : (
-            <Card className="profilePage__postsCard">
-              <CardBody>
-                <SectionHeader
-                  eyebrow="Perfil"
-                  title="Tus publicaciones"
-                  description="Presentación más limpia del grid, manteniendo el componente actual."
-                />
-
-                <div className="profilePage__postsWrap">
-                  <PostsGrid />
+            <div className="app-card">
+              <div className="app-card__header">
+                <div className="app-section-header">
+                  <div>
+                    <div className="app-section-header__title">Tus publicaciones</div>
+                    <div className="app-section-header__subtitle">
+                      Revisa, sube y gestiona tu contenido desde un único panel.
+                    </div>
+                  </div>
                 </div>
-              </CardBody>
-            </Card>
+              </div>
+
+              <div className="app-card__body">
+                <PostsGrid />
+              </div>
+            </div>
           )}
         </div>
 
-        <aside className="profilePage__sidebar">
-          <Card className="profilePage__sidebarCard">
-            <CardBody>
-              <SectionHeader
-                eyebrow="Accesos"
-                title="Gestión rápida"
-                description="Atajos útiles del perfil."
-              />
+        <aside className="page__sidebar">
+          <div className="app-card app-card--soft">
+            <div className="app-card__body app-stack">
+              <div className="app-section-header__title">Acciones rápidas</div>
+              <p className="app-text-soft">
+                Accede de forma directa a configuración, seguidores y publicación de contenido.
+              </p>
 
-              <div className="profilePage__quickActions">
-                <Button as={Link} to="/ajustes" variant="ghost" block>
-                  Ajustes de cuenta
-                </Button>
-                <Button as={Link} to="/seguidores" variant="ghost" block>
-                  Ver seguidores
-                </Button>
-                <Button as={Link} to="/siguiendo" variant="ghost" block>
-                  Ver siguiendo
-                </Button>
-                <Button variant="danger" block onClick={handleLogout}>
-                  Cerrar sesión
-                </Button>
+              <div className="app-list">
+                <Link to="/ajustes" className="profile-quick-link">
+                  <span className="app-badge app-badge--primary">⚙</span>
+                  <span>Ajustes de cuenta</span>
+                </Link>
+
+                <Link to="/seguidores" className="profile-quick-link">
+                  <span className="app-badge app-badge--success">👥</span>
+                  <span>Ver seguidores</span>
+                </Link>
+
+                <Link to="/siguiendo" className="profile-quick-link">
+                  <span className="app-badge app-badge--warning">➜</span>
+                  <span>Ver siguiendo</span>
+                </Link>
+
+                <button
+                  type="button"
+                  className="profile-quick-link profile-quick-link--button"
+                  onClick={handleLogout}
+                >
+                  <span className="app-badge app-badge--danger">⎋</span>
+                  <span>Cerrar sesión</span>
+                </button>
               </div>
-            </CardBody>
-          </Card>
+            </div>
+          </div>
+
+          <div className="app-card">
+            <div className="app-card__body app-stack">
+              <div className="app-section-header__title">Resumen</div>
+              <div className="app-stat-grid">
+                <div className="app-stat">
+                  <div className="app-stat__value">{sortedMeetups.length}</div>
+                  <div className="app-stat__label">Quedadas</div>
+                </div>
+
+                <div className="app-stat">
+                  <div className="app-stat__value">{disciplines.length}</div>
+                  <div className="app-stat__label">Disciplinas</div>
+                </div>
+
+                <div className="app-stat">
+                  <div className="app-stat__value">{location || "—"}</div>
+                  <div className="app-stat__label">Ubicación</div>
+                </div>
+
+                <div className="app-stat">
+                  <div className="app-stat__value">{handle || "Perfil"}</div>
+                  <div className="app-stat__label">Identidad</div>
+                </div>
+              </div>
+            </div>
+          </div>
         </aside>
-      </section>
-    </div>
+      </div>
+    </section>
   );
 }
