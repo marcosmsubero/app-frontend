@@ -222,7 +222,7 @@ export default function MessagesPage() {
               <h1 className="messages-title">Mensajes</h1>
               <p className="messages-subtitle">
                 Gestiona tus conversaciones, revisa actividad reciente y accede
-                rápido a tus chats y solicitudes.
+                rápido a tus chats.
               </p>
             </div>
 
@@ -306,7 +306,7 @@ export default function MessagesPage() {
           <CardBody>
             <EmptyState
               title="Inicia sesión para ver tus mensajes"
-              description="Necesitas una sesión activa para acceder a tus conversaciones y solicitudes."
+              description="Necesitas una sesión activa para acceder a tus conversaciones."
               actionLabel="Ir al inicio"
               onAction={() => navigate("/")}
             />
