@@ -5,7 +5,6 @@ import { API_BASE } from "../services/api";
 import { useLocation, useNavigate } from "react-router-dom";
 import Cropper from "react-easy-crop";
 import { Button, EmptyState } from "./ui";
-import "../styles/posts-grid.css";
 
 /* =========================
    Helpers
@@ -68,7 +67,7 @@ async function getCroppedBlob(imageSrc, cropPixels, quality = 0.92) {
     0,
     0,
     cropPixels.width,
-    cropPixels.height
+    cropPixels.height,
   );
 
   return new Promise((resolve, reject) => {
@@ -78,7 +77,7 @@ async function getCroppedBlob(imageSrc, cropPixels, quality = 0.92) {
         resolve(blob);
       },
       "image/jpeg",
-      quality
+      quality,
     );
   });
 }
@@ -230,207 +229,110 @@ function IconTrash({ size = 18 }) {
       aria-hidden="true"
     >
       <path d="M3 6h18" />
-      <path d="M8 6V4h8v2" />
-      <path d="M19 6l-1 14H6L5 6" />
-      <path d="M10 11v6" />
-      <path d="M14 11v6" />
+      <path d="M8 6V4.8A1.8 1.8 0 0 1 9.8 3h4.4A1.8 1.8 0 0 1 16 4.8V6" />
+      <path d="M18 6l-1 13a2 2 0 0 1-2 1.8H9a2 2 0 0 1-2-1.8L6 6" />
+      <path d="M10 10v6" />
+      <path d="M14 10v6" />
     </svg>
   );
 }
 
 /* =========================
-   Component
+   Simple Dialog Shell
+========================= */
+function Dialog({
+  open,
+  title,
+  children,
+  onClose,
+  width = "min(960px, calc(100vw - 24px))",
+}) {
+  useEffect(() => {
+    if (!open) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e) => e.key === "Escape" && onClose?.();
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open, onClose]);
+
+  if (!open) return null;
+
+  return (
+    <div className="ui-modalBackdrop" role="dialog" aria-modal="true" aria-label={title}>
+      <div className="ui-modal" style={{ width }}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+/* =========================
+   Main component
 ========================= */
 export default function PostsGrid() {
-  const { token } = useAuth();
-  const toast = useToast();
-  const nav = useNavigate();
-  const location = useLocation();
+  const { accessToken } = useAuth();
+  const { push } = useToast();
+  const [items, setItems] = useState([]);
+  const [openItem, setOpenItem] = useState(null);
+  const [newOpen, setNewOpen] = useState(false);
 
-  const fileRef = useRef(null);
-
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [previewUrl, setPreviewUrl] = useState("");
-  const [uploading, setUploading] = useState(false);
-
+  const [rawFile, setRawFile] = useState(null);
+  const [localSrc, setLocalSrc] = useState("");
   const [caption, setCaption] = useState("");
 
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
-  const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
-  const [croppedBlob, setCroppedBlob] = useState(null);
-  const [step, setStep] = useState("crop");
+  const [croppedPixels, setCroppedPixels] = useState(null);
 
-  const LIMIT = 18;
-  const [items, setItems] = useState([]);
+  const [busy, setBusy] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
+
   const [hasMore, setHasMore] = useState(true);
-
-  const sentinelRef = useRef(null);
-  const loadingRef = useRef(false);
+  const limit = 12;
   const nextOffsetRef = useRef(0);
+  const sentinelRef = useRef(null);
 
-  const [activeId, setActiveId] = useState(null);
-  const [deleting, setDeleting] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  const swipeRef = useRef({
-    active: false,
-    mode: null,
-    startX: 0,
-    startY: 0,
-    lastX: 0,
-    lastY: 0,
-    startT: 0,
-    pointerId: null,
-  });
-
-  const [drag, setDrag] = useState({ x: 0, y: 0, mode: null, moving: false });
-
-  const resetDrag = useCallback(() => {
-    setDrag({ x: 0, y: 0, mode: null, moving: false });
-    swipeRef.current = {
-      active: false,
-      mode: null,
-      startX: 0,
-      startY: 0,
-      lastX: 0,
-      lastY: 0,
-      startT: 0,
-      pointerId: null,
-    };
-  }, []);
-
-  const normalized = useMemo(() => {
-    return (Array.isArray(items) ? items : []).map(normalizePost).filter((p) => !!p.image_url);
-  }, [items]);
-
-  const activeIndex = useMemo(() => {
-    if (!activeId) return -1;
-    return normalized.findIndex((p) => String(p.id) === String(activeId));
-  }, [normalized, activeId]);
-
-  const activePost = activeIndex >= 0 ? normalized[activeIndex] : null;
-  const canPrev = activeIndex > 0;
-  const canNext = activeIndex >= 0 && activeIndex < normalized.length - 1;
-
-  function setPostParam(id) {
-    const params = new URLSearchParams(location.search);
-    if (id) params.set("post", String(id));
-    else params.delete("post");
-    const qs = params.toString();
-    nav({ pathname: location.pathname, search: qs ? `?${qs}` : "" }, { replace: false });
-  }
-
-  function replacePostParam(idOrNull) {
-    const params = new URLSearchParams(location.search);
-    if (idOrNull) params.set("post", String(idOrNull));
-    else params.delete("post");
-    const qs = params.toString();
-    nav({ pathname: location.pathname, search: qs ? `?${qs}` : "" }, { replace: true });
-  }
-
-  const openPost = (p) => {
-    if (!p?.id) return;
-    setActiveId(p.id);
-    setPostParam(p.id);
-  };
-
-  const closePost = useCallback(() => {
-    replacePostParam(null);
-    setActiveId(null);
-  }, [location.search]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const goPrev = useCallback(() => {
-    if (!canPrev) return;
-    const id = normalized[activeIndex - 1]?.id;
-    if (!id) return;
-    setActiveId(id);
-    replacePostParam(id);
-  }, [canPrev, normalized, activeIndex]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const goNext = useCallback(() => {
-    if (!canNext) return;
-    const id = normalized[activeIndex + 1]?.id;
-    if (!id) return;
-    setActiveId(id);
-    replacePostParam(id);
-  }, [canNext, normalized, activeIndex]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const q = params.get("post");
-    if (!q) {
-      setActiveId(null);
-      return;
-    }
-    setActiveId(q);
-  }, [location.search]);
-
-  useEffect(() => {
-    resetDrag();
-  }, [activeId, resetDrag]);
+  const normalized = useMemo(() => items.map(normalizePost), [items]);
 
   const loadPage = useCallback(
     async (offset = 0, { replace = false } = {}) => {
-      if (loadingRef.current) return;
-      loadingRef.current = true;
-
+      if (!accessToken) return;
+      setLoading(true);
       setErr("");
       try {
-        const qs = new URLSearchParams({
-          limit: String(LIMIT),
-          offset: String(offset),
-        }).toString();
-
-        const res = await fetch(`${API_BASE}/me/posts?${qs}`, {
-          headers: {
-            Accept: "application/json",
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          },
+        const res = await fetch(`${API_BASE}/posts?offset=${offset}&limit=${limit}`, {
+          headers: { Authorization: `Bearer ${accessToken}` },
         });
-
-        if (res.status === 404) {
-          setHasMore(false);
-          if (replace) setItems([]);
-          return;
-        }
-
-        if (!res.ok) {
-          const t = await res.text();
-          throw new Error(t || `Error ${res.status}`);
-        }
-
+        if (!res.ok) throw new Error("No se pudieron cargar tus publicaciones");
         const data = await res.json();
-        const pageItems = Array.isArray(data)
-          ? data
-          : Array.isArray(data?.items)
+        const page = Array.isArray(data?.items)
           ? data.items
-          : [];
+          : Array.isArray(data)
+            ? data
+            : [];
 
-        const pageHasMore =
-          typeof data?.has_more === "boolean" ? data.has_more : pageItems.length >= LIMIT;
-
-        setHasMore(pageHasMore);
-        nextOffsetRef.current = offset + pageItems.length;
-
-        setItems((prev) => {
-          if (replace) return pageItems;
-
-          const seen = new Set((Array.isArray(prev) ? prev : []).map((x) => String(x.id ?? x.image_url)));
-          const merged = [...(Array.isArray(prev) ? prev : [])];
-          for (const it of pageItems) {
-            const key = String(it.id ?? it.image_url);
-            if (!seen.has(key)) merged.push(it);
-          }
-          return merged;
-        });
+        setItems((prev) => (replace ? page : [...prev, ...page]));
+        nextOffsetRef.current = offset + page.length;
+        if (page.length < limit) setHasMore(false);
       } catch (e) {
-        setErr(e?.message || "No se pudo cargar publicaciones");
+        setErr(e.message || "Error cargando publicaciones");
       } finally {
-        loadingRef.current = false;
+        setLoading(false);
       }
     },
-    [token]
+    [accessToken],
   );
 
   useEffect(() => {
@@ -441,291 +343,141 @@ export default function PostsGrid() {
   }, [loadPage]);
 
   useEffect(() => {
-    const el = sentinelRef.current;
-    if (!el) return;
+    const fromStatePostId = location.state?.openPostId;
+    if (!fromStatePostId || normalized.length === 0) return;
+    const p = normalized.find((x) => x.id === fromStatePostId);
+    if (p) setOpenItem(p);
+    navigate(location.pathname, { replace: true, state: {} });
+  }, [location.pathname, location.state, navigate, normalized]);
 
-    const obs = new IntersectionObserver(
+  useEffect(() => {
+    if (!sentinelRef.current || !hasMore || loading) return;
+    const el = sentinelRef.current;
+
+    const io = new IntersectionObserver(
       (entries) => {
-        const first = entries[0];
-        if (!first?.isIntersecting) return;
-        if (!hasMore) return;
-        if (loadingRef.current) return;
-        loadPage(nextOffsetRef.current);
+        const e = entries[0];
+        if (e?.isIntersecting && !loading && hasMore) {
+          loadPage(nextOffsetRef.current);
+        }
       },
-      { root: null, rootMargin: "900px 0px", threshold: 0.01 }
+      { rootMargin: "600px 0px" },
     );
 
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, [hasMore, loadPage]);
+    io.observe(el);
+    return () => io.disconnect();
+  }, [hasMore, loading, loadPage]);
 
-  useEffect(() => {
-    function onKey(e) {
-      if (!activeId && !previewUrl) return;
+  const openPost = useCallback((p) => setOpenItem(p), []);
+  const closePost = useCallback(() => setOpenItem(null), []);
 
-      if (e.key === "Escape") {
-        if (activeId) closePost();
-        if (previewUrl) closeUploadModal();
-      }
-      if (activeId) {
-        if (e.key === "ArrowLeft") goPrev();
-        if (e.key === "ArrowRight") goNext();
-      }
-    }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [activeId, previewUrl, goPrev, goNext, closePost]);
+  const currentIndex = useMemo(() => {
+    if (!openItem) return -1;
+    return normalized.findIndex((x) => x.id === openItem.id);
+  }, [normalized, openItem]);
 
-  useEffect(() => {
-    if (!previewUrl) return;
+  const prevPost = useCallback(() => {
+    if (currentIndex <= 0) return;
+    setOpenItem(normalized[currentIndex - 1]);
+  }, [currentIndex, normalized]);
 
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = prev;
-    };
-  }, [previewUrl]);
+  const nextPost = useCallback(() => {
+    if (currentIndex < 0 || currentIndex >= normalized.length - 1) return;
+    setOpenItem(normalized[currentIndex + 1]);
+  }, [currentIndex, normalized]);
 
-  function openPicker() {
-    fileRef.current?.click();
-  }
-
-  function onPickFile(e) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (!file.type.startsWith("image/")) {
-      toast?.error?.("Selecciona una imagen");
-      e.target.value = "";
-      return;
-    }
-    if (file.size > 8 * 1024 * 1024) {
-      toast?.error?.("Máximo 8MB");
-      e.target.value = "";
-      return;
-    }
-
-    setSelectedFile(file);
+  const resetComposer = () => {
+    setRawFile(null);
+    setLocalSrc("");
     setCaption("");
-    setCroppedBlob(null);
     setCrop({ x: 0, y: 0 });
     setZoom(1);
-    setStep("crop");
+    setCroppedPixels(null);
+  };
 
-    setPreviewUrl(URL.createObjectURL(file));
-    e.target.value = "";
-  }
-
-  function closeUploadModal() {
-    if (previewUrl) URL.revokeObjectURL(previewUrl);
-    setPreviewUrl("");
-    setSelectedFile(null);
-    setCaption("");
-    setCroppedBlob(null);
-    setStep("crop");
-  }
-
-  async function confirmCrop() {
-    if (!previewUrl || !croppedAreaPixels) return;
-    try {
-      const blob = await getCroppedBlob(previewUrl, croppedAreaPixels);
-      setCroppedBlob(blob);
-      setStep("caption");
-    } catch (e) {
-      toast?.error?.(e?.message || "No se pudo recortar");
+  const onPickFile = async (file) => {
+    if (!file) return;
+    if (!file.type?.startsWith("image/")) {
+      push({ type: "error", message: "Selecciona una imagen válida" });
+      return;
     }
-  }
+    if (localSrc) URL.revokeObjectURL(localSrc);
+    const url = URL.createObjectURL(file);
+    setRawFile(file);
+    setLocalSrc(url);
+    setNewOpen(true);
+  };
 
-  async function upload() {
-    if (!selectedFile) return;
+  useEffect(() => {
+    return () => {
+      if (localSrc) URL.revokeObjectURL(localSrc);
+    };
+  }, [localSrc]);
 
-    setUploading(true);
+  const onUpload = async () => {
+    if (!rawFile || !localSrc || !croppedPixels) return;
+    setBusy(true);
     try {
+      const blob = await getCroppedBlob(localSrc, croppedPixels, 0.9);
       const form = new FormData();
+      form.append("file", blob, "post.jpg");
+      form.append("caption", caption || "");
 
-      if (croppedBlob) {
-        form.append("file", croppedBlob, "post.jpg");
-      } else {
-        form.append("file", selectedFile);
-      }
-
-      if (caption.trim()) form.append("caption", caption.trim());
-
-      const res = await fetch(`${API_BASE}/me/posts`, {
+      const res = await fetch(`${API_BASE}/posts`, {
         method: "POST",
+        headers: { Authorization: `Bearer ${accessToken}` },
         body: form,
-        headers: {
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
       });
-
-      if (res.status === 404) {
-        toast?.info?.("Subida aún no disponible (falta endpoint /me/posts)");
-        closeUploadModal();
-        return;
-      }
 
       if (!res.ok) {
-        const t = await res.text();
-        throw new Error(t || "No se pudo subir");
+        const text = await res.text();
+        throw new Error(text || "No se pudo subir la publicación");
       }
 
-      const created = await res.json();
+      push({ type: "success", message: "Publicación subida" });
+      setNewOpen(false);
+      resetComposer();
 
-      toast?.success?.("Publicación subida");
-      closeUploadModal();
-
-      if (created) {
-        setItems((prev) => [created, ...(Array.isArray(prev) ? prev : [])]);
-        openPost({ id: created.id });
-      } else {
-        nextOffsetRef.current = 0;
-        setHasMore(true);
-        setItems([]);
-        loadPage(0, { replace: true });
-      }
+      nextOffsetRef.current = 0;
+      setHasMore(true);
+      setItems([]);
+      await loadPage(0, { replace: true });
     } catch (e) {
-      toast?.error?.(e?.message || "Error subiendo");
+      push({ type: "error", message: e.message || "Error subiendo publicación" });
     } finally {
-      setUploading(false);
+      setBusy(false);
     }
-  }
+  };
 
-  const SWIPE_LOCK = 10;
-  const SWIPE_X_GO = 70;
-  const SWIPE_Y_CLOSE = 90;
-  const SWIPE_VEL_GO = 0.55;
-
-  function onSwipePointerDown(e) {
-    if (e.pointerType !== "touch") return;
-    if (!activePost) return;
-
-    swipeRef.current.active = true;
-    swipeRef.current.mode = null;
-    swipeRef.current.startX = e.clientX;
-    swipeRef.current.startY = e.clientY;
-    swipeRef.current.lastX = e.clientX;
-    swipeRef.current.lastY = e.clientY;
-    swipeRef.current.startT = performance.now();
-    swipeRef.current.pointerId = e.pointerId;
-
-    try {
-      e.currentTarget.setPointerCapture(e.pointerId);
-    } catch {}
-    setDrag((d) => ({ ...d, moving: true }));
-  }
-
-  function onSwipePointerMove(e) {
-    if (!swipeRef.current.active) return;
-    if (e.pointerType !== "touch") return;
-
-    const dx = e.clientX - swipeRef.current.startX;
-    const dy = e.clientY - swipeRef.current.startY;
-
-    swipeRef.current.lastX = e.clientX;
-    swipeRef.current.lastY = e.clientY;
-
-    if (!swipeRef.current.mode) {
-      if (Math.abs(dx) < SWIPE_LOCK && Math.abs(dy) < SWIPE_LOCK) return;
-      swipeRef.current.mode = Math.abs(dx) > Math.abs(dy) ? "h" : "v";
-    }
-
-    e.preventDefault();
-
-    if (swipeRef.current.mode === "h") {
-      setDrag({ x: dx, y: 0, mode: "h", moving: true });
-    } else {
-      setDrag({ x: 0, y: Math.max(0, dy), mode: "v", moving: true });
-    }
-  }
-
-  function onSwipePointerUp(e) {
-    if (!swipeRef.current.active) return;
-    if (e.pointerType !== "touch") return;
-
-    const now = performance.now();
-    const dt = Math.max(1, now - swipeRef.current.startT);
-
-    const dx = swipeRef.current.lastX - swipeRef.current.startX;
-    const dy = swipeRef.current.lastY - swipeRef.current.startY;
-
-    const vx = Math.abs(dx) / dt;
-    const vy = Math.abs(dy) / dt;
-
-    const mode = swipeRef.current.mode;
-
-    try {
-      e.currentTarget.releasePointerCapture(swipeRef.current.pointerId);
-    } catch {}
-
-    if (mode === "h") {
-      const go = Math.abs(dx) > SWIPE_X_GO || vx > SWIPE_VEL_GO;
-      if (go) {
-        setDrag({ x: dx > 0 ? 140 : -140, y: 0, mode: "h", moving: false });
-        setTimeout(() => {
-          if (dx > 0) goPrev();
-          else goNext();
-          resetDrag();
-        }, 110);
-        return;
-      }
-    }
-
-    if (mode === "v") {
-      const go = dy > SWIPE_Y_CLOSE || vy > SWIPE_VEL_GO;
-      if (go) {
-        setDrag({ x: 0, y: Math.max(120, dy), mode: "v", moving: false });
-        setTimeout(() => {
-          closePost();
-          resetDrag();
-        }, 120);
-        return;
-      }
-    }
-
-    setDrag({ x: 0, y: 0, mode: mode || null, moving: false });
-    setTimeout(() => resetDrag(), 180);
-  }
-
-  async function deleteActivePost() {
-    if (!activePost?.id) return;
-    if (deleting) return;
-
-    const ok = window.confirm("¿Eliminar esta publicación? Esta acción no se puede deshacer.");
+  const onDelete = async (postId) => {
+    if (!postId) return;
+    const ok = window.confirm("¿Eliminar esta publicación?");
     if (!ok) return;
 
-    setDeleting(true);
+    setBusy(true);
     try {
-      const res = await fetch(`${API_BASE}/me/posts/${activePost.id}`, {
+      const res = await fetch(`${API_BASE}/posts/${postId}`, {
         method: "DELETE",
-        headers: {
-          Accept: "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
+        headers: { Authorization: `Bearer ${accessToken}` },
       });
-
-      if (res.status === 404) {
-        toast?.info?.("Ya no existe.");
-      } else if (!res.ok) {
-        const t = await res.text();
-        throw new Error(t || "No se pudo eliminar");
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || "No se pudo eliminar");
       }
 
-      setItems((prev) =>
-        Array.isArray(prev) ? prev.filter((x) => String(x.id) !== String(activePost.id)) : []
-      );
-      toast?.success?.("Publicación eliminada");
-      closePost();
+      push({ type: "success", message: "Publicación eliminada" });
+      setItems((prev) => prev.filter((p) => normalizePost(p).id !== postId));
+      if (openItem?.id === postId) setOpenItem(null);
     } catch (e) {
-      toast?.error?.(e?.message || "Error eliminando");
+      push({ type: "error", message: e.message || "Error eliminando publicación" });
     } finally {
-      setDeleting(false);
+      setBusy(false);
     }
-  }
+  };
 
   return (
-    <div className="postsGrid">
-      <section className="postsGrid__header">
+    <section className="postsGrid">
+      <div className="postsGrid__header">
         <div className="postsGrid__titleBlock">
           <p className="postsGrid__eyebrow">Perfil</p>
           <h2 className="postsGrid__title">Publicaciones</h2>
@@ -735,13 +487,23 @@ export default function PostsGrid() {
         </div>
 
         <div className="postsGrid__toolbar">
-          <div className="postsGrid__metaPill">
+          <span className="postsGrid__metaPill">
             {normalized.length} {normalized.length === 1 ? "post" : "posts"}
-          </div>
+          </span>
+
+          <label className="ui-btn ui-btn--soft ui-btn--sm" style={{ cursor: "pointer" }}>
+            <input
+              type="file"
+              accept="image/*"
+              hidden
+              onChange={(e) => onPickFile(e.target.files?.[0])}
+            />
+            <IconPlus />
+            Nueva publicación
+          </label>
 
           <Button
-            type="button"
-            variant="secondary"
+            variant="ghost"
             size="sm"
             onClick={() => {
               nextOffsetRef.current = 0;
@@ -750,220 +512,165 @@ export default function PostsGrid() {
               loadPage(0, { replace: true });
             }}
           >
-            <IconRefresh size={16} />
+            <IconRefresh />
             Actualizar
           </Button>
-
-          <Button type="button" size="sm" onClick={openPicker}>
-            <IconPlus size={16} />
-            Nueva publicación
-          </Button>
-
-          <input ref={fileRef} type="file" accept="image/*" hidden onChange={onPickFile} />
         </div>
-      </section>
+      </div>
 
       {err ? <div className="postsGrid__error">{err}</div> : null}
 
       {normalized.length === 0 ? (
         <div className="postsGrid__empty">
           <EmptyState
-            icon="✦"
-            title="Aún no tienes publicaciones"
-            description="Sube tu primera imagen para empezar a construir tu perfil visual."
-            actionLabel="Crear publicación"
-            onAction={openPicker}
+            title="Aún no hay publicaciones"
+            subtitle="Sube tu primera foto para empezar a llenar tu perfil."
+            action={
+              <label className="ui-btn ui-btn--brand" style={{ cursor: "pointer" }}>
+                <input
+                  type="file"
+                  accept="image/*"
+                  hidden
+                  onChange={(e) => onPickFile(e.target.files?.[0])}
+                />
+                <IconPlus />
+                Crear publicación
+              </label>
+            }
           />
         </div>
       ) : (
         <div className="postsGrid__gridWrap">
-          <div className="postsGrid__grid" role="list" aria-label="Publicaciones">
+          <div className="postsGrid__grid">
             {normalized.map((p) => (
               <button
                 key={p.id}
-                type="button"
                 className="postsGrid__tile"
                 onClick={() => openPost(p)}
                 title="Ver publicación"
               >
-                <img src={p.image_url} alt="post" loading="lazy" className="postsGrid__image" />
-
-                <div className="postsGrid__overlay" aria-hidden="true">
+                <img className="postsGrid__image" src={p.image_url} alt={p.caption || "Publicación"} />
+                <div className="postsGrid__overlay">
                   <div className="postsGrid__overlayStats">
                     <span className="postsGrid__overlayItem">
-                      <IconHeart size={15} />
-                      <span>{p.likes_count || 0}</span>
+                      <IconHeart size={15} /> {p.likes_count || 0}
                     </span>
                     <span className="postsGrid__overlayItem">
-                      <IconComment size={15} />
-                      <span>{p.comments_count || 0}</span>
+                      <IconComment size={15} /> {p.comments_count || 0}
                     </span>
                   </div>
-
                   {p.caption ? (
-                    <div className="postsGrid__captionPreview">{p.caption}</div>
+                    <div className="postsGrid__captionPreview">
+                      {p.caption}
+                    </div>
                   ) : null}
                 </div>
               </button>
             ))}
-            <div ref={sentinelRef} className="postsGrid__sentinel" />
+            {hasMore ? <div ref={sentinelRef} className="postsGrid__sentinel" aria-hidden="true" /> : null}
           </div>
         </div>
       )}
 
-      {activePost ? (
-        <div className="ui-modal" role="dialog" aria-modal="true" onMouseDown={closePost}>
-          <div
-            className="ui-glass ui-modalPanel postsGridModal"
-            onMouseDown={(e) => e.stopPropagation()}
-          >
-            <button
-              type="button"
-              className="ui-iconBtn ui-iconBtn--gold postsGridModal__close"
-              onClick={closePost}
-              aria-label="Cerrar"
-              title="Cerrar"
-            >
+      <Dialog
+        open={!!openItem}
+        title="Publicación"
+        onClose={closePost}
+        width="min(1100px, calc(100vw - 24px))"
+      >
+        {openItem ? (
+          <div className="postsGridModal">
+            <button className="ui-btn ui-btn--soft ui-btn--icon postsGridModal__close" onClick={closePost}>
               <IconClose />
             </button>
 
-            <button
-              type="button"
-              className={`ui-iconBtn ui-iconBtn--gold ui-nav ui-nav--left ${canPrev ? "" : "is-disabled"}`}
-              onClick={goPrev}
-              disabled={!canPrev}
-              aria-label="Anterior"
-              title="Anterior"
-            >
-              <IconChevronLeft />
-            </button>
-
-            <button
-              type="button"
-              className={`ui-iconBtn ui-iconBtn--gold ui-nav ui-nav--right ${canNext ? "" : "is-disabled"}`}
-              onClick={goNext}
-              disabled={!canNext}
-              aria-label="Siguiente"
-              title="Siguiente"
-            >
-              <IconChevronRight />
-            </button>
-
             <div className="postsGridModal__grid">
-              <div
-                className="postsGridModal__media igpg-swipeArea"
-                onPointerDown={onSwipePointerDown}
-                onPointerMove={onSwipePointerMove}
-                onPointerUp={onSwipePointerUp}
-                onPointerCancel={onSwipePointerUp}
-                style={{
-                  transform:
-                    drag.mode === "h"
-                      ? `translate3d(${drag.x}px, 0, 0)`
-                      : `translate3d(0, ${drag.y}px, 0)`,
-                  transition: drag.moving ? "none" : "transform 180ms ease",
-                }}
-              >
-                <img src={activePost.image_url} alt="post" draggable={false} />
+              <div className="postsGridModal__media">
+                {currentIndex > 0 ? (
+                  <button className="ui-btn ui-btn--soft ui-btn--icon ui-navArrow ui-navArrow--left" onClick={prevPost}>
+                    <IconChevronLeft />
+                  </button>
+                ) : null}
+
+                <img src={openItem.image_url} alt={openItem.caption || "Publicación"} />
+
+                {currentIndex < normalized.length - 1 ? (
+                  <button className="ui-btn ui-btn--soft ui-btn--icon ui-navArrow ui-navArrow--right" onClick={nextPost}>
+                    <IconChevronRight />
+                  </button>
+                ) : null}
               </div>
 
-              <div className="postsGridModal__side">
+              <aside className="postsGridModal__side">
                 <div className="postsGridModal__top">
-                  <div className="postsGridModal__title">Publicación</div>
-                  <div className="postsGridModal__date">{fmtDate(activePost.created_at)}</div>
+                  <div className="postsGridModal__title">Tu publicación</div>
+                  <div className="postsGridModal__date">{fmtDate(openItem.created_at)}</div>
                 </div>
 
                 <div className="postsGridModal__body">
                   <div className="postsGridModal__stats">
                     <span className="postsGridModal__stat">
-                      <IconHeart size={16} /> <b>{activePost.likes_count || 0}</b>
+                      <IconHeart /> {openItem.likes_count || 0}
                     </span>
-                    <span className="postsGridModal__dot">·</span>
+                    <span className="postsGridModal__dot">•</span>
                     <span className="postsGridModal__stat">
-                      <IconComment size={16} /> <b>{activePost.comments_count || 0}</b>
+                      <IconComment /> {openItem.comments_count || 0}
                     </span>
                   </div>
 
-                  {activePost.caption ? (
-                    <div className="postsGridModal__caption">{activePost.caption}</div>
-                  ) : null}
+                  {openItem.caption ? (
+                    <div className="postsGridModal__caption">{openItem.caption}</div>
+                  ) : (
+                    <div className="postsGridModal__caption" style={{ opacity: 0.7 }}>
+                      Sin descripción
+                    </div>
+                  )}
                 </div>
 
                 <div className="postsGridModal__bottom">
-                  <button
-                    type="button"
-                    className="ui-iconBtn ui-iconBtn--gold ui-iconBtn--lg"
-                    onClick={() => toast?.info?.("Próximamente")}
-                    aria-label="Me gusta"
-                    title="Me gusta"
-                  >
-                    <IconHeart />
-                  </button>
-
-                  <button
-                    type="button"
-                    className="ui-iconBtn ui-iconBtn--gold ui-iconBtn--lg"
-                    onClick={() => toast?.info?.("Próximamente")}
-                    aria-label="Comentar"
-                    title="Comentar"
-                  >
-                    <IconComment />
-                  </button>
-
-                  <button
-                    type="button"
-                    className="ui-iconBtn ui-iconBtn--gold ui-iconBtn--lg"
-                    onClick={deleteActivePost}
-                    aria-label="Eliminar"
-                    title="Eliminar"
-                    disabled={deleting}
-                  >
+                  <Button variant="danger" size="sm" onClick={() => onDelete(openItem.id)} disabled={busy}>
                     <IconTrash />
-                  </button>
+                    Eliminar
+                  </Button>
+                  <div style={{ marginLeft: "auto", color: "var(--color-text-muted)", fontSize: "0.9rem" }}>
+                    {currentIndex + 1} / {normalized.length}
+                  </div>
                 </div>
-              </div>
-            </div>
-
-            <div className="ui-indexPill">
-              {activeIndex + 1}/{normalized.length}
+              </aside>
             </div>
           </div>
-        </div>
-      ) : null}
+        ) : null}
+      </Dialog>
 
-      {previewUrl ? (
-        <div className="ui-modal" role="dialog" aria-modal="true" onMouseDown={closeUploadModal}>
-          <div
-            className="ui-glass ui-modalPanel ui-modalPanel--small postsGridUpload"
-            onMouseDown={(e) => e.stopPropagation()}
-          >
-            <div className="ui-modalHead">
-              <div className="ui-modalTitle">
-                {step === "crop" ? "Recortar foto" : "Nueva publicación"}
-              </div>
-              <button
-                type="button"
-                className="ui-iconBtn ui-iconBtn--gold ui-iconBtn--sm"
-                onClick={closeUploadModal}
-                aria-label="Cerrar"
-                title="Cerrar"
-                disabled={uploading}
-              >
-                <IconClose />
-              </button>
-            </div>
+      <Dialog
+        open={newOpen}
+        title="Nueva publicación"
+        onClose={() => {
+          setNewOpen(false);
+          resetComposer();
+        }}
+        width="min(560px, calc(100vw - 24px))"
+      >
+        <div className="ui-card postsGridUpload">
+          <div className="ui-card__header">
+            <div className="ui-card__title">Nueva publicación</div>
+            <div className="ui-card__sub">Recorta tu imagen y añade una descripción opcional.</div>
+          </div>
 
-            {step === "crop" ? (
+          <div className="ui-stack">
+            {localSrc ? (
               <>
                 <div className="postsGridUpload__cropWrap">
                   <Cropper
-                    image={previewUrl}
+                    image={localSrc}
                     crop={crop}
                     zoom={zoom}
                     aspect={4 / 5}
                     onCropChange={setCrop}
                     onZoomChange={setZoom}
-                    onCropComplete={(_, croppedPixels) => setCroppedAreaPixels(croppedPixels)}
+                    onCropComplete={(_, croppedAreaPixels) => setCroppedPixels(croppedAreaPixels)}
+                    showGrid={false}
+                    objectFit="contain"
                   />
                 </div>
 
@@ -981,56 +688,42 @@ export default function PostsGrid() {
                   </label>
                 </div>
 
-                <div className="ui-modalActions">
-                  <button type="button" onClick={closeUploadModal} disabled={uploading}>
-                    Cancelar
-                  </button>
-                  <button
-                    type="button"
-                    className="btn-primary"
-                    onClick={confirmCrop}
-                    disabled={uploading}
-                  >
-                    Continuar
-                  </button>
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="postsGridUpload__preview">
-                  <img src={previewUrl} alt="preview" />
-                </div>
-
                 <label className="postsGridUpload__captionLabel">
-                  Estado
+                  Descripción
                   <textarea
                     className="postsGridUpload__caption"
-                    rows={3}
-                    placeholder="Escribe algo…"
+                    placeholder="Escribe algo sobre esta foto…"
                     value={caption}
                     onChange={(e) => setCaption(e.target.value)}
-                    disabled={uploading}
                   />
                 </label>
-
-                <div className="ui-modalActions">
-                  <button type="button" onClick={() => setStep("crop")} disabled={uploading}>
-                    ← Editar
-                  </button>
-                  <button
-                    type="button"
-                    className="btn-primary"
-                    onClick={upload}
-                    disabled={uploading}
-                  >
-                    {uploading ? "Subiendo…" : "Publicar"}
-                  </button>
-                </div>
               </>
+            ) : (
+              <div className="postsGridUpload__preview">
+                <img
+                  alt="Vista previa"
+                  src="data:image/svg+xml;utf8,<?xml version='1.0' encoding='UTF-8' ?><svg xmlns='http://www.w3.org/2000/svg' width='800' height='1000'><rect width='100%' height='100%' fill='%230b1220'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%239fb0c7' font-family='Arial' font-size='28'>Selecciona una imagen</text></svg>"
+                />
+              </div>
             )}
+
+            <div className="ui-row ui-row--end">
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  setNewOpen(false);
+                  resetComposer();
+                }}
+              >
+                Cancelar
+              </Button>
+              <Button variant="brand" onClick={onUpload} disabled={busy || !localSrc || !croppedPixels}>
+                {busy ? "Subiendo…" : "Publicar"}
+              </Button>
+            </div>
           </div>
         </div>
-      ) : null}
-    </div>
+      </Dialog>
+    </section>
   );
 }
