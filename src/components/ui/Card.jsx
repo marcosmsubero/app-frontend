@@ -1,20 +1,20 @@
-function joinClasses(...values) {
-  return values.filter(Boolean).join(" ");
-}
+import clsx from "clsx";
 
-export function Card({
-  as: Component = "article",
-  interactive = false,
+function Card({
+  as: Component = "section",
   className = "",
   children,
+  compact = false,
+  interactive = false,
   ...props
 }) {
   return (
     <Component
-      className={joinClasses(
-        "app-card",
-        interactive ? "app-card--interactive" : "",
-        className,
+      className={clsx(
+        "ui-card",
+        compact && "ui-card--compact",
+        interactive && "ui-card--interactive",
+        className
       )}
       {...props}
     >
@@ -23,43 +23,27 @@ export function Card({
   );
 }
 
-export function CardHeader({ className = "", children, ...props }) {
+export function CardHeader({ as: Component = "div", className = "", children, ...props }) {
   return (
-    <div className={joinClasses("app-card__header", className)} {...props}>
-      {children}
-    </div>
-  );
-}
-
-export function CardTitle({ as: Component = "h3", className = "", children, ...props }) {
-  return (
-    <Component className={joinClasses("app-card__title", className)} {...props}>
+    <Component className={clsx("ui-card__header", className)} {...props}>
       {children}
     </Component>
   );
 }
 
-export function CardDescription({ className = "", children, ...props }) {
+export function CardBody({ as: Component = "div", className = "", children, ...props }) {
   return (
-    <p className={joinClasses("app-card__description", className)} {...props}>
+    <Component className={clsx("ui-card__body", className)} {...props}>
       {children}
-    </p>
+    </Component>
   );
 }
 
-export function CardContent({ className = "", children, ...props }) {
+export function CardFooter({ as: Component = "div", className = "", children, ...props }) {
   return (
-    <div className={joinClasses("app-card__content", className)} {...props}>
+    <Component className={clsx("ui-card__footer", className)} {...props}>
       {children}
-    </div>
-  );
-}
-
-export function CardFooter({ className = "", children, ...props }) {
-  return (
-    <div className={joinClasses("app-card__footer", className)} {...props}>
-      {children}
-    </div>
+    </Component>
   );
 }
 
