@@ -28,35 +28,31 @@ function timeShort(iso) {
 
 function ThreadRow({ thread, onOpen }) {
   return (
-    <button
-      type="button"
-      className={`thread-row${thread.unread ? " thread-row--unread" : ""}`}
-      onClick={() => onOpen?.(thread)}
-    >
-      <div className="thread-row__avatar">
+    <button type="button" className="messagesPage__thread" onClick={() => onOpen?.(thread)}>
+      <div className="messagesPage__threadAvatar">
         {thread.avatar_url ? (
-          <img src={thread.avatar_url} alt={thread.name || "Usuario"} />
+          <img src={thread.avatar_url} alt={thread.name || "Conversación"} />
         ) : (
           <span>{initials(thread.name || thread.email)}</span>
         )}
       </div>
 
-      <div className="thread-row__content">
-        <div className="thread-row__top">
-          <div className="thread-row__name">{thread.name || "Conversación"}</div>
-          <div className="thread-row__time">{timeShort(thread.updated_at)}</div>
+      <div className="messagesPage__threadBody">
+        <div className="messagesPage__threadTop">
+          <strong className="messagesPage__threadName">{thread.name || "Conversación"}</strong>
+          <span className="messagesPage__threadTime">{timeShort(thread.updated_at)}</span>
         </div>
 
-        <div className="thread-row__message">
+        <p className="messagesPage__threadSnippet">
           {thread.last_message || "Sin mensajes recientes."}
-        </div>
+        </p>
       </div>
 
-      <div className="thread-row__meta">
+      <div className="messagesPage__threadMeta">
         {thread.unread ? (
-          <span className="thread-row__dot" aria-label="No leído" />
+          <span className="messagesPage__unreadBadge" aria-label="Mensajes sin leer" />
         ) : (
-          <span className="thread-row__chevron" aria-hidden="true">
+          <span className="messagesPage__chevron" aria-hidden="true">
             ›
           </span>
         )}
@@ -116,7 +112,6 @@ export default function MessagesPage() {
       if (timerRef.current) clearTimeout(timerRef.current);
       timerRef.current = null;
     };
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [q, token]);
 
@@ -129,150 +124,124 @@ export default function MessagesPage() {
   }
 
   return (
-    <section className="page">
-      <div className="page__hero glass-banner">
-        <div className="glass-banner__body">
-          <div className="page__header">
-            <span className="page__eyebrow">Mensajes</span>
-            <h1 className="page__title">Conversaciones y solicitudes</h1>
-            <p className="page__subtitle">
-              Sigue el hilo de tus chats y coordina quedadas con otros usuarios.
+    <div className="app-page messagesPage">
+      <section className="app-card messagesPage__hero">
+        <div className="messagesPage__heroCopy">
+          <span className="app-badge app-badge--primary">Mensajes</span>
+          <h2 className="messagesPage__title">Conversaciones y solicitudes</h2>
+          <p className="messagesPage__description">
+            Sigue el hilo de tus chats y coordina quedadas con otros usuarios.
+          </p>
+        </div>
+
+        <div className="messagesPage__heroActions">
+          <button type="button" className="app-button app-button--ghost app-button--sm" onClick={() => nav(-1)}>
+            Volver
+          </button>
+          <button
+            type="button"
+            className="app-button app-button--primary app-button--sm"
+            onClick={() => toast?.info?.("Nuevo mensaje próximamente")}
+            disabled={!isAuthed}
+          >
+            Nuevo mensaje
+          </button>
+        </div>
+      </section>
+
+      <div className="messagesPage__layout">
+        <section className="app-card messagesPage__inbox">
+          <div className="messagesPage__sectionHead">
+            <div className="app-card__header">
+              <span className="app-badge">Bandeja</span>
+              <h3 className="app-card__title">Conversaciones activas</h3>
+              <p className="app-card__description">
+                Busca por nombre o por contenido reciente.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              className="app-button app-button--secondary app-button--sm"
+              onClick={() => load(q)}
+              disabled={loading || !token}
+            >
+              {loading ? "Actualizando…" : "Recargar"}
+            </button>
+          </div>
+
+          <div className="messagesPage__search">
+            <label className="app-field">
+              <span className="app-label">Buscar conversación</span>
+              <input
+                className="app-input"
+                placeholder="Nombre, usuario o contenido reciente"
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                disabled={!token}
+              />
+            </label>
+          </div>
+
+          {!token ? (
+            <div className="app-empty">
+              <strong>Necesitas iniciar sesión</strong>
+              <span>Accede a tu cuenta para ver mensajes, solicitudes y conversaciones.</span>
+              <Link to="/login" className="app-button app-button--primary app-button--sm">
+                Iniciar sesión
+              </Link>
+            </div>
+          ) : loading ? (
+            <div className="app-empty">
+              <strong>Cargando mensajes</strong>
+              <span>Estamos actualizando tu bandeja de entrada.</span>
+            </div>
+          ) : error ? (
+            <div className="app-empty">
+              <strong>No se pudieron cargar</strong>
+              <span>{error}</span>
+            </div>
+          ) : list.length === 0 ? (
+            <div className="app-empty">
+              <strong>No hay conversaciones aún</strong>
+              <span>Cuando empieces a hablar con otros usuarios, aparecerán aquí.</span>
+            </div>
+          ) : (
+            <div className="messagesPage__threadList">
+              {list.map((thread) => (
+                <ThreadRow key={thread.id} thread={thread} onOpen={openThread} />
+              ))}
+            </div>
+          )}
+        </section>
+
+        <aside className="app-card messagesPage__tips">
+          <div className="app-card__header">
+            <span className="app-badge app-badge--warning">Uso recomendado</span>
+            <h3 className="app-card__title">Mantén la coordinación clara</h3>
+            <p className="app-card__description">
+              Mensajes pensados para cerrar detalles del plan sin salir de la app.
             </p>
           </div>
 
-          <div className="split-actions">
-            <button
-              type="button"
-              className="app-btn app-btn--secondary"
-              onClick={() => nav(-1)}
-            >
-              Volver
-            </button>
+          <div className="messagesPage__tipsList">
+            <article className="messagesPage__tip">
+              <strong>Directo</strong>
+              <p>Coordina hora, punto de encuentro y cambios de última hora.</p>
+            </article>
 
-            <button
-              type="button"
-              className="app-btn app-btn--primary"
-              onClick={() => toast?.info?.("Nuevo mensaje próximamente")}
-              disabled={!isAuthed}
-            >
-              Nuevo mensaje
-            </button>
-          </div>
-        </div>
-      </div>
+            <article className="messagesPage__tip">
+              <strong>Claro</strong>
+              <p>Mantén cada conversación ligada al contexto deportivo correspondiente.</p>
+            </article>
 
-      <div className="page__columns">
-        <div className="app-stack app-stack--lg">
-          <div className="app-card">
-            <div className="app-card__header">
-              <div className="app-section-header">
-                <div>
-                  <div className="app-section-header__title">Bandeja</div>
-                  <div className="app-section-header__subtitle">
-                    Busca conversaciones activas por nombre o contenido reciente.
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  className="app-btn app-btn--secondary app-btn--sm"
-                  onClick={() => load(q)}
-                  disabled={loading || !token}
-                >
-                  {loading ? "Actualizando…" : "Recargar"}
-                </button>
-              </div>
-            </div>
-
-            <div className="app-card__body app-stack">
-              <div className="app-field">
-                <label className="app-label" htmlFor="messages-search">
-                  Buscar conversación
-                </label>
-                <input
-                  id="messages-search"
-                  className="app-input"
-                  placeholder="Escribe un nombre o una pista"
-                  value={q}
-                  onChange={(e) => setQ(e.target.value)}
-                  disabled={!token}
-                />
-              </div>
-
-              {!token ? (
-                <div className="app-empty-state">
-                  <div className="app-empty-state__title">Necesitas iniciar sesión</div>
-                  <div className="app-empty-state__text">
-                    Accede a tu cuenta para ver mensajes, solicitudes y conversaciones.
-                  </div>
-                  <div className="split-actions" style={{ justifyContent: "center" }}>
-                    <Link to="/login" className="app-btn app-btn--primary">
-                      Iniciar sesión
-                    </Link>
-                  </div>
-                </div>
-              ) : loading ? (
-                <div className="app-empty-state">
-                  <div className="app-empty-state__title">Cargando mensajes</div>
-                  <div className="app-empty-state__text">
-                    Estamos actualizando tu bandeja de entrada.
-                  </div>
-                </div>
-              ) : error ? (
-                <div className="app-empty-state">
-                  <div className="app-empty-state__title">No se pudieron cargar</div>
-                  <div className="app-empty-state__text">{error}</div>
-                </div>
-              ) : list.length === 0 ? (
-                <div className="app-empty-state">
-                  <div className="app-empty-state__title">No hay conversaciones aún</div>
-                  <div className="app-empty-state__text">
-                    Cuando empieces a hablar con otros usuarios, aparecerán aquí.
-                  </div>
-                </div>
-              ) : (
-                <div className="thread-list">
-                  {list.map((thread) => (
-                    <ThreadRow key={thread.id} thread={thread} onOpen={openThread} />
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        <aside className="page__sidebar">
-          <div className="app-card app-card--soft">
-            <div className="app-card__body app-stack">
-              <div className="app-section-header__title">Uso recomendado</div>
-              <p className="app-text-soft">
-                Utiliza mensajes para confirmar hora, punto de encuentro y cambios de última hora.
-              </p>
-
-              <div className="app-list">
-                <div className="app-list-item">
-                  <div className="app-badge app-badge--primary">Directo</div>
-                  <div>
-                    <strong>Coordina sin salir de la app</strong>
-                    <div className="app-text-soft">
-                      Mantén la conversación ligada al contexto deportivo.
-                    </div>
-                  </div>
-                </div>
-
-                <div className="app-list-item">
-                  <div className="app-badge app-badge--success">Claro</div>
-                  <div>
-                    <strong>Evita perder detalles</strong>
-                    <div className="app-text-soft">
-                      Deja por escrito ubicación, hora y material necesario.
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <article className="messagesPage__tip">
+              <strong>Útil</strong>
+              <p>Deja por escrito ubicación, hora y material necesario para no perder detalles.</p>
+            </article>
           </div>
         </aside>
       </div>
-    </section>
+    </div>
   );
 }
