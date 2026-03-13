@@ -1,244 +1,162 @@
 import { Link } from "react-router-dom";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useState } from "react";
 import UpcomingMeetups from "../components/UpcomingMeetups";
 import Toasts from "../components/Toasts";
 import { useAuth } from "../hooks/useAuth";
-import { api } from "../services/api";
-import { emit } from "../utils/events";
+import { useLiveMeetupEvents } from "../hooks/useLiveMeetupEvents";
 
-function fmtTime(iso) {
-  if (!iso) return "";
-  try {
-    return new Date(iso).toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  } catch {
-    return "";
-  }
+function BenefitCard({ badgeClass, badgeText, title, text }) {
+  return (
+    <article className="app-card app-card--soft feed-card">
+      <div className="feed-card__body">
+        <div className={`app-badge ${badgeClass}`}>{badgeText}</div>
+        <div className="feed-card__title">{title}</div>
+        <p className="feed-card__text">{text}</p>
+      </div>
+    </article>
+  );
+}
+
+function DesktopMetric({ value, label, text }) {
+  return (
+    <div className="home-desktop-metric">
+      <div className="home-desktop-metric__value">{value}</div>
+      <div className="home-desktop-metric__label">{label}</div>
+      <div className="home-desktop-metric__text">{text}</div>
+    </div>
+  );
 }
 
 export default function HomePage() {
-  const { isAuthed, me, loading: authLoading } = useAuth();
+  const { isAuthed, me } = useAuth();
   const [hasAgendaUpdates, setHasAgendaUpdates] = useState(false);
-  const [toasts, setToasts] = useState([]);
 
-  const pushToast = useCallback((toast) => {
-    const id = crypto?.randomUUID
-      ? crypto.randomUUID()
-      : String(Date.now() + Math.random());
-
-    setToasts((prev) => [...prev, { id, duration: 3500, type: "info", ...toast }]);
-  }, []);
-
-  const removeToast = useCallback((id) => {
-    setToasts((prev) => prev.filter((item) => item.id !== id));
-  }, []);
-
-  const API_BASE = useMemo(() => {
-    const fallback = `http://${window.location.hostname}:8000`;
-    return import.meta.env.VITE_API_BASE || fallback;
-  }, []);
-
-  const esRef = useRef(null);
-
-  useEffect(() => {
-    if (authLoading) return;
-
-    if (!isAuthed) {
-      esRef.current?.close?.();
-      esRef.current = null;
-      setHasAgendaUpdates(false);
-      return;
-    }
-
-    if (esRef.current) return;
-
-    const es = new EventSource(`${API_BASE}/events`);
-    esRef.current = es;
-
-    const markUpdates = () => setHasAgendaUpdates(true);
-
-    es.addEventListener("MEETUP_CREATED", async (e) => {
-      markUpdates();
-      emit("meetup_changed", { type: "created_sse" });
-
-      let payload = null;
-      try {
-        payload = JSON.parse(e.data);
-      } catch {}
-
-      const groupName = payload?.group_name;
-      const meetingPoint = payload?.meeting_point;
-      const startsAt = payload?.starts_at;
-
-      if (groupName && meetingPoint) {
-        const message = [`📍 ${meetingPoint}`, startsAt ? `🕒 ${fmtTime(startsAt)}` : ""]
-          .filter(Boolean)
-          .join(" · ");
-
-        pushToast({
-          type: "success",
-          title: `Nueva quedada en ${groupName}`,
-          message: message || "Se ha creado una nueva quedada.",
-        });
-        return;
-      }
-
-      const meetupId = payload?.id;
-
-      if (!meetupId) {
-        pushToast({
-          type: "success",
-          title: "Nueva quedada",
-          message: "Se ha creado una nueva quedada.",
-        });
-        return;
-      }
-
-      try {
-        const meetup = await api(`/meetups/${meetupId}`);
-        const remoteGroupName = meetup?.group?.name || "un grupo";
-        const meetingPointText = meetup?.meeting_point ? `📍 ${meetup.meeting_point}` : "";
-        const timeText = meetup?.starts_at ? `🕒 ${fmtTime(meetup.starts_at)}` : "";
-
-        pushToast({
-          type: "success",
-          title: `Nueva quedada en ${remoteGroupName}`,
-          message:
-            [meetingPointText, timeText].filter(Boolean).join(" · ") ||
-            "Se ha creado una nueva quedada.",
-        });
-      } catch {
-        pushToast({
-          type: "success",
-          title: "Nueva quedada",
-          message: "Se ha creado una nueva quedada.",
-        });
-      }
-    });
-
-    es.addEventListener("MEETUP_JOINED", () => {
-      markUpdates();
-      emit("meetup_changed", { type: "joined_sse" });
-
-      pushToast({
-        type: "info",
-        title: "Actualización",
-        message: "Alguien se ha apuntado a una quedada.",
-      });
-    });
-
-    es.addEventListener("MEETUP_LEFT", () => {
-      markUpdates();
-      emit("meetup_changed", { type: "left_sse" });
-
-      pushToast({
-        type: "info",
-        title: "Actualización",
-        message: "Alguien se ha desapuntado de una quedada.",
-      });
-    });
-
-    es.addEventListener("MEETUP_CANCELLED", () => {
-      markUpdates();
-      emit("meetup_changed", { type: "cancelled_sse" });
-
-      pushToast({
-        type: "warn",
-        title: "Quedada cancelada",
-        message: "Se ha cancelado una quedada.",
-      });
-    });
-
-    es.addEventListener("MEETUP_DONE", () => {
-      markUpdates();
-      emit("meetup_changed", { type: "done_sse" });
-
-      pushToast({
-        type: "success",
-        title: "Quedada finalizada",
-        message: "Una quedada se ha marcado como hecha.",
-      });
-    });
-
-    es.addEventListener("GROUP_DELETED", (e) => {
-      markUpdates();
-      emit("meetup_changed", { type: "group_deleted_sse" });
-
-      let payload = null;
-      try {
-        payload = JSON.parse(e.data);
-      } catch {}
-
-      const groupId = payload?.group_id ? Number(payload.group_id) : null;
-
-      pushToast({
-        type: "warn",
-        title: "Grupo eliminado",
-        message: groupId
-          ? `Se ha eliminado el grupo #${groupId}.`
-          : "Se ha eliminado un grupo.",
-      });
-    });
-
-    es.onerror = () => {};
-
-    return () => {
-      esRef.current?.close?.();
-      esRef.current = null;
-    };
-  }, [API_BASE, authLoading, isAuthed, pushToast]);
+  const { toasts, removeToast } = useLiveMeetupEvents({
+    enabled: isAuthed,
+    onAgendaUpdate: () => setHasAgendaUpdates(true),
+  });
 
   return (
     <section className="page">
-      <div className="page__hero glass-banner">
-        <div className="glass-banner__body">
-          <div className="page__header">
-            <h1 className="page__title">
-              {isAuthed
-                ? `Hola${me?.handle ? `, ${me.handle}` : ""}`
-                : "Conecta deporte, comunidad y actividad"}
-            </h1>
-            <p className="page__subtitle">
-              {isAuthed
-                ? "Consulta tu agenda, revisa novedades y accede rápido a grupos y quedadas."
-                : "Tu punto de encuentro para descubrir grupos, planificar salidas y mantener tu actividad deportiva conectada."}
-            </p>
+      <div className="page__hero home-hero">
+        <div className="home-hero__body">
+          <div className="home-hero__content">
+            <div className="page__header">
+              <span className="page__eyebrow">
+                {isAuthed ? "Dashboard" : "App social deportiva"}
+              </span>
+
+              <h1 className="page__title">
+                {isAuthed
+                  ? `Hola${me?.handle ? `, ${me.handle}` : ""}`
+                  : "Conecta deporte, comunidad y actividad"}
+              </h1>
+
+              <p className="page__subtitle">
+                {isAuthed
+                  ? "Consulta tu agenda, revisa novedades y accede rápido a grupos, mensajes y quedadas."
+                  : "Tu punto de encuentro para descubrir grupos, planificar salidas y mantener tu actividad deportiva conectada."}
+              </p>
+            </div>
+
+            {isAuthed ? (
+              <div className="stats-strip">
+                <div className="app-stat">
+                  <div className="app-stat__value">{me?.handle ? `@${me.handle}` : "Activa"}</div>
+                  <div className="app-stat__label">Cuenta</div>
+                </div>
+
+                <div className="app-stat">
+                  <div className="app-stat__value">{me?.city || "Sin ciudad"}</div>
+                  <div className="app-stat__label">Ubicación</div>
+                </div>
+
+                <div className="app-stat">
+                  <div className="app-stat__value">
+                    {Array.isArray(me?.disciplines) && me.disciplines.length > 0
+                      ? me.disciplines.length
+                      : me?.discipline || me?.sport
+                        ? 1
+                        : 0}
+                  </div>
+                  <div className="app-stat__label">Disciplinas</div>
+                </div>
+
+                <div className="app-stat">
+                  <div className="app-stat__value">{hasAgendaUpdates ? "Nuevo" : "Al día"}</div>
+                  <div className="app-stat__label">Agenda</div>
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className="split-actions">
+                  <Link to="/login" className="app-btn app-btn--primary app-btn--lg">
+                    Iniciar sesión
+                  </Link>
+                  <Link to="/register" className="app-btn app-btn--secondary app-btn--lg">
+                    Crear cuenta
+                  </Link>
+                </div>
+
+                <div className="home-desktop-metrics">
+                  <DesktopMetric
+                    value="Explora"
+                    label="Actividad local"
+                    text="Encuentra planes, rutas y quedadas deportivas cerca de ti."
+                  />
+                  <DesktopMetric
+                    value="Conecta"
+                    label="Comunidad"
+                    text="Únete a grupos por ciudad, nivel o disciplina."
+                  />
+                  <DesktopMetric
+                    value="Organiza"
+                    label="Agenda"
+                    text="Confirma asistencia y mantén tus salidas bajo control."
+                  />
+                </div>
+              </>
+            )}
           </div>
 
-          {isAuthed ? (
-            <div className="stats-strip">
-              <div className="app-stat">
-                <div className="app-stat__value">{me?.handle ? `@${me.handle}` : "Activa"}</div>
-                <div className="app-stat__label">Cuenta</div>
-              </div>
-              <div className="app-stat">
-                <div className="app-stat__value">{me?.city || "Sin ciudad"}</div>
-                <div className="app-stat__label">Ubicación</div>
-              </div>
-              <div className="app-stat">
-                <div className="app-stat__value">
-                  {Array.isArray(me?.disciplines) && me.disciplines.length > 0
-                    ? me.disciplines.length
-                    : me?.discipline || me?.sport
-                      ? 1
-                      : 0}
+          {!isAuthed ? (
+            <div className="home-hero__aside">
+              <div className="home-hero-card">
+                <div className="home-hero-card__eyebrow">Primera impresión</div>
+                <div className="home-hero-card__title">
+                  Una app social deportiva pensada como producto real
                 </div>
-                <div className="app-stat__label">Disciplinas</div>
-              </div>
-              <div className="app-stat">
-                <div className="app-stat__value">{hasAgendaUpdates ? "Nuevo" : "Al día"}</div>
-                <div className="app-stat__label">Agenda</div>
+                <div className="home-hero-card__list">
+                  <div className="home-hero-card__item">
+                    <span className="app-badge app-badge--primary">Explorar</span>
+                    <span>Descubre actividad local y planes cercanos.</span>
+                  </div>
+                  <div className="home-hero-card__item">
+                    <span className="app-badge app-badge--success">Comunidad</span>
+                    <span>Crea o únete a grupos por deporte, ciudad o nivel.</span>
+                  </div>
+                  <div className="home-hero-card__item">
+                    <span className="app-badge app-badge--warning">Mensajes</span>
+                    <span>Coordina rutas, entrenos y quedadas sin salir de la app.</span>
+                  </div>
+                </div>
+
+                <div className="split-actions">
+                  <Link to="/register" className="app-btn app-btn--primary">
+                    Empezar ahora
+                  </Link>
+                  <Link to="/login" className="app-btn app-btn--ghost">
+                    Ya tengo cuenta
+                  </Link>
+                </div>
               </div>
             </div>
-          ) : (
-          )}
+          ) : null}
         </div>
       </div>
 
       {isAuthed ? (
-        <div className="feed-layout">
+        <div className="feed-layout home-dashboard-layout">
           <div className="feed-column">
             <div className="app-card">
               <div className="app-card__header">
@@ -249,11 +167,13 @@ export default function HomePage() {
                       Próximas quedadas y actividad sincronizada en tiempo real.
                     </div>
                   </div>
+
                   <Link to="/explorar" className="app-btn app-btn--secondary app-btn--sm">
                     Explorar
                   </Link>
                 </div>
               </div>
+
               <div className="app-card__body">
                 <UpcomingMeetups
                   hasUpdates={hasAgendaUpdates}
@@ -263,7 +183,7 @@ export default function HomePage() {
             </div>
           </div>
 
-          <aside className="feed-column">
+          <aside className="feed-column home-dashboard-side">
             <div className="app-card app-card--soft">
               <div className="app-card__body app-stack">
                 <div>
@@ -273,18 +193,29 @@ export default function HomePage() {
                   </div>
                 </div>
 
-                <div className="split-actions">
-                  <Link to="/groups" className="app-btn app-btn--secondary">
-                    Ver grupos
+                <div className="home-quick-grid">
+                  <Link to="/groups" className="home-quick-card">
+                    <span className="app-badge app-badge--primary">Grupos</span>
+                    <strong>Ver grupos</strong>
+                    <span>Descubre comunidad y organiza planes.</span>
                   </Link>
-                  <Link to="/mensajes" className="app-btn app-btn--secondary">
-                    Mensajes
+
+                  <Link to="/mensajes" className="home-quick-card">
+                    <span className="app-badge app-badge--success">Mensajes</span>
+                    <strong>Conversaciones</strong>
+                    <span>Coordina quedadas y responde rápido.</span>
                   </Link>
-                  <Link to="/perfil" className="app-btn app-btn--secondary">
-                    Mi perfil
+
+                  <Link to="/perfil" className="home-quick-card">
+                    <span className="app-badge app-badge--warning">Perfil</span>
+                    <strong>Mi perfil</strong>
+                    <span>Gestiona identidad, agenda y publicaciones.</span>
                   </Link>
-                  <Link to="/notificaciones" className="app-btn app-btn--secondary">
-                    Notificaciones
+
+                  <Link to="/notificaciones" className="home-quick-card">
+                    <span className="app-badge app-badge--neutral">Avisos</span>
+                    <strong>Notificaciones</strong>
+                    <span>Consulta novedades y cambios recientes.</span>
                   </Link>
                 </div>
               </div>
@@ -310,7 +241,7 @@ export default function HomePage() {
           </aside>
         </div>
       ) : (
-        <div className="page__columns">
+        <div className="page__columns home-public-columns">
           <div className="app-card">
             <div className="app-card__body app-stack app-stack--lg">
               <div>
@@ -321,35 +252,24 @@ export default function HomePage() {
               </div>
 
               <div className="app-grid app-grid--cards">
-                <article className="app-card app-card--soft feed-card">
-                  <div className="feed-card__body">
-                    <div className="app-badge app-badge--primary">Explorar</div>
-                    <div className="feed-card__title">Descubre actividad local</div>
-                    <p className="feed-card__text">
-                      Encuentra quedadas, rutas y planes deportivos cerca de ti.
-                    </p>
-                  </div>
-                </article>
-
-                <article className="app-card app-card--soft feed-card">
-                  <div className="feed-card__body">
-                    <div className="app-badge app-badge--success">Comunidad</div>
-                    <div className="feed-card__title">Crea o únete a grupos</div>
-                    <p className="feed-card__text">
-                      Organiza comunidades por deporte, ciudad o nivel de actividad.
-                    </p>
-                  </div>
-                </article>
-
-                <article className="app-card app-card--soft feed-card">
-                  <div className="feed-card__body">
-                    <div className="app-badge app-badge--warning">Agenda</div>
-                    <div className="feed-card__title">Coordina tus salidas</div>
-                    <p className="feed-card__text">
-                      Sigue la agenda, confirma asistencia y mantén tus planes actualizados.
-                    </p>
-                  </div>
-                </article>
+                <BenefitCard
+                  badgeClass="app-badge--primary"
+                  badgeText="Explorar"
+                  title="Descubre actividad local"
+                  text="Encuentra quedadas, rutas y planes deportivos cerca de ti."
+                />
+                <BenefitCard
+                  badgeClass="app-badge--success"
+                  badgeText="Comunidad"
+                  title="Crea o únete a grupos"
+                  text="Organiza comunidades por deporte, ciudad o nivel de actividad."
+                />
+                <BenefitCard
+                  badgeClass="app-badge--warning"
+                  badgeText="Agenda"
+                  title="Coordina tus salidas"
+                  text="Sigue la agenda, confirma asistencia y mantén tus planes actualizados."
+                />
               </div>
             </div>
           </div>
