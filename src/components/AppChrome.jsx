@@ -1,4 +1,7 @@
 import { NavLink } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { useAuth } from "../hooks/useAuth";
+import { apiDMThreads } from "../services/api";
 
 function ShellIcon({ children }) {
   return (
@@ -67,10 +70,16 @@ const NAV_ITEMS = [
   { to: "/", icon: <IconHome />, label: "Inicio" },
   { to: "/explorar", icon: <IconMeetups />, label: "Quedadas" },
   { to: "/groups", icon: <IconUsers />, label: "Grupos" },
-  { to: "/mensajes", icon: <IconMessage />, label: "Mensajes" },
+  { to: "/mensajes", icon: <IconMessage />, label: "Mensajes", withCounter: true },
 ];
 
-function DesktopNavItem({ to, icon, label }) {
+function getUnreadCount(thread) {
+  if (typeof thread?.unread_count === "number") return thread.unread_count;
+  if (thread?.unread === true) return 1;
+  return 0;
+}
+
+function DesktopNavItem({ to, icon, label, badgeCount = 0 }) {
   return (
     <NavLink
       to={to}
@@ -81,11 +90,53 @@ function DesktopNavItem({ to, icon, label }) {
       }
     >
       <span className="app-sidebar__iconGlyph">{icon}</span>
+
+      {badgeCount > 0 ? (
+        <span className="app-sidebar__iconBadge">
+          {badgeCount > 99 ? "99+" : badgeCount}
+        </span>
+      ) : null}
     </NavLink>
   );
 }
 
 export default function AppChrome() {
+  const { token } = useAuth();
+  const [unreadMessages, setUnreadMessages] = useState(0);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadUnread() {
+      if (!token) {
+        setUnreadMessages(0);
+        return;
+      }
+
+      try {
+        const res = await apiDMThreads("", token);
+        const items = Array.isArray(res) ? res : res?.items || [];
+        const total = items.reduce((acc, thread) => acc + getUnreadCount(thread), 0);
+
+        if (!cancelled) {
+          setUnreadMessages(total);
+        }
+      } catch {
+        if (!cancelled) {
+          setUnreadMessages(0);
+        }
+      }
+    }
+
+    loadUnread();
+    const intervalId = window.setInterval(loadUnread, 20000);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(intervalId);
+    };
+  }, [token]);
+
   return (
     <>
       <header className="app-topbar app-topbar--minimal">
@@ -106,7 +157,13 @@ export default function AppChrome() {
         <div className="app-sidebar__floatingRail">
           <nav className="app-sidebar__iconNav">
             {NAV_ITEMS.map((item) => (
-              <DesktopNavItem key={item.to} {...item} />
+              <DesktopNavItem
+                key={item.to}
+                to={item.to}
+                icon={item.icon}
+                label={item.label}
+                badgeCount={item.withCounter ? unreadMessages : 0}
+              />
             ))}
           </nav>
 
