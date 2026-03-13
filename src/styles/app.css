@@ -1456,6 +1456,367 @@ textarea.input:focus {
   box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
 }
 
+.profilePage {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.profilePage__hero {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.profilePage__identity {
+  display: grid;
+  gap: var(--space-4);
+  align-items: start;
+}
+
+.profilePage__avatarImage,
+.profilePage__avatarFallback {
+  width: 96px;
+  height: 96px;
+  border-radius: 28px;
+}
+
+.profilePage__avatarImage {
+  object-fit: cover;
+  border: 1px solid var(--app-border);
+}
+
+.profilePage__avatarFallback {
+  display: grid;
+  place-items: center;
+  background: linear-gradient(180deg, rgba(79, 140, 255, 0.3) 0%, rgba(47, 111, 230, 0.34) 100%);
+  border: 1px solid rgba(79, 140, 255, 0.24);
+  color: #ffffff;
+  font-size: 1.6rem;
+  font-weight: 800;
+}
+
+.profilePage__identityCopy {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.profilePage__name {
+  margin: 0;
+  font-size: clamp(1.5rem, 4vw, 2.2rem);
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+}
+
+.profilePage__handle {
+  margin: 0;
+  color: var(--app-text-faint);
+  font-size: var(--font-sm);
+  font-weight: 600;
+}
+
+.profilePage__bio {
+  margin: 0;
+  color: var(--app-text-soft);
+  max-width: 64ch;
+}
+
+.profilePage__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.profilePage__stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.profilePage__statLink {
+  text-decoration: none;
+}
+
+.profilePage__stat,
+.profilePage__statLink {
+  display: block;
+}
+
+.profilePage__stat {
+  padding: var(--space-4);
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.profilePage__statLink .profilePage__stat {
+  transition:
+    border-color var(--transition-fast),
+    transform var(--transition-fast),
+    background var(--transition-fast);
+}
+
+.profilePage__statLink:hover .profilePage__stat {
+  transform: translateY(-1px);
+  border-color: var(--app-border-strong);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.profilePage__statValue {
+  display: block;
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.profilePage__statLabel {
+  display: block;
+  margin-top: 0.2rem;
+  color: var(--app-text-faint);
+  font-size: var(--font-sm);
+}
+
+.profilePage__tabsCard {
+  padding: var(--space-3);
+}
+
+.profilePage__tabs {
+  display: inline-grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+  width: 100%;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--app-border);
+  padding: 0.35rem;
+  border-radius: var(--radius-pill);
+}
+
+.profilePage__tab {
+  min-height: 42px;
+  border: 0;
+  background: transparent;
+  color: var(--app-text-soft);
+  font-weight: 700;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.profilePage__tab:hover {
+  color: var(--app-text);
+}
+
+.profilePage__tab--active {
+  background: var(--app-primary-soft);
+  color: #e7f0ff;
+}
+
+.profilePage__activityLayout {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.profilePage__calendarWrap {
+  min-width: 0;
+}
+
+.profilePage__sectionHead {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-4);
+  align-items: flex-start;
+}
+
+.profilePage__activityList {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.profilePage__activityCard {
+  padding: var(--space-4);
+}
+
+.profilePage__postsCard {
+  gap: var(--space-5);
+}
+
+.messagesPage {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.messagesPage__hero {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.messagesPage__heroCopy {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.messagesPage__title {
+  margin: 0;
+  font-size: clamp(1.45rem, 4vw, 2.1rem);
+  line-height: 1.04;
+  letter-spacing: -0.03em;
+}
+
+.messagesPage__description {
+  margin: 0;
+  color: var(--app-text-soft);
+  max-width: 62ch;
+}
+
+.messagesPage__heroActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.messagesPage__layout {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.messagesPage__inbox,
+.messagesPage__tips {
+  gap: var(--space-5);
+}
+
+.messagesPage__search {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.messagesPage__threadList {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.messagesPage__thread {
+  width: 100%;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: var(--space-3);
+  align-items: center;
+  padding: var(--space-3);
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.025);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color var(--transition-fast),
+    background var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.messagesPage__thread:hover {
+  transform: translateY(-1px);
+  border-color: var(--app-border-strong);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.messagesPage__threadAvatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(180deg, rgba(79, 140, 255, 0.28) 0%, rgba(47, 111, 230, 0.34) 100%);
+  color: #ffffff;
+  font-weight: 800;
+  border: 1px solid rgba(79, 140, 255, 0.2);
+}
+
+.messagesPage__threadAvatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.messagesPage__threadBody {
+  min-width: 0;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.messagesPage__threadTop {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  align-items: center;
+}
+
+.messagesPage__threadName {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.messagesPage__threadTime {
+  flex: 0 0 auto;
+  color: var(--app-text-faint);
+  font-size: var(--font-xs);
+}
+
+.messagesPage__threadSnippet {
+  margin: 0;
+  color: var(--app-text-soft);
+  font-size: var(--font-sm);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.messagesPage__threadMeta {
+  display: grid;
+  place-items: center;
+  min-width: 18px;
+}
+
+.messagesPage__unreadBadge {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--app-primary);
+  box-shadow: 0 0 0 6px rgba(79, 140, 255, 0.14);
+}
+
+.messagesPage__chevron {
+  color: var(--app-text-faint);
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.messagesPage__tipsList {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.messagesPage__tip {
+  padding: var(--space-4);
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.messagesPage__tip strong {
+  display: block;
+  margin-bottom: 0.35rem;
+}
+
+.messagesPage__tip p {
+  margin: 0;
+  color: var(--app-text-soft);
+  font-size: var(--font-sm);
+}
+
 .ui-modalBackdrop {
   position: fixed;
   inset: 0;
@@ -1585,6 +1946,14 @@ textarea.input:focus {
   .toast {
     min-width: auto;
   }
+
+  .messagesPage__thread {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .messagesPage__threadMeta {
+    display: none;
+  }
 }
 
 @media (min-width: 640px) {
@@ -1602,6 +1971,14 @@ textarea.input:focus {
     width: min(560px, calc(100vw - 2rem));
     transform: translateX(-50%);
   }
+
+  .profilePage__identity {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .profilePage__stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 }
 
 @media (min-width: 768px) {
@@ -1618,6 +1995,11 @@ textarea.input:focus {
   .postsGrid__grid {
     grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 6px;
+  }
+
+  .messagesPage__layout {
+    grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.8fr);
+    align-items: start;
   }
 }
 
@@ -1652,6 +2034,11 @@ textarea.input:focus {
 
   .hero-card {
     grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.85fr);
+  }
+
+  .profilePage__activityLayout {
+    grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.95fr);
+    align-items: start;
   }
 }
 
