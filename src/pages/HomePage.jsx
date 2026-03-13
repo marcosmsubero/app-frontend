@@ -5,23 +5,30 @@ import Toasts from "../components/Toasts";
 import { useAuth } from "../hooks/useAuth";
 import { useLiveMeetupEvents } from "../hooks/useLiveMeetupEvents";
 
-function MetricCard({ value, label, description }) {
+function MetricCard({ value, label, description, tone = "primary" }) {
   return (
-    <article className="app-card">
-      <div className="app-stack app-stack--sm">
-        <span className="app-badge app-badge--primary">{label}</span>
-        <strong className="homeMetricCard__value">{value}</strong>
-        <p className="app-card__description">{description}</p>
+    <article className="homePage__metricCard app-card">
+      <div className="homePage__metricHead">
+        <span className={`app-badge${tone !== "neutral" ? ` app-badge--${tone}` : ""}`}>
+          {label}
+        </span>
+      </div>
+
+      <div className="homePage__metricBody">
+        <strong className="homePage__metricValue">{value}</strong>
+        <p className="homePage__metricDescription">{description}</p>
       </div>
     </article>
   );
 }
 
-function FeatureCard({ badge, title, text, to, cta }) {
+function FeatureCard({ badge, title, text, to, cta, tone = "neutral" }) {
   return (
-    <article className="app-card app-card--interactive">
+    <article className="homePage__featureCard app-card app-card--interactive">
       <div className="app-card__header">
-        <span className="app-badge">{badge}</span>
+        <span className={`app-badge${tone !== "neutral" ? ` app-badge--${tone}` : ""}`}>
+          {badge}
+        </span>
         <h3 className="app-card__title">{title}</h3>
         <p className="app-card__description">{text}</p>
       </div>
@@ -37,13 +44,27 @@ function FeatureCard({ badge, title, text, to, cta }) {
 
 function QuickAction({ to, title, text }) {
   return (
-    <Link to={to} className="app-card app-card--interactive homeQuickAction">
-      <div className="app-card__header">
+    <Link to={to} className="homePage__quickAction app-card app-card--interactive">
+      <div className="homePage__quickActionInner">
         <span className="app-badge app-badge--primary">Acceso rápido</span>
         <h3 className="app-card__title">{title}</h3>
         <p className="app-card__description">{text}</p>
       </div>
     </Link>
+  );
+}
+
+function InsightCard({ kicker, title, text, actions }) {
+  return (
+    <article className="homePage__insightCard app-card">
+      <div className="app-card__header">
+        <span className="app-kicker">{kicker}</span>
+        <h3 className="homePage__insightTitle">{title}</h3>
+        <p className="app-card__description">{text}</p>
+      </div>
+
+      {actions ? <div className="app-card__footer">{actions}</div> : null}
+    </article>
   );
 }
 
@@ -71,96 +92,93 @@ export default function HomePage() {
   if (!isAuthed) {
     return (
       <>
-        <div className="app-page home-shell">
-          <section className="app-card hero-card">
-            <div className="app-stack app-stack--lg">
-              <div className="app-stack app-stack--sm">
-                <p className="app-kicker">App social deportiva</p>
-                <h2 className="app-title">
-                  Organiza grupos, actividades y mensajes desde una interfaz clara y preparada para crecer.
-                </h2>
-                <p className="app-copy homeHero__copy">
-                  Una experiencia pensada para runners, ciclistas y deportistas que quieren descubrir planes, coordinar
-                  quedadas y mantener su comunidad activa tanto en móvil como en escritorio.
+        <div className="app-page homePage">
+          <section className="homePage__hero homePage__hero--guest app-section">
+            <div className="homePage__heroMain">
+              <div className="homePage__heroCopy">
+                <span className="app-kicker">App social deportiva</span>
+
+                <h1 className="homePage__heroTitle">
+                  Organiza grupos, actividades y conversaciones desde una interfaz
+                  limpia, rápida y lista para escalar.
+                </h1>
+
+                <p className="homePage__heroSubtitle">
+                  Una experiencia pensada para runners, ciclistas y deportistas que
+                  quieren descubrir planes, coordinar quedadas y mantener su comunidad
+                  activa en móvil y escritorio con una base visual coherente.
                 </p>
               </div>
 
-              <div className="app-inline">
-                <Link to="/login" className="app-button app-button--primary">
+              <div className="homePage__heroActions">
+                <Link to="/login" className="app-button app-button--primary app-button--lg">
                   Iniciar sesión
                 </Link>
-                <Link to="/register" className="app-button app-button--secondary">
+                <Link to="/register" className="app-button app-button--secondary app-button--lg">
                   Crear cuenta
                 </Link>
               </div>
 
-              <div className="app-grid app-grid--cards">
+              <div className="homePage__metricGrid">
                 <MetricCard
                   value="24/7"
                   label="Disponibilidad"
+                  tone="primary"
                   description="Comunidad, agenda y conversaciones accesibles en cualquier momento."
                 />
                 <MetricCard
                   value="1"
                   label="Sistema visual"
-                  description="Una base coherente para escalar producto sin fragmentar la UI."
+                  tone="success"
+                  description="Una base coherente para escalar producto sin fragmentar la experiencia."
                 />
                 <MetricCard
                   value="Mobile"
                   label="Primero"
-                  description="Diseño compacto, navegación inferior y adaptación fluida a desktop."
+                  tone="warning"
+                  description="Diseño compacto en móvil y expansión elegante en escritorio."
                 />
               </div>
             </div>
 
-            <div className="app-stack">
-              <article className="app-card">
-                <div className="app-card__header">
-                  <span className="app-badge app-badge--success">Qué puedes hacer</span>
-                  <h3 className="app-card__title">Tu espacio deportivo en una sola app</h3>
-                  <p className="app-card__description">
-                    La home debe funcionar como punto de entrada, resumen de actividad y lanzadera hacia el resto del
-                    producto.
-                  </p>
-                </div>
-
-                <div className="app-stack app-stack--sm">
-                  <div className="app-inline">
+            <div className="homePage__heroAside">
+              <InsightCard
+                kicker="Qué puedes hacer"
+                title="Tu espacio deportivo en una sola app"
+                text="La home actúa como punto de entrada, resumen de actividad y lanzadera hacia grupos, agenda, mensajes y perfil."
+                actions={
+                  <div className="homePage__tagRow">
                     <span className="app-badge">Grupos</span>
                     <span className="app-badge">Agenda</span>
                     <span className="app-badge">Mensajes</span>
                     <span className="app-badge">Perfil</span>
                     <span className="app-badge">Actividad</span>
                   </div>
-
-                  <div className="app-divider" />
-
-                  <p className="app-card__description homeCard__descriptionFlush">
-                    Esta pantalla queda preparada para evolucionar después con métricas reales, onboarding contextual y
-                    bloques dinámicos conectados al backend.
-                  </p>
-                </div>
-              </article>
+                }
+              />
             </div>
           </section>
 
-          <section className="app-grid app-grid--cards">
+          <section className="homePage__featureGrid">
             <FeatureCard
               badge="Comunidad"
+              tone="primary"
               title="Explora actividad cerca de ti"
-              text="Encuentra nuevas rutas, entrenamientos compartidos y planes deportivos con mejor visibilidad."
+              text="Encuentra nuevas rutas, entrenamientos compartidos y planes deportivos con una visibilidad más clara."
               to="/explorar"
               cta="Ir a explorar"
             />
             <FeatureCard
               badge="Coordinación"
+              tone="success"
               title="Crea o únete a grupos"
-              text="Organiza quedadas, comparte contexto y da continuidad a la comunidad deportiva."
+              text="Organiza quedadas, comparte contexto y da continuidad a tu comunidad deportiva."
               to="/groups"
               cta="Ver grupos"
             />
             <FeatureCard
               badge="Conversación"
+              tone="warning"
               title="Mantén vivo el plan"
               text="Una mensajería más limpia para cerrar detalles sin fricción entre participantes."
               to="/mensajes"
@@ -176,64 +194,67 @@ export default function HomePage() {
 
   return (
     <>
-      <div className="app-page home-shell">
-        <section className="app-card hero-card">
-          <div className="app-stack app-stack--lg">
-            <div className="app-stack app-stack--sm">
-              <p className="app-kicker">Workspace deportivo</p>
-              <h2 className="app-title">
-                Bienvenido{me?.handle ? `, ${me.handle}` : ""}. Tu actividad y tu agenda quedan visibles desde aquí.
-              </h2>
-              <p className="app-copy homeHero__copy">
-                Usa esta pantalla como dashboard principal: acceso rápido a grupos, mensajes, perfil y próximas
-                quedadas, con un lenguaje visual más estable y profesional.
+      <div className="app-page homePage">
+        <section className="homePage__hero homePage__hero--authed app-section">
+          <div className="homePage__heroMain">
+            <div className="homePage__heroCopy">
+              <span className="app-kicker">Workspace deportivo</span>
+
+              <h1 className="homePage__heroTitle">
+                Bienvenido{me?.handle ? `, ${me.handle}` : ""}. Tu actividad,
+                tu agenda y tus siguientes acciones empiezan aquí.
+              </h1>
+
+              <p className="homePage__heroSubtitle">
+                Usa esta pantalla como dashboard principal para ver prioridades,
+                próximos planes y accesos rápidos con una estructura más limpia y profesional.
               </p>
             </div>
 
-            <div className="app-grid app-grid--cards metrics-grid">
+            <div className="homePage__metricGrid">
               <MetricCard
                 value={`${profileCompletion}%`}
                 label="Perfil"
-                description="Indicador simple para priorizar onboarding y mejorar la identidad del usuario."
+                tone="primary"
+                description="Indicador simple para completar tu identidad y mejorar confianza y descubrimiento."
               />
               <MetricCard
                 value="Live"
                 label="Agenda"
-                description="Las novedades de quedadas se refrescan desde eventos en tiempo real."
+                tone="success"
+                description="Las novedades de quedadas se refrescan con eventos en tiempo real."
               />
               <MetricCard
                 value="Ready"
                 label="Producto"
-                description="Base visual más sólida para seguir refinando pantallas sociales y flujos internos."
+                tone="warning"
+                description="Base visual estable para seguir creciendo sin perder consistencia."
               />
             </div>
           </div>
 
-          <div className="app-stack">
+          <div className="homePage__heroAside">
             <UpcomingMeetups key={agendaVersion} />
 
-            <article className="app-card">
-              <div className="app-card__header">
-                <span className="app-badge app-badge--warning">Siguiente paso recomendado</span>
-                <h3 className="app-card__title">Completa tu perfil y activa mejor la comunidad</h3>
-                <p className="app-card__description">
-                  Un perfil más completo mejora descubrimiento, confianza y calidad percibida dentro del producto.
-                </p>
-              </div>
-
-              <div className="app-card__footer">
-                <Link to="/perfil" className="app-button app-button--primary app-button--sm">
-                  Revisar perfil
-                </Link>
-                <Link to="/ajustes" className="app-button app-button--ghost app-button--sm">
-                  Ajustes
-                </Link>
-              </div>
-            </article>
+            <InsightCard
+              kicker="Siguiente paso recomendado"
+              title="Completa tu perfil y activa mejor la comunidad"
+              text="Un perfil más completo mejora descubrimiento, confianza y calidad percibida dentro del producto."
+              actions={
+                <>
+                  <Link to="/perfil" className="app-button app-button--primary app-button--sm">
+                    Revisar perfil
+                  </Link>
+                  <Link to="/ajustes" className="app-button app-button--ghost app-button--sm">
+                    Ajustes
+                  </Link>
+                </>
+              }
+            />
           </div>
         </section>
 
-        <section className="app-grid app-grid--cards quick-actions">
+        <section className="homePage__quickGrid">
           <QuickAction
             to="/explorar"
             title="Explorar actividad"
@@ -256,9 +277,10 @@ export default function HomePage() {
           />
         </section>
 
-        <section className="app-grid app-grid--cards">
+        <section className="homePage__featureGrid">
           <FeatureCard
             badge="Jerarquía"
+            tone="primary"
             title="Home más clara y menos densa"
             text="La información principal pasa a estar agrupada por prioridad y no por acumulación visual."
             to="/explorar"
@@ -266,13 +288,15 @@ export default function HomePage() {
           />
           <FeatureCard
             badge="Responsive"
+            tone="success"
             title="Preparada para móvil y desktop"
-            text="El contenido se apila en móvil y aprovecha mejor el ancho disponible en escritorio."
+            text="El contenido se apila con naturalidad en móvil y aprovecha mejor el ancho disponible en escritorio."
             to="/groups"
             cta="Ver grupos"
           />
           <FeatureCard
             badge="Escalabilidad"
+            tone="warning"
             title="Base útil para siguientes pantallas"
             text="Este patrón permite replicar cards, acciones y bloques informativos en el resto del producto."
             to="/perfil"
