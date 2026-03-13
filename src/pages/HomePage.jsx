@@ -37,22 +37,22 @@ export default function HomePage() {
   });
 
   return (
-    <section className="page">
+    <section className="page home-page">
       <div className="page__hero home-hero">
         <div className="home-hero__body">
           <div className="home-hero__content">
-            <div className="page__header">
+            <div className="page__header home-hero__header">
               <span className="page__eyebrow">
                 {isAuthed ? "Dashboard" : "App social deportiva"}
               </span>
 
-              <h1 className="page__title">
+              <h1 className="page__title home-hero__title">
                 {isAuthed
                   ? `Hola${me?.handle ? `, ${me.handle}` : ""}`
                   : "Conecta deporte, comunidad y actividad"}
               </h1>
 
-              <p className="page__subtitle">
+              <p className="page__subtitle home-hero__subtitle">
                 {isAuthed
                   ? "Consulta tu agenda, revisa novedades y accede rápido a grupos, mensajes y quedadas."
                   : "Tu punto de encuentro para descubrir grupos, planificar salidas y mantener tu actividad deportiva conectada."}
@@ -126,15 +126,18 @@ export default function HomePage() {
                 <div className="home-hero-card__title">
                   Una app social deportiva pensada como producto real
                 </div>
+
                 <div className="home-hero-card__list">
                   <div className="home-hero-card__item">
                     <span className="app-badge app-badge--primary">Explorar</span>
                     <span>Descubre actividad local y planes cercanos.</span>
                   </div>
+
                   <div className="home-hero-card__item">
                     <span className="app-badge app-badge--success">Comunidad</span>
                     <span>Crea o únete a grupos por deporte, ciudad o nivel.</span>
                   </div>
+
                   <div className="home-hero-card__item">
                     <span className="app-badge app-badge--warning">Mensajes</span>
                     <span>Coordina rutas, entrenos y quedadas sin salir de la app.</span>
@@ -241,40 +244,42 @@ export default function HomePage() {
           </aside>
         </div>
       ) : (
-        <div className="page__columns home-public-columns">
-          <div className="app-card">
-            <div className="app-card__body app-stack app-stack--lg">
-              <div>
-                <div className="app-section-header__title">Qué puedes hacer</div>
-                <div className="app-section-header__subtitle">
-                  Una app social deportiva pensada para planificar, conectar y salir a entrenar.
+        <div className="home-public-columns">
+          <div className="home-public-main">
+            <div className="app-card">
+              <div className="app-card__body app-stack app-stack--lg">
+                <div>
+                  <div className="app-section-header__title">Qué puedes hacer</div>
+                  <div className="app-section-header__subtitle">
+                    Una app social deportiva pensada para planificar, conectar y salir a entrenar.
+                  </div>
                 </div>
-              </div>
 
-              <div className="app-grid app-grid--cards">
-                <BenefitCard
-                  badgeClass="app-badge--primary"
-                  badgeText="Explorar"
-                  title="Descubre actividad local"
-                  text="Encuentra quedadas, rutas y planes deportivos cerca de ti."
-                />
-                <BenefitCard
-                  badgeClass="app-badge--success"
-                  badgeText="Comunidad"
-                  title="Crea o únete a grupos"
-                  text="Organiza comunidades por deporte, ciudad o nivel de actividad."
-                />
-                <BenefitCard
-                  badgeClass="app-badge--warning"
-                  badgeText="Agenda"
-                  title="Coordina tus salidas"
-                  text="Sigue la agenda, confirma asistencia y mantén tus planes actualizados."
-                />
+                <div className="app-grid app-grid--cards">
+                  <BenefitCard
+                    badgeClass="app-badge--primary"
+                    badgeText="Explorar"
+                    title="Descubre actividad local"
+                    text="Encuentra quedadas, rutas y planes deportivos cerca de ti."
+                  />
+                  <BenefitCard
+                    badgeClass="app-badge--success"
+                    badgeText="Comunidad"
+                    title="Crea o únete a grupos"
+                    text="Organiza comunidades por deporte, ciudad o nivel de actividad."
+                  />
+                  <BenefitCard
+                    badgeClass="app-badge--warning"
+                    badgeText="Agenda"
+                    title="Coordina tus salidas"
+                    text="Sigue la agenda, confirma asistencia y mantén tus planes actualizados."
+                  />
+                </div>
               </div>
             </div>
           </div>
 
-          <aside className="page__sidebar">
+          <aside className="home-public-aside">
             <div className="app-card">
               <div className="app-card__body app-stack">
                 <div className="app-section-header__title">Empieza ahora</div>
