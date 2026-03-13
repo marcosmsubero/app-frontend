@@ -251,7 +251,7 @@ function QuickNavItem({ to, label, icon }) {
   );
 }
 
-export default function AppChrome({ me }) {
+export default function AppChrome({ me, children }) {
   const location = useLocation();
   const navigate = useNavigate();
   const meta = getPageMeta(location.pathname);
@@ -262,10 +262,8 @@ export default function AppChrome({ me }) {
 
   function handleSearchSubmit(event) {
     event.preventDefault();
-
     const q = search.trim();
     if (!q) return;
-
     navigate(`/groups?q=${encodeURIComponent(q)}`);
   }
 
@@ -369,10 +367,10 @@ export default function AppChrome({ me }) {
                   </span>
 
                   <NavLink to="/perfil" className="app-sidebar__profile-link">
-                    Ver perfil
+                    <span>Ver perfil</span>
                     <span
+                      className="app-sidebar__profile-linkIcon"
                       aria-hidden="true"
-                      style={{ display: "inline-flex", marginLeft: 6 }}
                     >
                       <IconArrowUpRight />
                     </span>
@@ -382,7 +380,9 @@ export default function AppChrome({ me }) {
             </div>
           </aside>
 
-          <main className="app-shell__content" role="main" />
+          <main className="app-shell__content" role="main">
+            {children}
+          </main>
         </div>
       </div>
     </div>
