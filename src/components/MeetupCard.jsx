@@ -1,78 +1,50 @@
 function parseStartsAt(startsAt) {
   if (!startsAt) return null;
 
-  // Si ya viene con timezone (Z o +hh:mm / -hh:mm), lo usamos tal cual
   const hasTZ = /[zZ]$/.test(startsAt) || /[+-]\d{2}:\d{2}$/.test(startsAt);
-
-  // Si viene naive (sin TZ), lo tratamos como UTC añadiendo Z
   return new Date(hasTZ ? startsAt : `${startsAt}Z`);
 }
 
-function startOfDay(d) {
-  const x = d instanceof Date ? new Date(d) : parseStartsAt(d);
-  if (!x || isNaN(x.getTime())) return new Date(NaN);
-  x.setHours(0, 0, 0, 0);
-  return x;
+function startOfDay(value) {
+  const date = value instanceof Date ? new Date(value) : parseStartsAt(value);
+  if (!date || Number.isNaN(date.getTime())) return new Date(NaN);
+  date.setHours(0, 0, 0, 0);
+  return date;
 }
 
 function daysFromNow(dateStr) {
-  const d = startOfDay(dateStr);
+  const date = startOfDay(dateStr);
   const today = startOfDay(new Date());
-  return Math.round((d - today) / (1000 * 60 * 60 * 24));
+  return Math.round((date - today) / (1000 * 60 * 60 * 24));
 }
 
-function WhenBadge({ startsAt }) {
+function getWhenBadge(startsAt) {
   const diff = daysFromNow(startsAt);
 
-  let label = "";
-  let style = {};
-
-  if (diff === 0) {
-    label = "Hoy";
-    style = { background: "#1f7a3a" };
-  } else if (diff === 1) {
-    label = "Mañana";
-    style = { background: "#1f5fa8" };
-  } else if (diff > 1) {
-    label = `En ${diff} días`;
-    style = { background: "#444" };
-  } else {
-    label = "Pasada";
-    style = { background: "#a83232" };
-  }
-
-  return (
-    <span className="badge" style={style}>
-      {label}
-    </span>
-  );
+  if (diff === 0) return { label: "Hoy", variant: "success" };
+  if (diff === 1) return { label: "Mañana", variant: "primary" };
+  if (diff > 1) return { label: `En ${diff} días`, variant: "neutral" };
+  return { label: "Pasada", variant: "danger" };
 }
 
-function StatusBadge({ status }) {
-  // Compatibilidad por si apareciera "active" en algún sitio
-  const s = (status || "open") === "active" ? "open" : status || "open";
+function getStatusBadge(status) {
+  const normalized = (status || "open") === "active" ? "open" : status || "open";
 
   const map = {
-    open: { label: "Abierta", style: { background: "#2f2f2f" } },
-    full: { label: "Completa", style: { background: "#6b4f00" } },
-    cancelled: { label: "Cancelada", style: { background: "#a83232" } },
-    done: { label: "Finalizada", style: { background: "#555" } },
+    open: { label: "Abierta", variant: "success" },
+    full: { label: "Completa", variant: "warning" },
+    cancelled: { label: "Cancelada", variant: "danger" },
+    done: { label: "Finalizada", variant: "neutral" },
   };
 
-  const x = map[s] || map.open;
-
-  return (
-    <span className="badge" style={x.style}>
-      {x.label}
-    </span>
-  );
+  return map[normalized] || map.open;
 }
 
 function downloadICS(meetup) {
   if (!meetup?.starts_at) return;
 
   const dt = parseStartsAt(meetup.starts_at);
-  if (!dt || isNaN(dt.getTime())) return;
+  if (!dt || Number.isNaN(dt.getTime())) return;
 
   const start = dt
     .toISOString()
@@ -80,8 +52,8 @@ function downloadICS(meetup) {
     .split(".")[0];
 
   const summary = "Quedada deportiva";
-  const description = (meetup.notes || "").replace(/\n/g, "\\n");
-  const location = (meetup.meeting_point || "").replace(/\n/g, " ");
+  const description = String(meetup.notes || "").replace(/\n/g, "\\n");
+  const location = String(meetup.meeting_point || "").replace(/\n/g, " ");
 
   const content = `
 BEGIN:VCALENDAR
@@ -108,7 +80,7 @@ END:VCALENDAR
 }
 
 function initialsFromEmail(email) {
-  const base = (email || "").split("@")[0] || "";
+  const base = String(email || "").split("@")[0] || "";
   const parts = base.split(/[._-]+/).filter(Boolean);
   const a = (parts[0]?.[0] || base[0] || "?").toUpperCase();
   const b = (parts[1]?.[0] || parts[0]?.[1] || "").toUpperCase();
@@ -117,28 +89,18 @@ function initialsFromEmail(email) {
 
 function ParticipantsRow({ participants = [] }) {
   if (!participants?.length) {
-    return <div className="small-muted">Sin participantes aún</div>;
+    return <div className="meetup-card__hint">Sin participantes aún</div>;
   }
 
   return (
-    <div className="row" style={{ gap: 6, flexWrap: "wrap" }}>
-      {participants.map((p) => (
+    <div className="meetup-card__participants">
+      {participants.map((participant) => (
         <div
-          key={p.id}
-          title={p.email}
-          style={{
-            width: 28,
-            height: 28,
-            borderRadius: 999,
-            display: "grid",
-            placeItems: "center",
-            border: "1px solid rgba(255,255,255,.18)",
-            background: "#141414",
-            fontSize: 12,
-            fontWeight: 700,
-          }}
+          key={participant.id}
+          className="meetup-card__participant"
+          title={participant.email}
         >
-          {initialsFromEmail(p.email)}
+          {initialsFromEmail(participant.email)}
         </div>
       ))}
     </div>
@@ -180,8 +142,6 @@ export default function MeetupCard({
     participants_count,
     capacity,
     is_joined,
-
-    // ✅ extras para BlaBlaRun (si vienen)
     group_name,
     level_tag,
     pace_min,
@@ -191,7 +151,6 @@ export default function MeetupCard({
   const realStatus = status === "active" ? "open" : status;
   const isCancelled = realStatus === "cancelled";
   const isDone = realStatus === "done";
-
   const joined = !!is_joined;
 
   const count = Number.isFinite(participants_count)
@@ -202,109 +161,125 @@ export default function MeetupCard({
   const canLeave = joined;
 
   const dt = parseStartsAt(starts_at);
-  const dateLabel = dt && !isNaN(dt.getTime()) ? dt.toLocaleString() : "—";
+  const dateLabel =
+    dt && !Number.isNaN(dt.getTime())
+      ? dt.toLocaleString("es-ES", {
+          dateStyle: "medium",
+          timeStyle: "short",
+        })
+      : "Fecha no disponible";
 
   const paceLabel = fmtPaceRange(pace_min, pace_max);
   const levelLabel = level_tag ? String(level_tag).toUpperCase() : "";
 
-  return (
-    <div
-      className="stack"
-      style={{
-        padding: 14,
-        borderRadius: 8,
-        background: "#1e1e1e",
-        opacity: isCancelled ? 0.6 : 1,
-      }}
-    >
-      {/* HEADER */}
-      <div className="row" style={{ justifyContent: "space-between", gap: 8 }}>
-        <div className="stack" style={{ gap: 4 }}>
-          <strong>{dateLabel}</strong>
+  const whenBadge = getWhenBadge(starts_at);
+  const statusBadge = getStatusBadge(realStatus);
 
-          {/* ✅ extra: nombre de grupo (si viene) */}
-          {group_name && (
-            <div className="small-muted">
-              Grupo: <b>{group_name}</b>
+  return (
+    <article className={`meetup-card${isCancelled ? " meetup-card--muted" : ""}`}>
+      <div className="meetup-card__header">
+        <div className="meetup-card__date-block">
+          <div className="meetup-card__date">{dateLabel}</div>
+          {group_name ? (
+            <div className="meetup-card__group">
+              Grupo: <strong>{group_name}</strong>
             </div>
-          )}
+          ) : null}
         </div>
 
-        <div className="row" style={{ gap: 8, alignItems: "start" }}>
-          <WhenBadge startsAt={starts_at} />
-          <StatusBadge status={realStatus} />
+        <div className="meetup-card__badges">
+          <span className={`app-badge app-badge--${whenBadge.variant}`}>{whenBadge.label}</span>
+          <span className={`app-badge app-badge--${statusBadge.variant}`}>
+            {statusBadge.label}
+          </span>
         </div>
       </div>
 
-      {/* TAGS (nivel / ritmo) */}
       {(levelLabel || paceLabel) && (
-        <div className="row" style={{ gap: 8, flexWrap: "wrap" }}>
-          {levelLabel && (
-            <span className="badge" style={{ background: "#333" }}>
-              {levelLabel}
-            </span>
-          )}
-          {paceLabel && (
-            <span className="badge" style={{ background: "#333" }}>
-              🏃 {paceLabel}
-            </span>
-          )}
+        <div className="meetup-card__tags">
+          {levelLabel ? <span className="app-chip">{levelLabel}</span> : null}
+          {paceLabel ? <span className="app-chip">🏃 {paceLabel}</span> : null}
         </div>
       )}
 
-      {/* INFO */}
-      <div>
-        <div>
-          📍 <b>{meeting_point}</b>
+      <div className="meetup-card__body">
+        <div className="meetup-card__title-row">
+          <div className="meetup-card__title">📍 {meeting_point || "Punto de encuentro"}</div>
         </div>
 
-        {notes && <div className="small-muted">📝 {notes}</div>}
+        {notes ? <div className="meetup-card__notes">📝 {notes}</div> : null}
 
-        <div className="small-muted">
+        <div className="meetup-card__people">
           👥 {count}
           {capacity ? ` / ${capacity}` : ""} personas
         </div>
+
+        <ParticipantsRow participants={participants} />
       </div>
 
-      {/* PARTICIPANTS */}
-      <ParticipantsRow participants={participants} />
+      <div className="meetup-card__actions">
+        {isAuthed && !isCancelled && !isDone ? (
+          <>
+            {!joined && onJoin ? (
+              <button
+                type="button"
+                className="app-btn app-btn--primary app-btn--sm"
+                onClick={onJoin}
+                disabled={!canJoin}
+              >
+                Apuntarme
+              </button>
+            ) : null}
 
-      {/* ACTIONS */}
-      {isAuthed && !isCancelled && !isDone && (
-        <div className="row" style={{ flexWrap: "wrap", gap: 8 }}>
-          {!joined && onJoin && (
-            <button onClick={onJoin} disabled={!canJoin}>
-              Apuntarme
+            {joined && onLeave ? (
+              <button
+                type="button"
+                className="app-btn app-btn--secondary app-btn--sm"
+                onClick={onLeave}
+                disabled={!canLeave}
+              >
+                Salir
+              </button>
+            ) : null}
+
+            {onCancel ? (
+              <button
+                type="button"
+                className="app-btn app-btn--danger app-btn--sm"
+                onClick={onCancel}
+              >
+                Cancelar
+              </button>
+            ) : null}
+
+            {onDone ? (
+              <button
+                type="button"
+                className="app-btn app-btn--secondary app-btn--sm"
+                onClick={onDone}
+              >
+                Marcar como hecha
+              </button>
+            ) : null}
+
+            <button
+              type="button"
+              className="app-btn app-btn--ghost app-btn--sm"
+              onClick={() => downloadICS(meetup)}
+            >
+              Añadir al calendario
             </button>
-          )}
-
-          {joined && onLeave && (
-            <button onClick={onLeave} disabled={!canLeave}>
-              Salir
-            </button>
-          )}
-
-          {onCancel && (
-            <button className="btn-danger" onClick={onCancel}>
-              Cancelar
-            </button>
-          )}
-
-          {onDone && <button onClick={onDone}>Marcar como hecha</button>}
-
-          <button onClick={() => downloadICS(meetup)}>
-            📅 Añadir al calendario
+          </>
+        ) : (
+          <button
+            type="button"
+            className="app-btn app-btn--ghost app-btn--sm"
+            onClick={() => downloadICS(meetup)}
+          >
+            Añadir al calendario
           </button>
-        </div>
-      )}
-
-      {(isCancelled || isDone) && (
-        <div className="row" style={{ flexWrap: "wrap", gap: 8 }}>
-          <button onClick={() => downloadICS(meetup)}>
-            📅 Añadir al calendario
-          </button>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </article>
   );
 }
