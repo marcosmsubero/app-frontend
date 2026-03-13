@@ -6,7 +6,7 @@ function ShellIcon({ children }) {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="1.9"
+      strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"
@@ -54,6 +54,15 @@ function IconMessage() {
   );
 }
 
+function IconSearch() {
+  return (
+    <ShellIcon>
+      <circle cx="11" cy="11" r="6.5" />
+      <path d="m16 16 4.5 4.5" />
+    </ShellIcon>
+  );
+}
+
 function IconProfile() {
   return (
     <ShellIcon>
@@ -66,24 +75,28 @@ function IconProfile() {
 const ITEMS = [
   { to: "/", label: "Inicio", icon: <IconHome /> },
   { to: "/explorar", label: "Quedadas", icon: <IconMeetups /> },
-  { to: "/groups", label: "Grupos", icon: <IconUsers /> },
   { to: "/mensajes", label: "Mensajes", icon: <IconMessage /> },
+  { to: "/groups", label: "Buscar", icon: <IconSearch /> },
   { to: "/perfil", label: "Perfil", icon: <IconProfile /> },
 ];
 
 export default function BottomNav() {
   return (
-    <nav className="app-bottom-nav" aria-label="Navegación inferior">
+    <nav className="app-bottom-nav app-bottom-nav--instagram" aria-label="Navegación inferior">
       {ITEMS.map((item) => (
         <NavLink
           key={item.to}
           to={item.to}
+          aria-label={item.label}
+          title={item.label}
           className={({ isActive }) =>
-            `app-bottom-nav__item${isActive ? " app-bottom-nav__item--active" : ""}`
+            `app-bottom-nav__item app-bottom-nav__item--iconOnly${
+              isActive ? " app-bottom-nav__item--active" : ""
+            }`
           }
         >
           <span className="app-bottom-nav__icon">{item.icon}</span>
-          <span className="app-bottom-nav__label">{item.label}</span>
+          <span className="sr-only">{item.label}</span>
         </NavLink>
       ))}
     </nav>
