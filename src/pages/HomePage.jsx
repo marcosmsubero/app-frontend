@@ -195,7 +195,7 @@ export default function HomePage() {
                 <span className="app-kicker">Inicio</span>
                 <h1 className="homeFeed__title">Feed deportivo</h1>
                 <p className="homeFeed__subtitle">
-                  Publicaciones de perfiles, actividad reciente y contexto deportivo en una sola vista.
+                  Nuevas publicaciones y actividad reciente
                 </p>
               </div>
             </div>
@@ -208,14 +208,6 @@ export default function HomePage() {
           </div>
 
           <aside className="homeFeed__aside">
-            <section className="homeFeed__asideSection app-section">
-              <div className="homeFeed__asideHead">
-                <span className="app-kicker">Eventos</span>
-                <h2 className="app-title">Próximas quedadas</h2>
-              </div>
-
-              <UpcomingMeetups key={agendaVersion} />
-            </section>
 
             <section className="homeFeed__asideSection app-section">
               <div className="homeFeed__asideHead">
