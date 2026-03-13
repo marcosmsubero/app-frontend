@@ -195,7 +195,6 @@ export default function HomePage() {
       <div className="page__hero glass-banner">
         <div className="glass-banner__body">
           <div className="page__header">
-            <span className="page__eyebrow">Dashboard</span>
             <h1 className="page__title">
               {isAuthed
                 ? `Hola${me?.handle ? `, ${me.handle}` : ""}`
@@ -234,14 +233,6 @@ export default function HomePage() {
               </div>
             </div>
           ) : (
-            <div className="split-actions">
-              <Link to="/login" className="app-btn app-btn--primary">
-                Iniciar sesión
-              </Link>
-              <Link to="/register" className="app-btn app-btn--secondary">
-                Crear cuenta
-              </Link>
-            </div>
           )}
         </div>
       </div>
