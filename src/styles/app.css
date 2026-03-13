@@ -192,6 +192,7 @@ select:focus-visible {
 
 .app-shell__content {
   min-width: 0;
+  width: 100%;
 }
 
 .app-page {
@@ -941,10 +942,20 @@ textarea.input:focus {
 
 .app-sidebar__profile-link {
   display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
   margin-top: var(--space-2);
   color: var(--app-primary-strong);
   font-size: var(--font-sm);
   font-weight: 600;
+}
+
+.app-sidebar__profile-linkIcon {
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .app-bottom-nav {
