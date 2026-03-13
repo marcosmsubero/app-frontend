@@ -36,10 +36,12 @@ function NotificationRow({ notification, onOpen }) {
   return (
     <button
       type="button"
-      className={`notification-row${notification.unread ? " notification-row--unread" : ""}`}
+      className={`notificationsSimple__row${
+        notification.unread ? " notificationsSimple__row--unread" : ""
+      }`}
       onClick={() => onOpen?.(notification)}
     >
-      <div className="notification-row__avatar">
+      <div className="notificationsSimple__avatar">
         {notification.avatar_url ? (
           <img src={notification.avatar_url} alt={notification.from || "Usuario"} />
         ) : (
@@ -47,25 +49,23 @@ function NotificationRow({ notification, onOpen }) {
         )}
       </div>
 
-      <div className="notification-row__content">
-        <div className="notification-row__text">
+      <div className="notificationsSimple__content">
+        <div className="notificationsSimple__text">
           <strong>{notification.from || "Actividad"}</strong>{" "}
           <span>{notification.text || "ha generado una notificación."}</span>
         </div>
 
-        <div className="notification-row__meta">
+        <div className="notificationsSimple__meta">
           <span>{timeAgoLabel(notification.created_at)}</span>
-          {notification.badge ? (
-            <span className="app-badge app-badge--primary">{notification.badge}</span>
-          ) : null}
+          {notification.badge ? <span className="app-badge">{notification.badge}</span> : null}
         </div>
       </div>
 
-      <div className="notification-row__state">
+      <div className="notificationsSimple__state">
         {notification.unread ? (
-          <span className="notification-row__dot" aria-label="No leída" />
+          <span className="notificationsSimple__dot" aria-label="No leída" />
         ) : (
-          <span className="notification-row__chevron" aria-hidden="true">
+          <span className="notificationsSimple__chevron" aria-hidden="true">
             ›
           </span>
         )}
@@ -77,7 +77,7 @@ function NotificationRow({ notification, onOpen }) {
 export default function NotificationsPage() {
   const nav = useNavigate();
   const toast = useToast();
-  const { token, isAuthed } = useAuth();
+  const { token } = useAuth();
 
   const [tab, setTab] = useState("all");
   const [loading, setLoading] = useState(false);
@@ -114,7 +114,7 @@ export default function NotificationsPage() {
 
   function routeFromNotif(notification) {
     if (notification?.type === "message") return "/mensajes";
-    if (notification?.type === "mention") return "/publicaciones";
+    if (notification?.type === "mention") return "/perfil?tab=posts";
     if (notification?.type === "group") return "/groups";
     if (notification?.type === "meetup") return "/explorar";
     return "/explorar";
@@ -141,160 +141,147 @@ export default function NotificationsPage() {
   }
 
   return (
-    <section className="page">
-      <div className="page__hero glass-banner">
-        <div className="glass-banner__body">
-          <div className="page__header">
-            <span className="page__eyebrow">Notificaciones</span>
-            <h1 className="page__title">Actividad reciente y novedades</h1>
-            <p className="page__subtitle">
-              Revisa menciones, mensajes, cambios de grupo y avisos relacionados con tus planes.
-            </p>
-          </div>
+    <section className="notificationsSimple">
+      <div className="notificationsSimple__hero app-section">
+        <div className="notificationsSimple__heroCopy">
+          <span className="app-kicker">Notificaciones</span>
+          <h1 className="notificationsSimple__title">Actividad reciente</h1>
+          <p className="notificationsSimple__subtitle">
+            Revisa mensajes, menciones y cambios relevantes relacionados con tu actividad.
+          </p>
+        </div>
 
-          <div className="split-actions">
-            <button
-              type="button"
-              className="app-btn app-btn--secondary"
-              onClick={() => nav(-1)}
-            >
-              Volver
-            </button>
+        <div className="notificationsSimple__heroActions">
+          <button
+            type="button"
+            className="app-button app-button--secondary"
+            onClick={() => nav(-1)}
+          >
+            Volver
+          </button>
 
-            <button
-              type="button"
-              className="app-btn app-btn--primary"
-              onClick={() => load(tab)}
-              disabled={loading || !token}
-            >
-              {loading ? "Actualizando…" : "Recargar"}
-            </button>
-          </div>
+          <button
+            type="button"
+            className="app-button app-button--primary"
+            onClick={() => load(tab)}
+            disabled={loading || !token}
+          >
+            {loading ? "Actualizando…" : "Recargar"}
+          </button>
         </div>
       </div>
 
-      <div className="page__columns">
-        <div className="app-stack app-stack--lg">
-          <div className="app-card">
-            <div className="app-card__header">
-              <div className="app-section-header">
-                <div>
-                  <div className="app-section-header__title">Centro de actividad</div>
-                  <div className="app-section-header__subtitle">
-                    Filtra entre todo el flujo o solo menciones relevantes.
-                  </div>
-                </div>
+      <div className="notificationsSimple__layout">
+        <div className="notificationsSimple__main">
+          <section className="notificationsSimple__panel app-section">
+            <div className="notificationsSimple__panelHead">
+              <div>
+                <p className="app-kicker">Centro de actividad</p>
+                <h2 className="app-title">Tus notificaciones</h2>
+                <p className="app-subtitle">
+                  Filtra entre el flujo completo o solo menciones.
+                </p>
               </div>
             </div>
 
-            <div className="app-card__body app-stack">
-              <div className="app-tabs">
-                <button
-                  type="button"
-                  className={`app-tab${tab === "all" ? " app-tab--active" : ""}`}
-                  onClick={() => setTab("all")}
-                  disabled={loading}
-                >
-                  Todo
-                </button>
+            <div className="notificationsSimple__tabs">
+              <button
+                type="button"
+                className={`notificationsSimple__tab${
+                  tab === "all" ? " notificationsSimple__tab--active" : ""
+                }`}
+                onClick={() => setTab("all")}
+                disabled={loading}
+              >
+                Todo
+              </button>
 
-                <button
-                  type="button"
-                  className={`app-tab${tab === "mentions" ? " app-tab--active" : ""}`}
-                  onClick={() => setTab("mentions")}
-                  disabled={loading}
-                >
-                  Menciones
-                </button>
-              </div>
-
-              {!token ? (
-                <div className="app-empty-state">
-                  <div className="app-empty-state__title">Necesitas iniciar sesión</div>
-                  <div className="app-empty-state__text">
-                    Accede a tu cuenta para revisar actividad y avisos pendientes.
-                  </div>
-                  <div className="split-actions" style={{ justifyContent: "center" }}>
-                    <Link to="/login" className="app-btn app-btn--primary">
-                      Iniciar sesión
-                    </Link>
-                  </div>
-                </div>
-              ) : loading ? (
-                <div className="app-empty-state">
-                  <div className="app-empty-state__title">Cargando notificaciones</div>
-                  <div className="app-empty-state__text">
-                    Estamos actualizando tu centro de actividad.
-                  </div>
-                </div>
-              ) : error ? (
-                <div className="app-empty-state">
-                  <div className="app-empty-state__title">No se pudieron cargar</div>
-                  <div className="app-empty-state__text">{error}</div>
-                </div>
-              ) : list.length === 0 ? (
-                <div className="app-empty-state">
-                  <div className="app-empty-state__title">No hay notificaciones</div>
-                  <div className="app-empty-state__text">
-                    Cuando ocurra algo relevante en tu red deportiva, aparecerá aquí.
-                  </div>
-                </div>
-              ) : (
-                <div className="notification-list">
-                  {list.map((notification) => (
-                    <NotificationRow
-                      key={notification.id}
-                      notification={notification}
-                      onOpen={openNotif}
-                    />
-                  ))}
-                </div>
-              )}
+              <button
+                type="button"
+                className={`notificationsSimple__tab${
+                  tab === "mentions" ? " notificationsSimple__tab--active" : ""
+                }`}
+                onClick={() => setTab("mentions")}
+                disabled={loading}
+              >
+                Menciones
+              </button>
             </div>
-          </div>
+
+            {!token ? (
+              <div className="app-empty">
+                <div className="notificationsSimple__emptyBody">
+                  <strong>Necesitas iniciar sesión</strong>
+                  <p>Accede a tu cuenta para revisar actividad y avisos pendientes.</p>
+                  <Link to="/login" className="app-button app-button--primary">
+                    Iniciar sesión
+                  </Link>
+                </div>
+              </div>
+            ) : loading ? (
+              <div className="app-empty">
+                <div className="notificationsSimple__emptyBody">
+                  <strong>Cargando notificaciones</strong>
+                  <p>Estamos actualizando tu centro de actividad.</p>
+                </div>
+              </div>
+            ) : error ? (
+              <div className="app-empty">
+                <div className="notificationsSimple__emptyBody">
+                  <strong>No se pudieron cargar</strong>
+                  <p>{error}</p>
+                </div>
+              </div>
+            ) : list.length === 0 ? (
+              <div className="app-empty">
+                <div className="notificationsSimple__emptyBody">
+                  <strong>No hay notificaciones</strong>
+                  <p>Cuando ocurra algo relevante en tu red deportiva, aparecerá aquí.</p>
+                </div>
+              </div>
+            ) : (
+              <div className="notificationsSimple__list">
+                {list.map((notification) => (
+                  <NotificationRow
+                    key={notification.id}
+                    notification={notification}
+                    onOpen={openNotif}
+                  />
+                ))}
+              </div>
+            )}
+          </section>
         </div>
 
-        <aside className="page__sidebar">
-          <div className="app-card app-card--soft">
-            <div className="app-card__body app-stack">
-              <div className="app-section-header__title">Qué verás aquí</div>
-              <p className="app-text-soft">
-                Este panel debe ayudarte a reaccionar rápido ante cambios importantes de actividad.
-              </p>
-
-              <div className="app-list">
-                <div className="app-list-item">
-                  <div className="app-badge app-badge--primary">Mensajes</div>
-                  <div>
-                    <strong>Nuevo chat o respuesta</strong>
-                    <div className="app-text-soft">
-                      Cuando alguien te escriba o reaccione en una conversación.
-                    </div>
-                  </div>
-                </div>
-
-                <div className="app-list-item">
-                  <div className="app-badge app-badge--success">Grupos</div>
-                  <div>
-                    <strong>Cambios en comunidad</strong>
-                    <div className="app-text-soft">
-                      Invitaciones, movimiento en grupos o nuevas acciones compartidas.
-                    </div>
-                  </div>
-                </div>
-
-                <div className="app-list-item">
-                  <div className="app-badge app-badge--warning">Quedadas</div>
-                  <div>
-                    <strong>Actualizaciones de actividad</strong>
-                    <div className="app-text-soft">
-                      Confirmaciones, cambios de estado o novedades sobre planes.
-                    </div>
-                  </div>
-                </div>
+        <aside className="notificationsSimple__aside">
+          <section className="notificationsSimple__asideCard app-section">
+            <div className="notificationsSimple__panelHead">
+              <div>
+                <p className="app-kicker">Qué verás aquí</p>
+                <h2 className="app-title">Avisos importantes</h2>
+                <p className="app-subtitle">
+                  Un resumen rápido de la actividad a la que conviene reaccionar antes.
+                </p>
               </div>
             </div>
-          </div>
+
+            <div className="notificationsSimple__asideList">
+              <div className="notificationsSimple__asideItem">
+                <span className="app-badge app-badge--primary">Mensajes</span>
+                <p>Nuevos chats o respuestas en conversaciones activas.</p>
+              </div>
+
+              <div className="notificationsSimple__asideItem">
+                <span className="app-badge app-badge--success">Grupos</span>
+                <p>Invitaciones, movimiento en comunidad o cambios compartidos.</p>
+              </div>
+
+              <div className="notificationsSimple__asideItem">
+                <span className="app-badge app-badge--warning">Quedadas</span>
+                <p>Confirmaciones, estados y novedades sobre tus planes.</p>
+              </div>
+            </div>
+          </section>
         </aside>
       </div>
     </section>
