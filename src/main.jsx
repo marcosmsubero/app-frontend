@@ -6,7 +6,6 @@ import { ToastProvider } from "./hooks/useToast.jsx";
 import { AuthProvider } from "./hooks/useAuth";
 
 import "./index.css";
-import "./styles/design-system.css";
 import "./styles/app.css";
 
 createRoot(document.getElementById("root")).render(
