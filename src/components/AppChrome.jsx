@@ -1,5 +1,5 @@
-import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import { useMemo, useState } from "react";
+import { NavLink, useLocation } from "react-router-dom";
+import { useMemo } from "react";
 
 function ShellIcon({ children }) {
   return (
@@ -22,15 +22,6 @@ function IconHome() {
     <ShellIcon>
       <path d="M3 10.5 12 3l9 7.5" />
       <path d="M5 9.5V20h14V9.5" />
-    </ShellIcon>
-  );
-}
-
-function IconSearch() {
-  return (
-    <ShellIcon>
-      <circle cx="11" cy="11" r="6.5" />
-      <path d="m16 16 4.5 4.5" />
     </ShellIcon>
   );
 }
@@ -64,12 +55,11 @@ function IconMessage() {
   );
 }
 
-function IconBell() {
+function IconProfile() {
   return (
     <ShellIcon>
-      <path d="M6.5 16.5h11" />
-      <path d="M8 16.5v-4a4 4 0 1 1 8 0v4" />
-      <path d="M10 19a2 2 0 0 0 4 0" />
+      <circle cx="12" cy="8.5" r="3.5" />
+      <path d="M5 19a7 7 0 0 1 14 0" />
     </ShellIcon>
   );
 }
@@ -83,28 +73,10 @@ function IconSettings() {
   );
 }
 
-function IconProfile() {
-  return (
-    <ShellIcon>
-      <circle cx="12" cy="8.5" r="3.5" />
-      <path d="M5 19a7 7 0 0 1 14 0" />
-    </ShellIcon>
-  );
-}
-
 function IconBolt() {
   return (
     <ShellIcon>
       <path d="M13 2 5 13h5l-1 9 8-11h-5l1-9Z" />
-    </ShellIcon>
-  );
-}
-
-function IconArrowUpRight() {
-  return (
-    <ShellIcon>
-      <path d="M7 17 17 7" />
-      <path d="M9 7h8v8" />
     </ShellIcon>
   );
 }
@@ -114,85 +86,33 @@ const NAV_ITEMS = [
   { to: "/explorar", label: "Quedadas", icon: <IconMeetups /> },
   { to: "/groups", label: "Grupos", icon: <IconUsers /> },
   { to: "/mensajes", label: "Mensajes", icon: <IconMessage /> },
-  { to: "/notificaciones", label: "Avisos", icon: <IconBell /> },
-  { to: "/perfil", label: "Perfil", icon: <IconProfile /> },
-];
-
-const QUICK_ITEMS = [
-  { to: "/mensajes", label: "Mensajes", icon: <IconMessage /> },
-  { to: "/notificaciones", label: "Avisos", icon: <IconBell /> },
-  { to: "/ajustes", label: "Ajustes", icon: <IconSettings /> },
 ];
 
 const PAGE_META = {
-  "/": {
-    title: "Inicio",
-    subtitle: "Actividad reciente, próximos planes y visión rápida de tu comunidad deportiva.",
-    eyebrow: "Workspace",
-  },
-  "/explorar": {
-    title: "Quedadas",
-    subtitle: "Descubre actividades, rutas y planes cercanos con una interfaz pensada para decidir rápido.",
-    eyebrow: "Explorar",
-  },
-  "/groups": {
-    title: "Grupos",
-    subtitle: "Encuentra comunidades, organiza planes y mantén tu red deportiva siempre activa.",
-    eyebrow: "Comunidad",
-  },
-  "/mensajes": {
-    title: "Mensajes",
-    subtitle: "Coordina entrenamientos, rutas y encuentros desde una bandeja más clara y accionable.",
-    eyebrow: "Conversaciones",
-  },
-  "/notificaciones": {
-    title: "Notificaciones",
-    subtitle: "Consulta avisos, seguimiento y novedades sin perder el contexto de tu actividad.",
-    eyebrow: "Actividad",
-  },
-  "/perfil": {
-    title: "Perfil",
-    subtitle: "Tu identidad deportiva, tus publicaciones y tu calendario en un mismo espacio.",
-    eyebrow: "Perfil",
-  },
-  "/ajustes": {
-    title: "Ajustes",
-    subtitle: "Configura cuenta, privacidad y preferencias de producto.",
-    eyebrow: "Preferencias",
-  },
+  "/": { title: "Inicio", eyebrow: "Workspace" },
+  "/explorar": { title: "Quedadas", eyebrow: "Explorar" },
+  "/groups": { title: "Grupos", eyebrow: "Comunidad" },
+  "/mensajes": { title: "Mensajes", eyebrow: "Conversaciones" },
+  "/notificaciones": { title: "Notificaciones", eyebrow: "Actividad" },
+  "/perfil": { title: "Perfil", eyebrow: "Perfil" },
+  "/ajustes": { title: "Ajustes", eyebrow: "Preferencias" },
 };
 
 function getPageMeta(pathname) {
   if (pathname.startsWith("/groups/")) {
-    return {
-      title: "Grupo",
-      subtitle: "Miembros, actividad, organización interna y contexto compartido del equipo.",
-      eyebrow: "Grupo",
-    };
+    return { title: "Grupo", eyebrow: "Grupo" };
   }
 
   if (pathname.startsWith("/mensajes/")) {
-    return {
-      title: "Conversación",
-      subtitle: "Mantén el hilo del plan en curso con un contexto claro y sin fricción.",
-      eyebrow: "Chat",
-    };
+    return { title: "Conversación", eyebrow: "Chat" };
   }
 
   if (pathname.startsWith("/seguidores")) {
-    return {
-      title: "Seguidores",
-      subtitle: "Usuarios que siguen tu actividad, publicaciones y próximos planes.",
-      eyebrow: "Red",
-    };
+    return { title: "Seguidores", eyebrow: "Red" };
   }
 
   if (pathname.startsWith("/siguiendo")) {
-    return {
-      title: "Siguiendo",
-      subtitle: "Perfiles, deportistas y comunidades que sigues dentro de la app.",
-      eyebrow: "Red",
-    };
+    return { title: "Siguiendo", eyebrow: "Red" };
   }
 
   return PAGE_META[pathname] || PAGE_META["/"];
@@ -219,10 +139,6 @@ function getProfileName(me) {
   return me?.handle || me?.name || me?.full_name || "Tu perfil";
 }
 
-function getProfileSecondary(me) {
-  return me?.full_name || me?.email || "Cuenta activa";
-}
-
 function DesktopNavItem({ to, label, icon }) {
   return (
     <NavLink
@@ -237,154 +153,81 @@ function DesktopNavItem({ to, label, icon }) {
   );
 }
 
-function QuickNavItem({ to, label, icon }) {
-  return (
-    <NavLink
-      to={to}
-      className={({ isActive }) =>
-        `app-topbar__quick-link${isActive ? " app-topbar__quick-link--active" : ""}`
-      }
-    >
-      <span className="app-topbar__quick-link-icon">{icon}</span>
-      <span>{label}</span>
-    </NavLink>
-  );
-}
-
-export default function AppChrome({ me, children }) {
+export default function AppChrome({ me }) {
   const location = useLocation();
-  const navigate = useNavigate();
   const meta = getPageMeta(location.pathname);
   const initials = getInitials(me);
   const profileName = useMemo(() => getProfileName(me), [me]);
-  const profileSecondary = useMemo(() => getProfileSecondary(me), [me]);
-  const [search, setSearch] = useState("");
-
-  function handleSearchSubmit(event) {
-    event.preventDefault();
-    const q = search.trim();
-    if (!q) return;
-    navigate(`/groups?q=${encodeURIComponent(q)}`);
-  }
 
   return (
-    <div className="app-shell app-shell--instagram">
-      <div className="app-shell__inner">
-        <header className="app-topbar">
-          <div className="app-topbar__row">
-            <div className="app-topbar__brand">
-              <div className="app-topbar__brand-mark" aria-hidden="true">
-                <IconBolt />
-              </div>
-
-              <div>
-                <p className="app-topbar__eyebrow">{meta.eyebrow}</p>
-                <h1 className="app-topbar__title">{meta.title}</h1>
-                <p className="app-topbar__subtitle">{meta.subtitle}</p>
-              </div>
+    <>
+      <header className="app-topbar">
+        <div className="app-topbar__row">
+          <div className="app-topbar__brand">
+            <div className="app-topbar__brand-mark" aria-hidden="true">
+              <IconBolt />
             </div>
 
-            <div className="app-topbar__actions" aria-label="Accesos rápidos">
-              {QUICK_ITEMS.map((item) => (
-                <QuickNavItem key={item.to} {...item} />
-              ))}
-
-              <NavLink
-                to="/perfil"
-                className="app-topbar__profile"
-                aria-label="Ir al perfil"
-              >
-                <div className="app-avatar" aria-hidden="true">
-                  {initials}
-                </div>
-                <div className="sr-only">Ir al perfil</div>
-              </NavLink>
+            <div>
+              <p className="app-topbar__eyebrow">{meta.eyebrow}</p>
+              <h1 className="app-topbar__title">{meta.title}</h1>
             </div>
           </div>
-        </header>
 
-        <div className="app-shell__layout">
-          <aside className="app-sidebar" aria-label="Navegación principal">
-            <div className="app-sidebar__panel">
-              <div className="app-sidebar__brand app-sidebar__brand--instagram">
-                <div className="app-sidebar__brand-icon" aria-hidden="true">
-                  <IconBolt />
-                </div>
+          <NavLink to="/perfil" className="app-topbar__profile" aria-label="Ir al perfil">
+            <div className="app-avatar" aria-hidden="true">
+              {initials}
+            </div>
+          </NavLink>
+        </div>
+      </header>
 
-                <div className="app-sidebar__brand-copy">
-                  <p className="app-sidebar__brand-overline">Social Sports App</p>
-                  <h2 className="app-sidebar__brand-title">App Deportes</h2>
-                  <p className="app-sidebar__brand-description">
-                    Plataforma social deportiva con foco en comunidad, planes y coordinación.
-                  </p>
-                </div>
-              </div>
+      <aside className="app-sidebar" aria-label="Navegación principal">
+        <div className="app-sidebar__panel">
+          <div className="app-sidebar__brand">
+            <div className="app-sidebar__brand-icon" aria-hidden="true">
+              <IconBolt />
+            </div>
 
-              <form
-                className="app-sidebar__search"
-                onSubmit={handleSearchSubmit}
-                aria-label="Buscar grupos"
-              >
-                <label className="sr-only" htmlFor="app-sidebar-search">
-                  Buscar grupos
-                </label>
+            <div className="app-sidebar__brand-copy">
+              <p className="app-sidebar__brand-overline">Social Sports App</p>
+              <h2 className="app-sidebar__brand-title">App Deportes</h2>
+            </div>
+          </div>
 
-                <div className="app-sidebar__searchBox">
-                  <span className="app-sidebar__searchIcon" aria-hidden="true">
-                    <IconSearch />
+          <nav className="app-sidebar__nav">
+            {NAV_ITEMS.map((item) => (
+              <DesktopNavItem key={item.to} {...item} />
+            ))}
+          </nav>
+
+          <div className="app-sidebar__profile">
+            <div className="app-avatar app-avatar--lg" aria-hidden="true">
+              {initials}
+            </div>
+
+            <div className="app-sidebar__profile-meta">
+              <strong className="app-sidebar__profile-name">{profileName}</strong>
+
+              <div className="app-sidebar__profile-links">
+                <NavLink to="/perfil" className="app-sidebar__profile-link">
+                  <span className="app-sidebar__profile-linkIcon" aria-hidden="true">
+                    <IconProfile />
                   </span>
+                  Perfil
+                </NavLink>
 
-                  <input
-                    id="app-sidebar-search"
-                    type="search"
-                    value={search}
-                    onChange={(event) => setSearch(event.target.value)}
-                    className="app-sidebar__searchInput"
-                    placeholder="Buscar grupos o perfiles"
-                    autoComplete="off"
-                  />
-                </div>
-              </form>
-
-              <nav className="app-sidebar__nav">
-                {NAV_ITEMS.map((item) => (
-                  <DesktopNavItem key={item.to} {...item} />
-                ))}
-              </nav>
-
-              <div className="app-sidebar__profile">
-                <div className="app-avatar app-avatar--lg" aria-hidden="true">
-                  {initials}
-                </div>
-
-                <div className="app-sidebar__profile-meta">
-                  <strong className="app-sidebar__profile-name">
-                    {profileName}
-                  </strong>
-
-                  <span className="app-sidebar__profile-email">
-                    {profileSecondary}
+                <NavLink to="/ajustes" className="app-sidebar__profile-link">
+                  <span className="app-sidebar__profile-linkIcon" aria-hidden="true">
+                    <IconSettings />
                   </span>
-
-                  <NavLink to="/perfil" className="app-sidebar__profile-link">
-                    <span>Ver perfil</span>
-                    <span
-                      className="app-sidebar__profile-linkIcon"
-                      aria-hidden="true"
-                    >
-                      <IconArrowUpRight />
-                    </span>
-                  </NavLink>
-                </div>
+                  Ajustes
+                </NavLink>
               </div>
             </div>
-          </aside>
-
-          <main className="app-shell__content" role="main">
-            {children}
-          </main>
+          </div>
         </div>
-      </div>
-    </div>
+      </aside>
+    </>
   );
 }
