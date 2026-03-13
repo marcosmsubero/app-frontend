@@ -8502,3 +8502,67 @@ textarea.input:focus {
   }
 }
 
+/* =========================================================
+   BOTTOM NAV · INSTAGRAM STYLE
+========================================================= */
+
+.app-bottom-nav--instagram {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 60;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  align-items: center;
+  gap: 0;
+  width: 100%;
+  max-width: none;
+  padding:
+    0.4rem max(1rem, env(safe-area-inset-right))
+    calc(0.4rem + env(safe-area-inset-bottom))
+    max(1rem, env(safe-area-inset-left));
+  border: 0;
+  border-top: 1px solid rgba(226, 232, 240, 0.95);
+  border-radius: 0;
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: none;
+  backdrop-filter: blur(12px);
+  transform: none;
+}
+
+.app-bottom-nav__item--iconOnly {
+  min-height: 52px;
+  padding: 0.35rem 0.25rem;
+  border-radius: 0;
+  background: transparent;
+  color: #111827;
+}
+
+.app-bottom-nav__item--iconOnly:hover {
+  color: #111827;
+  background: transparent;
+}
+
+.app-bottom-nav__item--iconOnly.app-bottom-nav__item--active {
+  color: #111827;
+  background: transparent;
+}
+
+.app-bottom-nav--instagram .app-bottom-nav__icon {
+  width: 27px;
+  height: 27px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.app-bottom-nav--instagram .app-bottom-nav__label {
+  display: none;
+}
+
+@media (min-width: 960px) {
+  .app-bottom-nav--instagram {
+    display: none;
+  }
+}
