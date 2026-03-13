@@ -71,7 +71,7 @@ function getPosts(me) {
 
 function ProfileStat({ value, label, to }) {
   const content = (
-    <div className="profilePage__stat">
+    <div className="profilePage__statCard">
       <strong className="profilePage__statValue">{value}</strong>
       <span className="profilePage__statLabel">{label}</span>
     </div>
@@ -88,24 +88,26 @@ function ProfileStat({ value, label, to }) {
 
 function ActivityRow({ meetup, initials }) {
   return (
-    <div className="feed-item" key={meetup?.id}>
-      <div className="feed-ava">{initials}</div>
+    <div className="profilePage__activityRow" key={meetup?.id}>
+      <div className="profilePage__activityAvatar">{initials}</div>
 
-      <div className="feed-mid">
-        <div className="feed-title">
+      <div className="profilePage__activityBody">
+        <div className="profilePage__activityTitle">
           {meetup?.meeting_point || meetup?.title || "Quedada"}
         </div>
 
-        <div className="feed-meta">
+        <div className="profilePage__activityMeta">
           {timeLabel(meetup?.starts_at) || "Fecha pendiente"}
           {meetup?.group_name ? ` · ${meetup.group_name}` : ""}
           {meetup?.level_tag ? ` · ${meetup.level_tag}` : ""}
         </div>
       </div>
 
-      <div className="feed-right">
-        <div className="feed-n">{meetup?.participants_count ?? 0}</div>
-        <div className="feed-l">Inscritos</div>
+      <div className="profilePage__activityAside">
+        <div className="profilePage__activityNumber">
+          {meetup?.participants_count ?? 0}
+        </div>
+        <div className="profilePage__activityLabel">Inscritos</div>
       </div>
     </div>
   );
@@ -193,8 +195,8 @@ export default function ProfilePage() {
 
   return (
     <div className="profilePage">
-      <Card className="profilePage__hero">
-        <CardBody>
+      <section className="profilePage__hero app-section">
+        <div className="profilePage__heroTop">
           <div className="profilePage__identity">
             {me?.avatar_url ? (
               <img
@@ -209,8 +211,9 @@ export default function ProfilePage() {
             )}
 
             <div className="profilePage__identityCopy">
-              <div className="profilePage__headline">
-                <div>
+              <div className="profilePage__identityHead">
+                <div className="profilePage__nameBlock">
+                  <span className="app-kicker">Perfil deportivo</span>
                   <h1 className="profilePage__name">{displayName}</h1>
                   <p className="profilePage__handle">{handle}</p>
                 </div>
@@ -226,17 +229,6 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              <div className="profilePage__stats">
-                {stats.map((stat) => (
-                  <ProfileStat
-                    key={stat.label}
-                    value={stat.value}
-                    label={stat.label}
-                    to={stat.to}
-                  />
-                ))}
-              </div>
-
               <p className="profilePage__bio">{bio}</p>
 
               <div className="profilePage__metaInline">
@@ -247,56 +239,67 @@ export default function ProfilePage() {
               </div>
             </div>
           </div>
-        </CardBody>
-      </Card>
 
-      <Card className="profilePage__tabsCard">
-        <CardBody>
-          <div className="profilePage__tabs" role="tablist" aria-label="Contenido del perfil">
-            <button
-              type="button"
-              className={`profilePage__tab ${
-                tab === "posts" ? "profilePage__tab--active" : ""
-              }`}
-              aria-pressed={tab === "posts"}
-              onClick={() => updateTab("posts")}
-            >
-              Publicaciones
-            </button>
-
-            <button
-              type="button"
-              className={`profilePage__tab ${
-                tab === "calendar" ? "profilePage__tab--active" : ""
-              }`}
-              aria-pressed={tab === "calendar"}
-              onClick={() => updateTab("calendar")}
-            >
-              Calendario
-            </button>
+          <div className="profilePage__stats">
+            {stats.map((stat) => (
+              <ProfileStat
+                key={stat.label}
+                value={stat.value}
+                label={stat.label}
+                to={stat.to}
+              />
+            ))}
           </div>
-        </CardBody>
-      </Card>
+        </div>
+      </section>
+
+      <section className="profilePage__tabsWrap app-section">
+        <div className="profilePage__tabs" role="tablist" aria-label="Contenido del perfil">
+          <button
+            type="button"
+            className={`profilePage__tab ${
+              tab === "posts" ? "profilePage__tab--active" : ""
+            }`}
+            aria-pressed={tab === "posts"}
+            onClick={() => updateTab("posts")}
+          >
+            Publicaciones
+          </button>
+
+          <button
+            type="button"
+            className={`profilePage__tab ${
+              tab === "calendar" ? "profilePage__tab--active" : ""
+            }`}
+            aria-pressed={tab === "calendar"}
+            onClick={() => updateTab("calendar")}
+          >
+            Calendario
+          </button>
+        </div>
+      </section>
 
       {tab === "posts" ? (
-        <Card className="profilePage__postsCard">
-          <CardBody>
-            <div className="profilePage__sectionHead">
-              <div>
-                <p className="app-kicker">Perfil</p>
-                <h2 className="app-title">Tus publicaciones</h2>
-                <p className="app-subtitle">
-                  Vista visual del contenido compartido en tu perfil.
-                </p>
+        <section className="profilePage__content">
+          <Card className="profilePage__contentCard">
+            <CardBody>
+              <div className="profilePage__sectionHead">
+                <div>
+                  <p className="app-kicker">Contenido</p>
+                  <h2 className="app-title">Tus publicaciones</h2>
+                  <p className="app-subtitle">
+                    Vista visual del contenido compartido desde tu perfil.
+                  </p>
+                </div>
               </div>
-            </div>
 
-            <PostsGrid posts={posts} />
-          </CardBody>
-        </Card>
+              <PostsGrid posts={posts} />
+            </CardBody>
+          </Card>
+        </section>
       ) : (
-        <div className="profilePage__activityLayout">
-          <Card className="profilePage__calendarWrap">
+        <section className="profilePage__content profilePage__content--calendar">
+          <Card className="profilePage__calendarCard">
             <CardBody>
               <div className="profilePage__sectionHead">
                 <div>
@@ -337,7 +340,7 @@ export default function ProfilePage() {
             </CardBody>
           </Card>
 
-          <Card className="profilePage__activityCard">
+          <Card className="profilePage__sidebarCard">
             <CardBody>
               <div className="profilePage__sectionHead">
                 <div>
@@ -374,7 +377,7 @@ export default function ProfilePage() {
               )}
             </CardBody>
           </Card>
-        </div>
+        </section>
       )}
     </div>
   );
