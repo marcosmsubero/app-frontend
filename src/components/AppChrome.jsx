@@ -100,6 +100,15 @@ function IconBolt() {
   );
 }
 
+function IconArrowUpRight() {
+  return (
+    <ShellIcon>
+      <path d="M7 17 17 7" />
+      <path d="M9 7h8v8" />
+    </ShellIcon>
+  );
+}
+
 const NAV_ITEMS = [
   { to: "/", label: "Inicio", icon: <IconHome /> },
   { to: "/explorar", label: "Quedadas", icon: <IconMeetups /> },
@@ -109,34 +118,47 @@ const NAV_ITEMS = [
   { to: "/perfil", label: "Perfil", icon: <IconProfile /> },
 ];
 
+const QUICK_ITEMS = [
+  { to: "/mensajes", label: "Mensajes", icon: <IconMessage /> },
+  { to: "/notificaciones", label: "Avisos", icon: <IconBell /> },
+  { to: "/ajustes", label: "Ajustes", icon: <IconSettings /> },
+];
+
 const PAGE_META = {
   "/": {
     title: "Inicio",
-    subtitle: "Actividad reciente y planes de la comunidad.",
+    subtitle: "Actividad reciente, próximos planes y visión rápida de tu comunidad deportiva.",
+    eyebrow: "Workspace",
   },
   "/explorar": {
     title: "Quedadas",
-    subtitle: "Descubre planes, rutas y actividades deportivas cercanas.",
+    subtitle: "Descubre actividades, rutas y planes cercanos con una interfaz pensada para decidir rápido.",
+    eyebrow: "Explorar",
   },
   "/groups": {
     title: "Grupos",
-    subtitle: "Encuentra comunidad, organiza planes y amplía tu red deportiva.",
+    subtitle: "Encuentra comunidades, organiza planes y mantén tu red deportiva siempre activa.",
+    eyebrow: "Comunidad",
   },
   "/mensajes": {
     title: "Mensajes",
-    subtitle: "Coordina entrenamientos y quedadas con conversaciones claras.",
+    subtitle: "Coordina entrenamientos, rutas y encuentros desde una bandeja más clara y accionable.",
+    eyebrow: "Conversaciones",
   },
   "/notificaciones": {
     title: "Notificaciones",
-    subtitle: "Consulta avisos, seguimiento y novedades de la app.",
+    subtitle: "Consulta avisos, seguimiento y novedades sin perder el contexto de tu actividad.",
+    eyebrow: "Actividad",
   },
   "/perfil": {
     title: "Perfil",
-    subtitle: "Tu identidad deportiva, tus publicaciones y tu calendario.",
+    subtitle: "Tu identidad deportiva, tus publicaciones y tu calendario en un mismo espacio.",
+    eyebrow: "Perfil",
   },
   "/ajustes": {
     title: "Ajustes",
-    subtitle: "Configura cuenta, visibilidad y preferencias.",
+    subtitle: "Configura cuenta, privacidad y preferencias de producto.",
+    eyebrow: "Preferencias",
   },
 };
 
@@ -144,28 +166,32 @@ function getPageMeta(pathname) {
   if (pathname.startsWith("/groups/")) {
     return {
       title: "Grupo",
-      subtitle: "Miembros, actividad, chat y organización interna.",
+      subtitle: "Miembros, actividad, organización interna y contexto compartido del equipo.",
+      eyebrow: "Grupo",
     };
   }
 
   if (pathname.startsWith("/mensajes/")) {
     return {
       title: "Conversación",
-      subtitle: "Mantén el hilo del plan en curso.",
+      subtitle: "Mantén el hilo del plan en curso con un contexto claro y sin fricción.",
+      eyebrow: "Chat",
     };
   }
 
   if (pathname.startsWith("/seguidores")) {
     return {
       title: "Seguidores",
-      subtitle: "Usuarios que siguen tu actividad y contenido.",
+      subtitle: "Usuarios que siguen tu actividad, publicaciones y próximos planes.",
+      eyebrow: "Red",
     };
   }
 
   if (pathname.startsWith("/siguiendo")) {
     return {
       title: "Siguiendo",
-      subtitle: "Perfiles y deportistas que sigues en la app.",
+      subtitle: "Perfiles, deportistas y comunidades que sigues dentro de la app.",
+      eyebrow: "Red",
     };
   }
 
@@ -189,6 +215,14 @@ function getInitials(me) {
     .join("");
 }
 
+function getProfileName(me) {
+  return me?.handle || me?.name || me?.full_name || "Tu perfil";
+}
+
+function getProfileSecondary(me) {
+  return me?.full_name || me?.email || "Cuenta activa";
+}
+
 function DesktopNavItem({ to, label, icon }) {
   return (
     <NavLink
@@ -203,17 +237,28 @@ function DesktopNavItem({ to, label, icon }) {
   );
 }
 
+function QuickNavItem({ to, label, icon }) {
+  return (
+    <NavLink
+      to={to}
+      className={({ isActive }) =>
+        `app-topbar__quick-link${isActive ? " app-topbar__quick-link--active" : ""}`
+      }
+    >
+      <span className="app-topbar__quick-link-icon">{icon}</span>
+      <span>{label}</span>
+    </NavLink>
+  );
+}
+
 export default function AppChrome({ me }) {
   const location = useLocation();
   const navigate = useNavigate();
   const meta = getPageMeta(location.pathname);
   const initials = getInitials(me);
+  const profileName = useMemo(() => getProfileName(me), [me]);
+  const profileSecondary = useMemo(() => getProfileSecondary(me), [me]);
   const [search, setSearch] = useState("");
-
-  const profileName = useMemo(
-    () => me?.handle || me?.name || me?.full_name || "Tu perfil",
-    [me]
-  );
 
   function handleSearchSubmit(event) {
     event.preventDefault();
@@ -235,64 +280,26 @@ export default function AppChrome({ me }) {
               </div>
 
               <div>
-                <p className="app-topbar__eyebrow">App Deportes</p>
+                <p className="app-topbar__eyebrow">{meta.eyebrow}</p>
                 <h1 className="app-topbar__title">{meta.title}</h1>
                 <p className="app-topbar__subtitle">{meta.subtitle}</p>
               </div>
             </div>
 
             <div className="app-topbar__actions" aria-label="Accesos rápidos">
-              <NavLink
-                to="/mensajes"
-                className={({ isActive }) =>
-                  `app-topbar__quick-link${
-                    isActive ? " app-topbar__quick-link--active" : ""
-                  }`
-                }
-              >
-                <span className="app-topbar__quick-link-icon">
-                  <IconMessage />
-                </span>
-                <span>Mensajes</span>
-              </NavLink>
-
-              <NavLink
-                to="/notificaciones"
-                className={({ isActive }) =>
-                  `app-topbar__quick-link${
-                    isActive ? " app-topbar__quick-link--active" : ""
-                  }`
-                }
-              >
-                <span className="app-topbar__quick-link-icon">
-                  <IconBell />
-                </span>
-                <span>Avisos</span>
-              </NavLink>
-
-              <NavLink
-                to="/ajustes"
-                className={({ isActive }) =>
-                  `app-topbar__quick-link${
-                    isActive ? " app-topbar__quick-link--active" : ""
-                  }`
-                }
-              >
-                <span className="app-topbar__quick-link-icon">
-                  <IconSettings />
-                </span>
-                <span>Ajustes</span>
-              </NavLink>
+              {QUICK_ITEMS.map((item) => (
+                <QuickNavItem key={item.to} {...item} />
+              ))}
 
               <NavLink
                 to="/perfil"
                 className="app-topbar__profile"
-                aria-label="Perfil activo"
+                aria-label="Ir al perfil"
               >
                 <div className="app-avatar" aria-hidden="true">
                   {initials}
                 </div>
-                <div className="sr-only">Perfil activo</div>
+                <div className="sr-only">Ir al perfil</div>
               </NavLink>
             </div>
           </div>
@@ -309,16 +316,19 @@ export default function AppChrome({ me }) {
                 <div className="app-sidebar__brand-copy">
                   <p className="app-sidebar__brand-overline">Social Sports App</p>
                   <h2 className="app-sidebar__brand-title">App Deportes</h2>
+                  <p className="app-sidebar__brand-description">
+                    Plataforma social deportiva con foco en comunidad, planes y coordinación.
+                  </p>
                 </div>
               </div>
 
               <form
                 className="app-sidebar__search"
                 onSubmit={handleSearchSubmit}
-                aria-label="Buscar perfiles y grupos"
+                aria-label="Buscar grupos"
               >
                 <label className="sr-only" htmlFor="app-sidebar-search">
-                  Buscar perfiles y grupos
+                  Buscar grupos
                 </label>
 
                 <div className="app-sidebar__searchBox">
@@ -332,7 +342,7 @@ export default function AppChrome({ me }) {
                     value={search}
                     onChange={(event) => setSearch(event.target.value)}
                     className="app-sidebar__searchInput"
-                    placeholder="Buscar perfiles y grupos"
+                    placeholder="Buscar grupos o perfiles"
                     autoComplete="off"
                   />
                 </div>
@@ -353,11 +363,19 @@ export default function AppChrome({ me }) {
                   <strong className="app-sidebar__profile-name">
                     {profileName}
                   </strong>
+
                   <span className="app-sidebar__profile-email">
-                    {me?.email || "Cuenta activa"}
+                    {profileSecondary}
                   </span>
+
                   <NavLink to="/perfil" className="app-sidebar__profile-link">
                     Ver perfil
+                    <span
+                      aria-hidden="true"
+                      style={{ display: "inline-flex", marginLeft: 6 }}
+                    >
+                      <IconArrowUpRight />
+                    </span>
                   </NavLink>
                 </div>
               </div>
