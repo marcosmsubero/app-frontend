@@ -4,6 +4,7 @@ function joinClasses(...values) {
 
 const VARIANT_CLASS = {
   primary: "app-button--primary",
+  brand: "app-button--primary",
   secondary: "app-button--secondary",
   ghost: "app-button--ghost",
   danger: "app-button--danger",
