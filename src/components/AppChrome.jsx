@@ -1,8 +1,17 @@
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { useMemo, useState } from "react";
 
 function ShellIcon({ children }) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.9"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
       {children}
     </svg>
   );
@@ -17,11 +26,21 @@ function IconHome() {
   );
 }
 
-function IconCompass() {
+function IconSearch() {
   return (
     <ShellIcon>
-      <circle cx="12" cy="12" r="8" />
-      <path d="m14.8 9.2-4.3 1.7-1.7 4.3 4.3-1.7 1.7-4.3Z" />
+      <circle cx="11" cy="11" r="6.5" />
+      <path d="m16 16 4.5 4.5" />
+    </ShellIcon>
+  );
+}
+
+function IconMeetups() {
+  return (
+    <ShellIcon>
+      <path d="M12 21s-6.5-4.35-6.5-10A4.5 4.5 0 0 1 10 6.5c.84 0 1.64.23 2.35.65A4.46 4.46 0 0 1 14.7 6.5 4.5 4.5 0 0 1 19.5 11c0 5.65-7.5 10-7.5 10Z" />
+      <path d="M12 9.2v3.8" />
+      <path d="M10.1 11.1H14" />
     </ShellIcon>
   );
 }
@@ -83,7 +102,7 @@ function IconBolt() {
 
 const NAV_ITEMS = [
   { to: "/", label: "Inicio", icon: <IconHome /> },
-  { to: "/explorar", label: "Explorar", icon: <IconCompass /> },
+  { to: "/explorar", label: "Quedadas", icon: <IconMeetups /> },
   { to: "/groups", label: "Grupos", icon: <IconUsers /> },
   { to: "/mensajes", label: "Mensajes", icon: <IconMessage /> },
   { to: "/notificaciones", label: "Avisos", icon: <IconBell /> },
@@ -93,11 +112,11 @@ const NAV_ITEMS = [
 const PAGE_META = {
   "/": {
     title: "Inicio",
-    subtitle: "Actividad reciente, accesos rápidos y próximos planes.",
+    subtitle: "Actividad reciente y planes de la comunidad.",
   },
   "/explorar": {
-    title: "Explorar",
-    subtitle: "Descubre quedadas, rutas y actividad deportiva cerca de ti.",
+    title: "Quedadas",
+    subtitle: "Descubre planes, rutas y actividades deportivas cercanas.",
   },
   "/groups": {
     title: "Grupos",
@@ -105,15 +124,15 @@ const PAGE_META = {
   },
   "/mensajes": {
     title: "Mensajes",
-    subtitle: "Coordina entrenamientos y quedadas con conversaciones más claras.",
+    subtitle: "Coordina entrenamientos y quedadas con conversaciones claras.",
   },
   "/notificaciones": {
     title: "Notificaciones",
-    subtitle: "Consulta novedades, avisos y cambios importantes.",
+    subtitle: "Consulta avisos, seguimiento y novedades de la app.",
   },
   "/perfil": {
     title: "Perfil",
-    subtitle: "Tu identidad deportiva, agenda y publicaciones.",
+    subtitle: "Tu identidad deportiva, tus publicaciones y tu calendario.",
   },
   "/ajustes": {
     title: "Ajustes",
@@ -154,7 +173,13 @@ function getPageMeta(pathname) {
 }
 
 function getInitials(me) {
-  const raw = me?.full_name || me?.name || me?.display_name || me?.handle || me?.email || "Usuario";
+  const raw =
+    me?.full_name ||
+    me?.name ||
+    me?.display_name ||
+    me?.handle ||
+    me?.email ||
+    "Usuario";
 
   return String(raw)
     .split(/[\s@._-]+/)
@@ -166,7 +191,12 @@ function getInitials(me) {
 
 function DesktopNavItem({ to, label, icon }) {
   return (
-    <NavLink to={to} className={({ isActive }) => `app-sidebar__link${isActive ? " app-sidebar__link--active" : ""}`}>
+    <NavLink
+      to={to}
+      className={({ isActive }) =>
+        `app-sidebar__link${isActive ? " app-sidebar__link--active" : ""}`
+      }
+    >
       <span className="app-sidebar__link-icon">{icon}</span>
       <span>{label}</span>
     </NavLink>
@@ -175,11 +205,27 @@ function DesktopNavItem({ to, label, icon }) {
 
 export default function AppChrome({ me }) {
   const location = useLocation();
+  const navigate = useNavigate();
   const meta = getPageMeta(location.pathname);
   const initials = getInitials(me);
+  const [search, setSearch] = useState("");
+
+  const profileName = useMemo(
+    () => me?.handle || me?.name || me?.full_name || "Tu perfil",
+    [me]
+  );
+
+  function handleSearchSubmit(event) {
+    event.preventDefault();
+
+    const q = search.trim();
+    if (!q) return;
+
+    navigate(`/groups?q=${encodeURIComponent(q)}`);
+  }
 
   return (
-    <div className="app-shell">
+    <div className="app-shell app-shell--instagram">
       <div className="app-shell__inner">
         <header className="app-topbar">
           <div className="app-topbar__row">
@@ -189,7 +235,7 @@ export default function AppChrome({ me }) {
               </div>
 
               <div>
-                <p className="app-topbar__eyebrow">App Deportes · Plataforma social deportiva</p>
+                <p className="app-topbar__eyebrow">App Deportes</p>
                 <h1 className="app-topbar__title">{meta.title}</h1>
                 <p className="app-topbar__subtitle">{meta.subtitle}</p>
               </div>
@@ -197,8 +243,26 @@ export default function AppChrome({ me }) {
 
             <div className="app-topbar__actions" aria-label="Accesos rápidos">
               <NavLink
+                to="/mensajes"
+                className={({ isActive }) =>
+                  `app-topbar__quick-link${
+                    isActive ? " app-topbar__quick-link--active" : ""
+                  }`
+                }
+              >
+                <span className="app-topbar__quick-link-icon">
+                  <IconMessage />
+                </span>
+                <span>Mensajes</span>
+              </NavLink>
+
+              <NavLink
                 to="/notificaciones"
-                className={({ isActive }) => `app-topbar__quick-link${isActive ? " app-topbar__quick-link--active" : ""}`}
+                className={({ isActive }) =>
+                  `app-topbar__quick-link${
+                    isActive ? " app-topbar__quick-link--active" : ""
+                  }`
+                }
               >
                 <span className="app-topbar__quick-link-icon">
                   <IconBell />
@@ -208,7 +272,11 @@ export default function AppChrome({ me }) {
 
               <NavLink
                 to="/ajustes"
-                className={({ isActive }) => `app-topbar__quick-link${isActive ? " app-topbar__quick-link--active" : ""}`}
+                className={({ isActive }) =>
+                  `app-topbar__quick-link${
+                    isActive ? " app-topbar__quick-link--active" : ""
+                  }`
+                }
               >
                 <span className="app-topbar__quick-link-icon">
                   <IconSettings />
@@ -216,12 +284,16 @@ export default function AppChrome({ me }) {
                 <span>Ajustes</span>
               </NavLink>
 
-              <div className="app-topbar__profile" aria-label="Perfil activo">
+              <NavLink
+                to="/perfil"
+                className="app-topbar__profile"
+                aria-label="Perfil activo"
+              >
                 <div className="app-avatar" aria-hidden="true">
                   {initials}
                 </div>
                 <div className="sr-only">Perfil activo</div>
-              </div>
+              </NavLink>
             </div>
           </div>
         </header>
@@ -229,19 +301,42 @@ export default function AppChrome({ me }) {
         <div className="app-shell__layout">
           <aside className="app-sidebar" aria-label="Navegación principal">
             <div className="app-sidebar__panel">
-              <div className="app-sidebar__brand">
+              <div className="app-sidebar__brand app-sidebar__brand--instagram">
                 <div className="app-sidebar__brand-icon" aria-hidden="true">
                   <IconBolt />
                 </div>
 
                 <div className="app-sidebar__brand-copy">
-                  <p className="app-sidebar__brand-overline">Workspace</p>
+                  <p className="app-sidebar__brand-overline">Social Sports App</p>
                   <h2 className="app-sidebar__brand-title">App Deportes</h2>
-                  <p className="app-sidebar__brand-description">
-                    Gestiona comunidad, actividad y conversaciones desde una interfaz clara para móvil y escritorio.
-                  </p>
                 </div>
               </div>
+
+              <form
+                className="app-sidebar__search"
+                onSubmit={handleSearchSubmit}
+                aria-label="Buscar perfiles y grupos"
+              >
+                <label className="sr-only" htmlFor="app-sidebar-search">
+                  Buscar perfiles y grupos
+                </label>
+
+                <div className="app-sidebar__searchBox">
+                  <span className="app-sidebar__searchIcon" aria-hidden="true">
+                    <IconSearch />
+                  </span>
+
+                  <input
+                    id="app-sidebar-search"
+                    type="search"
+                    value={search}
+                    onChange={(event) => setSearch(event.target.value)}
+                    className="app-sidebar__searchInput"
+                    placeholder="Buscar perfiles y grupos"
+                    autoComplete="off"
+                  />
+                </div>
+              </form>
 
               <nav className="app-sidebar__nav">
                 {NAV_ITEMS.map((item) => (
@@ -255,8 +350,12 @@ export default function AppChrome({ me }) {
                 </div>
 
                 <div className="app-sidebar__profile-meta">
-                  <strong className="app-sidebar__profile-name">{me?.handle || me?.name || "Tu perfil"}</strong>
-                  <span className="app-sidebar__profile-email">{me?.email || "Cuenta activa"}</span>
+                  <strong className="app-sidebar__profile-name">
+                    {profileName}
+                  </strong>
+                  <span className="app-sidebar__profile-email">
+                    {me?.email || "Cuenta activa"}
+                  </span>
                   <NavLink to="/perfil" className="app-sidebar__profile-link">
                     Ver perfil
                   </NavLink>
