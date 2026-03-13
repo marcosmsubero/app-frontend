@@ -1,215 +1,312 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 
-/* =========================
-   ICONOS SVG MINIMAL
-========================= */
+function IconHome() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M4 10.5L12 4l8 6.5V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1v-9.5Z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
 
-const IconCircle = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-    <circle cx="12" cy="12" r="6.5" stroke="currentColor" strokeWidth="2" />
-  </svg>
-);
+function IconCompass() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" strokeWidth="1.8" />
+      <path
+        d="M14.9 9.1l-2.1 5.8-5.7 2.1 2.1-5.8 5.7-2.1Z"
+        fill="currentColor"
+        stroke="currentColor"
+        strokeWidth="0.6"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
 
-const IconShoe = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-    <path d="M3 17h18v2H3zM4 15l6-4 3 2 4 1 2 1v1H4z" fill="currentColor" />
-  </svg>
-);
+function IconUsers() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M9 12.25a3.25 3.25 0 1 0 0-6.5 3.25 3.25 0 0 0 0 6.5ZM16.5 10.75a2.75 2.75 0 1 0 0-5.5 2.75 2.75 0 0 0 0 5.5Z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+      />
+      <path
+        d="M3.75 18.5c.9-2.58 3.03-4 5.25-4s4.35 1.42 5.25 4M14.25 18.5c.52-1.8 1.95-3 3.75-3 1.02 0 1.9.31 2.75.97"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
 
-const IconBike = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-    <circle cx="6" cy="17" r="3" stroke="currentColor" strokeWidth="2" />
-    <circle cx="18" cy="17" r="3" stroke="currentColor" strokeWidth="2" />
-    <path
-      d="M6 17l5-8h4l-3 8M11 9l-2-3"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
-  </svg>
-);
+function IconMessage() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M6 7.25h12a2.75 2.75 0 0 1 2.75 2.75v5A2.75 2.75 0 0 1 18 17.75H9.5L5 20v-2.25A2.75 2.75 0 0 1 3.25 15v-5A2.75 2.75 0 0 1 6 7.25Z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
 
-const IconCompass = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-    <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" />
-    <circle cx="12" cy="12" r="5.2" stroke="currentColor" strokeWidth="2" opacity="0.55" />
-    <path d="M13.6 10.4L10 14l.9-2.7 2.7-.9Z" fill="currentColor" />
-    <path d="M10.4 13.6L14 10l-.9 2.7-2.7.9Z" fill="currentColor" opacity="0.55" />
-    <path
-      d="M12 2.8v1.8"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
-  </svg>
-);
+function IconBell() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M12 4.5a4.5 4.5 0 0 0-4.5 4.5v2.1c0 .9-.26 1.77-.74 2.53L5.5 15.5h13l-1.26-1.87a4.48 4.48 0 0 1-.74-2.53V9A4.5 4.5 0 0 0 12 4.5Z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M10 18a2.2 2.2 0 0 0 4 0"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
 
-const IconSettings = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-    <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="2" />
-    <path
-      d="M12 2v2M12 20v2M2 12h2M20 12h2
-         M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4
-         M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
-  </svg>
-);
+function IconSettings() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M12 8.8A3.2 3.2 0 1 0 12 15.2 3.2 3.2 0 0 0 12 8.8Z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+      />
+      <path
+        d="M19.4 13.5V10.5l-1.97-.47a5.9 5.9 0 0 0-.6-1.44l1.1-1.7-2.12-2.12-1.7 1.1a5.9 5.9 0 0 0-1.44-.6L13.5 3h-3l-.47 1.97a5.9 5.9 0 0 0-1.44.6l-1.7-1.1L4.77 6.6l1.1 1.7c-.27.46-.47.94-.6 1.44L3.3 10.5v3l1.97.47c.13.5.33.98.6 1.44l-1.1 1.7 2.12 2.12 1.7-1.1c.46.27.94.47 1.44.6L10.5 21h3l.47-1.97c.5-.13.98-.33 1.44-.6l1.7 1.1 2.12-2.12-1.1-1.7c.27-.46.47-.94.6-1.44L19.4 13.5Z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
 
-/* =========================
-   HELPERS
-========================= */
+function IconProfile() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="8.2" r="3.2" fill="none" stroke="currentColor" strokeWidth="1.8" />
+      <path
+        d="M5 18.5c1.36-2.72 4-4.2 7-4.2s5.64 1.48 7 4.2"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
 
-function normalizeToStringList(me) {
-  const out = [];
+const NAV_ITEMS = [
+  { to: "/", label: "Inicio", icon: <IconHome /> },
+  { to: "/explorar", label: "Explorar", icon: <IconCompass /> },
+  { to: "/groups", label: "Grupos", icon: <IconUsers /> },
+  { to: "/mensajes", label: "Mensajes", icon: <IconMessage /> },
+  { to: "/notificaciones", label: "Avisos", icon: <IconBell /> },
+  { to: "/perfil", label: "Perfil", icon: <IconProfile /> },
+];
 
-  if (Array.isArray(me?.disciplines)) {
-    for (const d of me.disciplines) {
-      if (typeof d === "string") out.push(d);
-      else if (d && typeof d === "object") out.push(d.name ?? d.label ?? d.value ?? "");
-      else if (d != null) out.push(String(d));
-    }
+const PAGE_META = {
+  "/": {
+    title: "Inicio",
+    subtitle: "Actividad reciente, accesos rápidos y próximos planes.",
+  },
+  "/explorar": {
+    title: "Explorar",
+    subtitle: "Descubre quedadas, rutas y actividad deportiva cerca de ti.",
+  },
+  "/groups": {
+    title: "Grupos",
+    subtitle: "Encuentra comunidad, organiza planes y amplía tu red deportiva.",
+  },
+  "/mensajes": {
+    title: "Mensajes",
+    subtitle: "Mantén conversaciones claras para coordinar quedadas y entrenamientos.",
+  },
+  "/notificaciones": {
+    title: "Notificaciones",
+    subtitle: "Revisa novedades, avisos y cambios relevantes de tu actividad.",
+  },
+  "/perfil": {
+    title: "Perfil",
+    subtitle: "Tu identidad deportiva, agenda y publicaciones en un único lugar.",
+  },
+  "/ajustes": {
+    title: "Ajustes",
+    subtitle: "Configura tu cuenta y las preferencias principales de la aplicación.",
+  },
+};
+
+function getPageMeta(pathname) {
+  if (pathname.startsWith("/groups/")) {
+    return {
+      title: "Grupo",
+      subtitle: "Miembros, actividad, chat y organización interna de la comunidad.",
+    };
   }
 
-  if (me?.discipline) out.push(me.discipline);
-  if (me?.primary_discipline) out.push(me.primary_discipline);
-  if (me?.sport) out.push(me.sport);
+  if (pathname.startsWith("/mensajes/")) {
+    return {
+      title: "Conversación",
+      subtitle: "Coordina detalles y mantén el hilo del plan en curso.",
+    };
+  }
 
-  return out.filter(Boolean).map((x) => String(x).toLowerCase().trim());
+  if (pathname.startsWith("/seguidores")) {
+    return {
+      title: "Seguidores",
+      subtitle: "Usuarios que siguen tu actividad y contenido en la plataforma.",
+    };
+  }
+
+  if (pathname.startsWith("/siguiendo")) {
+    return {
+      title: "Siguiendo",
+      subtitle: "Perfiles y deportistas que sigues dentro de la aplicación.",
+    };
+  }
+
+  return PAGE_META[pathname] || PAGE_META["/"];
 }
 
-function isRunningUser(me) {
-  const list = normalizeToStringList(me);
-  const RUN_KEYS = ["running", "run", "runner", "trail", "correr", "carrera", "atletismo"];
-  return list.some((d) => RUN_KEYS.some((k) => d.includes(k)));
+function getInitials(me) {
+  const raw =
+    me?.full_name ||
+    me?.name ||
+    me?.display_name ||
+    me?.handle ||
+    me?.email ||
+    "Usuario";
+
+  return String(raw)
+    .split(/[\s@._-]+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() || "")
+    .join("");
 }
 
-/* =========================
-   STYLES
-========================= */
-
-const shellStyle = {
-  position: "fixed",
-  left: 0,
-  right: 0,
-  bottom: 0,
-  zIndex: 40,
-  padding: "0 12px calc(12px + env(safe-area-inset-bottom, 0px))",
-  pointerEvents: "none",
-};
-
-const innerStyle = {
-  width: "100%",
-  maxWidth: "560px",
-  margin: "0 auto",
-  display: "grid",
-  gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
-  gap: "8px",
-  padding: "8px",
-  borderRadius: "24px",
-  border: "1px solid rgba(255,255,255,0.08)",
-  background:
-    "linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03)), rgba(11,19,32,0.86)",
-  boxShadow:
-    "0 18px 48px rgba(0,0,0,0.34), inset 0 1px 0 rgba(255,255,255,0.05)",
-  backdropFilter: "blur(18px)",
-  WebkitBackdropFilter: "blur(18px)",
-  pointerEvents: "auto",
-};
-
-const baseItemStyle = {
-  minHeight: "56px",
-  borderRadius: "18px",
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  justifyContent: "center",
-  gap: "4px",
-  textDecoration: "none",
-  transition:
-    "transform 0.16s ease, background 0.16s ease, color 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease",
-  WebkitTapHighlightColor: "transparent",
-};
-
-const activeItemStyle = {
-  color: "#f5f7fb",
-  background:
-    "linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.04))",
-  border: "1px solid rgba(255,255,255,0.10)",
-  boxShadow: "inset 0 1px 0 rgba(255,255,255,0.06)",
-};
-
-const inactiveItemStyle = {
-  color: "rgba(230,235,245,0.68)",
-  background: "transparent",
-  border: "1px solid transparent",
-  boxShadow: "none",
-};
-
-const iconWrapStyle = {
-  width: "22px",
-  height: "22px",
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-};
-
-const labelStyle = {
-  fontSize: "11px",
-  lineHeight: 1,
-  fontWeight: 800,
-  letterSpacing: "0.01em",
-  whiteSpace: "nowrap",
-};
-
-/* =========================
-   ITEM
-========================= */
-
-function Item({ to, icon, label, aria }) {
+function DesktopNavItem({ to, label, icon }) {
   return (
     <NavLink
       to={to}
-      end={to === "/perfil"}
-      aria-label={aria}
-      className={({ isActive }) => `bn-item ${isActive ? "active" : ""}`}
-      style={({ isActive }) => ({
-        ...baseItemStyle,
-        ...(isActive ? activeItemStyle : inactiveItemStyle),
-      })}
+      end={to === "/"}
+      className={({ isActive }) =>
+        `app-sidebar__link${isActive ? " app-sidebar__link--active" : ""}`
+      }
     >
-      <span className="bn-ico" style={iconWrapStyle}>
-        {icon}
-      </span>
-      <span className="bn-label" style={labelStyle}>
-        {label}
-      </span>
+      <span className="app-sidebar__icon">{icon}</span>
+      <span>{label}</span>
     </NavLink>
   );
 }
 
-/* =========================
-   BOTTOM NAV
-========================= */
-
-export default function BottomNav({ me }) {
-  const running = isRunningUser(me);
-  const groupIcon = running ? <IconShoe /> : <IconBike />;
+export default function AppChrome({ me }) {
+  const location = useLocation();
+  const meta = getPageMeta(location.pathname);
+  const initials = getInitials(me);
 
   return (
-    <nav
-      className="bottom-nav"
-      aria-label="Navegación principal"
-      style={shellStyle}
-    >
-      <div className="bottom-nav__inner" style={innerStyle}>
-        <Item to="/perfil" icon={<IconCircle />} label="Perfil" aria="Perfil" />
-        <Item to="/explorar" icon={<IconCompass />} label="Explorar" aria="Explorar" />
-        <Item to="/groups" icon={groupIcon} label="Grupos" aria="Grupos" />
-        <Item to="/ajustes" icon={<IconSettings />} label="Ajustes" aria="Ajustes" />
-      </div>
-    </nav>
+    <>
+      <header className="app-topbar">
+        <div className="app-topbar__inner">
+          <div className="app-topbar__left">
+            <NavLink to="/" className="app-brand" aria-label="Ir al inicio">
+              <span className="app-brand__mark" />
+              <span className="app-brand__text">
+                <strong>App Deportes</strong>
+                <small>Social sports platform</small>
+              </span>
+            </NavLink>
+          </div>
+
+          <div className="app-topbar__center">
+            <div className="app-topbar__title">{meta.title}</div>
+            <div className="app-topbar__subtitle">{meta.subtitle}</div>
+          </div>
+
+          <div className="app-topbar__right">
+            <NavLink
+              to="/notificaciones"
+              className={({ isActive }) =>
+                `app-topbar__quick-link${isActive ? " app-topbar__quick-link--active" : ""}`
+              }
+            >
+              <IconBell />
+              <span className="desktop-only">Avisos</span>
+            </NavLink>
+
+            <NavLink
+              to="/ajustes"
+              className={({ isActive }) =>
+                `app-topbar__quick-link${isActive ? " app-topbar__quick-link--active" : ""}`
+              }
+            >
+              <IconSettings />
+              <span className="desktop-only">Ajustes</span>
+            </NavLink>
+
+            <NavLink to="/perfil" className="app-topbar__profile" aria-label="Ir al perfil">
+              <span className="app-avatar app-avatar--sm">{initials}</span>
+            </NavLink>
+          </div>
+        </div>
+      </header>
+
+      <aside className="app-desktop-sidebar">
+        <div className="app-sidebar app-surface">
+          <div className="app-sidebar__header">
+            <div className="app-sidebar__eyebrow">Producto</div>
+            <div className="app-sidebar__title">App Deportes</div>
+            <div className="app-sidebar__text">
+              Red social deportiva para descubrir actividad, conectar con grupos y coordinar planes.
+            </div>
+          </div>
+
+          <nav className="app-sidebar__nav" aria-label="Navegación principal">
+            {NAV_ITEMS.map((item) => (
+              <DesktopNavItem key={item.to} {...item} />
+            ))}
+          </nav>
+
+          <div className="app-sidebar__footer">
+            <div className="app-sidebar__user">
+              <span className="app-avatar">{initials}</span>
+              <div className="app-sidebar__user-copy">
+                <strong>{me?.handle || me?.name || "Tu perfil"}</strong>
+                <span>{me?.email || "Cuenta activa"}</span>
+              </div>
+            </div>
+
+            <NavLink to="/perfil" className="app-btn app-btn--secondary app-btn--sm">
+              <IconProfile />
+              Ver perfil
+            </NavLink>
+          </div>
+        </div>
+      </aside>
+    </>
   );
 }
