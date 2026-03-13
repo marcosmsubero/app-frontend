@@ -131,7 +131,6 @@ export default function BlaBlaRunPage() {
                 </p>
               </div>
 
-              <span className="app-badge app-badge--primary">BlaBlaRun</span>
             </div>
 
             <div className="explorePage__modeGrid">
