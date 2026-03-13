@@ -25,9 +25,23 @@ function StepPill({ active, done, number, label }) {
   else if (active) variant = "primary";
 
   return (
-    <span className={`app-badge app-badge--${variant}`}>
+    <span className={`app-badge${variant !== "neutral" ? ` app-badge--${variant}` : ""}`}>
       {done ? "✓" : number} · {label}
     </span>
+  );
+}
+
+function StatusCard({ badge, badgeVariant = "primary", title, copy }) {
+  return (
+    <div className="onboardingPage__statusCard">
+      <span className={`app-badge${badgeVariant !== "neutral" ? ` app-badge--${badgeVariant}` : ""}`}>
+        {badge}
+      </span>
+      <div className="onboardingPage__statusCopy">
+        <strong>{title}</strong>
+        <p>{copy}</p>
+      </div>
+    </div>
   );
 }
 
@@ -216,7 +230,7 @@ export default function ProfileOnboardingPage() {
 
     setField("handle", normalizeHandle(form.handle));
     setStep(2);
-    setInfo("Añade disciplinas y enlaces para terminar tu perfil.");
+    setInfo("Añade disciplinas, bio y enlaces para terminar tu perfil.");
   }
 
   function goBack() {
@@ -270,57 +284,50 @@ export default function ProfileOnboardingPage() {
 
   const title = isNewProfile ? "Completa tu perfil" : "Actualizar perfil";
   const subtitle = cameFromRegister
-    ? "Tu cuenta ya está creada. Solo faltan unos pasos para entrar a la app con el perfil listo."
-    : "Configura tu identidad, verifica tu cuenta y añade tus disciplinas.";
+    ? "Tu cuenta ya está creada. Solo faltan unos pasos para entrar en la app con una identidad deportiva clara y lista para usar."
+    : "Configura tu identidad, verifica tu cuenta y deja tu perfil preparado para conectar con la comunidad.";
 
   return (
-    <section className="page">
-      <div className="page__hero home-hero">
-        <div className="home-hero__body">
-          <div className="home-hero__content">
-            <div className="page__header">
-              <span className="page__eyebrow">{isNewProfile ? "Primer acceso" : "Perfil"}</span>
-              <h1 className="page__title">{title}</h1>
-              <p className="page__subtitle">{subtitle}</p>
+    <section className="onboardingPage">
+      <div className="onboardingPage__shell">
+        <div className="onboardingPage__layout">
+          <div className="onboardingPage__content surface-panel">
+            <div className="onboardingPage__hero">
+              <span className="app-kicker">
+                {isNewProfile ? "Primer acceso" : "Perfil"}
+              </span>
+
+              <h1 className="onboardingPage__title">{title}</h1>
+              <p className="onboardingPage__subtitle">{subtitle}</p>
             </div>
 
-            <div className="split-actions">
+            <div className="onboardingPage__steps">
               <StepPill active={step === 1} done={step > 1} number={1} label="Cuenta" />
               <StepPill active={step === 2} done={false} number={2} label="Perfil deportivo" />
             </div>
 
-            <div className="app-list">
-              <div className="app-list-item">
-                <div className="app-badge app-badge--primary">Cuenta actual</div>
-                <div>
-                  <strong>{me?.email || location.state?.registeredEmail || "Email no disponible"}</strong>
-                  <div className="app-text-soft">
-                    {isEmailVerified ? "Email verificado" : "Email pendiente de verificación"}
-                  </div>
-                </div>
-              </div>
+            <div className="onboardingPage__statusGrid">
+              <StatusCard
+                badge="Cuenta actual"
+                badgeVariant="primary"
+                title={me?.email || location.state?.registeredEmail || "Email no disponible"}
+                copy={isEmailVerified ? "Email verificado correctamente." : "Email pendiente de verificación."}
+              />
 
-              <div className="app-list-item">
-                <div className={`app-badge ${isLocVerified ? "app-badge--success" : "app-badge--neutral"}`}>
-                  Ubicación
-                </div>
-                <div>
-                  <strong>{isLocVerified ? "Ubicación verificada" : "Ubicación opcional"}</strong>
-                  <div className="app-text-soft">
-                    Ayuda a mostrar mejor tu perfil y tus planes deportivos cercanos.
-                  </div>
-                </div>
-              </div>
+              <StatusCard
+                badge="Ubicación"
+                badgeVariant={isLocVerified ? "success" : "neutral"}
+                title={isLocVerified ? "Ubicación verificada" : "Ubicación opcional"}
+                copy="Ayuda a mostrar mejor tu perfil y tus planes deportivos cercanos."
+              />
             </div>
 
             {msg.text ? (
               <div
-                className={`app-badge ${
+                className={`onboardingPage__message ${
                   msg.type === "error"
-                    ? "app-badge--danger"
-                    : msg.type === "info"
-                      ? "app-badge--primary"
-                      : "app-badge--neutral"
+                    ? "onboardingPage__message--error"
+                    : "onboardingPage__message--info"
                 }`}
               >
                 {msg.text}
@@ -328,62 +335,65 @@ export default function ProfileOnboardingPage() {
             ) : null}
           </div>
 
-          <div className="home-hero__aside">
-            <div className="home-hero-card">
-              {step === 1 ? (
-                <div className="app-stack">
-                  <div className="home-hero-card__eyebrow">Paso 1</div>
-                  <div className="home-hero-card__title">Cuenta e identidad</div>
+          <div className="onboardingPage__panel surface-panel">
+            {step === 1 ? (
+              <div className="onboardingPage__formWrap">
+                <div className="onboardingPage__panelHead">
+                  <span className="onboardingPage__panelEyebrow">Paso 1</span>
+                  <h2 className="onboardingPage__panelTitle">Cuenta e identidad</h2>
+                  <p className="onboardingPage__panelText">
+                    Valida tu cuenta y define la información base con la que se te verá dentro de la app.
+                  </p>
+                </div>
 
-                  {!isEmailVerified ? (
-                    <div className="app-stack">
-                      <div className="app-field">
-                        <label className="app-label">Verifica tu email</label>
-                        <div className="app-field__hint">
-                          Necesitas completar esta verificación antes de continuar.
-                        </div>
-                      </div>
+                {!isEmailVerified ? (
+                  <div className="onboardingPage__verifyCard">
+                    <div className="onboardingPage__verifyHead">
+                      <strong>Verifica tu email</strong>
+                      <p>Necesitas completar esta verificación antes de continuar.</p>
+                    </div>
 
-                      <div className="split-actions">
-                        <button
-                          type="button"
-                          className="app-btn app-btn--secondary"
-                          onClick={sendCode}
-                          disabled={sendingCode || saving}
-                        >
-                          {sendingCode ? "Enviando…" : "Enviar código"}
-                        </button>
-                      </div>
-
-                      <div className="app-field">
-                        <label className="app-label" htmlFor="verify-code">
-                          Código
-                        </label>
-                        <input
-                          id="verify-code"
-                          className="app-input"
-                          value={code}
-                          onChange={(e) => setCode(e.target.value)}
-                          disabled={confirmingCode || saving}
-                          placeholder="Introduce el código recibido"
-                        />
-                      </div>
-
+                    <div className="onboardingPage__verifyActions">
                       <button
                         type="button"
-                        className="app-btn app-btn--primary"
-                        onClick={confirmCode}
-                        disabled={confirmingCode || saving}
+                        className="app-button app-button--secondary"
+                        onClick={sendCode}
+                        disabled={sendingCode || saving}
                       >
-                        {confirmingCode ? "Confirmando…" : "Confirmar código"}
+                        {sendingCode ? "Enviando…" : "Enviar código"}
                       </button>
                     </div>
-                  ) : (
-                    <div className="app-badge app-badge--success">Email verificado</div>
-                  )}
 
-                  <div className="app-divider" />
+                    <div className="app-field">
+                      <label className="app-label" htmlFor="verify-code">
+                        Código
+                      </label>
+                      <input
+                        id="verify-code"
+                        className="app-input"
+                        value={code}
+                        onChange={(e) => setCode(e.target.value)}
+                        disabled={confirmingCode || saving}
+                        placeholder="Introduce el código recibido"
+                      />
+                    </div>
 
+                    <button
+                      type="button"
+                      className="app-button app-button--primary"
+                      onClick={confirmCode}
+                      disabled={confirmingCode || saving}
+                    >
+                      {confirmingCode ? "Confirmando…" : "Confirmar código"}
+                    </button>
+                  </div>
+                ) : (
+                  <div className="onboardingPage__verifiedOk">
+                    <span className="app-badge app-badge--success">Email verificado</span>
+                  </div>
+                )}
+
+                <div className="onboardingPage__form">
                   <div className="app-field">
                     <label className="app-label" htmlFor="handle">
                       Usuario (@)
@@ -396,9 +406,9 @@ export default function ProfileOnboardingPage() {
                       disabled={saving}
                       placeholder="ejemplo_marcos"
                     />
-                    <div className="app-field__hint">
+                    <p className="onboardingPage__hint">
                       Solo letras, números, punto, guion o guion bajo.
-                    </div>
+                    </p>
                   </div>
 
                   <div className="app-field">
@@ -448,10 +458,10 @@ export default function ProfileOnboardingPage() {
                     />
                   </div>
 
-                  <div className="split-actions">
+                  <div className="onboardingPage__inlineActions">
                     <button
                       type="button"
-                      className="app-btn app-btn--secondary"
+                      className="app-button app-button--secondary"
                       onClick={verifyLoc}
                       disabled={verifyingLoc || saving}
                     >
@@ -462,32 +472,39 @@ export default function ProfileOnboardingPage() {
                           : "Verificar ubicación"}
                     </button>
                   </div>
-
-                  <div className="split-actions">
-                    <button
-                      type="button"
-                      className="app-btn app-btn--ghost"
-                      onClick={handleExit}
-                      disabled={saving}
-                    >
-                      Salir
-                    </button>
-
-                    <button
-                      type="button"
-                      className="app-btn app-btn--primary"
-                      onClick={goNext}
-                      disabled={saving}
-                    >
-                      Continuar
-                    </button>
-                  </div>
                 </div>
-              ) : (
-                <div className="app-stack">
-                  <div className="home-hero-card__eyebrow">Paso 2</div>
-                  <div className="home-hero-card__title">Perfil deportivo</div>
 
+                <div className="onboardingPage__footerActions">
+                  <button
+                    type="button"
+                    className="app-button app-button--ghost"
+                    onClick={handleExit}
+                    disabled={saving}
+                  >
+                    Salir
+                  </button>
+
+                  <button
+                    type="button"
+                    className="app-button app-button--primary"
+                    onClick={goNext}
+                    disabled={saving}
+                  >
+                    Continuar
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="onboardingPage__formWrap">
+                <div className="onboardingPage__panelHead">
+                  <span className="onboardingPage__panelEyebrow">Paso 2</span>
+                  <h2 className="onboardingPage__panelTitle">Perfil deportivo</h2>
+                  <p className="onboardingPage__panelText">
+                    Completa tu presentación con bio, disciplinas y enlaces para dar contexto real a tu perfil.
+                  </p>
+                </div>
+
+                <div className="onboardingPage__form">
                   <div className="app-field">
                     <label className="app-label" htmlFor="bio">
                       Bio
@@ -518,16 +535,16 @@ export default function ProfileOnboardingPage() {
 
                   <div className="app-field">
                     <label className="app-label">Disciplinas</label>
-                    <div className="split-actions">
+                    <div className="onboardingPage__chips">
                       {DISCIPLINES.map((discipline) => {
                         const active = form.disciplines?.includes(discipline);
                         return (
                           <button
                             key={discipline}
                             type="button"
-                            className={`app-btn ${
-                              active ? "app-btn--primary" : "app-btn--secondary"
-                            } app-btn--sm`}
+                            className={`onboardingPage__chip ${
+                              active ? "onboardingPage__chip--active" : ""
+                            }`}
                             onClick={() => toggleDiscipline(discipline)}
                             disabled={saving}
                           >
@@ -538,7 +555,7 @@ export default function ProfileOnboardingPage() {
                     </div>
                   </div>
 
-                  <div className="form-grid">
+                  <div className="onboardingPage__linksGrid">
                     <div className="app-field">
                       <label className="app-label" htmlFor="strava">
                         Strava
@@ -581,29 +598,29 @@ export default function ProfileOnboardingPage() {
                       />
                     </div>
                   </div>
-
-                  <div className="split-actions">
-                    <button
-                      type="button"
-                      className="app-btn app-btn--ghost"
-                      onClick={goBack}
-                      disabled={saving}
-                    >
-                      Volver
-                    </button>
-
-                    <button
-                      type="button"
-                      className="app-btn app-btn--primary"
-                      onClick={finish}
-                      disabled={saving}
-                    >
-                      {saving ? "Guardando…" : "Guardar y entrar"}
-                    </button>
-                  </div>
                 </div>
-              )}
-            </div>
+
+                <div className="onboardingPage__footerActions">
+                  <button
+                    type="button"
+                    className="app-button app-button--ghost"
+                    onClick={goBack}
+                    disabled={saving}
+                  >
+                    Volver
+                  </button>
+
+                  <button
+                    type="button"
+                    className="app-button app-button--primary"
+                    onClick={finish}
+                    disabled={saving}
+                  >
+                    {saving ? "Guardando…" : "Guardar y entrar"}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
