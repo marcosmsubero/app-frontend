@@ -1,52 +1,74 @@
 import { Link } from "react-router-dom";
 
+function resolveImage(post) {
+  return (
+    post?.image ||
+    post?.image_url ||
+    post?.cover ||
+    post?.cover_image ||
+    post?.media_url ||
+    null
+  );
+}
+
+function resolveTitle(post) {
+  return post?.title || post?.name || "Publicación";
+}
+
+function resolveDescription(post) {
+  return post?.description || post?.caption || post?.excerpt || "";
+}
+
+function resolveCategory(post) {
+  return post?.category || post?.tag || post?.type || "";
+}
+
+function resolveAuthor(post) {
+  return post?.author || post?.user_name || post?.handle || "";
+}
+
+function resolveLink(post) {
+  return post?.link || post?.url || null;
+}
+
 function PostCard({ post }) {
   if (!post) return null;
 
+  const image = resolveImage(post);
+  const title = resolveTitle(post);
+  const description = resolveDescription(post);
+  const category = resolveCategory(post);
+  const author = resolveAuthor(post);
+  const link = resolveLink(post);
+
   return (
-    <article className="app-card post-card">
-      {post.image && (
-        <div className="post-card__media">
-          <img src={post.image} alt={post.title || "Post"} />
+    <article className="postsSimple__card app-card app-card--interactive">
+      {image ? (
+        <div className="postsSimple__media">
+          <img src={image} alt={title} loading="lazy" />
         </div>
-      )}
+      ) : null}
 
-      <div className="post-card__content">
-        <div className="app-stack app-stack--sm">
-          {post.category && (
-            <span className="app-badge">{post.category}</span>
-          )}
+      <div className="postsSimple__body">
+        {category ? <span className="app-badge">{category}</span> : null}
 
-          {post.title && (
-            <h3 className="post-card__title">
-              {post.title}
-            </h3>
-          )}
-
-          {post.description && (
-            <p className="post-card__description">
-              {post.description}
-            </p>
-          )}
+        <div className="postsSimple__copy">
+          <h3 className="postsSimple__title">{title}</h3>
+          {description ? <p className="postsSimple__description">{description}</p> : null}
         </div>
       </div>
 
-      <div className="post-card__footer">
-        {post.author && (
-          <span className="post-card__author">
-            {post.author}
-          </span>
-        )}
+      {(author || link) ? (
+        <div className="postsSimple__footer">
+          {author ? <span className="postsSimple__author">{author}</span> : <span />}
 
-        {post.link && (
-          <Link
-            to={post.link}
-            className="app-button app-button--ghost app-button--sm"
-          >
-            Ver
-          </Link>
-        )}
-      </div>
+          {link ? (
+            <Link to={link} className="app-button app-button--ghost app-button--sm">
+              Ver
+            </Link>
+          ) : null}
+        </div>
+      ) : null}
     </article>
   );
 }
@@ -54,21 +76,16 @@ function PostCard({ post }) {
 export default function PostsGrid({ posts = [] }) {
   if (!Array.isArray(posts) || posts.length === 0) {
     return (
-      <div className="posts-grid-empty app-card">
-        <div className="app-stack">
-          <span className="app-badge">Feed</span>
-          <p className="app-card__description">
-            Todavía no hay publicaciones disponibles.
-          </p>
-        </div>
+      <div className="postsSimple__empty app-empty">
+        Todavía no hay publicaciones disponibles.
       </div>
     );
   }
 
   return (
-    <section className="posts-grid">
-      {posts.map((post) => (
-        <PostCard key={post.id} post={post} />
+    <section className="postsSimple">
+      {posts.map((post, index) => (
+        <PostCard key={post?.id || post?.slug || index} post={post} />
       ))}
     </section>
   );
