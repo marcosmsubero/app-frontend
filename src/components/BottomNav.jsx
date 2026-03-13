@@ -1,4 +1,4 @@
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 function IconHome() {
   return (
@@ -63,47 +63,6 @@ function IconMessage() {
   );
 }
 
-function IconBell() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path
-        d="M12 4.5a4.5 4.5 0 0 0-4.5 4.5v2.1c0 .9-.26 1.77-.74 2.53L5.5 15.5h13l-1.26-1.87a4.48 4.48 0 0 1-.74-2.53V9A4.5 4.5 0 0 0 12 4.5Z"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M10 18a2.2 2.2 0 0 0 4 0"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
-function IconSettings() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path
-        d="M12 8.8A3.2 3.2 0 1 0 12 15.2 3.2 3.2 0 0 0 12 8.8Z"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.8"
-      />
-      <path
-        d="M19.4 13.5V10.5l-1.97-.47a5.9 5.9 0 0 0-.6-1.44l1.1-1.7-2.12-2.12-1.7 1.1a5.9 5.9 0 0 0-1.44-.6L13.5 3h-3l-.47 1.97a5.9 5.9 0 0 0-1.44.6l-1.7-1.1L4.77 6.6l1.1 1.7c-.27.46-.47.94-.6 1.44L3.3 10.5v3l1.97.47c.13.5.33.98.6 1.44l-1.1 1.7 2.12 2.12 1.7-1.1c.46.27.94.47 1.44.6L10.5 21h3l.47-1.97c.5-.13.98-.33 1.44-.6l1.7 1.1 2.12-2.12-1.1-1.7c.27-.46.47-.94.6-1.44L19.4 13.5Z"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
 function IconProfile() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -119,194 +78,32 @@ function IconProfile() {
   );
 }
 
-const NAV_ITEMS = [
+const ITEMS = [
   { to: "/", label: "Inicio", icon: <IconHome /> },
   { to: "/explorar", label: "Explorar", icon: <IconCompass /> },
   { to: "/groups", label: "Grupos", icon: <IconUsers /> },
   { to: "/mensajes", label: "Mensajes", icon: <IconMessage /> },
-  { to: "/notificaciones", label: "Avisos", icon: <IconBell /> },
   { to: "/perfil", label: "Perfil", icon: <IconProfile /> },
 ];
 
-const PAGE_META = {
-  "/": {
-    title: "Inicio",
-    subtitle: "Actividad reciente, accesos rápidos y próximos planes.",
-  },
-  "/explorar": {
-    title: "Explorar",
-    subtitle: "Descubre quedadas, rutas y actividad deportiva cerca de ti.",
-  },
-  "/groups": {
-    title: "Grupos",
-    subtitle: "Encuentra comunidad, organiza planes y amplía tu red deportiva.",
-  },
-  "/mensajes": {
-    title: "Mensajes",
-    subtitle: "Mantén conversaciones claras para coordinar quedadas y entrenamientos.",
-  },
-  "/notificaciones": {
-    title: "Notificaciones",
-    subtitle: "Revisa novedades, avisos y cambios relevantes de tu actividad.",
-  },
-  "/perfil": {
-    title: "Perfil",
-    subtitle: "Tu identidad deportiva, agenda y publicaciones en un único lugar.",
-  },
-  "/ajustes": {
-    title: "Ajustes",
-    subtitle: "Configura tu cuenta y las preferencias principales de la aplicación.",
-  },
-};
-
-function getPageMeta(pathname) {
-  if (pathname.startsWith("/groups/")) {
-    return {
-      title: "Grupo",
-      subtitle: "Miembros, actividad, chat y organización interna de la comunidad.",
-    };
-  }
-
-  if (pathname.startsWith("/mensajes/")) {
-    return {
-      title: "Conversación",
-      subtitle: "Coordina detalles y mantén el hilo del plan en curso.",
-    };
-  }
-
-  if (pathname.startsWith("/seguidores")) {
-    return {
-      title: "Seguidores",
-      subtitle: "Usuarios que siguen tu actividad y contenido en la plataforma.",
-    };
-  }
-
-  if (pathname.startsWith("/siguiendo")) {
-    return {
-      title: "Siguiendo",
-      subtitle: "Perfiles y deportistas que sigues dentro de la aplicación.",
-    };
-  }
-
-  return PAGE_META[pathname] || PAGE_META["/"];
-}
-
-function getInitials(me) {
-  const raw =
-    me?.full_name ||
-    me?.name ||
-    me?.display_name ||
-    me?.handle ||
-    me?.email ||
-    "Usuario";
-
-  return String(raw)
-    .split(/[\s@._-]+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase() || "")
-    .join("");
-}
-
-function DesktopNavItem({ to, label, icon }) {
+export default function BottomNav() {
   return (
-    <NavLink
-      to={to}
-      end={to === "/"}
-      className={({ isActive }) =>
-        `app-sidebar__link${isActive ? " app-sidebar__link--active" : ""}`
-      }
-    >
-      <span className="app-sidebar__icon">{icon}</span>
-      <span>{label}</span>
-    </NavLink>
-  );
-}
-
-export default function AppChrome({ me }) {
-  const location = useLocation();
-  const meta = getPageMeta(location.pathname);
-  const initials = getInitials(me);
-
-  return (
-    <>
-      <header className="app-topbar">
-        <div className="app-topbar__inner">
-          <div className="app-topbar__left">
-            <NavLink to="/" className="app-brand" aria-label="Ir al inicio">
-              <span className="app-brand__mark" />
-              <span className="app-brand__text">
-                <strong>App Deportes</strong>
-                <small>Social sports platform</small>
-              </span>
-            </NavLink>
-          </div>
-
-          <div className="app-topbar__center">
-            <div className="app-topbar__title">{meta.title}</div>
-            <div className="app-topbar__subtitle">{meta.subtitle}</div>
-          </div>
-
-          <div className="app-topbar__right">
-            <NavLink
-              to="/notificaciones"
-              className={({ isActive }) =>
-                `app-topbar__quick-link${isActive ? " app-topbar__quick-link--active" : ""}`
-              }
-            >
-              <IconBell />
-              <span className="desktop-only">Avisos</span>
-            </NavLink>
-
-            <NavLink
-              to="/ajustes"
-              className={({ isActive }) =>
-                `app-topbar__quick-link${isActive ? " app-topbar__quick-link--active" : ""}`
-              }
-            >
-              <IconSettings />
-              <span className="desktop-only">Ajustes</span>
-            </NavLink>
-
-            <NavLink to="/perfil" className="app-topbar__profile" aria-label="Ir al perfil">
-              <span className="app-avatar app-avatar--sm">{initials}</span>
-            </NavLink>
-          </div>
-        </div>
-      </header>
-
-      <aside className="app-desktop-sidebar">
-        <div className="app-sidebar app-surface">
-          <div className="app-sidebar__header">
-            <div className="app-sidebar__eyebrow">Producto</div>
-            <div className="app-sidebar__title">App Deportes</div>
-            <div className="app-sidebar__text">
-              Red social deportiva para descubrir actividad, conectar con grupos y coordinar planes.
-            </div>
-          </div>
-
-          <nav className="app-sidebar__nav" aria-label="Navegación principal">
-            {NAV_ITEMS.map((item) => (
-              <DesktopNavItem key={item.to} {...item} />
-            ))}
-          </nav>
-
-          <div className="app-sidebar__footer">
-            <div className="app-sidebar__user">
-              <span className="app-avatar">{initials}</span>
-              <div className="app-sidebar__user-copy">
-                <strong>{me?.handle || me?.name || "Tu perfil"}</strong>
-                <span>{me?.email || "Cuenta activa"}</span>
-              </div>
-            </div>
-
-            <NavLink to="/perfil" className="app-btn app-btn--secondary app-btn--sm">
-              <IconProfile />
-              Ver perfil
-            </NavLink>
-          </div>
-        </div>
-      </aside>
-    </>
+    <nav className="app-bottom-nav" aria-label="Navegación móvil">
+      <div className="app-bottom-nav__inner">
+        {ITEMS.map((item) => (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            end={item.to === "/"}
+            className={({ isActive }) =>
+              `app-bottom-nav__item${isActive ? " app-bottom-nav__item--active" : ""}`
+            }
+          >
+            <span className="app-bottom-nav__icon">{item.icon}</span>
+            <span className="app-bottom-nav__label">{item.label}</span>
+          </NavLink>
+        ))}
+      </div>
+    </nav>
   );
 }
