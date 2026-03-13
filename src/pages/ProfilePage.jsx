@@ -9,7 +9,6 @@ import MeetupCalendar from "../components/MeetupCalendar";
 import PostsGrid from "../components/PostsGrid";
 
 import { Badge, Button, Card, CardBody, EmptyState, Loader } from "../components/ui";
-
 import { timeLabel } from "../utils/dates";
 
 function getInitials(me) {
@@ -35,7 +34,7 @@ function getBio(me) {
   return (
     me?.bio ||
     me?.description ||
-    "Comparte tu actividad, conecta con otros deportistas y organiza próximos planes."
+    "Comparte tu actividad y conecta con otros deportistas."
   );
 }
 
@@ -59,7 +58,7 @@ function normalizeDisciplines(me) {
   if (me?.primary_discipline) out.push(me.primary_discipline);
   if (me?.sport) out.push(me.sport);
 
-  return [...new Set(out.filter(Boolean))].slice(0, 5);
+  return [...new Set(out.filter(Boolean))].slice(0, 4);
 }
 
 function getPosts(me) {
@@ -71,16 +70,16 @@ function getPosts(me) {
 
 function ProfileStat({ value, label, to }) {
   const content = (
-    <div className="profilePage__statCard">
-      <strong className="profilePage__statValue">{value}</strong>
-      <span className="profilePage__statLabel">{label}</span>
+    <div className="profileMinimal__statCard">
+      <strong className="profileMinimal__statValue">{value}</strong>
+      <span className="profileMinimal__statLabel">{label}</span>
     </div>
   );
 
   if (!to) return content;
 
   return (
-    <Link to={to} className="profilePage__statLink">
+    <Link to={to} className="profileMinimal__statLink">
       {content}
     </Link>
   );
@@ -88,26 +87,18 @@ function ProfileStat({ value, label, to }) {
 
 function ActivityRow({ meetup, initials }) {
   return (
-    <div className="profilePage__activityRow" key={meetup?.id}>
-      <div className="profilePage__activityAvatar">{initials}</div>
+    <div className="profileMinimal__activityRow" key={meetup?.id}>
+      <div className="profileMinimal__activityAvatar">{initials}</div>
 
-      <div className="profilePage__activityBody">
-        <div className="profilePage__activityTitle">
+      <div className="profileMinimal__activityBody">
+        <div className="profileMinimal__activityTitle">
           {meetup?.meeting_point || meetup?.title || "Quedada"}
         </div>
 
-        <div className="profilePage__activityMeta">
+        <div className="profileMinimal__activityMeta">
           {timeLabel(meetup?.starts_at) || "Fecha pendiente"}
           {meetup?.group_name ? ` · ${meetup.group_name}` : ""}
-          {meetup?.level_tag ? ` · ${meetup.level_tag}` : ""}
         </div>
-      </div>
-
-      <div className="profilePage__activityAside">
-        <div className="profilePage__activityNumber">
-          {meetup?.participants_count ?? 0}
-        </div>
-        <div className="profilePage__activityLabel">Inscritos</div>
       </div>
     </div>
   );
@@ -182,135 +173,111 @@ export default function ProfilePage() {
 
     setParams((prev) => {
       const next = new URLSearchParams(prev);
-
-      if (nextTab === "posts") {
-        next.set("tab", "posts");
-      } else {
-        next.set("tab", "calendar");
-      }
-
+      next.set("tab", nextTab === "posts" ? "posts" : "calendar");
       return next;
     });
   }
 
   return (
-    <div className="profilePage">
-      <section className="profilePage__hero app-section">
-        <div className="profilePage__heroTop">
-          <div className="profilePage__identity">
-            {me?.avatar_url ? (
-              <img
-                src={me.avatar_url}
-                alt={displayName}
-                className="profilePage__avatarImage"
-              />
-            ) : (
-              <div className="profilePage__avatarFallback" aria-hidden="true">
-                {initials}
-              </div>
-            )}
+    <div className="profileMinimal">
+      <section className="profileMinimal__hero app-section">
+        <div className="profileMinimal__identity">
+          {me?.avatar_url ? (
+            <img
+              src={me.avatar_url}
+              alt={displayName}
+              className="profileMinimal__avatarImage"
+            />
+          ) : (
+            <div className="profileMinimal__avatarFallback" aria-hidden="true">
+              {initials}
+            </div>
+          )}
 
-            <div className="profilePage__identityCopy">
-              <div className="profilePage__identityHead">
-                <div className="profilePage__nameBlock">
-                  <span className="app-kicker">Perfil deportivo</span>
-                  <h1 className="profilePage__name">{displayName}</h1>
-                  <p className="profilePage__handle">{handle}</p>
-                </div>
-
-                <div className="profilePage__actions">
-                  <Button as={Link} to="/onboarding" variant="secondary" size="md">
-                    Editar perfil
-                  </Button>
-
-                  <Button type="button" variant="ghost" size="md" onClick={handleLogout}>
-                    Cerrar sesión
-                  </Button>
-                </div>
+          <div className="profileMinimal__identityCopy">
+            <div className="profileMinimal__head">
+              <div>
+                <span className="app-kicker">Perfil</span>
+                <h1 className="profileMinimal__name">{displayName}</h1>
+                <p className="profileMinimal__handle">{handle}</p>
               </div>
 
-              <p className="profilePage__bio">{bio}</p>
+              <div className="profileMinimal__actions">
+                <Button as={Link} to="/onboarding" variant="secondary" size="md">
+                  Editar
+                </Button>
 
-              <div className="profilePage__metaInline">
-                {location ? <Badge>{location}</Badge> : null}
-                {disciplines.map((item) => (
-                  <Badge key={item}>{item}</Badge>
-                ))}
+                <Button type="button" variant="ghost" size="md" onClick={handleLogout}>
+                  Salir
+                </Button>
               </div>
             </div>
-          </div>
 
-          <div className="profilePage__stats">
-            {stats.map((stat) => (
-              <ProfileStat
-                key={stat.label}
-                value={stat.value}
-                label={stat.label}
-                to={stat.to}
-              />
-            ))}
+            <p className="profileMinimal__bio">{bio}</p>
+
+            <div className="profileMinimal__meta">
+              {location ? <Badge>{location}</Badge> : null}
+              {disciplines.map((item) => (
+                <Badge key={item}>{item}</Badge>
+              ))}
+            </div>
           </div>
+        </div>
+
+        <div className="profileMinimal__stats">
+          {stats.map((stat) => (
+            <ProfileStat
+              key={stat.label}
+              value={stat.value}
+              label={stat.label}
+              to={stat.to}
+            />
+          ))}
         </div>
       </section>
 
-      <section className="profilePage__tabsWrap app-section">
-        <div className="profilePage__tabs" role="tablist" aria-label="Contenido del perfil">
-          <button
-            type="button"
-            className={`profilePage__tab ${
-              tab === "posts" ? "profilePage__tab--active" : ""
-            }`}
-            aria-pressed={tab === "posts"}
-            onClick={() => updateTab("posts")}
-          >
-            Publicaciones
-          </button>
+      <section className="profileMinimal__tabs app-section">
+        <button
+          type="button"
+          className={`profileMinimal__tab ${tab === "posts" ? "profileMinimal__tab--active" : ""}`}
+          onClick={() => updateTab("posts")}
+        >
+          Publicaciones
+        </button>
 
-          <button
-            type="button"
-            className={`profilePage__tab ${
-              tab === "calendar" ? "profilePage__tab--active" : ""
-            }`}
-            aria-pressed={tab === "calendar"}
-            onClick={() => updateTab("calendar")}
-          >
-            Calendario
-          </button>
-        </div>
+        <button
+          type="button"
+          className={`profileMinimal__tab ${tab === "calendar" ? "profileMinimal__tab--active" : ""}`}
+          onClick={() => updateTab("calendar")}
+        >
+          Calendario
+        </button>
       </section>
 
       {tab === "posts" ? (
-        <section className="profilePage__content">
-          <Card className="profilePage__contentCard">
-            <CardBody>
-              <div className="profilePage__sectionHead">
-                <div>
-                  <p className="app-kicker">Contenido</p>
-                  <h2 className="app-title">Tus publicaciones</h2>
-                  <p className="app-subtitle">
-                    Vista visual del contenido compartido desde tu perfil.
-                  </p>
-                </div>
+        <Card>
+          <CardBody>
+            <div className="profileMinimal__sectionHead">
+              <div>
+                <p className="app-kicker">Contenido</p>
+                <h2 className="app-title">Publicaciones</h2>
               </div>
+            </div>
 
-              <PostsGrid posts={posts} />
-            </CardBody>
-          </Card>
-        </section>
+            <PostsGrid posts={posts} />
+          </CardBody>
+        </Card>
       ) : (
-        <section className="profilePage__content profilePage__content--calendar">
-          <Card className="profilePage__calendarCard">
+        <section className="profileMinimal__content">
+          <Card>
             <CardBody>
-              <div className="profilePage__sectionHead">
+              <div className="profileMinimal__sectionHead">
                 <div>
                   <p className="app-kicker">Agenda</p>
-                  <h2 className="app-title">Calendario deportivo</h2>
-                  <p className="app-subtitle">
-                    Consulta próximas quedadas y mantén visible tu ritmo de actividad.
-                  </p>
+                  <h2 className="app-title">Calendario</h2>
                 </div>
 
-                <div className="profilePage__actions">
+                <div className="profileMinimal__actions">
                   <Button
                     type="button"
                     variant="ghost"
@@ -319,15 +286,6 @@ export default function ProfilePage() {
                     disabled={meetupsLoading}
                   >
                     {meetupsLoading ? "Actualizando..." : "Actualizar"}
-                  </Button>
-
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    size="md"
-                    onClick={() => toast?.info?.("Añadir actividad próximamente")}
-                  >
-                    Añadir actividad
                   </Button>
                 </div>
               </div>
@@ -340,15 +298,12 @@ export default function ProfilePage() {
             </CardBody>
           </Card>
 
-          <Card className="profilePage__sidebarCard">
+          <Card>
             <CardBody>
-              <div className="profilePage__sectionHead">
+              <div className="profileMinimal__sectionHead">
                 <div>
                   <p className="app-kicker">Próximo</p>
-                  <h2 className="app-title">Tus siguientes planes</h2>
-                  <p className="app-subtitle">
-                    Acceso rápido a las quedadas más cercanas de tu agenda.
-                  </p>
+                  <h2 className="app-title">Siguientes planes</h2>
                 </div>
               </div>
 
@@ -365,13 +320,9 @@ export default function ProfilePage() {
                   description="Únete a un grupo o explora quedadas para empezar a llenar tu calendario."
                 />
               ) : (
-                <div className="profilePage__activityList">
+                <div className="profileMinimal__activityList">
                   {nextMeetups.map((meetup) => (
-                    <ActivityRow
-                      key={meetup?.id}
-                      meetup={meetup}
-                      initials={initials}
-                    />
+                    <ActivityRow key={meetup?.id} meetup={meetup} initials={initials} />
                   ))}
                 </div>
               )}
