@@ -87,20 +87,16 @@ function AppShell({ children }) {
 
   return (
     <div className="app-root">
-      <div className="app-shell">
-        {isAuthed ? <SSEListener /> : null}
+      {isAuthed ? <SSEListener /> : null}
 
+      <div className={`app-shell${showChrome ? " app-shell--withChrome" : ""}`}>
         {showChrome ? <AppChrome me={me} /> : null}
 
-        <div className="app-shell__inner">
-          {showChrome ? (
-            <aside className="app-desktop-sidebar-spacer app-desktop-sidebar" aria-hidden="true" />
-          ) : null}
+        <main className={`app-main${showChrome ? " app-main--withChrome" : ""}`}>
+          <div className="app-main__inner">{children}</div>
+        </main>
 
-          <main className="app-main">{children}</main>
-        </div>
-
-        {showChrome ? <BottomNav me={me} /> : null}
+        {showChrome ? <BottomNav /> : null}
       </div>
     </div>
   );
