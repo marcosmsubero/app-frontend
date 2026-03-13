@@ -2838,3 +2838,146 @@ textarea.input:focus {
     min-height: 100%;
   }
 }
+
+.homePage {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.homePage__hero {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.homePage__heroMain,
+.homePage__heroAside {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.homePage__heroCopy {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.homePage__heroTitle {
+  margin: 0;
+  font-size: clamp(1.9rem, 7vw, 3.2rem);
+  line-height: 0.98;
+  letter-spacing: -0.05em;
+  max-width: 14ch;
+}
+
+.homePage__heroSubtitle {
+  margin: 0;
+  color: var(--app-text-muted);
+  line-height: 1.7;
+  max-width: 64ch;
+}
+
+.homePage__heroActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.homePage__metricGrid {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.homePage__metricCard {
+  min-height: 100%;
+}
+
+.homePage__metricHead {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.homePage__metricBody {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.homePage__metricValue {
+  font-size: clamp(1.75rem, 5vw, 2.35rem);
+  line-height: 1;
+  letter-spacing: -0.05em;
+}
+
+.homePage__metricDescription {
+  margin: 0;
+  color: var(--app-text-muted);
+  line-height: 1.6;
+  font-size: var(--font-sm);
+}
+
+.homePage__insightCard {
+  min-height: 100%;
+}
+
+.homePage__insightTitle {
+  margin: 0;
+  font-size: clamp(1.15rem, 3vw, 1.45rem);
+  line-height: 1.06;
+  letter-spacing: -0.03em;
+}
+
+.homePage__tagRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.homePage__featureGrid,
+.homePage__quickGrid {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.homePage__featureCard,
+.homePage__quickAction {
+  min-height: 100%;
+}
+
+.homePage__quickActionInner {
+  display: grid;
+  gap: var(--space-3);
+}
+
+@media (max-width: 639px) {
+  .homePage__heroTitle {
+    max-width: 100%;
+  }
+
+  .homePage__heroActions .app-button {
+    width: 100%;
+  }
+}
+
+@media (min-width: 768px) {
+  .homePage__metricGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .homePage__quickGrid,
+  .homePage__featureGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 960px) {
+  .homePage__hero {
+    grid-template-columns: minmax(0, 1.2fr) minmax(340px, 0.8fr);
+    align-items: start;
+  }
+
+  .homePage__quickGrid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .homePage__featureGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
