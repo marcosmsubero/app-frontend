@@ -7960,3 +7960,234 @@ textarea.input:focus {
     align-items: start;
   }
 }
+
+.onboardingSimple {
+  min-height: 100vh;
+  display: grid;
+  align-items: start;
+  padding: var(--space-4);
+}
+
+.onboardingSimple__shell {
+  width: min(100%, 1040px);
+  margin: 0 auto;
+}
+
+.onboardingSimple__layout {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.onboardingSimple__intro {
+  display: grid;
+  gap: var(--space-4);
+  align-content: start;
+}
+
+.onboardingSimple__title {
+  margin: 0;
+  font-size: clamp(1.9rem, 7vw, 3rem);
+  line-height: 0.98;
+  letter-spacing: -0.05em;
+  max-width: 12ch;
+}
+
+.onboardingSimple__subtitle {
+  margin: 0;
+  color: var(--app-text-muted);
+  line-height: 1.7;
+  max-width: 58ch;
+}
+
+.onboardingSimple__steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.onboardingSimple__status {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.onboardingSimple__statusItem {
+  display: grid;
+  gap: 0.4rem;
+  padding: var(--space-4);
+  border: 1px solid rgba(226, 232, 240, 0.92);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.onboardingSimple__statusItem strong {
+  font-size: 0.98rem;
+  letter-spacing: -0.02em;
+}
+
+.onboardingSimple__statusItem p {
+  margin: 0;
+  color: var(--app-text-muted);
+  font-size: var(--font-sm);
+  line-height: 1.6;
+}
+
+.onboardingSimple__message {
+  padding: 0.95rem 1rem;
+  border-radius: 14px;
+  border: 1px solid var(--app-border);
+  background: rgba(248, 250, 252, 0.92);
+  font-size: var(--font-sm);
+  line-height: 1.5;
+}
+
+.onboardingSimple__message--error {
+  border-color: rgba(220, 38, 38, 0.16);
+  background: rgba(220, 38, 38, 0.06);
+  color: #b91c1c;
+}
+
+.onboardingSimple__message--info {
+  border-color: rgba(37, 99, 235, 0.14);
+  background: rgba(37, 99, 235, 0.06);
+  color: var(--app-primary-strong);
+}
+
+.onboardingSimple__panel {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.onboardingSimple__formWrap {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.onboardingSimple__head {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.onboardingSimple__panelTitle {
+  margin: 0;
+  font-size: clamp(1.35rem, 4vw, 1.85rem);
+  line-height: 1.02;
+  letter-spacing: -0.04em;
+}
+
+.onboardingSimple__panelText {
+  margin: 0;
+  color: var(--app-text-muted);
+  line-height: 1.6;
+}
+
+.onboardingSimple__verify {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  border: 1px solid rgba(226, 232, 240, 0.92);
+  border-radius: 16px;
+  background: rgba(248, 250, 252, 0.82);
+}
+
+.onboardingSimple__verifyHead {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.onboardingSimple__verifyHead p {
+  margin: 0;
+  color: var(--app-text-muted);
+  font-size: var(--font-sm);
+  line-height: 1.6;
+}
+
+.onboardingSimple__verifyActions,
+.onboardingSimple__inlineActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.onboardingSimple__verified {
+  display: flex;
+  align-items: center;
+}
+
+.onboardingSimple__form {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.onboardingSimple__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.onboardingSimple__chip {
+  min-height: 38px;
+  padding: 0.65rem 0.95rem;
+  border: 1px solid var(--app-border);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--app-text-soft);
+  font-weight: 650;
+  cursor: pointer;
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.onboardingSimple__chip--active {
+  border-color: rgba(37, 99, 235, 0.2);
+  background: rgba(37, 99, 235, 0.1);
+  color: var(--app-primary-strong);
+}
+
+.onboardingSimple__links {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.onboardingSimple__footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+@media (max-width: 639px) {
+  .onboardingSimple {
+    padding: var(--space-3);
+  }
+
+  .onboardingSimple__title {
+    max-width: 100%;
+  }
+
+  .onboardingSimple__footer > * {
+    width: 100%;
+  }
+}
+
+@media (min-width: 768px) {
+  .onboardingSimple__status {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .onboardingSimple__links {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .onboardingSimple__links .app-field:last-child {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (min-width: 960px) {
+  .onboardingSimple__layout {
+    grid-template-columns: minmax(0, 1fr) 460px;
+    align-items: start;
+  }
+}
