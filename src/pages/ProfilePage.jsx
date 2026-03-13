@@ -6,10 +6,10 @@ import { useToast } from "../hooks/useToast";
 import { useMyMeetups } from "../hooks/useMyMeetups";
 
 import MeetupCalendar from "../components/MeetupCalendar";
+import UpcomingMeetups from "../components/UpcomingMeetups";
 import PostsGrid from "../components/PostsGrid";
 
-import { Badge, Button, Card, CardBody, EmptyState, Loader } from "../components/ui";
-import { timeLabel } from "../utils/dates";
+import { Badge, Button, Card, CardBody } from "../components/ui";
 
 function getInitials(me) {
   const raw = (me?.full_name || me?.name || me?.handle || me?.email || "U").trim();
@@ -31,11 +31,7 @@ function getHandle(me) {
 }
 
 function getBio(me) {
-  return (
-    me?.bio ||
-    me?.description ||
-    "Comparte tu actividad y conecta con otros deportistas."
-  );
+  return me?.bio || me?.description || "Comparte tu actividad y conecta con otros deportistas.";
 }
 
 function getLocation(me) {
@@ -85,25 +81,6 @@ function ProfileStat({ value, label, to }) {
   );
 }
 
-function ActivityRow({ meetup, initials }) {
-  return (
-    <div className="profileMinimal__activityRow" key={meetup?.id}>
-      <div className="profileMinimal__activityAvatar">{initials}</div>
-
-      <div className="profileMinimal__activityBody">
-        <div className="profileMinimal__activityTitle">
-          {meetup?.meeting_point || meetup?.title || "Quedada"}
-        </div>
-
-        <div className="profileMinimal__activityMeta">
-          {timeLabel(meetup?.starts_at) || "Fecha pendiente"}
-          {meetup?.group_name ? ` · ${meetup.group_name}` : ""}
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export default function ProfilePage() {
   const { me, logout } = useAuth();
   const toast = useToast();
@@ -121,7 +98,6 @@ export default function ProfilePage() {
   const {
     items: myMeetups,
     loading: meetupsLoading,
-    error: meetupsError,
     reload,
   } = useMyMeetups();
 
@@ -132,14 +108,6 @@ export default function ProfilePage() {
   const disciplines = useMemo(() => normalizeDisciplines(me), [me]);
   const initials = useMemo(() => getInitials(me), [me]);
   const posts = useMemo(() => getPosts(me), [me]);
-
-  const sortedMeetups = useMemo(() => {
-    const arr = Array.isArray(myMeetups) ? [...myMeetups] : [];
-    arr.sort((a, b) => new Date(a?.starts_at) - new Date(b?.starts_at));
-    return arr;
-  }, [myMeetups]);
-
-  const nextMeetups = useMemo(() => sortedMeetups.slice(0, 5), [sortedMeetups]);
 
   const stats = useMemo(
     () => [
@@ -298,36 +266,7 @@ export default function ProfilePage() {
             </CardBody>
           </Card>
 
-          <Card>
-            <CardBody>
-              <div className="profileMinimal__sectionHead">
-                <div>
-                  <p className="app-kicker">Próximo</p>
-                  <h2 className="app-title">Siguientes planes</h2>
-                </div>
-              </div>
-
-              {meetupsError ? (
-                <EmptyState
-                  title="No se pudo cargar tu actividad"
-                  description={meetupsError}
-                />
-              ) : meetupsLoading ? (
-                <Loader label="Actualizando actividad" />
-              ) : nextMeetups.length === 0 ? (
-                <EmptyState
-                  title="Aún no tienes actividad próxima"
-                  description="Únete a un grupo o explora quedadas para empezar a llenar tu calendario."
-                />
-              ) : (
-                <div className="profileMinimal__activityList">
-                  {nextMeetups.map((meetup) => (
-                    <ActivityRow key={meetup?.id} meetup={meetup} initials={initials} />
-                  ))}
-                </div>
-              )}
-            </CardBody>
-          </Card>
+          <UpcomingMeetups />
         </section>
       )}
     </div>
