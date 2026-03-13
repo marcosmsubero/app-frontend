@@ -152,13 +152,6 @@ export default function NotificationsPage() {
         </div>
 
         <div className="notificationsSimple__heroActions">
-          <button
-            type="button"
-            className="app-button app-button--secondary"
-            onClick={() => nav(-1)}
-          >
-            Volver
-          </button>
 
           <button
             type="button"
