@@ -1,87 +1,114 @@
+import { Badge, Button, Card, CardBody, CardHeader, CardTitle, EmptyState } from "./ui";
+
 function RoleBadge({ role }) {
   const map = {
-    owner: "👑 Owner",
-    mod: "🛠 Admin",
-    member: "👤 Miembro",
+    owner: "Owner",
+    mod: "Admin",
+    member: "Miembro",
   };
-  return <span className="badge">{map[role] || role}</span>;
+
+  return <Badge variant="primary">{map[role] || role || "Miembro"}</Badge>;
 }
 
 export default function GroupList({
   isAuthed,
   groups = [],
   loadingGroups,
-  onLoadGroups,
   onOpenGroup,
 }) {
   const safeGroups = Array.isArray(groups) ? groups : [];
 
-  return (
-    <div className="stack" style={{ maxWidth: 900 }}>
-      {/* Header (si lo quieres aquí también) */}
-      {!isAuthed && (
-        <p className="muted">
-          Inicia sesión para ver y unirte a grupos.
-        </p>
-      )}
+  if (loadingGroups) {
+    return (
+      <div className="groupList">
+        <Card>
+          <CardBody>
+            <p className="muted">Cargando grupos…</p>
+          </CardBody>
+        </Card>
+      </div>
+    );
+  }
 
-      <hr className="hr" />
-
-      {loadingGroups && <p className="muted">Cargando grupos…</p>}
-
-      {!loadingGroups && safeGroups.length === 0 && (
-        <p className="muted">No hay grupos todavía.</p>
-      )}
-
-      <div className="stack">
-        {safeGroups.map((g) => {
-          const isMember = !!g.my_role;
-          const isPrivate = !!g.is_private;
-          const membersCount =
-            g.members_count ?? g.member_count ?? g.membersCount ?? g.memberCount ?? "—";
-
-          let label = "Unirme →";
-          let disabled = false;
-
-          if (isMember) {
-            label = "Entrar →";
-          } else if (isPrivate) {
-            label = "Invitación 🔒";
-            disabled = true;
+  if (!safeGroups.length) {
+    return (
+      <div className="groupList">
+        <EmptyState
+          title="Todavía no hay grupos disponibles"
+          description={
+            isAuthed
+              ? "Cuando se creen nuevos grupos aparecerán aquí para que puedas explorarlos o unirte."
+              : "Inicia sesión para descubrir grupos, comunidades y próximos planes."
           }
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="groupList app-stack">
+      {!isAuthed ? (
+        <Card>
+          <CardBody>
+            <p className="muted">
+              Inicia sesión para ver y unirte a grupos.
+            </p>
+          </CardBody>
+        </Card>
+      ) : null}
+
+      <div className="groupList__grid">
+        {safeGroups.map((group) => {
+          const isMember = !!group.my_role;
+          const isPrivate = !!group.is_private;
+          const membersCount =
+            group.members_count ??
+            group.member_count ??
+            group.membersCount ??
+            group.memberCount ??
+            "—";
+
+          const ctaLabel = isMember ? "Entrar al grupo" : isPrivate ? "Solo con invitación" : "Unirme al grupo";
 
           return (
-            <div
-              key={g.id}
-              className="stack"
-              style={{
-                padding: 14,
-                borderRadius: 8,
-                background: "#1e1e1e",
-                opacity: disabled ? 0.75 : 1,
-              }}
+            <Card
+              key={group.id}
+              className="groupList__item"
+              interactive={!isPrivate}
             >
-              <div className="row" style={{ justifyContent: "space-between" }}>
-                <div className="row" style={{ gap: 8, alignItems: "center" }}>
-                  <strong>{g.name}</strong>
-                  {isMember && <RoleBadge role={g.my_role} />}
+              <CardHeader className="groupList__header">
+                <div className="groupList__top">
+                  <div className="groupList__identity">
+                    <div className="groupList__nameRow">
+                      <CardTitle className="groupList__name">{group.name}</CardTitle>
+                      {isMember ? <RoleBadge role={group.my_role} /> : null}
+                    </div>
+
+                    <div className="groupList__meta">
+                      <span>{group.city || "Ubicación pendiente"}</span>
+                      <span>·</span>
+                      <span>{group.sport || "Deporte"}</span>
+                      <span>·</span>
+                      <span>{membersCount} miembros</span>
+                    </div>
+                  </div>
+
+                  <Badge>{isPrivate ? "Privado" : "Público"}</Badge>
                 </div>
+              </CardHeader>
 
-                <span className="badge">{isPrivate ? "Privado" : "Público"}</span>
-              </div>
-
-              <div className="small-muted">
-                🏙 {g.city} · 🏃 {g.sport} · 👥 {membersCount}
-              </div>
-
-              <button
-                className="link-btn"
-                disabled={disabled || !onOpenGroup}
-                onClick={() => !disabled && onOpenGroup?.(g)}
-              >
-                {label}
-              </button>
-            </div>
+              <CardBody className="groupList__actions">
+                <Button
+                  variant={isPrivate ? "secondary" : isMember ? "secondary" : "primary"}
+                  disabled={isPrivate || !onOpenGroup}
+                  onClick={() => {
+                    if (!isPrivate) onOpenGroup?.(group);
+                  }}
+                >
+                  {ctaLabel}
+                </Button>
+              </CardBody>
+            </Card>
           );
         })}
       </div>
