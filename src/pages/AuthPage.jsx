@@ -127,15 +127,13 @@ export default function AuthPage({ defaultTab = "login" }) {
       <div className="authSimple__shell">
         <div className="authSimple__layout">
           <div className="authSimple__intro">
-            <span className="app-kicker">App social deportiva</span>
             <h1 className="authSimple__title">
               {isLogin
-                ? "Accede a tu comunidad deportiva."
-                : "Crea tu cuenta y entra sin fricción."}
+                ? "Accede a tu comunidad deportiva"
+                : "Crea tu cuenta y entra sin fricción"}
             </h1>
             <p className="authSimple__subtitle">
-              Grupos, quedadas, mensajes y perfil deportivo en una interfaz más limpia,
-              rápida y consistente.
+              Grupos, quedadas y viajes en una interfaz rápida y consistente.
             </p>
           </div>
 
