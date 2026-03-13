@@ -107,9 +107,6 @@ export default function BlaBlaRunPage() {
         </div>
 
         <div className="explorePage__heroActions">
-          <Link to="/" className="app-button app-button--secondary">
-            Volver
-          </Link>
 
           {!isAuthed ? (
             <Link to="/login" className="app-button app-button--primary">
