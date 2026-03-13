@@ -1,5 +1,4 @@
-import { NavLink, useLocation } from "react-router-dom";
-import { useMemo } from "react";
+import { NavLink } from "react-router-dom";
 
 function ShellIcon({ children }) {
   return (
@@ -64,37 +63,12 @@ function IconProfile() {
   );
 }
 
-function IconBolt() {
-  return (
-    <ShellIcon>
-      <path d="M13 2 5 13h5l-1 9 8-11h-5l1-9Z" />
-    </ShellIcon>
-  );
-}
-
 const NAV_ITEMS = [
   { to: "/", icon: <IconHome />, label: "Inicio" },
   { to: "/explorar", icon: <IconMeetups />, label: "Quedadas" },
   { to: "/groups", icon: <IconUsers />, label: "Grupos" },
   { to: "/mensajes", icon: <IconMessage />, label: "Mensajes" },
 ];
-
-function getInitials(me) {
-  const raw =
-    me?.full_name ||
-    me?.name ||
-    me?.display_name ||
-    me?.handle ||
-    me?.email ||
-    "U";
-
-  return String(raw)
-    .split(/[\s@._-]+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase() || "")
-    .join("");
-}
 
 function DesktopNavItem({ to, icon, label }) {
   return (
@@ -111,41 +85,25 @@ function DesktopNavItem({ to, icon, label }) {
   );
 }
 
-export default function AppChrome({ me }) {
-  const location = useLocation();
-  const initials = useMemo(() => getInitials(me), [me]);
-
+export default function AppChrome() {
   return (
     <>
       <header className="app-topbar app-topbar--minimal">
-
         <NavLink
           to="/perfil"
           className="app-topbar__profileIconOnly"
           aria-label="Perfil"
           title="Perfil"
         >
-          <div className="app-avatar" aria-hidden="true">
-            {initials}
-          </div>
+          <IconProfile />
         </NavLink>
       </header>
 
-      <aside className="app-sidebar app-sidebar--floating" aria-label="Navegación principal">
+      <aside
+        className="app-sidebar app-sidebar--floating"
+        aria-label="Navegación principal"
+      >
         <div className="app-sidebar__floatingRail">
-          <NavLink
-            to="/"
-            aria-label="Inicio"
-            title="Inicio"
-            className={({ isActive }) =>
-              `app-sidebar__brandIconOnly${isActive ? " app-sidebar__brandIconOnly--active" : ""}`
-            }
-          >
-            <span aria-hidden="true">
-              <IconBolt />
-            </span>
-          </NavLink>
-
           <nav className="app-sidebar__iconNav">
             {NAV_ITEMS.map((item) => (
               <DesktopNavItem key={item.to} {...item} />
@@ -157,21 +115,12 @@ export default function AppChrome({ me }) {
             aria-label="Perfil"
             title="Perfil"
             className={({ isActive }) =>
-              `app-sidebar__profileIconOnly${isActive ? " app-sidebar__profileIconOnly--active" : ""}`
+              `app-sidebar__profileIconOnly${
+                isActive ? " app-sidebar__profileIconOnly--active" : ""
+              }`
             }
           >
-            {me?.avatar_url ? (
-              <img
-                src={me.avatar_url}
-                alt=""
-                className="app-sidebar__profileAvatarImage"
-              />
-            ) : (
-              <div className="app-avatar" aria-hidden="true">
-                {initials}
-              </div>
-            )}
-            <span className="sr-only">Perfil</span>
+            <IconProfile />
           </NavLink>
         </div>
       </aside>
