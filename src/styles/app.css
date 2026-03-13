@@ -398,12 +398,6 @@ button.app-button,
   width: 100%;
 }
 
-.ui-btn--icon {
-  width: 42px;
-  min-width: 42px;
-  padding-inline: 0;
-}
-
 .app-card,
 .card,
 .ui-card {
@@ -457,12 +451,14 @@ button.app-button,
 }
 
 .app-card__content,
-.card__content {
+.card__content,
+.ui-card__content {
   min-width: 0;
 }
 
 .app-card__footer,
-.card__footer {
+.card__footer,
+.ui-card__footer {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-3);
@@ -753,6 +749,10 @@ textarea.input:focus {
   gap: var(--space-3);
 }
 
+.app-sidebar__brand--instagram {
+  gap: var(--space-2);
+}
+
 .app-sidebar__brand-icon {
   width: 52px;
   height: 52px;
@@ -789,6 +789,52 @@ textarea.input:focus {
   color: var(--app-text-soft);
   font-size: var(--font-sm);
   line-height: 1.55;
+}
+
+.app-sidebar__search {
+  display: grid;
+}
+
+.app-sidebar__searchBox {
+  position: relative;
+}
+
+.app-sidebar__searchIcon {
+  position: absolute;
+  left: 0.9rem;
+  top: 50%;
+  width: 18px;
+  height: 18px;
+  transform: translateY(-50%);
+  color: var(--app-text-faint);
+  pointer-events: none;
+}
+
+.app-sidebar__searchInput {
+  width: 100%;
+  min-height: 46px;
+  padding: 0.8rem 0.95rem 0.8rem 2.85rem;
+  border: 1px solid var(--app-border);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.035);
+  color: var(--app-text);
+  transition:
+    border-color var(--transition-fast),
+    background var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.app-sidebar__searchInput::placeholder {
+  color: var(--app-text-faint);
+}
+
+.app-sidebar__searchInput:hover {
+  border-color: var(--app-border-strong);
+}
+
+.app-sidebar__searchInput:focus {
+  border-color: rgba(79, 140, 255, 0.45);
+  box-shadow: 0 0 0 4px var(--app-primary-ring);
 }
 
 .app-sidebar__nav {
@@ -1468,7 +1514,7 @@ textarea.input:focus {
 
 .profilePage__identity {
   display: grid;
-  gap: var(--space-4);
+  gap: var(--space-5);
   align-items: start;
 }
 
@@ -1476,7 +1522,7 @@ textarea.input:focus {
 .profilePage__avatarFallback {
   width: 96px;
   height: 96px;
-  border-radius: 28px;
+  border-radius: 50%;
 }
 
 .profilePage__avatarImage {
@@ -1496,7 +1542,13 @@ textarea.input:focus {
 
 .profilePage__identityCopy {
   display: grid;
-  gap: var(--space-3);
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.profilePage__headline {
+  display: grid;
+  gap: var(--space-4);
 }
 
 .profilePage__name {
@@ -1507,7 +1559,7 @@ textarea.input:focus {
 }
 
 .profilePage__handle {
-  margin: 0;
+  margin: 0.3rem 0 0;
   color: var(--app-text-faint);
   font-size: var(--font-sm);
   font-weight: 600;
@@ -1519,6 +1571,12 @@ textarea.input:focus {
   max-width: 64ch;
 }
 
+.profilePage__metaInline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
 .profilePage__actions {
   display: flex;
   flex-wrap: wrap;
@@ -1527,7 +1585,7 @@ textarea.input:focus {
 
 .profilePage__stats {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(1, minmax(0, 1fr));
   gap: var(--space-3);
 }
 
@@ -1977,7 +2035,12 @@ textarea.input:focus {
   }
 
   .profilePage__stats {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .profilePage__headline {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
   }
 }
 
@@ -2005,27 +2068,76 @@ textarea.input:focus {
 
 @media (min-width: 960px) {
   .app-shell__inner {
-    padding-top: var(--space-5);
+    padding-top: 0;
     padding-bottom: var(--space-8);
+    width: 100%;
+    max-width: none;
+    margin: 0;
+  }
+
+  .app-topbar {
+    display: none;
   }
 
   .app-shell__layout {
     display: grid;
-    grid-template-columns: minmax(240px, var(--sidebar-width)) minmax(0, 1fr);
-    gap: var(--space-6);
+    grid-template-columns: 260px minmax(0, 1fr);
+    gap: 0;
     align-items: start;
+    min-height: 100vh;
   }
 
   .app-sidebar {
     display: block;
+    padding-right: 0;
+    border-right: 1px solid var(--app-border);
+    min-height: 100vh;
+  }
+
+  .app-sidebar__panel {
+    top: 0;
+    min-height: 100vh;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    background: transparent;
+    backdrop-filter: none;
+    padding: var(--space-8) var(--space-4) var(--space-6);
+  }
+
+  .app-sidebar__brand-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+  }
+
+  .app-sidebar__nav {
+    gap: var(--space-1);
+  }
+
+  .app-sidebar__link {
+    min-height: 52px;
+    padding: 0.9rem 1rem;
+    font-size: 1rem;
+    border-radius: 16px;
+  }
+
+  .app-sidebar__link-icon {
+    width: 22px;
+    height: 22px;
+  }
+
+  .app-sidebar__search {
+    margin-top: var(--space-1);
+    margin-bottom: var(--space-1);
+  }
+
+  .app-shell__content {
+    padding: var(--space-6) var(--space-8);
   }
 
   .app-bottom-nav {
     display: none;
-  }
-
-  .app-topbar {
-    margin-bottom: var(--space-6);
   }
 
   .metrics-grid {
@@ -2036,15 +2148,40 @@ textarea.input:focus {
     grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.85fr);
   }
 
+  .profilePage__hero,
+  .profilePage__tabsCard,
+  .profilePage__postsCard,
+  .profilePage__calendarWrap,
+  .profilePage__activityCard {
+    border-radius: 22px;
+  }
+
   .profilePage__activityLayout {
-    grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.95fr);
+    grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
     align-items: start;
+  }
+
+  .postsGrid__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 4px;
+  }
+
+  .postsGrid__tile {
+    border-radius: 0;
   }
 }
 
 @media (min-width: 1200px) {
-  .app-shell__inner {
-    padding-inline: var(--space-6);
+  .app-shell__content {
+    padding: var(--space-8) min(4vw, 56px);
+  }
+
+  .app-page {
+    width: min(100%, 980px);
+  }
+
+  .app-page--narrow {
+    width: min(100%, 860px);
   }
 
   .app-page__section,
@@ -2056,12 +2193,12 @@ textarea.input:focus {
   }
 
   .postsGrid__grid {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 8px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 4px;
   }
 
   .postsGrid__tile {
-    border-radius: 12px;
+    border-radius: 0;
   }
 }
 
