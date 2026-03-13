@@ -9291,3 +9291,263 @@ textarea.input:focus {
     align-items: start;
   }
 }
+
+.profileMinimal__notifButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  border: 1px solid var(--app-border);
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--app-text-soft);
+  transition:
+    border-color var(--transition-fast),
+    background var(--transition-fast),
+    color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.profileMinimal__notifButton svg {
+  width: 18px;
+  height: 18px;
+}
+
+.profileMinimal__notifButton:hover {
+  border-color: var(--app-border-strong);
+  background: #fff;
+  color: var(--app-text);
+  box-shadow: var(--shadow-xs);
+}
+
+.profileMinimal__content > .upcomingMeetups {
+  align-self: start;
+}
+
+.notificationsSimple {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.notificationsSimple__hero {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.notificationsSimple__heroCopy {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.notificationsSimple__title {
+  margin: 0;
+  font-size: clamp(1.9rem, 6vw, 2.8rem);
+  line-height: 0.98;
+  letter-spacing: -0.05em;
+}
+
+.notificationsSimple__subtitle {
+  margin: 0;
+  color: var(--app-text-muted);
+  line-height: 1.7;
+  max-width: 60ch;
+}
+
+.notificationsSimple__heroActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.notificationsSimple__layout {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.notificationsSimple__main,
+.notificationsSimple__aside {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.notificationsSimple__panel,
+.notificationsSimple__asideCard {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.notificationsSimple__panelHead {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-4);
+  align-items: flex-start;
+}
+
+.notificationsSimple__tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.4rem;
+  padding: 0.35rem;
+  border: 1px solid var(--app-border);
+  border-radius: 16px;
+  background: rgba(248, 250, 252, 0.92);
+}
+
+.notificationsSimple__tab {
+  min-height: 44px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--app-text-muted);
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.notificationsSimple__tab--active {
+  background: #ffffff;
+  color: var(--app-text);
+  box-shadow: var(--shadow-xs);
+}
+
+.notificationsSimple__list {
+  display: grid;
+  gap: 0;
+}
+
+.notificationsSimple__row {
+  width: 100%;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: var(--space-3);
+  align-items: center;
+  padding: var(--space-4) 0;
+  border: 0;
+  border-bottom: 1px solid var(--app-border);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  transition: opacity var(--transition-fast);
+}
+
+.notificationsSimple__row:hover {
+  opacity: 0.88;
+}
+
+.notificationsSimple__row--unread .notificationsSimple__text strong {
+  color: var(--app-text);
+}
+
+.notificationsSimple__avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(180deg, #8fd3ff 0%, #0095f6 100%);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.82rem;
+  flex: 0 0 auto;
+}
+
+.notificationsSimple__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.notificationsSimple__content {
+  min-width: 0;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.notificationsSimple__text {
+  color: var(--app-text-soft);
+  line-height: 1.55;
+}
+
+.notificationsSimple__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+  color: var(--app-text-faint);
+  font-size: var(--font-sm);
+}
+
+.notificationsSimple__state {
+  display: grid;
+  place-items: center;
+  min-width: 18px;
+}
+
+.notificationsSimple__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--app-primary);
+}
+
+.notificationsSimple__chevron {
+  color: var(--app-text-faint);
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.notificationsSimple__asideList {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.notificationsSimple__asideItem {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.notificationsSimple__asideItem p {
+  margin: 0;
+  color: var(--app-text-soft);
+  line-height: 1.6;
+}
+
+.notificationsSimple__emptyBody {
+  display: grid;
+  gap: 0.5rem;
+  place-items: center;
+  text-align: center;
+}
+
+.notificationsSimple__emptyBody p {
+  margin: 0;
+  color: var(--app-text-muted);
+  line-height: 1.6;
+}
+
+@media (max-width: 639px) {
+  .notificationsSimple__heroActions .app-button {
+    width: 100%;
+  }
+
+  .notificationsSimple__row {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .notificationsSimple__state {
+    display: none;
+  }
+}
+
+@media (min-width: 960px) {
+  .notificationsSimple__layout {
+    grid-template-columns: minmax(0, 1.1fr) minmax(300px, 0.9fr);
+    align-items: start;
+  }
+}
