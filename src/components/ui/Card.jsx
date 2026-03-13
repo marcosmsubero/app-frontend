@@ -1,19 +1,19 @@
-import clsx from "clsx";
+function joinClasses(...values) {
+  return values.filter(Boolean).join(" ");
+}
 
-function Card({
-  as: Component = "section",
+export function Card({
+  as: Component = "article",
+  interactive = false,
   className = "",
   children,
-  compact = false,
-  interactive = false,
   ...props
 }) {
   return (
     <Component
-      className={clsx(
+      className={joinClasses(
         "ui-card",
-        compact && "ui-card--compact",
-        interactive && "ui-card--interactive",
+        interactive ? "ui-card--interactive" : "",
         className
       )}
       {...props}
@@ -23,27 +23,56 @@ function Card({
   );
 }
 
-export function CardHeader({ as: Component = "div", className = "", children, ...props }) {
+export function CardHeader({ className = "", children, ...props }) {
   return (
-    <Component className={clsx("ui-card__header", className)} {...props}>
+    <div className={joinClasses("ui-card__header", className)} {...props}>
+      {children}
+    </div>
+  );
+}
+
+export function CardTitle({
+  as: Component = "h3",
+  className = "",
+  children,
+  ...props
+}) {
+  return (
+    <Component className={joinClasses("ui-card__title", className)} {...props}>
       {children}
     </Component>
   );
 }
 
-export function CardBody({ as: Component = "div", className = "", children, ...props }) {
+export function CardDescription({ className = "", children, ...props }) {
   return (
-    <Component className={clsx("ui-card__body", className)} {...props}>
+    <p className={joinClasses("ui-card__description", className)} {...props}>
       {children}
-    </Component>
+    </p>
   );
 }
 
-export function CardFooter({ as: Component = "div", className = "", children, ...props }) {
+export function CardContent({ className = "", children, ...props }) {
   return (
-    <Component className={clsx("ui-card__footer", className)} {...props}>
+    <div className={joinClasses("ui-card__content", className)} {...props}>
       {children}
-    </Component>
+    </div>
+  );
+}
+
+export function CardBody({ className = "", children, ...props }) {
+  return (
+    <div className={joinClasses("ui-card__content", className)} {...props}>
+      {children}
+    </div>
+  );
+}
+
+export function CardFooter({ className = "", children, ...props }) {
+  return (
+    <div className={joinClasses("ui-card__footer", className)} {...props}>
+      {children}
+    </div>
   );
 }
 
