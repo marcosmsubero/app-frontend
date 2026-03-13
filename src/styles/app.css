@@ -3263,3 +3263,151 @@ textarea.input:focus {
     align-items: start;
   }
 }
+
+.groupsPage {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.groupsPage__hero {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.groupsPage__heroMain {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.groupsPage__heroCopy {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.groupsPage__heroTitle {
+  margin: 0;
+  font-size: clamp(1.9rem, 6vw, 3rem);
+  line-height: 0.98;
+  letter-spacing: -0.05em;
+}
+
+.groupsPage__heroSubtitle {
+  margin: 0;
+  color: var(--app-text-muted);
+  line-height: 1.7;
+  max-width: 64ch;
+}
+
+.groupsPage__heroActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.groupsPage__heroStats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.groupsPage__insightCard {
+  display: grid;
+  gap: 0.45rem;
+  padding: var(--space-4);
+  border: 1px solid rgba(226, 232, 240, 0.92);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.groupsPage__insightValue {
+  font-size: clamp(1.2rem, 4vw, 1.8rem);
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.groupsPage__layout {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.groupsPage__main,
+.groupsPage__aside {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.groupsPage__panel,
+.groupsPage__asideCard {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.groupsPage__panelHead {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.groupsPage__filters,
+.groupsPage__createGrid {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.groupsPage__panelActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.groupsPage__checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-height: 42px;
+  padding: 0.8rem 0.95rem;
+  border: 1px solid var(--app-border);
+  border-radius: 14px;
+  background: rgba(248, 250, 252, 0.82);
+  color: var(--app-text-soft);
+  font-weight: 600;
+}
+
+.groupsPage__checkbox input {
+  margin: 0;
+}
+
+.groupsPage__hint {
+  margin: 0;
+  color: var(--app-text-faint);
+  font-size: var(--font-xs);
+  line-height: 1.5;
+}
+
+@media (max-width: 639px) {
+  .groupsPage__heroStats {
+    grid-template-columns: 1fr;
+  }
+
+  .groupsPage__heroActions .app-button,
+  .groupsPage__panelActions .app-button {
+    width: 100%;
+  }
+}
+
+@media (min-width: 768px) {
+  .groupsPage__filters,
+  .groupsPage__createGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .groupsPage__createGrid .app-field:last-child {
+    grid-column: span 2;
+  }
+}
+
+@media (min-width: 960px) {
+  .groupsPage__layout {
+    grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
+    align-items: start;
+  }
+}
