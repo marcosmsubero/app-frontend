@@ -63,71 +63,37 @@ function getUnreadCount(thread) {
   return 0;
 }
 
-function getThreadMeta(thread) {
-  const parts = [];
-
-  if (thread?.is_group || thread?.group_id) parts.push("Grupo");
-  if (thread?.activity_title) parts.push(thread.activity_title);
-  if (thread?.sport) parts.push(thread.sport);
-
-  return parts.filter(Boolean).slice(0, 2);
-}
-
-function SummaryTile({ value, label }) {
-  return (
-    <Card className="messages-summaryCard" compact>
-      <CardBody>
-        <div className="messages-summaryValue">{value}</div>
-        <div className="messages-summaryLabel">{label}</div>
-      </CardBody>
-    </Card>
-  );
-}
-
 function ThreadRow({ thread, onOpen }) {
   const name = getThreadName(thread);
   const preview = getThreadPreview(thread);
   const unreadCount = getUnreadCount(thread);
-  const meta = getThreadMeta(thread);
 
   return (
     <button
       type="button"
-      className={`threadRow ui-card ${unreadCount > 0 ? "threadRow--unread" : ""}`}
+      className={`threadRow ${unreadCount > 0 ? "threadRow--unread" : ""}`}
       onClick={() => onOpen?.(thread)}
     >
-      <div className="threadRow__avatarWrap">
+      <div className="threadRow__avatar">
         {thread?.avatar_url ? (
-          <img
-            src={thread.avatar_url}
-            alt={name}
-            className="threadRow__avatar"
-          />
+          <img src={thread.avatar_url} alt={name} />
         ) : (
-          <div className="threadRow__avatarFallback">{initials(name)}</div>
+          <span>{initials(name)}</span>
         )}
       </div>
 
       <div className="threadRow__body">
         <div className="threadRow__top">
-          <strong className="threadRow__name">{name}</strong>
-          <span className="threadRow__time">{timeShort(thread?.updated_at)}</span>
+          <strong>{name}</strong>
+          <span>{timeShort(thread?.updated_at)}</span>
         </div>
-
-        {meta.length > 0 ? (
-          <div className="threadRow__badges">
-            {meta.map((item) => (
-              <Badge key={`${thread?.id}-${item}`}>{item}</Badge>
-            ))}
-          </div>
-        ) : null}
 
         <p className="threadRow__preview">{preview}</p>
       </div>
 
-      <div className="threadRow__side">
+      <div className="threadRow__state">
         {unreadCount > 0 ? (
-          <span className="threadRow__unreadCount">
+          <span className="threadRow__badge">
             {unreadCount > 99 ? "99+" : unreadCount}
           </span>
         ) : (
@@ -198,13 +164,6 @@ export default function MessagesPage() {
     return list.filter((thread) => getUnreadCount(thread) > 0).length;
   }, [list]);
 
-  const totalUnreadMessages = useMemo(() => {
-    return list.reduce((acc, thread) => acc + getUnreadCount(thread), 0);
-  }, [list]);
-
-  const activeSearch = q.trim();
-  const hasThreads = list.length > 0;
-
   function openThread(thread) {
     if (!thread?.id) return;
 
@@ -212,210 +171,151 @@ export default function MessagesPage() {
     navigate(`/mensajes/${thread.id}`, { state: { threadIds } });
   }
 
+  const activeSearch = q.trim();
+
   return (
-    <div className="messages-pageShell">
-      <Card className="messages-hero">
-        <CardBody>
-          <div className="messages-heroTop">
-            <div>
-              <p className="messages-sectionEyebrow">Mensajería</p>
-              <h1 className="messages-title">Mensajes</h1>
-              <p className="messages-subtitle">
-                Gestiona tus conversaciones, revisa actividad reciente y accede
-                rápido a tus chats.
-              </p>
-            </div>
-
-            <div className="messages-heroActions">
-              <Button
-                type="button"
-                variant="ghost"
-                size="md"
-                onClick={() => navigate(-1)}
-                aria-label="Volver"
-                title="Volver"
-              >
-                Volver
-              </Button>
-
-              <Button
-                type="button"
-                variant="secondary"
-                size="md"
-                onClick={() => toast?.info?.("Nuevo mensaje próximamente")}
-                aria-label="Nuevo mensaje"
-                title="Nuevo mensaje"
-                disabled={!token}
-              >
-                Nuevo mensaje
-              </Button>
-            </div>
-          </div>
-
-          <div className="messages-summaryGrid">
-            <SummaryTile value={list.length} label="conversaciones" />
-            <SummaryTile value={unreadThreads} label="chats sin leer" />
-            <SummaryTile value={totalUnreadMessages} label="mensajes pendientes" />
-          </div>
-        </CardBody>
-      </Card>
-
-      <Card className="messages-toolbar">
-        <CardBody>
-          <div className="messages-toolbarRow">
-            <Input
-              id="messages-search"
-              name="messages-search"
-              label="Buscar conversaciones"
-              hint="Busca por nombre o conversación"
-              placeholder="Ej. Carlos, trail, grupo del sábado..."
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              disabled={!token}
-            />
-
-            <div className="messages-toolbarActions">
-              <Button
-                type="button"
-                variant="ghost"
-                size="md"
-                onClick={() => load(q)}
-                disabled={!token || loading}
-              >
-                {loading ? "Actualizando..." : "Actualizar"}
-              </Button>
-
-              {activeSearch ? (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="md"
-                  onClick={() => setQ("")}
-                  disabled={!token}
-                >
-                  Limpiar
-                </Button>
-              ) : null}
-            </div>
-          </div>
-        </CardBody>
-      </Card>
-
-      {!token ? (
-        <Card className="messages-stateCard">
-          <CardBody>
-            <EmptyState
-              title="Inicia sesión para ver tus mensajes"
-              description="Necesitas una sesión activa para acceder a tus conversaciones."
-              actionLabel="Ir al inicio"
-              onAction={() => navigate("/")}
-            />
-          </CardBody>
-        </Card>
-      ) : loading && !hasThreads ? (
-        <Card className="messages-stateCard">
-          <CardBody>
-            <Loader label="Cargando conversaciones" centered block />
-          </CardBody>
-        </Card>
-      ) : error ? (
-        <Card className="messages-stateCard">
-          <CardBody>
-            <EmptyState
-              title="No se pudieron cargar los mensajes"
-              description={error}
-              actionLabel="Reintentar"
-              onAction={() => load(q)}
-            />
-          </CardBody>
-        </Card>
-      ) : !hasThreads ? (
-        <Card className="messages-stateCard">
-          <CardBody>
-            <EmptyState
-              title={
-                activeSearch
-                  ? "No hay resultados para tu búsqueda"
-                  : "No hay conversaciones todavía"
-              }
-              description={
-                activeSearch
-                  ? "Prueba con otro nombre o elimina el filtro para ver todas tus conversaciones."
-                  : "Cuando empieces a interactuar con otras personas o grupos, aparecerán aquí."
-              }
-              actionLabel={activeSearch ? "Ver todo" : undefined}
-              onAction={activeSearch ? () => setQ("") : undefined}
-            />
-          </CardBody>
-        </Card>
-      ) : (
-        <div className="messages-contentGrid">
-          <Card className="messages-listCard">
-            <CardBody>
-              <div className="messages-listHeader">
-                <div>
-                  <p className="messages-sectionEyebrow">Bandeja</p>
-                  <h2 className="messages-listTitle">
-                    {activeSearch ? "Resultados" : "Conversaciones recientes"}
-                  </h2>
-                  <p className="messages-listSubtitle">
-                    {activeSearch
-                      ? `Mostrando coincidencias para “${activeSearch}”.`
-                      : "Tus chats más recientes, ordenados por última actividad."}
-                  </p>
-                </div>
-
-                {unreadThreads > 0 ? <Badge>{unreadThreads} sin leer</Badge> : null}
-              </div>
-
-              <div className="messages-threadList">
-                {list.map((thread) => (
-                  <ThreadRow
-                    key={thread?.id || `${getThreadName(thread)}-${thread?.updated_at || ""}`}
-                    thread={thread}
-                    onOpen={openThread}
-                  />
-                ))}
-              </div>
-            </CardBody>
-          </Card>
-
-          <Card className="messages-sideInfo">
-            <CardBody>
-              <div className="messages-listHeader">
-                <div>
-                  <p className="messages-sectionEyebrow">Vista rápida</p>
-                  <h2 className="messages-listTitle">Estado de la bandeja</h2>
-                </div>
-              </div>
-
-              <div className="messages-sideStack">
-                <div className="messages-sideItem">
-                  <strong>Conversaciones activas</strong>
-                  <p>{list.length} abiertas o con historial reciente.</p>
-                </div>
-
-                <div className="messages-sideItem">
-                  <strong>Mensajes pendientes</strong>
-                  <p>
-                    {totalUnreadMessages > 0
-                      ? `Tienes ${totalUnreadMessages} mensajes pendientes de revisar.`
-                      : "No tienes mensajes pendientes ahora mismo."}
-                  </p>
-                </div>
-
-                <div className="messages-sideItem">
-                  <strong>Siguiente paso</strong>
-                  <p>
-                    Entra en una conversación para responder, revisar contexto o
-                    continuar la coordinación de una actividad.
-                  </p>
-                </div>
-              </div>
-            </CardBody>
-          </Card>
+    <section className="page">
+      <div className="page__hero">
+        <div className="page__header">
+          <span className="page__eyebrow">Mensajería</span>
+          <h1 className="page__title">Mensajes</h1>
+          <p className="page__subtitle">
+            Revisa tus conversaciones y mantén la coordinación con tu red deportiva.
+          </p>
         </div>
-      )}
-    </div>
+
+        <div className="split-actions">
+          <Button
+            variant="ghost"
+            onClick={() => navigate(-1)}
+          >
+            Volver
+          </Button>
+
+          <Button
+            variant="secondary"
+            onClick={() => toast?.info?.("Nuevo mensaje próximamente")}
+            disabled={!token}
+          >
+            Nuevo mensaje
+          </Button>
+        </div>
+      </div>
+
+      <div className="page__columns">
+        <div className="app-stack app-stack--lg">
+
+          <Card>
+            <CardBody className="app-stack">
+
+              <div className="app-section-header">
+                <div>
+                  <div className="app-section-header__title">
+                    Conversaciones
+                  </div>
+
+                  <div className="app-section-header__subtitle">
+                    Tus chats más recientes ordenados por actividad.
+                  </div>
+                </div>
+
+                {unreadThreads > 0 && (
+                  <Badge>{unreadThreads} sin leer</Badge>
+                )}
+              </div>
+
+              <Input
+                label="Buscar conversación"
+                placeholder="Ej. Carlos, trail, grupo..."
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                disabled={!token}
+              />
+
+              {!token ? (
+                <EmptyState
+                  title="Inicia sesión para ver tus mensajes"
+                  description="Necesitas una sesión activa para acceder a tus conversaciones."
+                  actionLabel="Ir al inicio"
+                  onAction={() => navigate("/")}
+                />
+              ) : loading && list.length === 0 ? (
+                <Loader label="Cargando conversaciones" centered block />
+              ) : error ? (
+                <EmptyState
+                  title="No se pudieron cargar"
+                  description={error}
+                  actionLabel="Reintentar"
+                  onAction={() => load(q)}
+                />
+              ) : list.length === 0 ? (
+                <EmptyState
+                  title={
+                    activeSearch
+                      ? "No hay resultados"
+                      : "No hay conversaciones"
+                  }
+                  description={
+                    activeSearch
+                      ? "Prueba con otro término."
+                      : "Cuando interactúes con otros usuarios aparecerán aquí."
+                  }
+                />
+              ) : (
+                <div className="threadList">
+                  {list.map((thread) => (
+                    <ThreadRow
+                      key={thread.id}
+                      thread={thread}
+                      onOpen={openThread}
+                    />
+                  ))}
+                </div>
+              )}
+            </CardBody>
+          </Card>
+
+        </div>
+
+        <aside className="page__sidebar">
+          <Card className="app-card--soft">
+            <CardBody className="app-stack">
+              <div className="app-section-header__title">
+                Centro de mensajes
+              </div>
+
+              <p className="app-text-soft">
+                Aquí puedes revisar conversaciones activas, responder mensajes
+                y continuar la coordinación de actividades deportivas.
+              </p>
+
+              <div className="app-list">
+                <div className="app-list-item">
+                  <strong>Chats directos</strong>
+                  <div className="app-text-soft">
+                    Conversaciones privadas entre usuarios.
+                  </div>
+                </div>
+
+                <div className="app-list-item">
+                  <strong>Grupos</strong>
+                  <div className="app-text-soft">
+                    Mensajes asociados a comunidades o actividades.
+                  </div>
+                </div>
+
+                <div className="app-list-item">
+                  <strong>Actividad</strong>
+                  <div className="app-text-soft">
+                    Mantente al día con cambios y coordinación.
+                  </div>
+                </div>
+              </div>
+
+            </CardBody>
+          </Card>
+        </aside>
+      </div>
+    </section>
   );
 }
