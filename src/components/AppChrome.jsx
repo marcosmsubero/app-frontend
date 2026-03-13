@@ -118,11 +118,6 @@ export default function AppChrome({ me }) {
   return (
     <>
       <header className="app-topbar app-topbar--minimal">
-        <NavLink to="/" className="app-topbar__brandMarkOnly" aria-label="Inicio" title="Inicio">
-          <span className="app-topbar__brand-mark" aria-hidden="true">
-            <IconBolt />
-          </span>
-        </NavLink>
 
         <NavLink
           to="/perfil"
