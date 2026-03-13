@@ -139,6 +139,7 @@ export default function AuthPage({ defaultTab = "login" }) {
         <div className="home-hero__body">
           <div className="home-hero__content">
             <div className="page__header">
+              <span className="page__eyebrow">App social deportiva</span>
               <h1 className="page__title">
                 Encuentra gente para correr, rodar y salir a la montaña
               </h1>
@@ -148,10 +149,44 @@ export default function AuthPage({ defaultTab = "login" }) {
               </p>
             </div>
 
+            <div className="split-actions">
+              <FeaturePill variant="primary">Grupos y meetups</FeaturePill>
+              <FeaturePill variant="success">Mensajes directos</FeaturePill>
+              <FeaturePill variant="warning">Notificaciones en tiempo real</FeaturePill>
+              <FeaturePill variant="neutral">Perfil deportivo completo</FeaturePill>
+            </div>
+
+            <div className="app-list">
+              <div className="app-list-item">
+                <div className="app-badge app-badge--primary">Mobile-first</div>
+                <div>
+                  <strong>Interfaz pensada como app social real</strong>
+                  <div className="app-text-soft">
+                    Flujo rápido, navegación clara y foco en comunidad y actividad.
+                  </div>
+                </div>
+              </div>
+
+              <div className="app-list-item">
+                <div className="app-badge app-badge--success">Onboarding rápido</div>
+                <div>
+                  <strong>Cuenta, verificación y perfil en pocos pasos</strong>
+                  <div className="app-text-soft">
+                    Registro simple y continuación directa hacia la personalización del perfil.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div className="home-hero__aside">
             <div className="home-hero-card">
               <div className="home-hero-card__eyebrow">
                 {isLogin ? "Acceso" : "Alta de usuario"}
+              </div>
+
+              <div className="home-hero-card__title">
+                {isLogin ? "Bienvenido de nuevo" : "Crea tu cuenta"}
               </div>
 
               <p className="app-text-soft">
@@ -253,7 +288,11 @@ export default function AuthPage({ defaultTab = "login" }) {
                   </div>
                 ) : null}
 
-                <button type="submit" className="app-btn app-btn--primary app-btn--lg" disabled={loading}>
+                <button
+                  type="submit"
+                  className="app-btn app-btn--primary app-btn--lg"
+                  disabled={loading}
+                >
                   {loading
                     ? "Procesando…"
                     : isLogin
