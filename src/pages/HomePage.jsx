@@ -10,15 +10,7 @@ function MetricCard({ value, label, description }) {
     <article className="app-card">
       <div className="app-stack app-stack--sm">
         <span className="app-badge app-badge--primary">{label}</span>
-        <strong
-          style={{
-            fontSize: "clamp(1.8rem, 4vw, 2.35rem)",
-            lineHeight: 1,
-            letterSpacing: "-0.04em",
-          }}
-        >
-          {value}
-        </strong>
+        <strong className="homeMetricCard__value">{value}</strong>
         <p className="app-card__description">{description}</p>
       </div>
     </article>
@@ -45,7 +37,7 @@ function FeatureCard({ badge, title, text, to, cta }) {
 
 function QuickAction({ to, title, text }) {
   return (
-    <Link to={to} className="app-card app-card--interactive" style={{ textDecoration: "none" }}>
+    <Link to={to} className="app-card app-card--interactive homeQuickAction">
       <div className="app-card__header">
         <span className="app-badge app-badge--primary">Acceso rápido</span>
         <h3 className="app-card__title">{title}</h3>
@@ -87,7 +79,7 @@ export default function HomePage() {
                 <h2 className="app-title">
                   Organiza grupos, actividades y mensajes desde una interfaz clara y preparada para crecer.
                 </h2>
-                <p className="app-copy" style={{ margin: 0, maxWidth: "62ch" }}>
+                <p className="app-copy homeHero__copy">
                   Una experiencia pensada para runners, ciclistas y deportistas que quieren descubrir planes, coordinar
                   quedadas y mantener su comunidad activa tanto en móvil como en escritorio.
                 </p>
@@ -143,7 +135,7 @@ export default function HomePage() {
 
                   <div className="app-divider" />
 
-                  <p className="app-card__description" style={{ margin: 0 }}>
+                  <p className="app-card__description homeCard__descriptionFlush">
                     Esta pantalla queda preparada para evolucionar después con métricas reales, onboarding contextual y
                     bloques dinámicos conectados al backend.
                   </p>
@@ -192,7 +184,7 @@ export default function HomePage() {
               <h2 className="app-title">
                 Bienvenido{me?.handle ? `, ${me.handle}` : ""}. Tu actividad y tu agenda quedan visibles desde aquí.
               </h2>
-              <p className="app-copy" style={{ margin: 0, maxWidth: "62ch" }}>
+              <p className="app-copy homeHero__copy">
                 Usa esta pantalla como dashboard principal: acceso rápido a grupos, mensajes, perfil y próximas
                 quedadas, con un lenguaje visual más estable y profesional.
               </p>
