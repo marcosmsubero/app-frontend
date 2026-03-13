@@ -8356,3 +8356,149 @@ textarea.input:focus {
     top: var(--space-6);
   }
 }
+
+/* =========================================================
+   APP CHROME · ICON ONLY / FLOATING
+========================================================= */
+
+.app-topbar--minimal {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.app-topbar__brandMarkOnly,
+.app-topbar__profileIconOnly {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.app-topbar__profileIconOnly .app-avatar {
+  width: 36px;
+  height: 36px;
+  font-size: 0.78rem;
+}
+
+.app-sidebar--floating {
+  display: none;
+}
+
+.app-sidebar__floatingRail {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  align-items: start;
+  justify-items: center;
+  gap: var(--space-4);
+}
+
+.app-sidebar__iconNav {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.app-sidebar__brandIconOnly,
+.app-sidebar__iconLink,
+.app-sidebar__profileIconOnly {
+  width: 48px;
+  height: 48px;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--app-text-soft);
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.app-sidebar__brandIconOnly:hover,
+.app-sidebar__iconLink:hover,
+.app-sidebar__profileIconOnly:hover {
+  color: var(--app-text);
+  background: rgba(255, 255, 255, 0.98);
+  border-color: rgba(226, 232, 240, 0.92);
+  box-shadow: var(--shadow-xs);
+  transform: translateY(-1px);
+}
+
+.app-sidebar__brandIconOnly--active,
+.app-sidebar__iconLink--active,
+.app-sidebar__profileIconOnly--active {
+  color: var(--app-primary-strong);
+  background: rgba(37, 99, 235, 0.1);
+  border-color: rgba(37, 99, 235, 0.14);
+}
+
+.app-sidebar__iconGlyph,
+.app-sidebar__brandIconOnly span {
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.app-sidebar__profileIconOnly .app-avatar,
+.app-sidebar__profileAvatarImage {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+}
+
+.app-sidebar__profileAvatarImage {
+  object-fit: cover;
+  display: block;
+}
+
+.app-sidebar__panel,
+.app-sidebar__brand,
+.app-sidebar__brand-copy,
+.app-sidebar__brand-overline,
+.app-sidebar__brand-title,
+.app-sidebar__brand-description,
+.app-sidebar__nav,
+.app-sidebar__link,
+.app-sidebar__profile,
+.app-sidebar__profile-meta,
+.app-sidebar__profile-links,
+.app-sidebar__profile-link,
+.app-sidebar__profile-linkIcon {
+  all: unset;
+}
+
+@media (min-width: 960px) {
+  .app-shell--withChrome {
+    display: grid;
+    grid-template-columns: 88px minmax(0, 1fr);
+    align-items: start;
+    min-height: 100vh;
+  }
+
+  .app-topbar {
+    display: none;
+  }
+
+  .app-sidebar--floating {
+    display: block;
+    position: sticky;
+    top: 0;
+    align-self: start;
+    min-height: 100vh;
+    padding: var(--space-5) 0;
+    background: transparent;
+    border-right: 0;
+    backdrop-filter: none;
+  }
+
+  .app-main--withChrome .app-main__inner {
+    width: min(100%, 1160px);
+    margin: 0 auto;
+    padding: var(--space-6) var(--space-6) var(--space-8);
+  }
+}
+
