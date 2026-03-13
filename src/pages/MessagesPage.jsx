@@ -1,11 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
-
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { useToast } from "../hooks/useToast";
 import { apiDMThreads } from "../services/api";
 
-function initials(nameOrEmail) {
+function initialsFromNameOrEmail(nameOrEmail) {
   const s = String(nameOrEmail || "").trim();
   if (!s) return "U";
   const parts = s.split(/\s+/).filter(Boolean);
@@ -14,18 +13,23 @@ function initials(nameOrEmail) {
   return (a + b).toUpperCase();
 }
 
-function timeAgo(iso) {
-  if (!iso) return "";
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "";
-  const diffMs = Date.now() - d.getTime();
-  const min = Math.floor(diffMs / 60000);
-  if (min < 1) return "ahora";
-  if (min < 60) return `${min} min`;
-  const h = Math.floor(min / 60);
-  if (h < 24) return `${h} h`;
-  const days = Math.floor(h / 24);
-  return `${days} d`;
+function timeAgoLabel(dateOrIso) {
+  try {
+    const d = new Date(dateOrIso);
+    const diffMs = Date.now() - d.getTime();
+    const min = Math.floor(diffMs / 60000);
+
+    if (min < 1) return "ahora";
+    if (min < 60) return `${min} min`;
+
+    const h = Math.floor(min / 60);
+    if (h < 24) return `${h} h`;
+
+    const days = Math.floor(h / 24);
+    return `${days} d`;
+  } catch {
+    return "";
+  }
 }
 
 function getThreadName(thread) {
@@ -53,43 +57,61 @@ function getUnreadCount(thread) {
   return 0;
 }
 
+function getThreadMeta(thread) {
+  const parts = [];
+
+  if (thread?.is_group || thread?.group_id) parts.push("Grupo");
+  if (thread?.activity_title) parts.push(thread.activity_title);
+  if (thread?.sport) parts.push(thread.sport);
+
+  return parts.filter(Boolean).slice(0, 2);
+}
+
 function MessageRow({ thread, onOpen }) {
-  const name = getThreadName(thread);
-  const preview = getThreadPreview(thread);
   const unreadCount = getUnreadCount(thread);
+  const meta = getThreadMeta(thread);
 
   return (
     <button
       type="button"
-      className={`messagesSimple__row${unreadCount ? " messagesSimple__row--unread" : ""}`}
+      className={`messagesSimple__row${
+        unreadCount > 0 ? " messagesSimple__row--unread" : ""
+      }`}
       onClick={() => onOpen?.(thread)}
     >
       <div className="messagesSimple__avatar">
         {thread?.avatar_url ? (
-          <img src={thread.avatar_url} alt={name} />
+          <img src={thread.avatar_url} alt={getThreadName(thread)} />
         ) : (
-          <span>{initials(name)}</span>
+          <span>{initialsFromNameOrEmail(getThreadName(thread))}</span>
         )}
       </div>
 
       <div className="messagesSimple__content">
         <div className="messagesSimple__text">
-          <strong>{name}</strong>{" "}
-          <span>{preview}</span>
+          <strong>{getThreadName(thread)}</strong>{" "}
+          <span>{getThreadPreview(thread)}</span>
         </div>
 
         <div className="messagesSimple__meta">
-          <span>{timeAgo(thread?.updated_at)}</span>
+          <span>{timeAgoLabel(thread?.updated_at)}</span>
+          {meta.map((item) => (
+            <span key={`${thread?.id}-${item}`} className="app-badge">
+              {item}
+            </span>
+          ))}
         </div>
       </div>
 
       <div className="messagesSimple__state">
-        {unreadCount ? (
+        {unreadCount > 0 ? (
           <span className="messagesSimple__badge">
             {unreadCount > 99 ? "99+" : unreadCount}
           </span>
         ) : (
-          <span className="messagesSimple__chevron">›</span>
+          <span className="messagesSimple__chevron" aria-hidden="true">
+            ›
+          </span>
         )}
       </div>
     </button>
@@ -97,7 +119,7 @@ function MessageRow({ thread, onOpen }) {
 }
 
 export default function MessagesPage() {
-  const navigate = useNavigate();
+  const nav = useNavigate();
   const toast = useToast();
   const { token } = useAuth();
 
@@ -131,6 +153,7 @@ export default function MessagesPage() {
 
   useEffect(() => {
     load("");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
   useEffect(() => {
@@ -146,36 +169,42 @@ export default function MessagesPage() {
       if (timerRef.current) clearTimeout(timerRef.current);
       timerRef.current = null;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [q, token]);
 
   const list = useMemo(() => threads || [], [threads]);
-  const unreadThreads = useMemo(
-    () => list.filter((t) => getUnreadCount(t) > 0).length,
-    [list]
-  );
+
+  const unreadThreads = useMemo(() => {
+    return list.filter((thread) => getUnreadCount(thread) > 0).length;
+  }, [list]);
+
+  const totalUnreadMessages = useMemo(() => {
+    return list.reduce((acc, thread) => acc + getUnreadCount(thread), 0);
+  }, [list]);
 
   function openThread(thread) {
     if (!thread?.id) return;
+
     const threadIds = list.map((item) => item.id);
-    navigate(`/mensajes/${thread.id}`, { state: { threadIds } });
+    nav(`/mensajes/${thread.id}`, { state: { threadIds } });
   }
 
   return (
-    <section className="messagesSimple">
-      <div className="messagesSimple__hero">
-        <div className="messagesSimple__heroCopy">
-          <span className="app-kicker">Mensajes</span>
-          <h1 className="messagesSimple__title">Conversaciones</h1>
-          <p className="messagesSimple__subtitle">
+    <section className="page">
+      <div className="page__hero">
+        <div className="page__header">
+          <span className="page__eyebrow">Mensajes</span>
+          <h1 className="page__title">Conversaciones y actividad</h1>
+          <p className="page__subtitle">
             Revisa tus chats y mantén la coordinación con tu red deportiva.
           </p>
         </div>
 
-        <div className="messagesSimple__heroActions">
+        <div className="split-actions">
           <button
             type="button"
             className="app-button app-button--secondary"
-            onClick={() => navigate(-1)}
+            onClick={() => nav(-1)}
           >
             Volver
           </button>
@@ -191,105 +220,172 @@ export default function MessagesPage() {
         </div>
       </div>
 
-      <div className="messagesSimple__layout">
-        <div className="messagesSimple__main">
-          <section className="messagesSimple__panel">
-            <div className="messagesSimple__panelHead">
-              <div>
-                <p className="app-kicker">Bandeja</p>
-                <h2 className="app-title">Conversaciones</h2>
-                <p className="app-subtitle">
-                  Tus chats más recientes ordenados por actividad.
-                </p>
+      <div className="page__columns">
+        <div className="app-stack app-stack--lg">
+          <div className="app-card">
+            <div className="app-card__header">
+              <div className="app-section-header">
+                <div>
+                  <div className="app-section-header__title">Centro de mensajes</div>
+                  <div className="app-section-header__subtitle">
+                    Busca conversaciones y revisa tu actividad reciente.
+                  </div>
+                </div>
+
+                {unreadThreads > 0 ? (
+                  <span className="app-badge app-badge--primary">
+                    {unreadThreads} sin leer
+                  </span>
+                ) : null}
+              </div>
+            </div>
+
+            <div className="app-card__body app-stack">
+              <div className="messagesSimple__toolbar">
+                <div className="app-field">
+                  <label className="app-label" htmlFor="messages-search">
+                    Buscar conversación
+                  </label>
+                  <input
+                    id="messages-search"
+                    className="app-input"
+                    placeholder="Ej. Carlos, trail, grupo..."
+                    value={q}
+                    onChange={(e) => setQ(e.target.value)}
+                    disabled={!token}
+                  />
+                </div>
+
+                <div className="split-actions">
+                  <button
+                    type="button"
+                    className="app-button app-button--ghost"
+                    onClick={() => load(q)}
+                    disabled={!token || loading}
+                  >
+                    {loading ? "Actualizando..." : "Actualizar"}
+                  </button>
+
+                  {q.trim() ? (
+                    <button
+                      type="button"
+                      className="app-button app-button--ghost"
+                      onClick={() => setQ("")}
+                      disabled={!token}
+                    >
+                      Limpiar
+                    </button>
+                  ) : null}
+                </div>
               </div>
 
-              {unreadThreads > 0 && (
-                <span className="app-badge app-badge--primary">
-                  {unreadThreads} sin leer
-                </span>
+              <div className="messagesSimple__summary">
+                <div className="messagesSimple__summaryItem">
+                  <strong>{list.length}</strong>
+                  <span>Conversaciones</span>
+                </div>
+
+                <div className="messagesSimple__summaryItem">
+                  <strong>{unreadThreads}</strong>
+                  <span>Chats sin leer</span>
+                </div>
+
+                <div className="messagesSimple__summaryItem">
+                  <strong>{totalUnreadMessages}</strong>
+                  <span>Mensajes pendientes</span>
+                </div>
+              </div>
+
+              {!token ? (
+                <div className="app-empty">
+                  <div className="messagesSimple__emptyBody">
+                    <strong>Necesitas iniciar sesión</strong>
+                    <p>Accede a tu cuenta para revisar tus conversaciones.</p>
+                    <Link to="/login" className="app-button app-button--primary">
+                      Iniciar sesión
+                    </Link>
+                  </div>
+                </div>
+              ) : loading && list.length === 0 ? (
+                <div className="app-empty">
+                  <div className="messagesSimple__emptyBody">
+                    <strong>Cargando conversaciones</strong>
+                    <p>Estamos actualizando tu bandeja.</p>
+                  </div>
+                </div>
+              ) : error ? (
+                <div className="app-empty">
+                  <div className="messagesSimple__emptyBody">
+                    <strong>No se pudieron cargar</strong>
+                    <p>{error}</p>
+                  </div>
+                </div>
+              ) : list.length === 0 ? (
+                <div className="app-empty">
+                  <div className="messagesSimple__emptyBody">
+                    <strong>No hay conversaciones</strong>
+                    <p>
+                      Cuando empieces a interactuar con otros usuarios o grupos,
+                      aparecerán aquí.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="messagesSimple__list">
+                  {list.map((thread) => (
+                    <MessageRow
+                      key={thread?.id || `${getThreadName(thread)}-${thread?.updated_at || ""}`}
+                      thread={thread}
+                      onOpen={openThread}
+                    />
+                  ))}
+                </div>
               )}
             </div>
-
-            <div className="messagesSimple__toolbar">
-              <input
-                className="app-input"
-                placeholder="Buscar conversación..."
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-                disabled={!token}
-              />
-            </div>
-
-            {!token ? (
-              <div className="app-empty">
-                <div className="messagesSimple__emptyBody">
-                  <strong>Inicia sesión para ver tus mensajes</strong>
-                  <p>Necesitas una sesión activa para acceder a tus conversaciones.</p>
-                </div>
-              </div>
-            ) : loading && list.length === 0 ? (
-              <div className="app-empty">
-                <div className="messagesSimple__emptyBody">
-                  <strong>Cargando conversaciones</strong>
-                </div>
-              </div>
-            ) : error ? (
-              <div className="app-empty">
-                <div className="messagesSimple__emptyBody">
-                  <strong>No se pudieron cargar</strong>
-                  <p>{error}</p>
-                </div>
-              </div>
-            ) : list.length === 0 ? (
-              <div className="app-empty">
-                <div className="messagesSimple__emptyBody">
-                  <strong>No hay conversaciones</strong>
-                  <p>Cuando interactúes con otros usuarios aparecerán aquí.</p>
-                </div>
-              </div>
-            ) : (
-              <div className="messagesSimple__list">
-                {list.map((thread) => (
-                  <MessageRow
-                    key={thread.id}
-                    thread={thread}
-                    onOpen={openThread}
-                  />
-                ))}
-              </div>
-            )}
-          </section>
+          </div>
         </div>
 
-        <aside className="messagesSimple__aside">
-          <section className="messagesSimple__asideCard">
-            <div className="messagesSimple__panelHead">
-              <div>
-                <p className="app-kicker">Centro de mensajes</p>
-                <h2 className="app-title">Cómo usarlo</h2>
-                <p className="app-subtitle">
-                  Este panel te ayuda a mantener la coordinación con tu red deportiva.
-                </p>
+        <aside className="page__sidebar">
+          <div className="app-card app-card--soft">
+            <div className="app-card__body app-stack">
+              <div className="app-section-header__title">Qué verás aquí</div>
+              <p className="app-text-soft">
+                Una vista rápida de tus conversaciones y del estado actual de tu bandeja.
+              </p>
+
+              <div className="app-list">
+                <div className="app-list-item">
+                  <div className="app-badge app-badge--primary">Chats</div>
+                  <div>
+                    <strong>Conversaciones directas</strong>
+                    <div className="app-text-soft">
+                      Mensajes privados entre usuarios.
+                    </div>
+                  </div>
+                </div>
+
+                <div className="app-list-item">
+                  <div className="app-badge app-badge--success">Grupos</div>
+                  <div>
+                    <strong>Actividad compartida</strong>
+                    <div className="app-text-soft">
+                      Conversaciones ligadas a grupos o planes.
+                    </div>
+                  </div>
+                </div>
+
+                <div className="app-list-item">
+                  <div className="app-badge app-badge--warning">Pendientes</div>
+                  <div>
+                    <strong>Mensajes por revisar</strong>
+                    <div className="app-text-soft">
+                      Responde o revisa contexto antes de tu próxima actividad.
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-
-            <div className="messagesSimple__asideList">
-              <div className="messagesSimple__asideItem">
-                <strong>Chats directos</strong>
-                <p>Conversaciones privadas entre usuarios.</p>
-              </div>
-
-              <div className="messagesSimple__asideItem">
-                <strong>Grupos</strong>
-                <p>Mensajes asociados a comunidades o actividades.</p>
-              </div>
-
-              <div className="messagesSimple__asideItem">
-                <strong>Actividad</strong>
-                <p>Coordina quedadas y planes con rapidez.</p>
-              </div>
-            </div>
-          </section>
+          </div>
         </aside>
       </div>
     </section>
