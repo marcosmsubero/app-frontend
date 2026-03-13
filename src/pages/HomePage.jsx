@@ -5,21 +5,141 @@ import Toasts from "../components/Toasts";
 import { useAuth } from "../hooks/useAuth";
 import { useLiveMeetupEvents } from "../hooks/useLiveMeetupEvents";
 
-function MetricCard({ value, label }) {
+function getInitials(name = "") {
+  return String(name)
+    .split(/[\s@._-]+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() || "")
+    .join("");
+}
+
+function buildCommunityFeed(me) {
+  const currentHandle = me?.handle || "tuusuario";
+
+  return [
+    {
+      id: "feed-1",
+      author: "laura.trail",
+      name: "Laura Martínez",
+      location: "Sierra de Aitana",
+      sport: "Trail",
+      image:
+        "https://images.unsplash.com/photo-1552674605-db6ffd4facb5?auto=format&fit=crop&w=1200&q=80",
+      caption:
+        "Rodaje largo con desnivel y buenas sensaciones. Se viene una semana fuerte de montaña.",
+      likes: 184,
+      comments: 12,
+      time: "Hace 42 min",
+    },
+    {
+      id: "feed-2",
+      author: "raul.cycling",
+      name: "Raúl Gómez",
+      location: "Alicante",
+      sport: "Ciclismo",
+      image:
+        "https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&w=1200&q=80",
+      caption:
+        "Salida suave para acumular kilómetros y preparar la grupeta del sábado.",
+      likes: 239,
+      comments: 18,
+      time: "Hace 1 h",
+    },
+    {
+      id: "feed-3",
+      author: currentHandle,
+      name: me?.full_name || me?.name || "Tu perfil",
+      location: me?.location || "Tu ciudad",
+      sport: me?.discipline || "Running",
+      image:
+        "https://images.unsplash.com/photo-1486218119243-13883505764c?auto=format&fit=crop&w=1200&q=80",
+      caption:
+        "Tu feed puede mostrar publicaciones propias y de otros perfiles cuando conectemos la fuente real del backend.",
+      likes: 96,
+      comments: 7,
+      time: "Hace 3 h",
+      isOwn: true,
+    },
+  ];
+}
+
+const SPORTS_NEWS = [
+  {
+    id: "news-1",
+    tag: "Evento",
+    title: "Media maratón local abierta a nuevos clubes y grupos",
+    text: "Una buena oportunidad para coordinar participación desde la app.",
+  },
+  {
+    id: "news-2",
+    tag: "Comunidad",
+    title: "Aumentan las salidas grupales de ciclismo al amanecer",
+    text: "Las rutas cortas entre semana están ganando mucha tracción.",
+  },
+  {
+    id: "news-3",
+    tag: "Running",
+    title: "Más usuarios buscan entrenos compartidos de ritmo medio",
+    text: "El feed puede ayudar a conectar mejor perfiles compatibles.",
+  },
+];
+
+function FeedPostCard({ post }) {
   return (
-    <article className="homeMinimal__metric app-card">
-      <span className="app-badge">{label}</span>
-      <strong className="homeMinimal__metricValue">{value}</strong>
+    <article className="homeFeed__post app-card">
+      <div className="homeFeed__postHeader">
+        <div className="homeFeed__postAuthor">
+          <div className="homeFeed__avatar">
+            {getInitials(post.name || post.author)}
+          </div>
+
+          <div className="homeFeed__authorMeta">
+            <strong className="homeFeed__authorName">
+              {post.author}
+            </strong>
+            <span className="homeFeed__authorSub">
+              {[post.location, post.sport].filter(Boolean).join(" · ")}
+            </span>
+          </div>
+        </div>
+
+        <span className="homeFeed__time">{post.time}</span>
+      </div>
+
+      <div className="homeFeed__mediaWrap">
+        <img
+          src={post.image}
+          alt={post.caption}
+          className="homeFeed__media"
+          loading="lazy"
+        />
+      </div>
+
+      <div className="homeFeed__postBody">
+        <div className="homeFeed__postMeta">
+          <span className="app-badge">{post.likes} me gusta</span>
+          <span className="app-badge">{post.comments} comentarios</span>
+          {post.isOwn ? <span className="app-badge app-badge--primary">Tu publicación</span> : null}
+        </div>
+
+        <p className="homeFeed__caption">
+          <strong>{post.author}</strong> {post.caption}
+        </p>
+      </div>
     </article>
   );
 }
 
-function QuickLinkCard({ to, title, text }) {
+function NewsCard({ item }) {
   return (
-    <Link to={to} className="homeMinimal__quick app-card app-card--interactive">
-      <h3 className="app-card__title">{title}</h3>
-      <p className="app-card__description">{text}</p>
-    </Link>
+    <article className="homeFeed__newsCard app-card">
+      <div className="app-card__header">
+        <span className="app-badge">{item.tag}</span>
+        <h3 className="app-card__title">{item.title}</h3>
+        <p className="app-card__description">{item.text}</p>
+      </div>
+    </article>
   );
 }
 
@@ -32,35 +152,24 @@ export default function HomePage() {
     onAgendaUpdate: () => setAgendaVersion((current) => current + 1),
   });
 
-  const profileCompletion = useMemo(() => {
-    if (!isAuthed) return 0;
-
-    let score = 0;
-    if (me?.handle) score += 40;
-    if (me?.full_name || me?.name) score += 25;
-    if (me?.email) score += 20;
-    if (me?.bio) score += 15;
-
-    return Math.min(score, 100);
-  }, [isAuthed, me]);
+  const feedPosts = useMemo(() => buildCommunityFeed(me), [me]);
 
   if (!isAuthed) {
     return (
       <>
-        <div className="app-page homeMinimal">
-          <section className="homeMinimal__hero app-section">
-            <div className="homeMinimal__heroCopy">
+        <div className="app-page homeFeed">
+          <section className="homeFeed__guest app-section">
+            <div className="homeFeed__guestCopy">
               <span className="app-kicker">App social deportiva</span>
-              <h1 className="homeMinimal__title">
-                Organiza grupos, quedadas y conversaciones desde una interfaz limpia.
+              <h1 className="homeFeed__guestTitle">
+                Un feed deportivo para descubrir comunidad, actividad y planes.
               </h1>
-              <p className="homeMinimal__subtitle">
-                Una base más simple, rápida y coherente para descubrir comunidad y
-                coordinar actividad deportiva.
+              <p className="homeFeed__guestSubtitle">
+                Entra para ver publicaciones, noticias y eventos deportivos en una experiencia más simple y visual.
               </p>
             </div>
 
-            <div className="homeMinimal__actions">
+            <div className="homeFeed__guestActions">
               <Link to="/login" className="app-button app-button--primary">
                 Iniciar sesión
               </Link>
@@ -68,30 +177,6 @@ export default function HomePage() {
                 Crear cuenta
               </Link>
             </div>
-
-            <div className="homeMinimal__metrics">
-              <MetricCard value="24/7" label="Disponibilidad" />
-              <MetricCard value="Mobile" label="Primero" />
-              <MetricCard value="Simple" label="Sistema" />
-            </div>
-          </section>
-
-          <section className="homeMinimal__grid">
-            <QuickLinkCard
-              to="/explorar"
-              title="Explorar actividad"
-              text="Descubre planes, rutas y quedadas cercanas."
-            />
-            <QuickLinkCard
-              to="/groups"
-              title="Entrar en grupos"
-              text="Busca comunidades y únete a la que mejor encaje contigo."
-            />
-            <QuickLinkCard
-              to="/mensajes"
-              title="Abrir mensajes"
-              text="Coordina detalles de forma rápida y clara."
-            />
           </section>
         </div>
 
@@ -102,51 +187,48 @@ export default function HomePage() {
 
   return (
     <>
-      <div className="app-page homeMinimal">
-        <section className="homeMinimal__hero app-section">
-          <div className="homeMinimal__heroCopy">
-            <span className="app-kicker">Inicio</span>
-            <h1 className="homeMinimal__title">
-              Bienvenido{me?.handle ? `, ${me.handle}` : ""}.
-            </h1>
-            <p className="homeMinimal__subtitle">
-              Tu agenda, tu perfil y tus accesos principales en una sola vista.
-            </p>
-          </div>
-
-          <div className="homeMinimal__metrics">
-            <MetricCard value={`${profileCompletion}%`} label="Perfil" />
-            <MetricCard value="Live" label="Agenda" />
-            <MetricCard value="Ready" label="Estado" />
-          </div>
-        </section>
-
-        <section className="homeMinimal__dashboard">
-          <div className="homeMinimal__main">
-            <UpcomingMeetups key={agendaVersion} />
-          </div>
-
-          <aside className="homeMinimal__aside app-section">
-            <div className="homeMinimal__asideBlock">
-              <span className="app-kicker">Accesos</span>
-              <div className="homeMinimal__stack">
-                <QuickLinkCard
-                  to="/explorar"
-                  title="Explorar actividad"
-                  text="Ver nuevas quedadas y movimiento reciente."
-                />
-                <QuickLinkCard
-                  to="/groups"
-                  title="Gestionar grupos"
-                  text="Entrar en tus comunidades y organizar planes."
-                />
-                <QuickLinkCard
-                  to="/perfil"
-                  title="Revisar perfil"
-                  text="Actualizar tu identidad deportiva."
-                />
+      <div className="app-page homeFeed">
+        <section className="homeFeed__layout">
+          <div className="homeFeed__main">
+            <div className="homeFeed__feedHead app-section">
+              <div>
+                <span className="app-kicker">Inicio</span>
+                <h1 className="homeFeed__title">Feed deportivo</h1>
+                <p className="homeFeed__subtitle">
+                  Publicaciones de perfiles, actividad reciente y contexto deportivo en una sola vista.
+                </p>
               </div>
             </div>
+
+            <div className="homeFeed__posts">
+              {feedPosts.map((post) => (
+                <FeedPostCard key={post.id} post={post} />
+              ))}
+            </div>
+          </div>
+
+          <aside className="homeFeed__aside">
+            <section className="homeFeed__asideSection app-section">
+              <div className="homeFeed__asideHead">
+                <span className="app-kicker">Eventos</span>
+                <h2 className="app-title">Próximas quedadas</h2>
+              </div>
+
+              <UpcomingMeetups key={agendaVersion} />
+            </section>
+
+            <section className="homeFeed__asideSection app-section">
+              <div className="homeFeed__asideHead">
+                <span className="app-kicker">Noticias</span>
+                <h2 className="app-title">Actualidad deportiva</h2>
+              </div>
+
+              <div className="homeFeed__newsList">
+                {SPORTS_NEWS.map((item) => (
+                  <NewsCard key={item.id} item={item} />
+                ))}
+              </div>
+            </section>
           </aside>
         </section>
       </div>
