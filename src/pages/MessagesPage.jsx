@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { useToast } from "../hooks/useToast";
 import { apiDMThreads } from "../services/api";
@@ -15,31 +15,51 @@ function initials(nameOrEmail) {
 
 function timeShort(iso) {
   if (!iso) return "";
-  const d = new Date(iso);
-  return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  try {
+    const d = new Date(iso);
+    return d.toLocaleDateString("es-ES", {
+      month: "short",
+      day: "numeric",
+    });
+  } catch {
+    return "";
+  }
 }
 
-function ThreadRow({ t, onOpen }) {
+function ThreadRow({ thread, onOpen }) {
   return (
     <button
       type="button"
-      className={`ms-item ${t.unread ? "unread" : ""}`}
-      onClick={() => onOpen?.(t)}
+      className={`thread-row${thread.unread ? " thread-row--unread" : ""}`}
+      onClick={() => onOpen?.(thread)}
     >
-      <div className="ms-ava">
-        {t.avatar_url ? <img src={t.avatar_url} alt="" /> : <span>{initials(t.name)}</span>}
+      <div className="thread-row__avatar">
+        {thread.avatar_url ? (
+          <img src={thread.avatar_url} alt={thread.name || "Usuario"} />
+        ) : (
+          <span>{initials(thread.name || thread.email)}</span>
+        )}
       </div>
 
-      <div className="ms-mid">
-        <div className="ms-top">
-          <div className="ms-name">{t.name}</div>
-          <div className="ms-time">{timeShort(t.updated_at)}</div>
+      <div className="thread-row__content">
+        <div className="thread-row__top">
+          <div className="thread-row__name">{thread.name || "Conversación"}</div>
+          <div className="thread-row__time">{timeShort(thread.updated_at)}</div>
         </div>
-        <div className="ms-snippet">{t.last_message}</div>
+
+        <div className="thread-row__message">
+          {thread.last_message || "Sin mensajes recientes."}
+        </div>
       </div>
 
-      <div className="ms-right">
-        {t.unread ? <span className="ms-dot" aria-label="No leído" /> : <span className="ms-chevron">›</span>}
+      <div className="thread-row__meta">
+        {thread.unread ? (
+          <span className="thread-row__dot" aria-label="No leído" />
+        ) : (
+          <span className="thread-row__chevron" aria-hidden="true">
+            ›
+          </span>
+        )}
       </div>
     </button>
   );
@@ -48,14 +68,13 @@ function ThreadRow({ t, onOpen }) {
 export default function MessagesPage() {
   const nav = useNavigate();
   const toast = useToast();
-  const { token } = useAuth();
+  const { token, isAuthed } = useAuth();
 
   const [q, setQ] = useState("");
   const [threads, setThreads] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // debounce búsqueda (300ms)
   const timerRef = useRef(null);
 
   async function load(query = q) {
@@ -64,8 +83,10 @@ export default function MessagesPage() {
       setError("");
       return;
     }
+
     setLoading(true);
     setError("");
+
     try {
       const res = await apiDMThreads(query || "", token);
       const items = Array.isArray(res) ? res : res?.items || [];
@@ -84,89 +105,174 @@ export default function MessagesPage() {
 
   useEffect(() => {
     if (!token) return;
+
     if (timerRef.current) clearTimeout(timerRef.current);
+
     timerRef.current = setTimeout(() => {
       load(q);
     }, 300);
+
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
       timerRef.current = null;
     };
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [q, token]);
 
   const list = useMemo(() => threads || [], [threads]);
 
-  function openThread(t) {
-    if (!t?.id) return;
-    const threadIds = list.map((x) => x.id);
-    nav(`/mensajes/${t.id}`, { state: { threadIds } });
+  function openThread(thread) {
+    if (!thread?.id) return;
+    const threadIds = list.map((item) => item.id);
+    nav(`/mensajes/${thread.id}`, { state: { threadIds } });
   }
 
   return (
-    <div className="page ms-page" style={{ paddingBottom: 96 }}>
-      <div className="ms-hero quartz-surface">
-        <div className="ms-heroTop">
-          <button
-            type="button"
-            className="ms-back"
-            onClick={() => nav(-1)}
-            aria-label="Volver"
-            title="Volver"
-          >
-            ‹
-          </button>
-
-          <div className="ms-titleWrap">
-            <div className="ms-title">Mensajes</div>
-            <div className="ms-sub">Chats y solicitudes</div>
+    <section className="page">
+      <div className="page__hero glass-banner">
+        <div className="glass-banner__body">
+          <div className="page__header">
+            <span className="page__eyebrow">Mensajes</span>
+            <h1 className="page__title">Conversaciones y solicitudes</h1>
+            <p className="page__subtitle">
+              Sigue el hilo de tus chats y coordina quedadas con otros usuarios.
+            </p>
           </div>
 
-          <button
-            type="button"
-            className="ms-action"
-            onClick={() => toast?.info?.("Próximamente")}
-            aria-label="Nuevo mensaje"
-            title="Nuevo mensaje (próximamente)"
-            disabled={!token}
-          >
-            ＋
-          </button>
-        </div>
+          <div className="split-actions">
+            <button
+              type="button"
+              className="app-btn app-btn--secondary"
+              onClick={() => nav(-1)}
+            >
+              Volver
+            </button>
 
-        <div className="ms-search">
-          <span className="ms-searchIco" aria-hidden="true">⌕</span>
-          <input
-            className="ms-searchInput"
-            placeholder="Buscar"
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            disabled={!token}
-          />
+            <button
+              type="button"
+              className="app-btn app-btn--primary"
+              onClick={() => toast?.info?.("Nuevo mensaje próximamente")}
+              disabled={!isAuthed}
+            >
+              Nuevo mensaje
+            </button>
+          </div>
         </div>
       </div>
 
-      <div className="ms-list">
-        {!token ? (
-          <div className="card">
-            <p className="muted m0">Inicia sesión para ver tus mensajes.</p>
+      <div className="page__columns">
+        <div className="app-stack app-stack--lg">
+          <div className="app-card">
+            <div className="app-card__header">
+              <div className="app-section-header">
+                <div>
+                  <div className="app-section-header__title">Bandeja</div>
+                  <div className="app-section-header__subtitle">
+                    Busca conversaciones activas por nombre o contenido reciente.
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  className="app-btn app-btn--secondary app-btn--sm"
+                  onClick={() => load(q)}
+                  disabled={loading || !token}
+                >
+                  {loading ? "Actualizando…" : "Recargar"}
+                </button>
+              </div>
+            </div>
+
+            <div className="app-card__body app-stack">
+              <div className="app-field">
+                <label className="app-label" htmlFor="messages-search">
+                  Buscar conversación
+                </label>
+                <input
+                  id="messages-search"
+                  className="app-input"
+                  placeholder="Escribe un nombre o una pista"
+                  value={q}
+                  onChange={(e) => setQ(e.target.value)}
+                  disabled={!token}
+                />
+              </div>
+
+              {!token ? (
+                <div className="app-empty-state">
+                  <div className="app-empty-state__title">Necesitas iniciar sesión</div>
+                  <div className="app-empty-state__text">
+                    Accede a tu cuenta para ver mensajes, solicitudes y conversaciones.
+                  </div>
+                  <div className="split-actions" style={{ justifyContent: "center" }}>
+                    <Link to="/login" className="app-btn app-btn--primary">
+                      Iniciar sesión
+                    </Link>
+                  </div>
+                </div>
+              ) : loading ? (
+                <div className="app-empty-state">
+                  <div className="app-empty-state__title">Cargando mensajes</div>
+                  <div className="app-empty-state__text">
+                    Estamos actualizando tu bandeja de entrada.
+                  </div>
+                </div>
+              ) : error ? (
+                <div className="app-empty-state">
+                  <div className="app-empty-state__title">No se pudieron cargar</div>
+                  <div className="app-empty-state__text">{error}</div>
+                </div>
+              ) : list.length === 0 ? (
+                <div className="app-empty-state">
+                  <div className="app-empty-state__title">No hay conversaciones aún</div>
+                  <div className="app-empty-state__text">
+                    Cuando empieces a hablar con otros usuarios, aparecerán aquí.
+                  </div>
+                </div>
+              ) : (
+                <div className="thread-list">
+                  {list.map((thread) => (
+                    <ThreadRow key={thread.id} thread={thread} onOpen={openThread} />
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
-        ) : loading ? (
-          <div className="card">
-            <p className="muted m0">Cargando…</p>
+        </div>
+
+        <aside className="page__sidebar">
+          <div className="app-card app-card--soft">
+            <div className="app-card__body app-stack">
+              <div className="app-section-header__title">Uso recomendado</div>
+              <p className="app-text-soft">
+                Utiliza mensajes para confirmar hora, punto de encuentro y cambios de última hora.
+              </p>
+
+              <div className="app-list">
+                <div className="app-list-item">
+                  <div className="app-badge app-badge--primary">Directo</div>
+                  <div>
+                    <strong>Coordina sin salir de la app</strong>
+                    <div className="app-text-soft">
+                      Mantén la conversación ligada al contexto deportivo.
+                    </div>
+                  </div>
+                </div>
+
+                <div className="app-list-item">
+                  <div className="app-badge app-badge--success">Claro</div>
+                  <div>
+                    <strong>Evita perder detalles</strong>
+                    <div className="app-text-soft">
+                      Deja por escrito ubicación, hora y material necesario.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-        ) : error ? (
-          <div className="card">
-            <p className="muted m0">{error}</p>
-          </div>
-        ) : list.length === 0 ? (
-          <div className="card">
-            <p className="m0 text-black">No hay conversaciones aún.</p>
-          </div>
-        ) : (
-          list.map((t) => <ThreadRow key={t.id} t={t} onOpen={openThread} />)
-        )}
+        </aside>
       </div>
-    </div>
+    </section>
   );
 }
