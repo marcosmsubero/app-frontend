@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { useAuth } from "./hooks/useAuth";
 
+import AppChrome from "./components/AppChrome";
 import BottomNav from "./components/BottomNav";
 import SSEListener from "./components/SSEListener";
 
@@ -21,39 +22,11 @@ import ProfilePage from "./pages/ProfilePage";
 
 function FullPageLoader() {
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        display: "grid",
-        placeItems: "center",
-        padding: "24px",
-        color: "var(--color-text, #f8fafc)",
-        background:
-          "radial-gradient(circle at top, rgba(37,99,235,0.14), transparent 28%), linear-gradient(180deg, #0b1020 0%, #0a0f1d 100%)",
-      }}
-    >
-      <div style={{ textAlign: "center" }}>
-        <div
-          style={{
-            width: 18,
-            height: 18,
-            margin: "0 auto 12px",
-            borderRadius: "999px",
-            border: "2px solid rgba(255,255,255,0.18)",
-            borderTopColor: "#60a5fa",
-            animation: "spin 0.9s linear infinite",
-          }}
-        />
-        <div style={{ fontSize: 14, opacity: 0.8 }}>Cargando…</div>
+    <div className="app-loader-screen">
+      <div className="app-loader-screen__inner">
+        <div className="app-loader-screen__spinner" />
+        <div className="app-loader-screen__label">Cargando…</div>
       </div>
-
-      <style>
-        {`
-          @keyframes spin {
-            to { transform: rotate(360deg); }
-          }
-        `}
-      </style>
     </div>
   );
 }
@@ -105,36 +78,30 @@ function AppShell({ children }) {
   const { isAuthed, me } = useAuth();
   const location = useLocation();
 
-  const hideBottomNav =
-    !isAuthed ||
+  const isAuthRoute =
     location.pathname === "/login" ||
     location.pathname === "/register" ||
     location.pathname === "/onboarding";
 
+  const showChrome = isAuthed && !isAuthRoute;
+
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        width: "100%",
-        background:
-          "radial-gradient(circle at top, rgba(37,99,235,0.14), transparent 28%), linear-gradient(180deg, #0b1020 0%, #0a0f1d 100%)",
-        color: "var(--color-text, #f8fafc)",
-      }}
-    >
-      {isAuthed ? <SSEListener /> : null}
+    <div className="app-root">
+      <div className="app-shell">
+        {isAuthed ? <SSEListener /> : null}
 
-      <main
-        style={{
-          width: "100%",
-          maxWidth: "560px",
-          margin: "0 auto",
-          paddingBottom: hideBottomNav ? 24 : 112,
-        }}
-      >
-        {children}
-      </main>
+        {showChrome ? <AppChrome me={me} /> : null}
 
-      {!hideBottomNav ? <BottomNav me={me} /> : null}
+        <div className="app-shell__inner">
+          {showChrome ? (
+            <aside className="app-desktop-sidebar-spacer app-desktop-sidebar" aria-hidden="true" />
+          ) : null}
+
+          <main className="app-main">{children}</main>
+        </div>
+
+        {showChrome ? <BottomNav me={me} /> : null}
+      </div>
     </div>
   );
 }
