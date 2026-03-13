@@ -85,7 +85,6 @@
   --transition-base: 220ms ease;
   --transition-slow: 320ms ease;
 
-  /* compatibility tokens */
   --text-xs: var(--font-xs);
   --text-sm: var(--font-sm);
   --leading-relaxed: 1.6;
@@ -956,7 +955,25 @@ textarea.input:focus {
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
 }
 
-/* toasts */
+.homeMetricCard__value {
+  font-size: clamp(1.8rem, 4vw, 2.35rem);
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.homeHero__copy {
+  margin: 0;
+  max-width: 62ch;
+}
+
+.homeCard__descriptionFlush {
+  margin: 0;
+}
+
+.homeQuickAction {
+  text-decoration: none;
+}
+
 .toast-stack {
   position: fixed;
   top: var(--space-4);
@@ -1085,7 +1102,6 @@ textarea.input:focus {
   color: #dce8ff;
 }
 
-/* posts grid */
 .postsGrid {
   width: 100%;
 }
@@ -1145,6 +1161,10 @@ textarea.input:focus {
   color: var(--color-text-soft);
   font-size: var(--text-sm);
   font-weight: 700;
+}
+
+.postsGrid__fileTrigger {
+  cursor: pointer;
 }
 
 .postsGrid__error {
@@ -1350,12 +1370,22 @@ textarea.input:focus {
   line-height: 1.55;
 }
 
+.postsGridModal__caption--muted {
+  opacity: 0.7;
+}
+
 .postsGridModal__bottom {
   display: flex;
   align-items: center;
   gap: var(--space-2);
   padding: 1rem;
   border-top: 1px solid rgba(148, 163, 184, 0.08);
+}
+
+.postsGridModal__counter {
+  margin-left: auto;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
 }
 
 .postsGridUpload {
@@ -1426,7 +1456,6 @@ textarea.input:focus {
   box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
 }
 
-/* modal utilities used by posts grid */
 .ui-modalBackdrop {
   position: fixed;
   inset: 0;
