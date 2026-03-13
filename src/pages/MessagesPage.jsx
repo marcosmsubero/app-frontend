@@ -5,37 +5,27 @@ import { useAuth } from "../hooks/useAuth";
 import { useToast } from "../hooks/useToast";
 import { apiDMThreads } from "../services/api";
 
-import {
-  Badge,
-  Button,
-  Card,
-  CardBody,
-  EmptyState,
-  Input,
-  Loader,
-} from "../components/ui";
-
 function initials(nameOrEmail) {
   const s = String(nameOrEmail || "").trim();
   if (!s) return "U";
-
   const parts = s.split(/\s+/).filter(Boolean);
   const a = parts[0]?.[0] || s[0];
   const b = parts[1]?.[0] || "";
-
   return (a + b).toUpperCase();
 }
 
-function timeShort(iso) {
+function timeAgo(iso) {
   if (!iso) return "";
-
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return "";
-
-  return d.toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-  });
+  const diffMs = Date.now() - d.getTime();
+  const min = Math.floor(diffMs / 60000);
+  if (min < 1) return "ahora";
+  if (min < 60) return `${min} min`;
+  const h = Math.floor(min / 60);
+  if (h < 24) return `${h} h`;
+  const days = Math.floor(h / 24);
+  return `${days} d`;
 }
 
 function getThreadName(thread) {
@@ -63,7 +53,7 @@ function getUnreadCount(thread) {
   return 0;
 }
 
-function ThreadRow({ thread, onOpen }) {
+function MessageRow({ thread, onOpen }) {
   const name = getThreadName(thread);
   const preview = getThreadPreview(thread);
   const unreadCount = getUnreadCount(thread);
@@ -71,10 +61,10 @@ function ThreadRow({ thread, onOpen }) {
   return (
     <button
       type="button"
-      className={`threadRow ${unreadCount > 0 ? "threadRow--unread" : ""}`}
+      className={`messagesSimple__row${unreadCount ? " messagesSimple__row--unread" : ""}`}
       onClick={() => onOpen?.(thread)}
     >
-      <div className="threadRow__avatar">
+      <div className="messagesSimple__avatar">
         {thread?.avatar_url ? (
           <img src={thread.avatar_url} alt={name} />
         ) : (
@@ -82,22 +72,24 @@ function ThreadRow({ thread, onOpen }) {
         )}
       </div>
 
-      <div className="threadRow__body">
-        <div className="threadRow__top">
-          <strong>{name}</strong>
-          <span>{timeShort(thread?.updated_at)}</span>
+      <div className="messagesSimple__content">
+        <div className="messagesSimple__text">
+          <strong>{name}</strong>{" "}
+          <span>{preview}</span>
         </div>
 
-        <p className="threadRow__preview">{preview}</p>
+        <div className="messagesSimple__meta">
+          <span>{timeAgo(thread?.updated_at)}</span>
+        </div>
       </div>
 
-      <div className="threadRow__state">
-        {unreadCount > 0 ? (
-          <span className="threadRow__badge">
+      <div className="messagesSimple__state">
+        {unreadCount ? (
+          <span className="messagesSimple__badge">
             {unreadCount > 99 ? "99+" : unreadCount}
           </span>
         ) : (
-          <span className="threadRow__chevron">›</span>
+          <span className="messagesSimple__chevron">›</span>
         )}
       </div>
     </button>
@@ -139,7 +131,6 @@ export default function MessagesPage() {
 
   useEffect(() => {
     load("");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
   useEffect(() => {
@@ -155,165 +146,150 @@ export default function MessagesPage() {
       if (timerRef.current) clearTimeout(timerRef.current);
       timerRef.current = null;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [q, token]);
 
   const list = useMemo(() => threads || [], [threads]);
-
-  const unreadThreads = useMemo(() => {
-    return list.filter((thread) => getUnreadCount(thread) > 0).length;
-  }, [list]);
+  const unreadThreads = useMemo(
+    () => list.filter((t) => getUnreadCount(t) > 0).length,
+    [list]
+  );
 
   function openThread(thread) {
     if (!thread?.id) return;
-
     const threadIds = list.map((item) => item.id);
     navigate(`/mensajes/${thread.id}`, { state: { threadIds } });
   }
 
-  const activeSearch = q.trim();
-
   return (
-    <section className="page">
-      <div className="page__hero">
-        <div className="page__header">
-          <span className="page__eyebrow">Mensajería</span>
-          <h1 className="page__title">Mensajes</h1>
-          <p className="page__subtitle">
-            Revisa tus conversaciones y mantén la coordinación con tu red deportiva.
+    <section className="messagesSimple">
+      <div className="messagesSimple__hero">
+        <div className="messagesSimple__heroCopy">
+          <span className="app-kicker">Mensajes</span>
+          <h1 className="messagesSimple__title">Conversaciones</h1>
+          <p className="messagesSimple__subtitle">
+            Revisa tus chats y mantén la coordinación con tu red deportiva.
           </p>
         </div>
 
-        <div className="split-actions">
-          <Button
-            variant="ghost"
+        <div className="messagesSimple__heroActions">
+          <button
+            type="button"
+            className="app-button app-button--secondary"
             onClick={() => navigate(-1)}
           >
             Volver
-          </Button>
+          </button>
 
-          <Button
-            variant="secondary"
+          <button
+            type="button"
+            className="app-button app-button--primary"
             onClick={() => toast?.info?.("Nuevo mensaje próximamente")}
             disabled={!token}
           >
             Nuevo mensaje
-          </Button>
+          </button>
         </div>
       </div>
 
-      <div className="page__columns">
-        <div className="app-stack app-stack--lg">
-
-          <Card>
-            <CardBody className="app-stack">
-
-              <div className="app-section-header">
-                <div>
-                  <div className="app-section-header__title">
-                    Conversaciones
-                  </div>
-
-                  <div className="app-section-header__subtitle">
-                    Tus chats más recientes ordenados por actividad.
-                  </div>
-                </div>
-
-                {unreadThreads > 0 && (
-                  <Badge>{unreadThreads} sin leer</Badge>
-                )}
+      <div className="messagesSimple__layout">
+        <div className="messagesSimple__main">
+          <section className="messagesSimple__panel">
+            <div className="messagesSimple__panelHead">
+              <div>
+                <p className="app-kicker">Bandeja</p>
+                <h2 className="app-title">Conversaciones</h2>
+                <p className="app-subtitle">
+                  Tus chats más recientes ordenados por actividad.
+                </p>
               </div>
 
-              <Input
-                label="Buscar conversación"
-                placeholder="Ej. Carlos, trail, grupo..."
+              {unreadThreads > 0 && (
+                <span className="app-badge app-badge--primary">
+                  {unreadThreads} sin leer
+                </span>
+              )}
+            </div>
+
+            <div className="messagesSimple__toolbar">
+              <input
+                className="app-input"
+                placeholder="Buscar conversación..."
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
                 disabled={!token}
               />
+            </div>
 
-              {!token ? (
-                <EmptyState
-                  title="Inicia sesión para ver tus mensajes"
-                  description="Necesitas una sesión activa para acceder a tus conversaciones."
-                  actionLabel="Ir al inicio"
-                  onAction={() => navigate("/")}
-                />
-              ) : loading && list.length === 0 ? (
-                <Loader label="Cargando conversaciones" centered block />
-              ) : error ? (
-                <EmptyState
-                  title="No se pudieron cargar"
-                  description={error}
-                  actionLabel="Reintentar"
-                  onAction={() => load(q)}
-                />
-              ) : list.length === 0 ? (
-                <EmptyState
-                  title={
-                    activeSearch
-                      ? "No hay resultados"
-                      : "No hay conversaciones"
-                  }
-                  description={
-                    activeSearch
-                      ? "Prueba con otro término."
-                      : "Cuando interactúes con otros usuarios aparecerán aquí."
-                  }
-                />
-              ) : (
-                <div className="threadList">
-                  {list.map((thread) => (
-                    <ThreadRow
-                      key={thread.id}
-                      thread={thread}
-                      onOpen={openThread}
-                    />
-                  ))}
+            {!token ? (
+              <div className="app-empty">
+                <div className="messagesSimple__emptyBody">
+                  <strong>Inicia sesión para ver tus mensajes</strong>
+                  <p>Necesitas una sesión activa para acceder a tus conversaciones.</p>
                 </div>
-              )}
-            </CardBody>
-          </Card>
-
+              </div>
+            ) : loading && list.length === 0 ? (
+              <div className="app-empty">
+                <div className="messagesSimple__emptyBody">
+                  <strong>Cargando conversaciones</strong>
+                </div>
+              </div>
+            ) : error ? (
+              <div className="app-empty">
+                <div className="messagesSimple__emptyBody">
+                  <strong>No se pudieron cargar</strong>
+                  <p>{error}</p>
+                </div>
+              </div>
+            ) : list.length === 0 ? (
+              <div className="app-empty">
+                <div className="messagesSimple__emptyBody">
+                  <strong>No hay conversaciones</strong>
+                  <p>Cuando interactúes con otros usuarios aparecerán aquí.</p>
+                </div>
+              </div>
+            ) : (
+              <div className="messagesSimple__list">
+                {list.map((thread) => (
+                  <MessageRow
+                    key={thread.id}
+                    thread={thread}
+                    onOpen={openThread}
+                  />
+                ))}
+              </div>
+            )}
+          </section>
         </div>
 
-        <aside className="page__sidebar">
-          <Card className="app-card--soft">
-            <CardBody className="app-stack">
-              <div className="app-section-header__title">
-                Centro de mensajes
+        <aside className="messagesSimple__aside">
+          <section className="messagesSimple__asideCard">
+            <div className="messagesSimple__panelHead">
+              <div>
+                <p className="app-kicker">Centro de mensajes</p>
+                <h2 className="app-title">Cómo usarlo</h2>
+                <p className="app-subtitle">
+                  Este panel te ayuda a mantener la coordinación con tu red deportiva.
+                </p>
+              </div>
+            </div>
+
+            <div className="messagesSimple__asideList">
+              <div className="messagesSimple__asideItem">
+                <strong>Chats directos</strong>
+                <p>Conversaciones privadas entre usuarios.</p>
               </div>
 
-              <p className="app-text-soft">
-                Aquí puedes revisar conversaciones activas, responder mensajes
-                y continuar la coordinación de actividades deportivas.
-              </p>
-
-              <div className="app-list">
-                <div className="app-list-item">
-                  <strong>Chats directos</strong>
-                  <div className="app-text-soft">
-                    Conversaciones privadas entre usuarios.
-                  </div>
-                </div>
-
-                <div className="app-list-item">
-                  <strong>Grupos</strong>
-                  <div className="app-text-soft">
-                    Mensajes asociados a comunidades o actividades.
-                  </div>
-                </div>
-
-                <div className="app-list-item">
-                  <strong>Actividad</strong>
-                  <div className="app-text-soft">
-                    Mantente al día con cambios y coordinación.
-                  </div>
-                </div>
+              <div className="messagesSimple__asideItem">
+                <strong>Grupos</strong>
+                <p>Mensajes asociados a comunidades o actividades.</p>
               </div>
 
-            </CardBody>
-          </Card>
+              <div className="messagesSimple__asideItem">
+                <strong>Actividad</strong>
+                <p>Coordina quedadas y planes con rapidez.</p>
+              </div>
+            </div>
+          </section>
         </aside>
       </div>
     </section>
