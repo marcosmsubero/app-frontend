@@ -143,19 +143,19 @@ const PAGE_META = {
   },
   "/mensajes": {
     title: "Mensajes",
-    subtitle: "Mantén conversaciones claras para coordinar quedadas y entrenamientos.",
+    subtitle: "Coordina entrenamientos y quedadas con conversaciones más claras.",
   },
   "/notificaciones": {
     title: "Notificaciones",
-    subtitle: "Revisa novedades, avisos y cambios relevantes de tu actividad.",
+    subtitle: "Consulta novedades, avisos y cambios importantes.",
   },
   "/perfil": {
     title: "Perfil",
-    subtitle: "Tu identidad deportiva, agenda y publicaciones en un único lugar.",
+    subtitle: "Tu identidad deportiva, agenda y publicaciones.",
   },
   "/ajustes": {
     title: "Ajustes",
-    subtitle: "Configura tu cuenta y las preferencias principales de la aplicación.",
+    subtitle: "Configura cuenta, visibilidad y preferencias.",
   },
 };
 
@@ -163,28 +163,28 @@ function getPageMeta(pathname) {
   if (pathname.startsWith("/groups/")) {
     return {
       title: "Grupo",
-      subtitle: "Miembros, actividad, chat y organización interna de la comunidad.",
+      subtitle: "Miembros, actividad, chat y organización interna.",
     };
   }
 
   if (pathname.startsWith("/mensajes/")) {
     return {
       title: "Conversación",
-      subtitle: "Coordina detalles y mantén el hilo del plan en curso.",
+      subtitle: "Mantén el hilo del plan en curso.",
     };
   }
 
   if (pathname.startsWith("/seguidores")) {
     return {
       title: "Seguidores",
-      subtitle: "Usuarios que siguen tu actividad y contenido en la plataforma.",
+      subtitle: "Usuarios que siguen tu actividad y contenido.",
     };
   }
 
   if (pathname.startsWith("/siguiendo")) {
     return {
       title: "Siguiendo",
-      subtitle: "Perfiles y deportistas que sigues dentro de la aplicación.",
+      subtitle: "Perfiles y deportistas que sigues en la app.",
     };
   }
 
@@ -237,7 +237,7 @@ export default function AppChrome({ me }) {
               <span className="app-brand__mark" />
               <span className="app-brand__text">
                 <strong>App Deportes</strong>
-                <small>Social sports platform</small>
+                <small>Plataforma social deportiva</small>
               </span>
             </NavLink>
           </div>
@@ -278,10 +278,10 @@ export default function AppChrome({ me }) {
       <aside className="app-desktop-sidebar">
         <div className="app-sidebar app-surface">
           <div className="app-sidebar__header">
-            <div className="app-sidebar__eyebrow">Producto</div>
+            <div className="app-sidebar__eyebrow">Workspace</div>
             <div className="app-sidebar__title">App Deportes</div>
             <div className="app-sidebar__text">
-              Red social deportiva para descubrir actividad, conectar con grupos y coordinar planes.
+              Gestiona comunidad, actividad y conversaciones desde una interfaz clara para móvil y escritorio.
             </div>
           </div>
 
