@@ -130,7 +130,7 @@ export default function AuthPage({ defaultTab = "login" }) {
             <h1 className="authSimple__title">
               {isLogin
                 ? "Accede a tu comunidad deportiva"
-                : "Crea tu cuenta y entra sin fricción"}
+                : "Crea tu cuenta y accede a nuestra comunidad"}
             </h1>
             <p className="authSimple__subtitle">
               Grupos, quedadas y viajes en una interfaz rápida y consistente.
