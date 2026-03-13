@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes, useLocation } from "react-router-dom";
+import { Navigate, Route, Routes, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "./hooks/useAuth";
 
 import AppChrome from "./components/AppChrome";
@@ -51,7 +51,7 @@ function RequireGuest({ children }) {
 
   if (isAuthed) {
     const needsOnboarding = !me?.handle;
-    return <Navigate to={needsOnboarding ? "/onboarding" : "/perfil"} replace />;
+    return <Navigate to={needsOnboarding ? "/onboarding" : "/"} replace />;
   }
 
   return children;
@@ -67,36 +67,30 @@ function RequireCompletedProfile({ children }) {
     return <Navigate to="/login" replace state={{ from: location }} />;
   }
 
-  if (!me?.handle && location.pathname !== "/onboarding") {
+  if (!me?.handle) {
     return <Navigate to="/onboarding" replace />;
   }
 
   return children;
 }
 
-function AppShell({ children }) {
-  const { isAuthed, me } = useAuth();
-  const location = useLocation();
-
-  const isAuthRoute =
-    location.pathname === "/login" ||
-    location.pathname === "/register" ||
-    location.pathname === "/onboarding";
-
-  const showChrome = isAuthed && !isAuthRoute;
+function ProtectedAppLayout() {
+  const { me } = useAuth();
 
   return (
     <div className="app-root">
-      {isAuthed ? <SSEListener /> : null}
+      <SSEListener />
 
-      <div className={`app-shell${showChrome ? " app-shell--withChrome" : ""}`}>
-        {showChrome ? <AppChrome me={me} /> : null}
+      <div className="app-shell app-shell--withChrome">
+        <AppChrome me={me} />
 
-        <main className={`app-main${showChrome ? " app-main--withChrome" : ""}`}>
-          <div className="app-main__inner">{children}</div>
+        <main className="app-main app-main--withChrome">
+          <div className="app-main__inner">
+            <Outlet />
+          </div>
         </main>
 
-        {showChrome ? <BottomNav /> : null}
+        <BottomNav />
       </div>
     </div>
   );
@@ -104,138 +98,56 @@ function AppShell({ children }) {
 
 export default function App() {
   return (
-    <AppShell>
-      <Routes>
+    <Routes>
+      <Route
+        path="/login"
+        element={
+          <RequireGuest>
+            <AuthPage defaultTab="login" />
+          </RequireGuest>
+        }
+      />
+
+      <Route
+        path="/register"
+        element={
+          <RequireGuest>
+            <AuthPage defaultTab="register" />
+          </RequireGuest>
+        }
+      />
+
+      <Route
+        path="/onboarding"
+        element={
+          <RequireAuth>
+            <ProfileOnboardingPage />
+          </RequireAuth>
+        }
+      />
+
+      <Route
+        element={
+          <RequireCompletedProfile>
+            <ProtectedAppLayout />
+          </RequireCompletedProfile>
+        }
+      >
         <Route path="/" element={<HomePage />} />
+        <Route path="/explorar" element={<BlaBlaRunPage />} />
+        <Route path="/groups" element={<GroupsPage />} />
+        <Route path="/groups/:groupId" element={<GroupPage />} />
+        <Route path="/notificaciones" element={<NotificationsPage />} />
+        <Route path="/mensajes" element={<MessagesPage />} />
+        <Route path="/mensajes/:threadId" element={<ChatThreadPage />} />
+        <Route path="/perfil" element={<ProfilePage />} />
+        <Route path="/perfil/seguidores" element={<FollowersPage />} />
+        <Route path="/perfil/siguiendo" element={<FollowingPage />} />
+        <Route path="/ajustes" element={<PlaceholderSettingsPage />} />
+        <Route path="/eliminar-cuenta" element={<DeleteAccountPage />} />
+      </Route>
 
-        <Route
-          path="/login"
-          element={
-            <RequireGuest>
-              <AuthPage defaultTab="login" />
-            </RequireGuest>
-          }
-        />
-
-        <Route
-          path="/register"
-          element={
-            <RequireGuest>
-              <AuthPage defaultTab="register" />
-            </RequireGuest>
-          }
-        />
-
-        <Route
-          path="/onboarding"
-          element={
-            <RequireAuth>
-              <ProfileOnboardingPage />
-            </RequireAuth>
-          }
-        />
-
-        <Route
-          path="/perfil"
-          element={
-            <RequireCompletedProfile>
-              <ProfilePage />
-            </RequireCompletedProfile>
-          }
-        />
-
-        <Route
-          path="/explorar"
-          element={
-            <RequireCompletedProfile>
-              <BlaBlaRunPage />
-            </RequireCompletedProfile>
-          }
-        />
-
-        <Route
-          path="/groups"
-          element={
-            <RequireCompletedProfile>
-              <GroupsPage />
-            </RequireCompletedProfile>
-          }
-        />
-
-        <Route
-          path="/groups/:groupId"
-          element={
-            <RequireCompletedProfile>
-              <GroupPage />
-            </RequireCompletedProfile>
-          }
-        />
-
-        <Route
-          path="/notificaciones"
-          element={
-            <RequireCompletedProfile>
-              <NotificationsPage />
-            </RequireCompletedProfile>
-          }
-        />
-
-        <Route
-          path="/mensajes"
-          element={
-            <RequireCompletedProfile>
-              <MessagesPage />
-            </RequireCompletedProfile>
-          }
-        />
-
-        <Route
-          path="/mensajes/:threadId"
-          element={
-            <RequireCompletedProfile>
-              <ChatThreadPage />
-            </RequireCompletedProfile>
-          }
-        />
-
-        <Route
-          path="/seguidores"
-          element={
-            <RequireCompletedProfile>
-              <FollowersPage />
-            </RequireCompletedProfile>
-          }
-        />
-
-        <Route
-          path="/siguiendo"
-          element={
-            <RequireCompletedProfile>
-              <FollowingPage />
-            </RequireCompletedProfile>
-          }
-        />
-
-        <Route
-          path="/ajustes"
-          element={
-            <RequireCompletedProfile>
-              <PlaceholderSettingsPage />
-            </RequireCompletedProfile>
-          }
-        />
-
-        <Route
-          path="/eliminar-cuenta"
-          element={
-            <RequireCompletedProfile>
-              <DeleteAccountPage />
-            </RequireCompletedProfile>
-          }
-        />
-
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </AppShell>
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 }
