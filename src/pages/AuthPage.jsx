@@ -172,12 +172,12 @@ export default function AuthPage({ defaultTab = "login" }) {
 
             <div className="authSimple__head">
               <h2 className="authSimple__panelTitle">
-                {isLogin ? "Bienvenido" : "Nueva cuenta"}
+                {isLogin ? "Bienvenid@" : "Nueva cuenta"}
               </h2>
               <p className="authSimple__panelText">
                 {isLogin
-                  ? "Accede a tu perfil, tus grupos y tus conversaciones."
-                  : "Después del registro completarás tu perfil antes de entrar en la app."}
+                  ? "Accede a tu perfil, tus grupos y entrenamientos."
+                  : "Completa tu perfil en el Onboarding."}
               </p>
             </div>
 
@@ -191,7 +191,6 @@ export default function AuthPage({ defaultTab = "login" }) {
                   className="app-input"
                   type="email"
                   autoComplete="email"
-                  placeholder="tu@email.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={loading}
@@ -207,7 +206,6 @@ export default function AuthPage({ defaultTab = "login" }) {
                   className="app-input"
                   type="password"
                   autoComplete={isLogin ? "current-password" : "new-password"}
-                  placeholder="Introduce tu contraseña"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={loading}
@@ -224,7 +222,6 @@ export default function AuthPage({ defaultTab = "login" }) {
                     className="app-input"
                     type="password"
                     autoComplete="new-password"
-                    placeholder="Repite tu contraseña"
                     value={password2}
                     onChange={(e) => setPassword2(e.target.value)}
                     disabled={loading}
