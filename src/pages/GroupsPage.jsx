@@ -5,6 +5,17 @@ import { useGroups } from "../hooks/useGroups";
 import { useAuth } from "../hooks/useAuth";
 import { useToast } from "../hooks/useToast";
 
+function GroupInsight({ value, label, tone = "primary" }) {
+  return (
+    <div className="groupsPage__insightCard">
+      <span className={`app-badge${tone !== "neutral" ? ` app-badge--${tone}` : ""}`}>
+        {label}
+      </span>
+      <strong className="groupsPage__insightValue">{value}</strong>
+    </div>
+  );
+}
+
 export default function GroupsPage() {
   const nav = useNavigate();
   const toast = useToast();
@@ -35,6 +46,10 @@ export default function GroupsPage() {
   const isValidGroup = useMemo(() => {
     return gName.trim() && gSport.trim() && gCity.trim();
   }, [gName, gSport, gCity]);
+
+  const visibleGroups = Array.isArray(groups) ? groups : [];
+  const joinedGroups = visibleGroups.filter((group) => !!group?.my_role).length;
+  const privateGroups = visibleGroups.filter((group) => !!group?.is_private).length;
 
   useEffect(() => {
     if (!isAuthed) return;
@@ -111,22 +126,22 @@ export default function GroupsPage() {
   }
 
   return (
-    <section className="page">
-      <div className="page__hero glass-banner">
-        <div className="glass-banner__body">
-          <div className="page__header">
-            <span className="page__eyebrow">Comunidad</span>
-            <h1 className="page__title">Gestiona tus grupos deportivos</h1>
-            <p className="page__subtitle">
-              Busca comunidades por ciudad y deporte, crea tu propio grupo o accede con una
-              invitación privada.
+    <section className="groupsPage">
+      <div className="groupsPage__hero app-section">
+        <div className="groupsPage__heroMain">
+          <div className="groupsPage__heroCopy">
+            <span className="app-kicker">Comunidad</span>
+            <h1 className="groupsPage__heroTitle">Gestiona tus grupos deportivos</h1>
+            <p className="groupsPage__heroSubtitle">
+              Busca comunidades por ciudad y deporte, crea tu propio grupo o accede
+              con una invitación privada desde una experiencia más clara y escalable.
             </p>
           </div>
 
-          <div className="split-actions">
+          <div className="groupsPage__heroActions">
             <button
               type="button"
-              className="app-btn app-btn--primary"
+              className="app-button app-button--primary"
               onClick={() => setShowCreate((value) => !value)}
             >
               {showCreate ? "Cerrar creación" : "Crear grupo"}
@@ -134,7 +149,7 @@ export default function GroupsPage() {
 
             <button
               type="button"
-              className="app-btn app-btn--secondary"
+              className="app-button app-button--secondary"
               onClick={() => loadGroups()}
               disabled={loadingGroups}
             >
@@ -142,241 +157,259 @@ export default function GroupsPage() {
             </button>
           </div>
         </div>
+
+        <div className="groupsPage__heroStats">
+          <GroupInsight
+            value={visibleGroups.length}
+            label="Grupos visibles"
+            tone="primary"
+          />
+          <GroupInsight
+            value={joinedGroups}
+            label="Ya unidos"
+            tone="success"
+          />
+          <GroupInsight
+            value={privateGroups}
+            label="Privados"
+            tone="warning"
+          />
+        </div>
       </div>
 
-      <div className="page__columns">
-        <div className="app-stack app-stack--lg">
-          <div className="app-card">
-            <div className="app-card__header">
-              <div className="app-section-header">
-                <div>
-                  <div className="app-section-header__title">Buscar grupos</div>
-                  <div className="app-section-header__subtitle">
-                    Filtra por deporte y ciudad para encontrar comunidad afín.
-                  </div>
-                </div>
+      <div className="groupsPage__layout">
+        <div className="groupsPage__main">
+          <section className="groupsPage__panel app-section">
+            <div className="groupsPage__panelHead">
+              <div>
+                <p className="app-kicker">Discovery</p>
+                <h2 className="app-title">Buscar grupos</h2>
+                <p className="app-subtitle">
+                  Filtra por deporte y ciudad para encontrar una comunidad afín con menos fricción.
+                </p>
               </div>
             </div>
 
-            <div className="app-card__body">
-              <div className="form-grid form-grid--2">
-                <div className="app-field">
-                  <label className="app-label" htmlFor="filter-sport">
-                    Deporte
-                  </label>
-                  <input
-                    id="filter-sport"
-                    className="app-input"
-                    placeholder="Ej. running, ciclismo, trail"
-                    value={filterSport}
-                    onChange={(e) => setFilterSport(e.target.value)}
-                    disabled={loadingGroups}
-                  />
-                </div>
-
-                <div className="app-field">
-                  <label className="app-label" htmlFor="filter-city">
-                    Ciudad
-                  </label>
-                  <input
-                    id="filter-city"
-                    className="app-input"
-                    placeholder="Ej. Alicante"
-                    value={filterCity}
-                    onChange={(e) => setFilterCity(e.target.value)}
-                    disabled={loadingGroups}
-                  />
-                </div>
-              </div>
-
-              <div className="split-actions" style={{ marginTop: "16px" }}>
-                <button
-                  type="button"
-                  className="app-btn app-btn--primary"
-                  onClick={handleSearch}
-                  disabled={loadingGroups}
-                >
-                  Buscar
-                </button>
-
-                <button
-                  type="button"
-                  className="app-btn app-btn--secondary"
-                  onClick={handleClearFilters}
-                  disabled={loadingGroups}
-                >
-                  Limpiar filtros
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {showCreate ? (
-            <div className="app-card">
-              <div className="app-card__header">
-                <div className="app-section-header">
-                  <div>
-                    <div className="app-section-header__title">Nuevo grupo</div>
-                    <div className="app-section-header__subtitle">
-                      Crea una comunidad pública o privada en pocos pasos.
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="app-card__body app-stack">
-                <div className="form-grid form-grid--2">
-                  <div className="app-field">
-                    <label className="app-label" htmlFor="group-name">
-                      Nombre del grupo
-                    </label>
-                    <input
-                      id="group-name"
-                      className="app-input"
-                      placeholder="Ej. Alicante Runners"
-                      value={gName}
-                      onChange={(e) => setGName(e.target.value)}
-                      disabled={creatingGroup}
-                    />
-                  </div>
-
-                  <div className="app-field">
-                    <label className="app-label" htmlFor="group-sport">
-                      Deporte
-                    </label>
-                    <input
-                      id="group-sport"
-                      className="app-input"
-                      placeholder="Ej. running"
-                      value={gSport}
-                      onChange={(e) => setGSport(e.target.value)}
-                      disabled={creatingGroup}
-                    />
-                  </div>
-
-                  <div className="app-field">
-                    <label className="app-label" htmlFor="group-city">
-                      Ciudad
-                    </label>
-                    <input
-                      id="group-city"
-                      className="app-input"
-                      placeholder="Ej. Alicante"
-                      value={gCity}
-                      onChange={(e) => setGCity(e.target.value)}
-                      disabled={creatingGroup}
-                    />
-                  </div>
-
-                  <div className="app-field">
-                    <label className="app-label" htmlFor="group-private">
-                      Privacidad
-                    </label>
-                    <label className="app-checkbox" htmlFor="group-private">
-                      <input
-                        id="group-private"
-                        type="checkbox"
-                        checked={gPrivate}
-                        onChange={(e) => setGPrivate(e.target.checked)}
-                        disabled={creatingGroup}
-                      />
-                      <span>Grupo privado</span>
-                    </label>
-                    <div className="app-field__hint">
-                      Los grupos privados requieren invitación para unirse.
-                    </div>
-                  </div>
-                </div>
-
-                <div className="split-actions">
-                  <button
-                    type="button"
-                    className="app-btn app-btn--primary"
-                    disabled={!isValidGroup || creatingGroup}
-                    onClick={handleCreateGroup}
-                  >
-                    {creatingGroup ? "Creando…" : "Crear grupo"}
-                  </button>
-
-                  <button
-                    type="button"
-                    className="app-btn app-btn--secondary"
-                    onClick={() => setShowCreate(false)}
-                    disabled={creatingGroup}
-                  >
-                    Cancelar
-                  </button>
-                </div>
-              </div>
-            </div>
-          ) : null}
-
-          <div className="app-card">
-            <div className="app-card__header">
-              <div className="app-section-header">
-                <div>
-                  <div className="app-section-header__title">Listado de grupos</div>
-                  <div className="app-section-header__subtitle">
-                    Abre un grupo existente o únete directamente si está disponible.
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="app-card__body">
-              <GroupList
-                isAuthed={isAuthed}
-                groups={groups}
-                loadingGroups={loadingGroups}
-                onLoadGroups={loadGroups}
-                onOpenGroup={handleOpenOrJoinGroup}
-              />
-            </div>
-          </div>
-        </div>
-
-        <aside className="page__sidebar">
-          <div className="app-card app-card--soft">
-            <div className="app-card__body app-stack">
-              <div className="app-section-header__title">Unirme con invitación</div>
-              <p className="app-text-soft">
-                Accede a grupos privados pegando el token compartido por un administrador.
-              </p>
-
+            <div className="groupsPage__filters">
               <div className="app-field">
-                <label className="app-label" htmlFor="invite-token">
-                  Token de invitación
+                <label className="app-label" htmlFor="filter-sport">
+                  Deporte
                 </label>
                 <input
-                  id="invite-token"
+                  id="filter-sport"
                   className="app-input"
-                  placeholder="Pega aquí tu token"
-                  value={inviteToken}
-                  onChange={(e) => setInviteToken(e.target.value)}
-                  disabled={joiningByInvite}
+                  placeholder="Ej. running, ciclismo, trail"
+                  value={filterSport}
+                  onChange={(e) => setFilterSport(e.target.value)}
+                  disabled={loadingGroups}
                 />
               </div>
 
+              <div className="app-field">
+                <label className="app-label" htmlFor="filter-city">
+                  Ciudad
+                </label>
+                <input
+                  id="filter-city"
+                  className="app-input"
+                  placeholder="Ej. Alicante"
+                  value={filterCity}
+                  onChange={(e) => setFilterCity(e.target.value)}
+                  disabled={loadingGroups}
+                />
+              </div>
+            </div>
+
+            <div className="groupsPage__panelActions">
               <button
                 type="button"
-                className="app-btn app-btn--primary"
+                className="app-button app-button--primary"
+                onClick={handleSearch}
+                disabled={loadingGroups}
+              >
+                Buscar
+              </button>
+
+              <button
+                type="button"
+                className="app-button app-button--secondary"
+                onClick={handleClearFilters}
+                disabled={loadingGroups}
+              >
+                Limpiar filtros
+              </button>
+            </div>
+          </section>
+
+          {showCreate ? (
+            <section className="groupsPage__panel app-section">
+              <div className="groupsPage__panelHead">
+                <div>
+                  <p className="app-kicker">Creación</p>
+                  <h2 className="app-title">Nuevo grupo</h2>
+                  <p className="app-subtitle">
+                    Crea una comunidad pública o privada con una configuración mínima y clara.
+                  </p>
+                </div>
+              </div>
+
+              <div className="groupsPage__createGrid">
+                <div className="app-field">
+                  <label className="app-label" htmlFor="group-name">
+                    Nombre del grupo
+                  </label>
+                  <input
+                    id="group-name"
+                    className="app-input"
+                    placeholder="Ej. Alicante Runners"
+                    value={gName}
+                    onChange={(e) => setGName(e.target.value)}
+                    disabled={creatingGroup}
+                  />
+                </div>
+
+                <div className="app-field">
+                  <label className="app-label" htmlFor="group-sport">
+                    Deporte
+                  </label>
+                  <input
+                    id="group-sport"
+                    className="app-input"
+                    placeholder="Ej. running"
+                    value={gSport}
+                    onChange={(e) => setGSport(e.target.value)}
+                    disabled={creatingGroup}
+                  />
+                </div>
+
+                <div className="app-field">
+                  <label className="app-label" htmlFor="group-city">
+                    Ciudad
+                  </label>
+                  <input
+                    id="group-city"
+                    className="app-input"
+                    placeholder="Ej. Alicante"
+                    value={gCity}
+                    onChange={(e) => setGCity(e.target.value)}
+                    disabled={creatingGroup}
+                  />
+                </div>
+
+                <div className="app-field">
+                  <label className="app-label" htmlFor="group-private">
+                    Privacidad
+                  </label>
+
+                  <label className="groupsPage__checkbox" htmlFor="group-private">
+                    <input
+                      id="group-private"
+                      type="checkbox"
+                      checked={gPrivate}
+                      onChange={(e) => setGPrivate(e.target.checked)}
+                      disabled={creatingGroup}
+                    />
+                    <span>Grupo privado</span>
+                  </label>
+
+                  <p className="groupsPage__hint">
+                    Los grupos privados requieren invitación para unirse.
+                  </p>
+                </div>
+              </div>
+
+              <div className="groupsPage__panelActions">
+                <button
+                  type="button"
+                  className="app-button app-button--primary"
+                  disabled={!isValidGroup || creatingGroup}
+                  onClick={handleCreateGroup}
+                >
+                  {creatingGroup ? "Creando…" : "Crear grupo"}
+                </button>
+
+                <button
+                  type="button"
+                  className="app-button app-button--ghost"
+                  onClick={() => setShowCreate(false)}
+                  disabled={creatingGroup}
+                >
+                  Cancelar
+                </button>
+              </div>
+            </section>
+          ) : null}
+
+          <section className="groupsPage__panel app-section">
+            <div className="groupsPage__panelHead">
+              <div>
+                <p className="app-kicker">Comunidad</p>
+                <h2 className="app-title">Listado de grupos</h2>
+                <p className="app-subtitle">
+                  Abre un grupo existente o únete directamente si está disponible.
+                </p>
+              </div>
+            </div>
+
+            <GroupList
+              isAuthed={isAuthed}
+              groups={groups}
+              loadingGroups={loadingGroups}
+              onLoadGroups={loadGroups}
+              onOpenGroup={handleOpenOrJoinGroup}
+            />
+          </section>
+        </div>
+
+        <aside className="groupsPage__aside">
+          <section className="groupsPage__asideCard app-section">
+            <div className="groupsPage__panelHead">
+              <div>
+                <p className="app-kicker">Privado</p>
+                <h2 className="app-title">Unirme con invitación</h2>
+                <p className="app-subtitle">
+                  Accede a grupos privados pegando el token compartido por un administrador.
+                </p>
+              </div>
+            </div>
+
+            <div className="app-field">
+              <label className="app-label" htmlFor="invite-token">
+                Token de invitación
+              </label>
+              <input
+                id="invite-token"
+                className="app-input"
+                placeholder="Pega aquí tu token"
+                value={inviteToken}
+                onChange={(e) => setInviteToken(e.target.value)}
+                disabled={joiningByInvite}
+              />
+            </div>
+
+            <div className="groupsPage__panelActions">
+              <button
+                type="button"
+                className="app-button app-button--primary"
                 onClick={handleJoinInvite}
                 disabled={joiningByInvite}
               >
                 {joiningByInvite ? "Uniéndome…" : "Unirme al grupo"}
               </button>
             </div>
-          </div>
+          </section>
 
-          <div className="app-card">
-            <div className="app-card__body app-stack">
-              <div className="app-section-header__title">Consejo de producto</div>
-              <p className="app-text-soft">
-                Prioriza nombres claros, una ciudad bien definida y un deporte principal por grupo
-                para que el descubrimiento sea más rápido.
-              </p>
+          <section className="groupsPage__asideCard app-section">
+            <div className="groupsPage__panelHead">
+              <div>
+                <p className="app-kicker">Consejo</p>
+                <h2 className="app-title">Mejor descubrimiento</h2>
+                <p className="app-subtitle">
+                  Prioriza nombres claros, una ciudad bien definida y un deporte principal por grupo para acelerar el descubrimiento.
+                </p>
+              </div>
             </div>
-          </div>
+          </section>
         </aside>
       </div>
     </section>
