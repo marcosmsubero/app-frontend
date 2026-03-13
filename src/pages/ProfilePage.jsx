@@ -9,7 +9,6 @@ import { timeLabel } from "../utils/dates";
 
 function getInitials(me) {
   const name = (me?.full_name || me?.name || "").trim();
-
   if (name) {
     const parts = name.split(/\s+/).filter(Boolean);
     return parts
@@ -17,7 +16,6 @@ function getInitials(me) {
       .map((part) => part[0]?.toUpperCase() || "")
       .join("");
   }
-
   return (me?.email?.[0] || "U").toUpperCase();
 }
 
@@ -62,16 +60,16 @@ function normalizeDisciplines(me) {
 
 function ProfileStat({ value, label, to }) {
   const content = (
-    <div className="profile-stat">
-      <div className="profile-stat__value">{value}</div>
-      <div className="profile-stat__label">{label}</div>
+    <div className="profilePage__stat">
+      <strong className="profilePage__statValue">{value}</strong>
+      <span className="profilePage__statLabel">{label}</span>
     </div>
   );
 
   if (!to) return content;
 
   return (
-    <Link to={to} className="profile-stat-link">
+    <Link to={to} className="profilePage__statLink">
       {content}
     </Link>
   );
@@ -79,31 +77,20 @@ function ProfileStat({ value, label, to }) {
 
 function ActivityRow({ meetup }) {
   return (
-    <article className="profile-activity-row">
-      <div className="profile-activity-row__main">
-        <div className="profile-activity-row__icon">🏃</div>
+    <article className="app-card profilePage__activityCard">
+      <div className="app-card__header">
+        <h3 className="app-card__title">
+          {meetup?.meeting_point || meetup?.title || "Quedada"}
+        </h3>
+        <p className="app-card__description">
+          {timeLabel(meetup?.starts_at) || "Fecha pendiente"}
+        </p>
+      </div>
 
-        <div className="profile-activity-row__content">
-          <div className="profile-activity-row__title">
-            {meetup?.meeting_point || meetup?.title || "Quedada"}
-          </div>
-
-          <div className="profile-activity-row__time">
-            {timeLabel(meetup?.starts_at) || "Fecha pendiente"}
-          </div>
-
-          <div className="profile-activity-row__meta">
-            {meetup?.group_name ? (
-              <span className="app-chip app-chip--active">{meetup.group_name}</span>
-            ) : null}
-
-            {meetup?.level_tag ? <span className="app-chip">{meetup.level_tag}</span> : null}
-
-            <span className="app-chip">
-              {meetup?.participants_count ?? 0} inscritos
-            </span>
-          </div>
-        </div>
+      <div className="app-inline">
+        {meetup?.group_name ? <span className="app-badge">{meetup.group_name}</span> : null}
+        {meetup?.level_tag ? <span className="app-badge app-badge--primary">{meetup.level_tag}</span> : null}
+        <span className="app-badge">{meetup?.participants_count ?? 0} inscritos</span>
       </div>
     </article>
   );
@@ -153,7 +140,6 @@ export default function ProfilePage() {
 
   function updateTab(nextTab) {
     setTab(nextTab);
-
     setParams((prev) => {
       const next = new URLSearchParams(prev);
       if (nextTab === "posts") next.set("tab", "posts");
@@ -163,275 +149,169 @@ export default function ProfilePage() {
   }
 
   return (
-    <section className="page">
-      <div className="page__hero profile-hero">
-        <div className="profile-hero__main">
-          <div className="profile-hero__identity">
-            <div className="profile-hero__avatar-slot">
-              {me?.avatar_url || me?.profile_picture ? (
-                <div className="app-avatar app-avatar--xl profile-hero__avatar">
-                  <img
-                    src={me.avatar_url || me.profile_picture}
-                    alt={displayName}
-                  />
-                </div>
-              ) : (
-                <div className="app-avatar app-avatar--xl profile-hero__avatar-fallback">
-                  {initials}
-                </div>
-              )}
+    <div className="app-page profilePage">
+      <section className="app-card profilePage__hero">
+        <div className="profilePage__identity">
+          {me?.avatar_url || me?.profile_picture ? (
+            <img
+              className="profilePage__avatarImage"
+              src={me.avatar_url || me.profile_picture}
+              alt={displayName}
+            />
+          ) : (
+            <div className="profilePage__avatarFallback" aria-hidden="true">
+              {initials}
             </div>
+          )}
 
-            <div className="profile-hero__copy">
-              <div className="page__header">
-                <span className="page__eyebrow">Perfil</span>
-                <h1 className="page__title">{displayName}</h1>
-                {handle ? <div className="profile-hero__handle">{handle}</div> : null}
-                <p className="page__subtitle">{bio}</p>
-              </div>
+          <div className="profilePage__identityCopy">
+            <span className="app-badge app-badge--primary">Perfil</span>
+            <h2 className="profilePage__name">{displayName}</h2>
+            {handle ? <p className="profilePage__handle">{handle}</p> : null}
+            <p className="profilePage__bio">{bio}</p>
 
-              <div className="profile-hero__meta">
-                {location ? <span className="app-chip app-chip--active">{location}</span> : null}
+            {(location || disciplines.length > 0) && (
+              <div className="app-inline">
+                {location ? <span className="app-badge">{location}</span> : null}
                 {disciplines.map((item) => (
-                  <span key={item} className="app-chip">
+                  <span key={item} className="app-badge">
                     {item}
                   </span>
                 ))}
               </div>
-
-              <div className="profile-stats-grid">
-                <ProfileStat value={me?.posts_count ?? 0} label="Publicaciones" />
-                <ProfileStat
-                  value={me?.followers_count ?? 0}
-                  label="Seguidores"
-                  to="/seguidores"
-                />
-                <ProfileStat
-                  value={me?.following_count ?? 0}
-                  label="Siguiendo"
-                  to="/siguiendo"
-                />
-              </div>
-
-              <div className="split-actions">
-                <Link to="/onboarding" className="app-btn app-btn--primary">
-                  Editar perfil
-                </Link>
-                <Link to="/seguidores" className="app-btn app-btn--secondary">
-                  Seguidores
-                </Link>
-                <Link to="/siguiendo" className="app-btn app-btn--secondary">
-                  Siguiendo
-                </Link>
-                <button
-                  type="button"
-                  className="app-btn app-btn--ghost"
-                  onClick={handleLogout}
-                >
-                  Cerrar sesión
-                </button>
-              </div>
-            </div>
+            )}
           </div>
         </div>
-      </div>
 
-      <div className="page__columns profile-page-columns">
-        <div className="app-stack app-stack--lg">
-          <div className="app-card">
-            <div className="app-card__body">
-              <div className="app-tabs profile-tabs">
-                <button
-                  type="button"
-                  className={`app-tab${tab === "activity" ? " app-tab--active" : ""}`}
-                  onClick={() => updateTab("activity")}
-                  aria-pressed={tab === "activity"}
-                >
-                  Actividad
-                </button>
-
-                <button
-                  type="button"
-                  className={`app-tab${tab === "posts" ? " app-tab--active" : ""}`}
-                  onClick={() => updateTab("posts")}
-                  aria-pressed={tab === "posts"}
-                >
-                  Publicaciones
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {tab === "activity" ? (
-            <div className="app-stack app-stack--lg">
-              <div className="app-card">
-                <div className="app-card__header">
-                  <div className="app-section-header">
-                    <div>
-                      <div className="app-section-header__title">Calendario</div>
-                      <div className="app-section-header__subtitle">
-                        Vista rápida de tu agenda deportiva y próximas actividades.
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="app-card__body">
-                  <div className="profile-calendar-wrap">
-                    <MeetupCalendar items={sortedMeetups} />
-                  </div>
-                </div>
-              </div>
-
-              <div className="app-card">
-                <div className="app-card__header">
-                  <div className="app-section-header">
-                    <div>
-                      <div className="app-section-header__title">Próximas quedadas</div>
-                      <div className="app-section-header__subtitle">
-                        Tus próximos planes confirmados o pendientes.
-                      </div>
-                    </div>
-
-                    <div className="split-actions">
-                      <button
-                        type="button"
-                        className="app-btn app-btn--secondary app-btn--sm"
-                        onClick={reload}
-                        disabled={meetupsLoading}
-                      >
-                        {meetupsLoading ? "Actualizando…" : "Actualizar"}
-                      </button>
-
-                      <button
-                        type="button"
-                        className="app-btn app-btn--ghost app-btn--sm"
-                        onClick={() => toast?.info?.("Añadir actividad próximamente")}
-                      >
-                        Añadir actividad
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="app-card__body">
-                  {meetupsError ? (
-                    <div className="app-empty-state">
-                      <div className="app-empty-state__title">
-                        No se pudo cargar tu actividad
-                      </div>
-                      <div className="app-empty-state__text">{meetupsError}</div>
-                    </div>
-                  ) : meetupsLoading ? (
-                    <div className="app-empty-state">
-                      <div className="app-empty-state__title">Cargando actividad</div>
-                      <div className="app-empty-state__text">
-                        Estamos actualizando tus próximas quedadas.
-                      </div>
-                    </div>
-                  ) : nextMeetups.length === 0 ? (
-                    <div className="app-empty-state">
-                      <div className="app-empty-state__title">
-                        Aún no tienes actividad próxima
-                      </div>
-                      <div className="app-empty-state__text">
-                        Únete a un grupo o explora quedadas para empezar a llenar tu agenda.
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="profile-activity-list">
-                      {nextMeetups.map((meetup) => (
-                        <ActivityRow key={meetup.id} meetup={meetup} />
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="app-card">
-              <div className="app-card__header">
-                <div className="app-section-header">
-                  <div>
-                    <div className="app-section-header__title">Tus publicaciones</div>
-                    <div className="app-section-header__subtitle">
-                      Revisa, sube y gestiona tu contenido desde un único panel.
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="app-card__body">
-                <PostsGrid />
-              </div>
-            </div>
-          )}
+        <div className="profilePage__actions">
+          <Link to="/perfil/onboarding" className="app-button app-button--primary app-button--sm">
+            Editar perfil
+          </Link>
+          <Link to="/followers" className="app-button app-button--secondary app-button--sm">
+            Seguidores
+          </Link>
+          <Link to="/following" className="app-button app-button--ghost app-button--sm">
+            Siguiendo
+          </Link>
+          <button type="button" className="app-button app-button--ghost app-button--sm" onClick={handleLogout}>
+            Cerrar sesión
+          </button>
         </div>
+      </section>
 
-        <aside className="page__sidebar">
-          <div className="app-card app-card--soft">
-            <div className="app-card__body app-stack">
-              <div className="app-section-header__title">Acciones rápidas</div>
-              <p className="app-text-soft">
-                Accede de forma directa a configuración, seguidores y publicación de contenido.
+      <section className="profilePage__stats">
+        <ProfileStat value={sortedMeetups.length} label="Actividad" />
+        <ProfileStat value="—" label="Posts" to="/perfil?tab=posts" />
+        <ProfileStat value="Ver" label="Seguidores" to="/followers" />
+        <ProfileStat value="Ver" label="Siguiendo" to="/following" />
+      </section>
+
+      <section className="app-card profilePage__tabsCard">
+        <div className="profilePage__tabs">
+          <button
+            type="button"
+            className={`profilePage__tab${tab === "activity" ? " profilePage__tab--active" : ""}`}
+            onClick={() => updateTab("activity")}
+            aria-pressed={tab === "activity"}
+          >
+            Actividad
+          </button>
+          <button
+            type="button"
+            className={`profilePage__tab${tab === "posts" ? " profilePage__tab--active" : ""}`}
+            onClick={() => updateTab("posts")}
+            aria-pressed={tab === "posts"}
+          >
+            Publicaciones
+          </button>
+        </div>
+      </section>
+
+      {tab === "activity" ? (
+        <div className="profilePage__activityLayout">
+          <section className="app-card profilePage__calendarCard">
+            <div className="app-card__header">
+              <span className="app-badge">Calendario</span>
+              <h3 className="app-card__title">Vista rápida de tu agenda deportiva</h3>
+              <p className="app-card__description">
+                Consulta próximos planes y mantén visible tu actividad.
               </p>
+            </div>
 
-              <div className="app-list">
-                <Link to="/ajustes" className="profile-quick-link">
-                  <span className="app-badge app-badge--primary">⚙</span>
-                  <span>Ajustes de cuenta</span>
-                </Link>
+            <div className="profilePage__calendarWrap">
+              <MeetupCalendar items={sortedMeetups} />
+            </div>
+          </section>
 
-                <Link to="/seguidores" className="profile-quick-link">
-                  <span className="app-badge app-badge--success">👥</span>
-                  <span>Ver seguidores</span>
-                </Link>
+          <section className="app-card profilePage__upcomingCard">
+            <div className="profilePage__sectionHead">
+              <div className="app-card__header">
+                <span className="app-badge app-badge--warning">Próximas quedadas</span>
+                <h3 className="app-card__title">Tus siguientes planes</h3>
+                <p className="app-card__description">
+                  Confirmados o pendientes, con acceso rápido al estado de tu agenda.
+                </p>
+              </div>
 
-                <Link to="/siguiendo" className="profile-quick-link">
-                  <span className="app-badge app-badge--warning">➜</span>
-                  <span>Ver siguiendo</span>
-                </Link>
+              <div className="app-inline">
+                <button
+                  type="button"
+                  className="app-button app-button--secondary app-button--sm"
+                  onClick={reload}
+                >
+                  {meetupsLoading ? "Actualizando…" : "Actualizar"}
+                </button>
 
                 <button
                   type="button"
-                  className="profile-quick-link profile-quick-link--button"
-                  onClick={handleLogout}
+                  className="app-button app-button--ghost app-button--sm"
+                  onClick={() => toast?.info?.("Añadir actividad próximamente")}
                 >
-                  <span className="app-badge app-badge--danger">⎋</span>
-                  <span>Cerrar sesión</span>
+                  Añadir actividad
                 </button>
               </div>
             </div>
-          </div>
 
-          <div className="app-card">
-            <div className="app-card__body app-stack">
-              <div className="app-section-header__title">Resumen</div>
-              <div className="app-stat-grid">
-                <div className="app-stat">
-                  <div className="app-stat__value">{sortedMeetups.length}</div>
-                  <div className="app-stat__label">Quedadas</div>
-                </div>
-
-                <div className="app-stat">
-                  <div className="app-stat__value">{disciplines.length}</div>
-                  <div className="app-stat__label">Disciplinas</div>
-                </div>
-
-                <div className="app-stat">
-                  <div className="app-stat__value">{location || "—"}</div>
-                  <div className="app-stat__label">Ubicación</div>
-                </div>
-
-                <div className="app-stat">
-                  <div className="app-stat__value">{handle || "Perfil"}</div>
-                  <div className="app-stat__label">Identidad</div>
-                </div>
+            {meetupsError ? (
+              <div className="app-empty">
+                <strong>No se pudo cargar tu actividad</strong>
+                <span>{meetupsError}</span>
               </div>
-            </div>
+            ) : meetupsLoading ? (
+              <div className="app-empty">
+                <strong>Cargando actividad</strong>
+                <span>Estamos actualizando tus próximas quedadas.</span>
+              </div>
+            ) : nextMeetups.length === 0 ? (
+              <div className="app-empty">
+                <strong>Aún no tienes actividad próxima</strong>
+                <span>Únete a un grupo o explora quedadas para empezar a llenar tu agenda.</span>
+              </div>
+            ) : (
+              <div className="profilePage__activityList">
+                {nextMeetups.map((meetup) => (
+                  <ActivityRow
+                    key={meetup?.id || `${meetup?.starts_at}-${meetup?.title || meetup?.meeting_point || "meetup"}`}
+                    meetup={meetup}
+                  />
+                ))}
+              </div>
+            )}
+          </section>
+        </div>
+      ) : (
+        <section className="app-card profilePage__postsCard">
+          <div className="app-card__header">
+            <span className="app-badge">Tus publicaciones</span>
+            <h3 className="app-card__title">Contenido compartido</h3>
+            <p className="app-card__description">
+              Una vista tipo grid para tus imágenes y publicaciones recientes.
+            </p>
           </div>
-        </aside>
-      </div>
-    </section>
+
+          <PostsGrid />
+        </section>
+      )}
+    </div>
   );
 }
