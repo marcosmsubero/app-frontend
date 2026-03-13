@@ -1616,6 +1616,7 @@ textarea.input:focus {
   }
 
   .postsGrid__grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 6px;
   }
 }
@@ -1668,6 +1669,7 @@ textarea.input:focus {
   }
 
   .postsGrid__grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 8px;
   }
 
