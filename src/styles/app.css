@@ -8904,3 +8904,153 @@ textarea.input:focus {
     padding-top: 28px;
   }
 }
+
+.upcomingMeetups {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.upcomingMeetups__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.upcomingMeetups__title {
+  margin: 0.15rem 0 0;
+  font-size: 1.05rem;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+}
+
+.upcomingMeetups__state {
+  padding: var(--space-4);
+  border: 1px dashed var(--app-border);
+  border-radius: 14px;
+  background: rgba(248, 250, 252, 0.82);
+  color: var(--app-text-muted);
+  line-height: 1.6;
+}
+
+.upcomingMeetups__state--error {
+  border-style: solid;
+  border-color: rgba(220, 38, 38, 0.16);
+  background: rgba(220, 38, 38, 0.06);
+  color: #b91c1c;
+}
+
+.upcomingMeetups__carousel {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: var(--space-3);
+  align-items: stretch;
+}
+
+.upcomingMeetups__navBtn {
+  width: 40px;
+  min-width: 40px;
+  border: 1px solid var(--app-border);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--app-text-soft);
+  cursor: pointer;
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.upcomingMeetups__navBtn:hover:not(:disabled) {
+  background: #ffffff;
+  border-color: var(--app-border-strong);
+  color: var(--app-text);
+  box-shadow: var(--shadow-xs);
+}
+
+.upcomingMeetups__navBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.upcomingMeetups__card {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  border: 1px solid rgba(226, 232, 240, 0.92);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.88);
+  transition:
+    border-color var(--transition-fast),
+    background var(--transition-fast),
+    box-shadow var(--transition-fast),
+    transform var(--transition-fast);
+  outline: none;
+}
+
+.upcomingMeetups__card:hover {
+  border-color: var(--app-border-strong);
+  background: #ffffff;
+  box-shadow: var(--shadow-xs);
+  transform: translateY(-1px);
+}
+
+.upcomingMeetups__cardTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.upcomingMeetups__count {
+  color: var(--app-text-faint);
+  font-size: var(--font-sm);
+  font-weight: 700;
+}
+
+.upcomingMeetups__cardBody {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.upcomingMeetups__cardTitle {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+}
+
+.upcomingMeetups__cardMeta {
+  margin: 0;
+  color: var(--app-text-soft);
+  font-size: var(--font-sm);
+}
+
+.upcomingMeetups__cardSub {
+  margin: 0;
+  color: var(--app-text-faint);
+  font-size: var(--font-sm);
+  line-height: 1.5;
+}
+
+@media (max-width: 639px) {
+  .upcomingMeetups__head {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .upcomingMeetups__head .app-button {
+    width: 100%;
+  }
+
+  .upcomingMeetups__carousel {
+    grid-template-columns: 1fr;
+  }
+
+  .upcomingMeetups__navBtn {
+    width: 100%;
+    min-width: 0;
+    min-height: 40px;
+  }
+}
