@@ -2981,3 +2981,285 @@ textarea.input:focus {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
+
+.profilePage {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.profilePage__hero {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.profilePage__heroTop {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.profilePage__identity {
+  display: grid;
+  gap: var(--space-5);
+  align-items: start;
+}
+
+.profilePage__avatarImage,
+.profilePage__avatarFallback {
+  width: 104px;
+  height: 104px;
+  border-radius: 50%;
+}
+
+.profilePage__avatarImage {
+  object-fit: cover;
+  border: 1px solid var(--app-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.profilePage__avatarFallback {
+  display: grid;
+  place-items: center;
+  background: linear-gradient(180deg, #8fd3ff 0%, #0095f6 100%);
+  border: 1px solid rgba(0, 149, 246, 0.14);
+  color: #ffffff;
+  font-size: 1.75rem;
+  font-weight: 800;
+  box-shadow: var(--shadow-sm);
+}
+
+.profilePage__identityCopy {
+  display: grid;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.profilePage__identityHead {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.profilePage__nameBlock {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.profilePage__name {
+  margin: 0;
+  font-size: clamp(1.65rem, 5vw, 2.35rem);
+  line-height: 0.98;
+  letter-spacing: -0.05em;
+}
+
+.profilePage__handle {
+  margin: 0;
+  color: var(--app-text-faint);
+  font-size: var(--font-sm);
+  font-weight: 600;
+}
+
+.profilePage__bio {
+  margin: 0;
+  color: var(--app-text-soft);
+  max-width: 68ch;
+  line-height: 1.7;
+}
+
+.profilePage__metaInline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.profilePage__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.profilePage__stats {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-3);
+}
+
+.profilePage__statLink {
+  text-decoration: none;
+}
+
+.profilePage__statCard {
+  display: grid;
+  gap: 0.25rem;
+  min-height: 100%;
+  padding: var(--space-4);
+  border: 1px solid rgba(226, 232, 240, 0.92);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.8);
+  transition:
+    transform var(--transition-fast),
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.profilePage__statLink:hover .profilePage__statCard {
+  border-color: var(--app-border-strong);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.profilePage__statValue {
+  display: block;
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.profilePage__statLabel {
+  display: block;
+  color: var(--app-text-soft);
+  font-size: var(--font-sm);
+}
+
+.profilePage__tabsWrap {
+  padding: 0.35rem;
+}
+
+.profilePage__tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.4rem;
+}
+
+.profilePage__tab {
+  min-height: 46px;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  color: var(--app-text-faint);
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast),
+    box-shadow var(--transition-fast);
+  letter-spacing: 0.02em;
+}
+
+.profilePage__tab:hover {
+  color: var(--app-text);
+}
+
+.profilePage__tab--active {
+  background: #ffffff;
+  color: var(--app-text);
+  box-shadow: var(--shadow-xs);
+}
+
+.profilePage__content {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.profilePage__contentCard,
+.profilePage__calendarCard,
+.profilePage__sidebarCard {
+  min-height: 100%;
+}
+
+.profilePage__sectionHead {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-4);
+  align-items: flex-start;
+}
+
+.profilePage__activityList {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.profilePage__activityRow {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--app-border);
+}
+
+.profilePage__activityRow:last-child {
+  border-bottom: 0;
+}
+
+.profilePage__activityAvatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(180deg, #8fd3ff 0%, #0095f6 100%);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.88rem;
+}
+
+.profilePage__activityBody {
+  min-width: 0;
+  display: grid;
+  gap: 0.18rem;
+}
+
+.profilePage__activityTitle {
+  font-weight: 600;
+  color: var(--app-text);
+}
+
+.profilePage__activityMeta {
+  color: var(--app-text-faint);
+  font-size: var(--font-sm);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.profilePage__activityAside {
+  text-align: right;
+}
+
+.profilePage__activityNumber {
+  font-weight: 800;
+}
+
+.profilePage__activityLabel {
+  color: var(--app-text-faint);
+  font-size: var(--font-xs);
+}
+
+@media (max-width: 639px) {
+  .profilePage__actions > * {
+    width: 100%;
+  }
+}
+
+@media (min-width: 640px) {
+  .profilePage__identity {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .profilePage__stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 960px) {
+  .profilePage__heroTop {
+    grid-template-columns: minmax(0, 1fr) 320px;
+    align-items: start;
+  }
+
+  .profilePage__content--calendar {
+    grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
+    align-items: start;
+  }
+}
