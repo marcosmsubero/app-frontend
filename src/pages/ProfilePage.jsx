@@ -11,6 +11,23 @@ import PostsGrid from "../components/PostsGrid";
 
 import { Badge, Button, Card, CardBody } from "../components/ui";
 
+function IconBell() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.9"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M6 8a6 6 0 1 1 12 0c0 7 3 7 3 7H3s3 0 3-7" />
+      <path d="M10 21a2 2 0 0 0 4 0" />
+    </svg>
+  );
+}
+
 function getInitials(me) {
   const raw = (me?.full_name || me?.name || me?.handle || me?.email || "U").trim();
 
@@ -171,6 +188,15 @@ export default function ProfilePage() {
               </div>
 
               <div className="profileMinimal__actions">
+                <Link
+                  to="/notificaciones"
+                  className="profileMinimal__notifButton"
+                  aria-label="Notificaciones"
+                  title="Notificaciones"
+                >
+                  <IconBell />
+                </Link>
+
                 <Button as={Link} to="/onboarding" variant="secondary" size="md">
                   Editar
                 </Button>
