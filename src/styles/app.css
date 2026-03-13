@@ -8835,3 +8835,72 @@ textarea.input:focus {
     font-size: 0.82rem;
   }
 }
+
+/* =========================================
+   APP SHELL ICON RAIL (MINIMAL)
+========================================= */
+
+.app-sidebar__floatingRail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+}
+
+/* links */
+
+.app-sidebar__iconLink,
+.app-sidebar__profileIconOnly {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  color: var(--app-text-soft);
+  background: transparent;
+  border: 0;
+  padding: 0;
+}
+
+/* hover */
+
+.app-sidebar__iconLink:hover,
+.app-sidebar__profileIconOnly:hover {
+  color: var(--app-text);
+}
+
+/* active */
+
+.app-sidebar__iconLink--active,
+.app-sidebar__profileIconOnly--active {
+  color: var(--app-primary-strong);
+}
+
+/* icon size */
+
+.app-sidebar__iconGlyph svg,
+.app-sidebar__profileIconOnly svg {
+  width: 24px;
+  height: 24px;
+}
+
+/* remove previous containers */
+
+.app-sidebar__iconGlyph {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* desktop layout */
+
+@media (min-width: 960px) {
+  .app-shell--withChrome {
+    display: grid;
+    grid-template-columns: 64px 1fr;
+  }
+
+  .app-sidebar--floating {
+    padding-top: 28px;
+  }
+}
