@@ -8566,3 +8566,10 @@ textarea.input:focus {
     display: none;
   }
 }
+.app-bottom-nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 60;
+}
