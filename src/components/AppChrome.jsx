@@ -64,15 +64,6 @@ function IconProfile() {
   );
 }
 
-function IconSettings() {
-  return (
-    <ShellIcon>
-      <path d="M12 8.8a3.2 3.2 0 1 0 0 6.4 3.2 3.2 0 0 0 0-6.4Z" />
-      <path d="M19.4 15a1 1 0 0 0 .2 1.1l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1 1 0 0 0-1.1-.2 1 1 0 0 0-.6.9V20a2 2 0 1 1-4 0v-.1a1 1 0 0 0-.7-.9 1 1 0 0 0-1.1.2l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1 1 0 0 0 .2-1.1 1 1 0 0 0-.9-.6H4a2 2 0 1 1 0-4h.1a1 1 0 0 0 .9-.7 1 1 0 0 0-.2-1.1l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1 1 0 0 0 1.1.2 1 1 0 0 0 .6-.9V4a2 2 0 1 1 4 0v.1a1 1 0 0 0 .7.9 1 1 0 0 0 1.1-.2l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1 1 0 0 0-.2 1.1 1 1 0 0 0 .9.6H20a2 2 0 1 1 0 4h-.1a1 1 0 0 0-.9.7Z" />
-    </ShellIcon>
-  );
-}
-
 function IconBolt() {
   return (
     <ShellIcon>
@@ -82,41 +73,11 @@ function IconBolt() {
 }
 
 const NAV_ITEMS = [
-  { to: "/", label: "Inicio", icon: <IconHome /> },
-  { to: "/explorar", label: "Quedadas", icon: <IconMeetups /> },
-  { to: "/groups", label: "Grupos", icon: <IconUsers /> },
-  { to: "/mensajes", label: "Mensajes", icon: <IconMessage /> },
+  { to: "/", icon: <IconHome />, label: "Inicio" },
+  { to: "/explorar", icon: <IconMeetups />, label: "Quedadas" },
+  { to: "/groups", icon: <IconUsers />, label: "Grupos" },
+  { to: "/mensajes", icon: <IconMessage />, label: "Mensajes" },
 ];
-
-const PAGE_META = {
-  "/": { title: "Inicio", eyebrow: "Workspace" },
-  "/explorar": { title: "Quedadas", eyebrow: "Explorar" },
-  "/groups": { title: "Grupos", eyebrow: "Comunidad" },
-  "/mensajes": { title: "Mensajes", eyebrow: "Conversaciones" },
-  "/notificaciones": { title: "Notificaciones", eyebrow: "Actividad" },
-  "/perfil": { title: "Perfil", eyebrow: "Perfil" },
-  "/ajustes": { title: "Ajustes", eyebrow: "Preferencias" },
-};
-
-function getPageMeta(pathname) {
-  if (pathname.startsWith("/groups/")) {
-    return { title: "Grupo", eyebrow: "Grupo" };
-  }
-
-  if (pathname.startsWith("/mensajes/")) {
-    return { title: "Conversación", eyebrow: "Chat" };
-  }
-
-  if (pathname.startsWith("/seguidores")) {
-    return { title: "Seguidores", eyebrow: "Red" };
-  }
-
-  if (pathname.startsWith("/siguiendo")) {
-    return { title: "Siguiendo", eyebrow: "Red" };
-  }
-
-  return PAGE_META[pathname] || PAGE_META["/"];
-}
 
 function getInitials(me) {
   const raw =
@@ -125,7 +86,7 @@ function getInitials(me) {
     me?.display_name ||
     me?.handle ||
     me?.email ||
-    "Usuario";
+    "U";
 
   return String(raw)
     .split(/[\s@._-]+/)
@@ -135,97 +96,88 @@ function getInitials(me) {
     .join("");
 }
 
-function getProfileName(me) {
-  return me?.handle || me?.name || me?.full_name || "Tu perfil";
-}
-
-function DesktopNavItem({ to, label, icon }) {
+function DesktopNavItem({ to, icon, label }) {
   return (
     <NavLink
       to={to}
+      aria-label={label}
+      title={label}
       className={({ isActive }) =>
-        `app-sidebar__link${isActive ? " app-sidebar__link--active" : ""}`
+        `app-sidebar__iconLink${isActive ? " app-sidebar__iconLink--active" : ""}`
       }
     >
-      <span className="app-sidebar__link-icon">{icon}</span>
-      <span>{label}</span>
+      <span className="app-sidebar__iconGlyph">{icon}</span>
     </NavLink>
   );
 }
 
 export default function AppChrome({ me }) {
   const location = useLocation();
-  const meta = getPageMeta(location.pathname);
-  const initials = getInitials(me);
-  const profileName = useMemo(() => getProfileName(me), [me]);
+  const initials = useMemo(() => getInitials(me), [me]);
 
   return (
     <>
-      <header className="app-topbar">
-        <div className="app-topbar__row">
-          <div className="app-topbar__brand">
-            <div className="app-topbar__brand-mark" aria-hidden="true">
-              <IconBolt />
-            </div>
+      <header className="app-topbar app-topbar--minimal">
+        <NavLink to="/" className="app-topbar__brandMarkOnly" aria-label="Inicio" title="Inicio">
+          <span className="app-topbar__brand-mark" aria-hidden="true">
+            <IconBolt />
+          </span>
+        </NavLink>
 
-            <div>
-              <p className="app-topbar__eyebrow">{meta.eyebrow}</p>
-              <h1 className="app-topbar__title">{meta.title}</h1>
-            </div>
+        <NavLink
+          to="/perfil"
+          className="app-topbar__profileIconOnly"
+          aria-label="Perfil"
+          title="Perfil"
+        >
+          <div className="app-avatar" aria-hidden="true">
+            {initials}
           </div>
-
-          <NavLink to="/perfil" className="app-topbar__profile" aria-label="Ir al perfil">
-            <div className="app-avatar" aria-hidden="true">
-              {initials}
-            </div>
-          </NavLink>
-        </div>
+        </NavLink>
       </header>
 
-      <aside className="app-sidebar" aria-label="Navegación principal">
-        <div className="app-sidebar__panel">
-          <div className="app-sidebar__brand">
-            <div className="app-sidebar__brand-icon" aria-hidden="true">
+      <aside className="app-sidebar app-sidebar--floating" aria-label="Navegación principal">
+        <div className="app-sidebar__floatingRail">
+          <NavLink
+            to="/"
+            aria-label="Inicio"
+            title="Inicio"
+            className={({ isActive }) =>
+              `app-sidebar__brandIconOnly${isActive ? " app-sidebar__brandIconOnly--active" : ""}`
+            }
+          >
+            <span aria-hidden="true">
               <IconBolt />
-            </div>
+            </span>
+          </NavLink>
 
-            <div className="app-sidebar__brand-copy">
-              <p className="app-sidebar__brand-overline">Social Sports App</p>
-              <h2 className="app-sidebar__brand-title">App Deportes</h2>
-            </div>
-          </div>
-
-          <nav className="app-sidebar__nav">
+          <nav className="app-sidebar__iconNav">
             {NAV_ITEMS.map((item) => (
               <DesktopNavItem key={item.to} {...item} />
             ))}
           </nav>
 
-          <div className="app-sidebar__profile">
-            <div className="app-avatar app-avatar--lg" aria-hidden="true">
-              {initials}
-            </div>
-
-            <div className="app-sidebar__profile-meta">
-              <strong className="app-sidebar__profile-name">{profileName}</strong>
-
-              <div className="app-sidebar__profile-links">
-                <NavLink to="/perfil" className="app-sidebar__profile-link">
-                  <span className="app-sidebar__profile-linkIcon" aria-hidden="true">
-                    <IconProfile />
-                  </span>
-                  Perfil
-                </NavLink>
-
-                <NavLink to="/ajustes" className="app-sidebar__profile-link">
-                  <span className="app-sidebar__profile-linkIcon" aria-hidden="true">
-                    <IconSettings />
-                  </span>
-                  Ajustes
-                </NavLink>
+          <NavLink
+            to="/perfil"
+            aria-label="Perfil"
+            title="Perfil"
+            className={({ isActive }) =>
+              `app-sidebar__profileIconOnly${isActive ? " app-sidebar__profileIconOnly--active" : ""}`
+            }
+          >
+            {me?.avatar_url ? (
+              <img
+                src={me.avatar_url}
+                alt=""
+                className="app-sidebar__profileAvatarImage"
+              />
+            ) : (
+              <div className="app-avatar" aria-hidden="true">
+                {initials}
               </div>
-            </div>
-          </div>
+            )}
+            <span className="sr-only">Perfil</span>
+          </NavLink>
         </div>
       </aside>
     </>
