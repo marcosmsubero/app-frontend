@@ -35,18 +35,15 @@ const DEFAULT_FILTERS = {
   offset: 0,
 };
 
-function ModeCard({ active, icon, title, text, onClick }) {
+function ModeCard({ active, title, text, onClick }) {
   return (
     <button
       type="button"
-      className={`mode-card${active ? " mode-card--active" : ""}`}
+      className={`explorePage__modeCard${active ? " explorePage__modeCard--active" : ""}`}
       onClick={onClick}
     >
-      <div className="mode-card__icon" aria-hidden="true">
-        {icon}
-      </div>
-      <div className="mode-card__title">{title}</div>
-      <div className="mode-card__text">{text}</div>
+      <strong className="explorePage__modeTitle">{title}</strong>
+      <span className="explorePage__modeText">{text}</span>
     </button>
   );
 }
@@ -99,248 +96,214 @@ export default function BlaBlaRunPage() {
   const paceMaxValue = secondsToPace(filters.pace_max);
 
   return (
-    <section className="page">
-      <div className="page__hero glass-banner">
-        <div className="glass-banner__body">
-          <div className="page__header">
-            <span className="page__eyebrow">Explorar</span>
-            <h1 className="page__title">Encuentra quedadas deportivas cerca de ti</h1>
-            <p className="page__subtitle">
-              Descubre entrenamientos, planes compartidos y actividad abierta en tu zona.
-            </p>
-          </div>
+    <section className="explorePage">
+      <div className="explorePage__hero app-section">
+        <div className="explorePage__heroCopy">
+          <span className="app-kicker">Explorar</span>
+          <h1 className="explorePage__title">Encuentra actividad deportiva cerca de ti</h1>
+          <p className="explorePage__subtitle">
+            Descubre quedadas, entrenamientos y planes compartidos con una experiencia más limpia y directa.
+          </p>
+        </div>
 
-          <div className="split-actions">
-            <Link to="/" className="app-btn app-btn--secondary">
-              Volver a inicio
+        <div className="explorePage__heroActions">
+          <Link to="/" className="app-button app-button--secondary">
+            Volver
+          </Link>
+
+          {!isAuthed ? (
+            <Link to="/login" className="app-button app-button--primary">
+              Iniciar sesión
             </Link>
-            {!isAuthed ? (
-              <Link to="/login" className="app-btn app-btn--primary">
-                Iniciar sesión para explorar
-              </Link>
-            ) : null}
-          </div>
+          ) : null}
         </div>
       </div>
 
-      <div className="page__columns">
-        <div className="app-stack app-stack--lg">
-          <div className="app-card">
-            <div className="app-card__header">
-              <div className="app-section-header">
-                <div>
-                  <div className="app-section-header__title">Modo de exploración</div>
-                  <div className="app-section-header__subtitle">
-                    Cambia entre búsqueda de entrenamiento y búsqueda de viaje.
-                  </div>
-                </div>
-                <div className="app-badge app-badge--primary">BlaBlaRun</div>
+      <div className="explorePage__layout">
+        <div className="explorePage__main">
+          <section className="explorePage__panel app-section">
+            <div className="explorePage__panelHead">
+              <div>
+                <p className="app-kicker">Modo</p>
+                <h2 className="app-title">Cómo quieres explorar</h2>
+                <p className="app-subtitle">
+                  Cambia entre búsqueda de entrenamiento y búsqueda de viaje.
+                </p>
               </div>
+
+              <span className="app-badge app-badge--primary">BlaBlaRun</span>
             </div>
 
-            <div className="app-card__body">
-              <div className="mode-card-grid">
-                <ModeCard
-                  active={mode === "train"}
-                  icon="🏃"
-                  title="Entrenar"
-                  text="Busca compañeros para salir a entrenar."
-                  onClick={() => switchMode("train")}
-                />
-                <ModeCard
-                  active={mode === "travel"}
-                  icon="🚗"
-                  title="Viajar"
-                  text="Comparte trayectos y planes para carreras."
-                  onClick={() => switchMode("travel")}
-                />
-              </div>
+            <div className="explorePage__modeGrid">
+              <ModeCard
+                active={mode === "train"}
+                title="Entrenar"
+                text="Buscar compañeros para salir a entrenar."
+                onClick={() => switchMode("train")}
+              />
+              <ModeCard
+                active={mode === "travel"}
+                title="Viajar"
+                text="Compartir trayectos y planes para carreras."
+                onClick={() => switchMode("travel")}
+              />
             </div>
-          </div>
+          </section>
 
-          <div className="app-card">
-            <div className="app-card__header">
-              <div className="app-section-header">
-                <div>
-                  <div className="app-section-header__title">
-                    {mode === "train" ? "Filtros de entrenamiento" : "Filtros de viaje"}
-                  </div>
-                  <div className="app-section-header__subtitle">
-                    Ajusta búsqueda, nivel, estado y ritmo para afinar resultados.
-                  </div>
-                </div>
-                <div className="app-badge app-badge--neutral">
-                  {loading ? "Buscando…" : `${items.length} resultados`}
-                </div>
+          <section className="explorePage__panel app-section">
+            <div className="explorePage__panelHead">
+              <div>
+                <p className="app-kicker">Filtros</p>
+                <h2 className="app-title">
+                  {mode === "train" ? "Entrenamiento" : "Viaje"}
+                </h2>
+                <p className="app-subtitle">
+                  Ajusta búsqueda, nivel y ritmo para afinar resultados.
+                </p>
               </div>
+
+              <span className="app-badge">
+                {loading ? "Buscando…" : `${items.length} resultados`}
+              </span>
             </div>
 
-            <div className="app-card__body app-stack">
-              <div className="form-grid form-grid--2">
-                <div className="app-field">
-                  <label className="app-label" htmlFor="meetup-search">
-                    Buscar
-                  </label>
-                  <input
-                    id="meetup-search"
-                    className="app-input"
-                    value={filters.q}
-                    placeholder="Lugar, grupo o punto de encuentro"
-                    onChange={(e) => updateFilter("q", e.target.value)}
-                  />
-                </div>
-
-                <div className="app-field">
-                  <label className="app-label" htmlFor="meetup-level">
-                    Nivel
-                  </label>
-                  <select
-                    id="meetup-level"
-                    className="app-select"
-                    value={filters.level}
-                    onChange={(e) => updateFilter("level", e.target.value)}
-                  >
-                    <option value="">Todos</option>
-                    <option value="suave">Suave</option>
-                    <option value="medio">Medio</option>
-                    <option value="rapido">Rápido</option>
-                  </select>
-                </div>
-
-                <div className="app-field">
-                  <label className="app-label" htmlFor="meetup-pace-min">
-                    Ritmo mínimo
-                  </label>
-                  <input
-                    id="meetup-pace-min"
-                    className="app-input"
-                    placeholder="Ej. 05:30"
-                    value={paceMinValue}
-                    onChange={(e) => updateFilter("pace_min", paceToSeconds(e.target.value))}
-                  />
-                  <div className="app-field__hint">Formato recomendado: mm:ss</div>
-                </div>
-
-                <div className="app-field">
-                  <label className="app-label" htmlFor="meetup-pace-max">
-                    Ritmo máximo
-                  </label>
-                  <input
-                    id="meetup-pace-max"
-                    className="app-input"
-                    placeholder="Ej. 04:30"
-                    value={paceMaxValue}
-                    onChange={(e) => updateFilter("pace_max", paceToSeconds(e.target.value))}
-                  />
-                  <div className="app-field__hint">Formato recomendado: mm:ss</div>
-                </div>
-              </div>
-
-              <label className="app-checkbox" htmlFor="only-open-meetups">
-                <input
-                  id="only-open-meetups"
-                  type="checkbox"
-                  checked={!!filters.only_open}
-                  onChange={(e) => updateFilter("only_open", e.target.checked)}
-                />
-                <span>Mostrar solo quedadas abiertas</span>
-              </label>
-
-              <div className="split-actions">
-                <button
-                  type="button"
-                  className="app-btn app-btn--primary"
-                  onClick={() => run({ offset: 0 })}
-                >
+            <div className="explorePage__filters">
+              <div className="app-field">
+                <label className="app-label" htmlFor="meetup-search">
                   Buscar
-                </button>
-
-                <button
-                  type="button"
-                  className="app-btn app-btn--secondary"
-                  onClick={() => run(DEFAULT_FILTERS)}
-                >
-                  Limpiar filtros
-                </button>
+                </label>
+                <input
+                  id="meetup-search"
+                  className="app-input"
+                  value={filters.q}
+                  placeholder="Lugar, grupo o punto de encuentro"
+                  onChange={(e) => updateFilter("q", e.target.value)}
+                />
               </div>
 
-              {error ? (
-                <div className="app-badge app-badge--danger">{error}</div>
-              ) : null}
-            </div>
-          </div>
+              <div className="app-field">
+                <label className="app-label" htmlFor="meetup-level">
+                  Nivel
+                </label>
+                <select
+                  id="meetup-level"
+                  className="app-select"
+                  value={filters.level}
+                  onChange={(e) => updateFilter("level", e.target.value)}
+                >
+                  <option value="">Todos</option>
+                  <option value="suave">Suave</option>
+                  <option value="medio">Medio</option>
+                  <option value="rapido">Rápido</option>
+                </select>
+              </div>
 
-          <div className="app-stack">
+              <div className="app-field">
+                <label className="app-label" htmlFor="meetup-pace-min">
+                  Ritmo mínimo
+                </label>
+                <input
+                  id="meetup-pace-min"
+                  className="app-input"
+                  placeholder="05:30"
+                  value={paceMinValue}
+                  onChange={(e) => updateFilter("pace_min", paceToSeconds(e.target.value))}
+                />
+              </div>
+
+              <div className="app-field">
+                <label className="app-label" htmlFor="meetup-pace-max">
+                  Ritmo máximo
+                </label>
+                <input
+                  id="meetup-pace-max"
+                  className="app-input"
+                  placeholder="04:30"
+                  value={paceMaxValue}
+                  onChange={(e) => updateFilter("pace_max", paceToSeconds(e.target.value))}
+                />
+              </div>
+            </div>
+
+            <label className="explorePage__checkbox" htmlFor="only-open-meetups">
+              <input
+                id="only-open-meetups"
+                type="checkbox"
+                checked={!!filters.only_open}
+                onChange={(e) => updateFilter("only_open", e.target.checked)}
+              />
+              <span>Mostrar solo quedadas abiertas</span>
+            </label>
+
+            <div className="explorePage__actions">
+              <button
+                type="button"
+                className="app-button app-button--primary"
+                onClick={() => run({ offset: 0 })}
+              >
+                Buscar
+              </button>
+
+              <button
+                type="button"
+                className="app-button app-button--secondary"
+                onClick={() => run(DEFAULT_FILTERS)}
+              >
+                Limpiar
+              </button>
+            </div>
+
+            {error ? <div className="explorePage__error">{error}</div> : null}
+          </section>
+
+          <section className="explorePage__results">
             {items.length === 0 && !loading ? (
-              <div className="app-empty-state">
-                <div className="app-empty-state__title">No hay resultados por ahora</div>
-                <div className="app-empty-state__text">
-                  Ajusta los filtros o prueba con otra búsqueda para descubrir nuevas quedadas.
-                </div>
+              <div className="app-empty">
+                No hay resultados con esos filtros.
               </div>
             ) : null}
 
             {items.map((meetup) => (
-              <div key={meetup.id} className="app-stack app-stack--sm">
-                {meetup.group_name ? (
-                  <div className="group-chip-row">
-                    <span className="app-chip app-chip--active">{meetup.group_name}</span>
-                  </div>
-                ) : null}
-
-                <MeetupCard
-                  meetup={meetup}
-                  isAuthed={isAuthed}
-                  onJoin={token ? () => handleJoin(meetup) : null}
-                  onLeave={token ? () => handleLeave(meetup) : null}
-                />
-              </div>
+              <MeetupCard
+                key={meetup.id}
+                meetup={meetup}
+                isAuthed={isAuthed}
+                onJoin={token ? () => handleJoin(meetup) : null}
+                onLeave={token ? () => handleLeave(meetup) : null}
+              />
             ))}
-          </div>
+          </section>
         </div>
 
-        <aside className="page__sidebar">
-          <div className="app-card app-card--soft">
-            <div className="app-card__body app-stack">
-              <div className="app-section-header__title">Cómo funciona</div>
-              <p className="app-text-soft">
-                Explorar te permite localizar quedadas activas, ver cupos, conocer el ritmo
-                esperado y unirte en segundos.
-              </p>
-
-              <div className="app-list">
-                <div className="app-list-item">
-                  <div className="app-badge app-badge--primary">1</div>
-                  <div>
-                    <strong>Filtra por intención</strong>
-                    <div className="app-text-soft">
-                      Entrenamiento o viaje compartido según el tipo de plan.
-                    </div>
-                  </div>
-                </div>
-
-                <div className="app-list-item">
-                  <div className="app-badge app-badge--success">2</div>
-                  <div>
-                    <strong>Revisa disponibilidad</strong>
-                    <div className="app-text-soft">
-                      Comprueba estado, aforo y participantes antes de unirte.
-                    </div>
-                  </div>
-                </div>
-
-                <div className="app-list-item">
-                  <div className="app-badge app-badge--warning">3</div>
-                  <div>
-                    <strong>Únete y coordina</strong>
-                    <div className="app-text-soft">
-                      Accede a mensajes y a la agenda para no perder el plan.
-                    </div>
-                  </div>
-                </div>
+        <aside className="explorePage__aside">
+          <section className="explorePage__asideCard app-section">
+            <div className="explorePage__panelHead">
+              <div>
+                <p className="app-kicker">Cómo funciona</p>
+                <h2 className="app-title">Explorar sin ruido</h2>
+                <p className="app-subtitle">
+                  Filtra, compara y únete a una quedada en pocos pasos.
+                </p>
               </div>
             </div>
-          </div>
+
+            <div className="explorePage__asideList">
+              <div className="explorePage__asideItem">
+                <span className="app-badge app-badge--primary">1</span>
+                <p>Filtra por intención, nivel y ritmo.</p>
+              </div>
+
+              <div className="explorePage__asideItem">
+                <span className="app-badge app-badge--success">2</span>
+                <p>Revisa cupos, estado y detalle de la actividad.</p>
+              </div>
+
+              <div className="explorePage__asideItem">
+                <span className="app-badge app-badge--warning">3</span>
+                <p>Únete y continúa la coordinación desde el grupo.</p>
+              </div>
+            </div>
+          </section>
         </aside>
       </div>
     </section>
