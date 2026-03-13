@@ -491,7 +491,7 @@ export default function PostsGrid() {
             {normalized.length} {normalized.length === 1 ? "post" : "posts"}
           </span>
 
-          <label className="ui-btn ui-btn--soft ui-btn--sm" style={{ cursor: "pointer" }}>
+          <label className="ui-btn ui-btn--soft ui-btn--sm postsGrid__fileTrigger">
             <input
               type="file"
               accept="image/*"
@@ -526,7 +526,7 @@ export default function PostsGrid() {
             title="Aún no hay publicaciones"
             subtitle="Sube tu primera foto para empezar a llenar tu perfil."
             action={
-              <label className="ui-btn ui-btn--brand" style={{ cursor: "pointer" }}>
+              <label className="ui-btn ui-btn--brand postsGrid__fileTrigger">
                 <input
                   type="file"
                   accept="image/*"
@@ -559,11 +559,7 @@ export default function PostsGrid() {
                       <IconComment size={15} /> {p.comments_count || 0}
                     </span>
                   </div>
-                  {p.caption ? (
-                    <div className="postsGrid__captionPreview">
-                      {p.caption}
-                    </div>
-                  ) : null}
+                  {p.caption ? <div className="postsGrid__captionPreview">{p.caption}</div> : null}
                 </div>
               </button>
             ))}
@@ -621,9 +617,7 @@ export default function PostsGrid() {
                   {openItem.caption ? (
                     <div className="postsGridModal__caption">{openItem.caption}</div>
                   ) : (
-                    <div className="postsGridModal__caption" style={{ opacity: 0.7 }}>
-                      Sin descripción
-                    </div>
+                    <div className="postsGridModal__caption postsGridModal__caption--muted">Sin descripción</div>
                   )}
                 </div>
 
@@ -632,7 +626,7 @@ export default function PostsGrid() {
                     <IconTrash />
                     Eliminar
                   </Button>
-                  <div style={{ marginLeft: "auto", color: "var(--color-text-muted)", fontSize: "0.9rem" }}>
+                  <div className="postsGridModal__counter">
                     {currentIndex + 1} / {normalized.length}
                   </div>
                 </div>
