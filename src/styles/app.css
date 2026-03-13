@@ -9054,3 +9054,7 @@ textarea.input:focus {
     min-height: 40px;
   }
 }
+
+.profileMinimal__content > .upcomingMeetups {
+  align-self: start;
+}
