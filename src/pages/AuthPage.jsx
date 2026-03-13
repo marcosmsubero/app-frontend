@@ -6,39 +6,6 @@ function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || "").trim());
 }
 
-function FeaturePill({ children, variant = "neutral" }) {
-  const map = {
-    neutral: "",
-    primary: " app-badge--primary",
-    success: " app-badge--success",
-    warning: " app-badge--warning",
-    danger: " app-badge--danger",
-  };
-
-  return <span className={`app-badge${map[variant] || ""}`}>{children}</span>;
-}
-
-function BenefitItem({ badge, badgeVariant = "primary", title, copy }) {
-  return (
-    <div className="authPage__benefit">
-      <FeaturePill variant={badgeVariant}>{badge}</FeaturePill>
-      <div className="authPage__benefitCopy">
-        <strong>{title}</strong>
-        <p>{copy}</p>
-      </div>
-    </div>
-  );
-}
-
-function AuthMetric({ value, label }) {
-  return (
-    <div className="authPage__metric">
-      <strong className="authPage__metricValue">{value}</strong>
-      <span className="authPage__metricLabel">{label}</span>
-    </div>
-  );
-}
-
 export default function AuthPage({ defaultTab = "login" }) {
   const { login, register, isAuthed } = useAuth();
   const location = useLocation();
@@ -115,19 +82,12 @@ export default function AuthPage({ defaultTab = "login" }) {
       if (tab === "login") {
         await login(cleanEmail, password);
         setSuccess("Acceso correcto.");
-        setEmail("");
-        setPassword("");
-        setPassword2("");
         nav("/perfil", { replace: true });
         return;
       }
 
       await register(cleanEmail, password);
-      setSuccess("Cuenta creada. Vamos a completar tu perfil.");
-      setEmail("");
-      setPassword("");
-      setPassword2("");
-
+      setSuccess("Cuenta creada.");
       nav("/onboarding", {
         replace: true,
         state: { fromRegister: true, registeredEmail: cleanEmail },
@@ -163,85 +123,29 @@ export default function AuthPage({ defaultTab = "login" }) {
   const isLogin = tab === "login";
 
   return (
-    <section className="authPage">
-      <div className="authPage__shell">
-        <div className="authPage__layout">
-          <div className="authPage__brand surface-panel">
-            <div className="authPage__brandTop">
-              <span className="app-kicker">App social deportiva</span>
-
-              <h1 className="authPage__title">
-                Encuentra gente para correr, rodar y salir a la montaña con una
-                experiencia realmente premium.
-              </h1>
-
-              <p className="authPage__subtitle">
-                Arquitectura móvil-primero, flujo social limpio y una base de producto
-                pensada para grupos, mensajes, quedadas y perfil deportivo desde el
-                primer minuto.
-              </p>
-            </div>
-
-            <div className="authPage__pills">
-              <FeaturePill variant="primary">Grupos y meetups</FeaturePill>
-              <FeaturePill variant="success">Mensajes directos</FeaturePill>
-              <FeaturePill variant="warning">Actividad en tiempo real</FeaturePill>
-              <FeaturePill>Perfil deportivo</FeaturePill>
-            </div>
-
-            <div className="authPage__benefits">
-              <BenefitItem
-                badge="Mobile-first"
-                badgeVariant="primary"
-                title="Interfaz clara y rápida"
-                copy="Diseño pensado como producto social real, con navegación simple, jerarquía visual limpia y foco total en comunidad y actividad."
-              />
-
-              <BenefitItem
-                badge="Onboarding"
-                badgeVariant="success"
-                title="Alta y perfil en pocos pasos"
-                copy="Registro directo y continuación natural hacia la personalización del perfil para entrar en la app con tu identidad deportiva lista."
-              />
-
-              <BenefitItem
-                badge="Escalable"
-                badgeVariant="warning"
-                title="Base preparada para crecer"
-                copy="Sistema visual consistente, superficies reutilizables y arquitectura orientada a rendimiento y expansión de features."
-              />
-            </div>
-
-            <div className="authPage__metrics">
-              <AuthMetric value="1" label="Cuenta para entrar" />
-              <AuthMetric value="2" label="Perfil para personalizar" />
-              <AuthMetric value="3" label="Comunidad para activar" />
-            </div>
+    <section className="authSimple">
+      <div className="authSimple__shell">
+        <div className="authSimple__layout">
+          <div className="authSimple__intro">
+            <span className="app-kicker">App social deportiva</span>
+            <h1 className="authSimple__title">
+              {isLogin
+                ? "Accede a tu comunidad deportiva."
+                : "Crea tu cuenta y entra sin fricción."}
+            </h1>
+            <p className="authSimple__subtitle">
+              Grupos, quedadas, mensajes y perfil deportivo en una interfaz más limpia,
+              rápida y consistente.
+            </p>
           </div>
 
-          <div className="authPage__panel surface-panel">
-            <div className="authPage__panelHead">
-              <span className="authPage__panelEyebrow">
-                {isLogin ? "Acceso" : "Alta de usuario"}
-              </span>
-
-              <h2 className="authPage__panelTitle">
-                {isLogin ? "Bienvenido de nuevo" : "Crea tu cuenta"}
-              </h2>
-
-              <p className="authPage__panelText">
-                {isLogin
-                  ? "Accede a tu perfil, tus grupos y tus conversaciones desde una interfaz más limpia y rápida."
-                  : "Regístrate y continúa directamente al onboarding para dejar tu perfil listo antes de entrar a la app."}
-              </p>
-            </div>
-
-            <div className="authPage__tabs" role="tablist" aria-label="Autenticación">
+          <div className="authSimple__panel app-section">
+            <div className="authSimple__tabs" role="tablist" aria-label="Autenticación">
               <button
                 type="button"
                 role="tab"
                 aria-selected={isLogin}
-                className={`authPage__tab${isLogin ? " authPage__tab--active" : ""}`}
+                className={`authSimple__tab${isLogin ? " authSimple__tab--active" : ""}`}
                 onClick={() => {
                   resetMsg();
                   setTab("login");
@@ -256,7 +160,7 @@ export default function AuthPage({ defaultTab = "login" }) {
                 type="button"
                 role="tab"
                 aria-selected={!isLogin}
-                className={`authPage__tab${!isLogin ? " authPage__tab--active" : ""}`}
+                className={`authSimple__tab${!isLogin ? " authSimple__tab--active" : ""}`}
                 onClick={() => {
                   resetMsg();
                   setTab("register");
@@ -268,7 +172,18 @@ export default function AuthPage({ defaultTab = "login" }) {
               </button>
             </div>
 
-            <form className="authPage__form" onSubmit={handleSubmit}>
+            <div className="authSimple__head">
+              <h2 className="authSimple__panelTitle">
+                {isLogin ? "Bienvenido" : "Nueva cuenta"}
+              </h2>
+              <p className="authSimple__panelText">
+                {isLogin
+                  ? "Accede a tu perfil, tus grupos y tus conversaciones."
+                  : "Después del registro completarás tu perfil antes de entrar en la app."}
+              </p>
+            </div>
+
+            <form className="authSimple__form" onSubmit={handleSubmit}>
               <div className="app-field">
                 <label className="app-label" htmlFor="auth-email">
                   Email
@@ -321,12 +236,10 @@ export default function AuthPage({ defaultTab = "login" }) {
 
               {msg.text ? (
                 <div
-                  className={`authPage__message ${
+                  className={`authSimple__message ${
                     msg.type === "error"
-                      ? "authPage__message--error"
-                      : msg.type === "success"
-                        ? "authPage__message--success"
-                        : ""
+                      ? "authSimple__message--error"
+                      : "authSimple__message--success"
                   }`}
                 >
                   {msg.text}
@@ -341,15 +254,9 @@ export default function AuthPage({ defaultTab = "login" }) {
                 {loading
                   ? "Procesando…"
                   : isLogin
-                    ? "Entrar en la app"
-                    : "Crear cuenta y continuar"}
+                    ? "Entrar"
+                    : "Crear cuenta"}
               </button>
-
-              <p className="authPage__footnote">
-                {isLogin
-                  ? "Si tu perfil no está completo, te llevaremos automáticamente al onboarding."
-                  : "Después del registro completarás tu identidad deportiva antes de entrar a la app."}
-              </p>
             </form>
           </div>
         </div>
