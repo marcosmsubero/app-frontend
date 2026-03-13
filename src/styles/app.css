@@ -9058,3 +9058,236 @@ textarea.input:focus {
 .profileMinimal__content > .upcomingMeetups {
   align-self: start;
 }
+
+.explorePage {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.explorePage__hero {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.explorePage__heroCopy {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.explorePage__title {
+  margin: 0;
+  font-size: clamp(1.9rem, 6vw, 2.8rem);
+  line-height: 0.98;
+  letter-spacing: -0.05em;
+}
+
+.explorePage__subtitle {
+  margin: 0;
+  color: var(--app-text-muted);
+  line-height: 1.7;
+  max-width: 60ch;
+}
+
+.explorePage__heroActions,
+.explorePage__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.explorePage__layout {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.explorePage__main,
+.explorePage__aside {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.explorePage__panel,
+.explorePage__asideCard,
+.explorePage__results {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.explorePage__panelHead {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-4);
+  align-items: flex-start;
+}
+
+.explorePage__modeGrid,
+.explorePage__filters {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.explorePage__modeCard {
+  display: grid;
+  gap: 0.35rem;
+  padding: var(--space-4);
+  border: 1px solid var(--app-border);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.9);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color var(--transition-fast),
+    background var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.explorePage__modeCard:hover {
+  border-color: var(--app-border-strong);
+  background: #ffffff;
+  box-shadow: var(--shadow-xs);
+}
+
+.explorePage__modeCard--active {
+  border-color: rgba(37, 99, 235, 0.18);
+  background: rgba(37, 99, 235, 0.08);
+}
+
+.explorePage__modeTitle {
+  font-size: 1rem;
+  letter-spacing: -0.02em;
+}
+
+.explorePage__modeText {
+  color: var(--app-text-muted);
+  font-size: var(--font-sm);
+  line-height: 1.55;
+}
+
+.explorePage__checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-height: 42px;
+  padding: 0.8rem 0.95rem;
+  border: 1px solid var(--app-border);
+  border-radius: 14px;
+  background: rgba(248, 250, 252, 0.82);
+  color: var(--app-text-soft);
+  font-weight: 600;
+}
+
+.explorePage__checkbox input {
+  margin: 0;
+}
+
+.explorePage__error {
+  padding: 0.9rem 1rem;
+  border-radius: 14px;
+  border: 1px solid rgba(220, 38, 38, 0.16);
+  background: rgba(220, 38, 38, 0.06);
+  color: #b91c1c;
+  font-size: var(--font-sm);
+}
+
+.explorePage__asideList {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.explorePage__asideItem {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-3);
+  align-items: start;
+}
+
+.explorePage__asideItem p {
+  margin: 0;
+  color: var(--app-text-soft);
+  line-height: 1.6;
+}
+
+.postsSimple {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.postsSimple__card {
+  overflow: hidden;
+}
+
+.postsSimple__media {
+  overflow: hidden;
+  border-radius: 16px;
+  background: #eef2f7;
+}
+
+.postsSimple__media img {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  display: block;
+}
+
+.postsSimple__body {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.postsSimple__copy {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.postsSimple__title {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.postsSimple__description {
+  margin: 0;
+  color: var(--app-text-muted);
+  line-height: 1.6;
+  font-size: var(--font-sm);
+}
+
+.postsSimple__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.postsSimple__author {
+  color: var(--app-text-faint);
+  font-size: var(--font-sm);
+  font-weight: 600;
+}
+
+.postsSimple__empty {
+  min-height: 120px;
+}
+
+@media (max-width: 639px) {
+  .explorePage__heroActions .app-button,
+  .explorePage__actions .app-button {
+    width: 100%;
+  }
+}
+
+@media (min-width: 768px) {
+  .explorePage__modeGrid,
+  .explorePage__filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 960px) {
+  .explorePage__layout {
+    grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.85fr);
+    align-items: start;
+  }
+}
