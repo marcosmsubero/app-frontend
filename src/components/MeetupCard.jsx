@@ -1,15 +1,15 @@
-function parseStartsAt(startsAt) {
-  if (!startsAt) return null;
+function parseStartsAt(value) {
+  if (!value) return null;
 
-  const hasTZ = /[zZ]$/.test(startsAt) || /[+-]\d{2}:\d{2}$/.test(startsAt);
-  return new Date(hasTZ ? startsAt : `${startsAt}Z`);
+  const hasTZ = /[zZ]$/.test(value) || /[+-]\d{2}:\d{2}$/.test(value);
+  return new Date(hasTZ ? value : `${value}Z`);
 }
 
-function startOfDay(value) {
-  const date = value instanceof Date ? new Date(value) : parseStartsAt(value);
-  if (!date || Number.isNaN(date.getTime())) return new Date(NaN);
-  date.setHours(0, 0, 0, 0);
-  return date;
+function startOfDay(date) {
+  const d = date instanceof Date ? new Date(date) : parseStartsAt(date);
+  if (!d || Number.isNaN(d.getTime())) return new Date(NaN);
+  d.setHours(0, 0, 0, 0);
+  return d;
 }
 
 function daysFromNow(dateStr) {
@@ -21,10 +21,11 @@ function daysFromNow(dateStr) {
 function getWhenBadge(startsAt) {
   const diff = daysFromNow(startsAt);
 
-  if (diff === 0) return { label: "Hoy", variant: "success" };
-  if (diff === 1) return { label: "Mañana", variant: "primary" };
-  if (diff > 1) return { label: `En ${diff} días`, variant: "neutral" };
-  return { label: "Pasada", variant: "danger" };
+  if (diff === 0) return { label: "Hoy", variant: "primary" };
+  if (diff === 1) return { label: "Mañana", variant: "warning" };
+  if (diff > 1) return { label: `En ${diff} días`, variant: "" };
+
+  return { label: "Pasada", variant: "neutral" };
 }
 
 function getStatusBadge(status) {
@@ -34,7 +35,7 @@ function getStatusBadge(status) {
     open: { label: "Abierta", variant: "success" },
     full: { label: "Completa", variant: "warning" },
     cancelled: { label: "Cancelada", variant: "danger" },
-    done: { label: "Finalizada", variant: "neutral" },
+    done: { label: "Finalizada", variant: "" },
   };
 
   return map[normalized] || map.open;
@@ -46,24 +47,17 @@ function downloadICS(meetup) {
   const dt = parseStartsAt(meetup.starts_at);
   if (!dt || Number.isNaN(dt.getTime())) return;
 
-  const start = dt
-    .toISOString()
-    .replace(/[-:]/g, "")
-    .split(".")[0];
-
-  const summary = "Quedada deportiva";
-  const description = String(meetup.notes || "").replace(/\n/g, "\\n");
-  const location = String(meetup.meeting_point || "").replace(/\n/g, " ");
+  const start = dt.toISOString().replace(/[-:]/g, "").split(".")[0];
 
   const content = `
 BEGIN:VCALENDAR
 VERSION:2.0
-PRODID:-//App Deportes//ES
+PRODID:-//BlaBlaRun//ES
 BEGIN:VEVENT
 DTSTART:${start}Z
-SUMMARY:${summary}
-DESCRIPTION:${description}
-LOCATION:${location}
+SUMMARY:Quedada deportiva
+DESCRIPTION:${String(meetup.notes || "").replace(/\n/g, "\\n")}
+LOCATION:${String(meetup.meeting_point || "").replace(/\n/g, " ")}
 END:VEVENT
 END:VCALENDAR
 `.trim();
@@ -73,7 +67,7 @@ END:VCALENDAR
 
   const a = document.createElement("a");
   a.href = url;
-  a.download = "quedada.ics";
+  a.download = "meetup.ics";
   a.click();
 
   URL.revokeObjectURL(url);
@@ -82,25 +76,27 @@ END:VCALENDAR
 function initialsFromEmail(email) {
   const base = String(email || "").split("@")[0] || "";
   const parts = base.split(/[._-]+/).filter(Boolean);
+
   const a = (parts[0]?.[0] || base[0] || "?").toUpperCase();
   const b = (parts[1]?.[0] || parts[0]?.[1] || "").toUpperCase();
+
   return (a + b).slice(0, 2);
 }
 
 function ParticipantsRow({ participants = [] }) {
   if (!participants?.length) {
-    return <div className="meetup-card__hint">Sin participantes aún</div>;
+    return <div className="meetupCard__hint">Sin participantes</div>;
   }
 
   return (
-    <div className="meetup-card__participants">
-      {participants.map((participant) => (
+    <div className="meetupCard__participants">
+      {participants.map((p) => (
         <div
-          key={participant.id}
-          className="meetup-card__participant"
-          title={participant.email}
+          key={p.id}
+          className="meetupCard__participant"
+          title={p.email}
         >
-          {initialsFromEmail(participant.email)}
+          {initialsFromEmail(p.email)}
         </div>
       ))}
     </div>
@@ -109,16 +105,20 @@ function ParticipantsRow({ participants = [] }) {
 
 function fmtPace(sec) {
   if (sec === null || sec === undefined) return "";
+
   const s = Number(sec);
   if (!Number.isFinite(s) || s <= 0) return "";
+
   const mm = Math.floor(s / 60);
   const ss = String(s % 60).padStart(2, "0");
+
   return `${mm}:${ss}/km`;
 }
 
 function fmtPaceRange(minSec, maxSec) {
   const a = fmtPace(minSec);
   const b = fmtPace(maxSec);
+
   if (a && b) return `${a} – ${b}`;
   return a || b || "";
 }
@@ -157,10 +157,8 @@ export default function MeetupCard({
     ? participants_count
     : participants.length;
 
-  const canJoin = realStatus === "open";
-  const canLeave = joined;
-
   const dt = parseStartsAt(starts_at);
+
   const dateLabel =
     dt && !Number.isNaN(dt.getTime())
       ? dt.toLocaleString("es-ES", {
@@ -176,110 +174,115 @@ export default function MeetupCard({
   const statusBadge = getStatusBadge(realStatus);
 
   return (
-    <article className={`meetup-card${isCancelled ? " meetup-card--muted" : ""}`}>
-      <div className="meetup-card__header">
-        <div className="meetup-card__date-block">
-          <div className="meetup-card__date">{dateLabel}</div>
-          {group_name ? (
-            <div className="meetup-card__group">
-              Grupo: <strong>{group_name}</strong>
+    <article className={`meetupCard${isCancelled ? " meetupCard--muted" : ""}`}>
+      <header className="meetupCard__header">
+        <div className="meetupCard__meta">
+          <div className="meetupCard__date">{dateLabel}</div>
+
+          {group_name && (
+            <div className="meetupCard__group">
+              {group_name}
             </div>
-          ) : null}
+          )}
         </div>
 
-        <div className="meetup-card__badges">
-          <span className={`app-badge app-badge--${whenBadge.variant}`}>{whenBadge.label}</span>
-          <span className={`app-badge app-badge--${statusBadge.variant}`}>
+        <div className="meetupCard__badges">
+          <span className={`app-badge${whenBadge.variant ? ` app-badge--${whenBadge.variant}` : ""}`}>
+            {whenBadge.label}
+          </span>
+
+          <span className={`app-badge${statusBadge.variant ? ` app-badge--${statusBadge.variant}` : ""}`}>
             {statusBadge.label}
           </span>
         </div>
-      </div>
+      </header>
 
       {(levelLabel || paceLabel) && (
-        <div className="meetup-card__tags">
-          {levelLabel ? <span className="app-chip">{levelLabel}</span> : null}
-          {paceLabel ? <span className="app-chip">🏃 {paceLabel}</span> : null}
+        <div className="meetupCard__tags">
+          {levelLabel && <span className="app-chip">{levelLabel}</span>}
+          {paceLabel && <span className="app-chip">{paceLabel}</span>}
         </div>
       )}
 
-      <div className="meetup-card__body">
-        <div className="meetup-card__title-row">
-          <div className="meetup-card__title">📍 {meeting_point || "Punto de encuentro"}</div>
+      <div className="meetupCard__body">
+        <div className="meetupCard__title">
+          {meeting_point || "Punto de encuentro"}
         </div>
 
-        {notes ? <div className="meetup-card__notes">📝 {notes}</div> : null}
+        {notes && (
+          <div className="meetupCard__notes">
+            {notes}
+          </div>
+        )}
 
-        <div className="meetup-card__people">
-          👥 {count}
-          {capacity ? ` / ${capacity}` : ""} personas
+        <div className="meetupCard__people">
+          {count}{capacity ? ` / ${capacity}` : ""} participantes
         </div>
 
         <ParticipantsRow participants={participants} />
       </div>
 
-      <div className="meetup-card__actions">
+      <footer className="meetupCard__actions">
         {isAuthed && !isCancelled && !isDone ? (
           <>
-            {!joined && onJoin ? (
+            {!joined && onJoin && (
               <button
                 type="button"
-                className="app-btn app-btn--primary app-btn--sm"
+                className="app-button app-button--primary app-button--sm"
                 onClick={onJoin}
-                disabled={!canJoin}
               >
-                Apuntarme
+                Unirme
               </button>
-            ) : null}
+            )}
 
-            {joined && onLeave ? (
+            {joined && onLeave && (
               <button
                 type="button"
-                className="app-btn app-btn--secondary app-btn--sm"
+                className="app-button app-button--secondary app-button--sm"
                 onClick={onLeave}
-                disabled={!canLeave}
               >
                 Salir
               </button>
-            ) : null}
+            )}
 
-            {onCancel ? (
+            {onCancel && (
               <button
                 type="button"
-                className="app-btn app-btn--danger app-btn--sm"
+                className="app-button app-button--danger app-button--sm"
                 onClick={onCancel}
               >
                 Cancelar
               </button>
-            ) : null}
+            )}
 
-            {onDone ? (
+            {onDone && (
               <button
                 type="button"
-                className="app-btn app-btn--secondary app-btn--sm"
+                className="app-button app-button--secondary app-button--sm"
                 onClick={onDone}
               >
-                Marcar como hecha
+                Finalizar
               </button>
-            ) : null}
+            )}
 
             <button
               type="button"
-              className="app-btn app-btn--ghost app-btn--sm"
+              className="app-button app-button--ghost app-button--sm"
               onClick={() => downloadICS(meetup)}
             >
-              Añadir al calendario
+              Calendario
             </button>
           </>
         ) : (
           <button
             type="button"
-            className="app-btn app-btn--ghost app-btn--sm"
+            className="app-button app-button--ghost app-button--sm"
             onClick={() => downloadICS(meetup)}
           >
-            Añadir al calendario
+            Calendario
           </button>
         )}
-      </div>
+      </footer>
     </article>
   );
 }
