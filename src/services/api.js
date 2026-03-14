@@ -1,4 +1,4 @@
-import API_BASE, { buildApiUrl } from "../config/apiBase.js";
+import API_BASE, { buildApiUrl } from "../config/api.js";
 import { supabase } from "../lib/supabase.js";
 
 export { API_BASE };
