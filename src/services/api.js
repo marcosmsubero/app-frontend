@@ -1,20 +1,25 @@
 import API_BASE, { buildApiUrl } from "../config/apiBase.js";
+import { supabase } from "../lib/supabase.js";
 
-// API base:
-// - En desarrollo usa VITE_API_BASE si existe
-// - En producción usa el backend desplegado en Render
 export { API_BASE };
 
-export async function api(
-  path,
-  { method = "GET", token = localStorage.getItem("token"), body } = {}
-) {
+async function getAccessToken() {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  return session?.access_token ?? null;
+}
+
+export async function api(path, { method = "GET", token, body } = {}) {
+  const resolvedToken = token ?? (await getAccessToken());
+
   const headers = {
     Accept: "application/json",
   };
 
   if (body !== undefined) headers["Content-Type"] = "application/json";
-  if (token) headers["Authorization"] = `Bearer ${token}`;
+  if (resolvedToken) headers["Authorization"] = `Bearer ${resolvedToken}`;
 
   let res;
 
@@ -38,7 +43,6 @@ export async function api(
   }
 
   if (res.status === 401) {
-    localStorage.removeItem("token");
     throw new Error("Sesión expirada");
   }
 
@@ -51,7 +55,6 @@ export async function api(
   return data;
 }
 
-// Helpers
 export const apiJoinMeetup = (meetupId, token) =>
   api(`/meetups/${meetupId}/join`, { method: "POST", token });
 
