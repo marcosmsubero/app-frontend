@@ -127,10 +127,11 @@ export default function ProfileOnboardingPage() {
     clearMsg();
 
     if (isNewProfile) {
-      logout();
+      await logout();
       nav("/login", { replace: true });
       return;
     }
+
 
     nav("/perfil", { replace: true });
   }
