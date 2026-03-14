@@ -1,15 +1,15 @@
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
   useState,
-  useCallback,
 } from "react";
-import { apiMeProfile, apiDeleteMe } from "../services/api";
+import { apiDeleteMe, apiMeProfile } from "../services/api";
 import {
-  getSupabaseSession,
   getSupabaseProfile,
+  getSupabaseSession,
   onSupabaseAuthStateChange,
   signInWithSupabase,
   signOutWithSupabase,
@@ -20,8 +20,13 @@ import {
 const AuthContext = createContext(null);
 
 function isAuthExpiredError(err) {
-  const msg = (err?.message || "").toLowerCase();
-  return msg.includes("sesión expirada") || msg.includes("401") || msg.includes("unauthorized");
+  const msg = String(err?.message || "").toLowerCase();
+  return (
+    msg.includes("sesión expirada") ||
+    msg.includes("session expired") ||
+    msg.includes("401") ||
+    msg.includes("unauthorized")
+  );
 }
 
 export function AuthProvider({ children }) {
@@ -32,22 +37,37 @@ export function AuthProvider({ children }) {
 
   const token = session?.access_token ?? null;
   const user = session?.user ?? null;
-  const isAuthed = !!session && !!me;
+  const isAuthed = !!session;
+
+  const clearAuthState = useCallback(() => {
+    setSession(null);
+    setMe(null);
+    setProfile(null);
+  }, []);
 
   const logout = useCallback(async () => {
     try {
       await signOutWithSupabase();
+    } catch {
+      // no-op
     } finally {
-      setSession(null);
-      setMe(null);
-      setProfile(null);
+      clearAuthState();
+      setLoading(false);
     }
-  }, []);
+  }, [clearAuthState]);
 
   const refreshMe = useCallback(async () => {
-    const data = await apiMeProfile();
-    setMe(data);
-    return data;
+    try {
+      const data = await apiMeProfile();
+      setMe(data);
+      return data;
+    } catch (err) {
+      if (isAuthExpiredError(err)) {
+        throw err;
+      }
+      setMe(null);
+      return null;
+    }
   }, []);
 
   const refreshProfile = useCallback(async (supabaseUserId) => {
@@ -56,19 +76,22 @@ export function AuthProvider({ children }) {
       return null;
     }
 
-    const data = await getSupabaseProfile(supabaseUserId);
-    setProfile(data);
-    return data;
+    try {
+      const data = await getSupabaseProfile(supabaseUserId);
+      setProfile(data);
+      return data;
+    } catch {
+      setProfile(null);
+      return null;
+    }
   }, []);
 
   const hydrateSession = useCallback(
     async (incomingSession) => {
       if (!incomingSession?.user) {
-        setSession(null);
-        setMe(null);
-        setProfile(null);
+        clearAuthState();
         setLoading(false);
-        return;
+        return null;
       }
 
       setSession(incomingSession);
@@ -81,67 +104,108 @@ export function AuthProvider({ children }) {
       } catch (err) {
         if (isAuthExpiredError(err)) {
           await logout();
-        } else {
-          setMe(null);
+          return null;
         }
       } finally {
         setLoading(false);
       }
+
+      return incomingSession;
     },
-    [logout, refreshMe, refreshProfile]
+    [clearAuthState, logout, refreshMe, refreshProfile]
   );
 
   const login = useCallback(
     async (email, password) => {
-      if (!email || !password) throw new Error("Introduce email y contraseña");
-
-      const data = await signInWithSupabase(email, password);
-      const nextSession = data?.session ?? null;
-
-      if (!nextSession) {
-        throw new Error("No se pudo crear la sesión");
+      if (!email || !password) {
+        throw new Error("Introduce email y contraseña");
       }
 
-      await hydrateSession(nextSession);
-      return nextSession;
+      setLoading(true);
+
+      try {
+        const data = await signInWithSupabase(email, password);
+        const nextSession = data?.session ?? null;
+
+        if (!nextSession) {
+          throw new Error("No se pudo crear la sesión");
+        }
+
+        await hydrateSession(nextSession);
+        return nextSession;
+      } finally {
+        setLoading(false);
+      }
     },
     [hydrateSession]
   );
 
   const register = useCallback(
     async (email, password) => {
-      if (!email || !password) throw new Error("Introduce email y contraseña");
-
-      const data = await signUpWith(email, password);
-
-      const User = data?.user ?? null;
-      const nextSession = data?.session ?? null;
-
-      if (supabaseUser && nextSession) {
-        await upsertSupabaseProfile(supabaseUser, { email });
+      if (!email || !password) {
+        throw new Error("Introduce email y contraseña");
       }
-      
-      if (nextSession) {
-        await hydrateSession(nextSession);
-      } else {
+
+      setLoading(true);
+
+      try {
+        const data = await signUpWithSupabase(email, password);
+
+        const supabaseUser = data?.user ?? null;
+        const nextSession = data?.session ?? null;
+
+        if (supabaseUser && nextSession) {
+          try {
+            await upsertSupabaseProfile(supabaseUser, { email });
+          } catch {
+            // evitamos romper el registro si profiles falla
+          }
+        }
+
+        if (nextSession) {
+          await hydrateSession(nextSession);
+        } else {
+          setLoading(false);
+        }
+
+        return {
+          user: supabaseUser,
+          session: nextSession,
+          needsEmailConfirmation: !nextSession,
+        };
+      } finally {
         setLoading(false);
       }
-
-      return {
-        user: supabaseUser,
-        session: nextSession,
-        needsEmailConfirmation: !nextSession,
-      };
     },
     [hydrateSession]
   );
 
+  const ensureProfile = useCallback(async () => {
+    if (!session?.user) return null;
+
+    const existing = await refreshProfile(session.user.id);
+    if (existing) return existing;
+
+    try {
+      const created = await upsertSupabaseProfile(session.user, {
+        email: session.user.email ?? null,
+      });
+      setProfile(created);
+      return created;
+    } catch {
+      return null;
+    }
+  }, [refreshProfile, session]);
+
   const deleteAccount = useCallback(async () => {
-    if (!token) throw new Error("No hay sesión activa");
+    if (!token) {
+      throw new Error("No hay sesión activa");
+    }
+
     await apiDeleteMe(token);
     await logout();
     return true;
-  }, [token, logout]);
+  }, [logout, token]);
 
   useEffect(() => {
     let alive = true;
@@ -153,9 +217,7 @@ export function AuthProvider({ children }) {
         await hydrateSession(currentSession);
       } catch {
         if (!alive) return;
-        setSession(null);
-        setMe(null);
-        setProfile(null);
+        clearAuthState();
         setLoading(false);
       }
     }
@@ -171,7 +233,7 @@ export function AuthProvider({ children }) {
       alive = false;
       unsubscribe?.();
     };
-  }, [hydrateSession]);
+  }, [clearAuthState, hydrateSession]);
 
   const value = useMemo(
     () => ({
@@ -187,6 +249,7 @@ export function AuthProvider({ children }) {
       logout,
       refreshMe,
       refreshProfile,
+      ensureProfile,
       deleteAccount,
     }),
     [
@@ -202,6 +265,7 @@ export function AuthProvider({ children }) {
       logout,
       refreshMe,
       refreshProfile,
+      ensureProfile,
       deleteAccount,
     ]
   );
@@ -211,6 +275,8 @@ export function AuthProvider({ children }) {
 
 export function useAuth() {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth debe usarse dentro de <AuthProvider>");
+  if (!ctx) {
+    throw new Error("useAuth debe usarse dentro de <AuthProvider>");
+  }
   return ctx;
 }
