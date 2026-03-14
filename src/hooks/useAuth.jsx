@@ -112,15 +112,15 @@ export function AuthProvider({ children }) {
     async (email, password) => {
       if (!email || !password) throw new Error("Introduce email y contraseña");
 
-      const data = await signUpWithSupabase(email, password);
+      const data = await signUpWith(email, password);
 
-      const supabaseUser = data?.user ?? null;
+      const User = data?.user ?? null;
       const nextSession = data?.session ?? null;
 
-      if (supabaseUser) {
+      if (supabaseUser && nextSession) {
         await upsertSupabaseProfile(supabaseUser, { email });
       }
-
+      
       if (nextSession) {
         await hydrateSession(nextSession);
       } else {
