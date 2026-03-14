@@ -62,8 +62,8 @@ export default function AuthPage({ defaultTab = "login" }) {
       return setError("Introduce contraseña.");
     }
 
-    if (password.length < 4) {
-      return setError("La contraseña debe tener al menos 4 caracteres.");
+    if (password.length < 6) {
+      return setError("La contraseña debe tener al menos 6 caracteres.");
     }
 
     if (tab === "register") {
@@ -86,7 +86,14 @@ export default function AuthPage({ defaultTab = "login" }) {
         return;
       }
 
-      await register(cleanEmail, password);
+      const result = await register(cleanEmail, password);
+
+      if (result?.needsEmailConfirmation) {
+        setSuccess("Cuenta creada. Revisa tu email para confirmar la cuenta.");
+        nav("/login", { replace: true });
+        return;
+      }
+
       setSuccess("Cuenta creada.");
       nav("/onboarding", {
         replace: true,
@@ -95,8 +102,10 @@ export default function AuthPage({ defaultTab = "login" }) {
     } catch (err) {
       const message = err?.message?.toLowerCase?.() || "";
 
-      if (message.includes("invalid")) {
+      if (message.includes("invalid login credentials")) {
         setError("Email o contraseña incorrectos.");
+      } else if (message.includes("user already registered")) {
+        setError("Ese email ya está registrado.");
       } else if (
         message.includes("network") ||
         message.includes("conectar") ||
@@ -177,7 +186,7 @@ export default function AuthPage({ defaultTab = "login" }) {
               <p className="authSimple__panelText">
                 {isLogin
                   ? "Accede a tu perfil, tus grupos y entrenamientos."
-                  : "Completa tu perfil en el Onboarding."}
+                  : "Completa tu perfil en el onboarding."}
               </p>
             </div>
 
@@ -246,11 +255,7 @@ export default function AuthPage({ defaultTab = "login" }) {
                 className="app-button app-button--primary app-button--lg app-button--block"
                 disabled={loading}
               >
-                {loading
-                  ? "Procesando…"
-                  : isLogin
-                    ? "Entrar"
-                    : "Crear cuenta"}
+                {loading ? "Procesando…" : isLogin ? "Entrar" : "Crear cuenta"}
               </button>
             </form>
           </div>
