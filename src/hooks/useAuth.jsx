@@ -6,19 +6,18 @@ import {
   useState,
   useCallback,
 } from "react";
-import { api, apiMeProfile, apiDeleteMe } from "../services/api";
+import { apiMeProfile, apiDeleteMe } from "../services/api";
+import {
+  getSupabaseSession,
+  getSupabaseProfile,
+  onSupabaseAuthStateChange,
+  signInWithSupabase,
+  signOutWithSupabase,
+  signUpWithSupabase,
+  upsertSupabaseProfile,
+} from "../services/auth";
 
 const AuthContext = createContext(null);
-
-function isNetworkLikeError(err) {
-  const msg = (err?.message || "").toLowerCase();
-  return (
-    msg.includes("no se puede conectar") ||
-    msg.includes("network") ||
-    msg.includes("failed to fetch") ||
-    msg.includes("fetch")
-  );
-}
 
 function isAuthExpiredError(err) {
   const msg = (err?.message || "").toLowerCase();
@@ -26,157 +25,185 @@ function isAuthExpiredError(err) {
 }
 
 export function AuthProvider({ children }) {
-  const [token, setToken] = useState(() => localStorage.getItem("token"));
+  const [session, setSession] = useState(null);
   const [me, setMe] = useState(null);
+  const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const isAuthed = !!token && !!me;
+  const token = session?.access_token ?? null;
+  const user = session?.user ?? null;
+  const isAuthed = !!session && !!me;
 
-  const setAuthToken = useCallback((t) => {
-    if (t) {
-      localStorage.setItem("token", t);
-      setToken(t);
-    } else {
-      localStorage.removeItem("token");
-      setToken(null);
+  const logout = useCallback(async () => {
+    try {
+      await signOutWithSupabase();
+    } finally {
+      setSession(null);
+      setMe(null);
+      setProfile(null);
     }
   }, []);
 
-  const logout = useCallback(() => {
-    setAuthToken(null);
-    setMe(null);
-  }, [setAuthToken]);
+  const refreshMe = useCallback(async () => {
+    const data = await apiMeProfile();
+    setMe(data);
+    return data;
+  }, []);
 
-  const refreshMe = useCallback(
-    async (t = token) => {
-      if (!t) return null;
-      const data = await apiMeProfile(t);
-      setMe(data);
-      return data;
+  const refreshProfile = useCallback(async (supabaseUserId) => {
+    if (!supabaseUserId) {
+      setProfile(null);
+      return null;
+    }
+
+    const data = await getSupabaseProfile(supabaseUserId);
+    setProfile(data);
+    return data;
+  }, []);
+
+  const hydrateSession = useCallback(
+    async (incomingSession) => {
+      if (!incomingSession?.user) {
+        setSession(null);
+        setMe(null);
+        setProfile(null);
+        setLoading(false);
+        return;
+      }
+
+      setSession(incomingSession);
+
+      try {
+        await Promise.all([
+          refreshMe(),
+          refreshProfile(incomingSession.user.id),
+        ]);
+      } catch (err) {
+        if (isAuthExpiredError(err)) {
+          await logout();
+        } else {
+          setMe(null);
+        }
+      } finally {
+        setLoading(false);
+      }
     },
-    [token]
+    [logout, refreshMe, refreshProfile]
   );
 
   const login = useCallback(
     async (email, password) => {
       if (!email || !password) throw new Error("Introduce email y contraseña");
 
-      const res = await api("/auth/login", {
-        method: "POST",
-        body: { email, password },
-        token: null,
-      });
+      const data = await signInWithSupabase(email, password);
+      const nextSession = data?.session ?? null;
 
-      const t = res?.access_token || res?.token;
-      if (!t) throw new Error("Respuesta inválida del servidor");
-
-      setAuthToken(t);
-
-      try {
-        await refreshMe(t);
-      } catch (err) {
-        if (isAuthExpiredError(err)) {
-          logout();
-          throw err;
-        }
-        setMe(null);
+      if (!nextSession) {
+        throw new Error("No se pudo crear la sesión");
       }
 
-      return t;
+      await hydrateSession(nextSession);
+      return nextSession;
     },
-    [refreshMe, logout, setAuthToken]
+    [hydrateSession]
   );
 
   const register = useCallback(
     async (email, password) => {
       if (!email || !password) throw new Error("Introduce email y contraseña");
 
-      const res = await api("/auth/register", {
-        method: "POST",
-        body: { email, password },
-        token: null,
-      });
+      const data = await signUpWithSupabase(email, password);
 
-      const t = res?.access_token || res?.token;
-      if (!t) throw new Error("Respuesta inválida del servidor");
+      const supabaseUser = data?.user ?? null;
+      const nextSession = data?.session ?? null;
 
-      setAuthToken(t);
-
-      try {
-        await refreshMe(t);
-      } catch (err) {
-        if (isAuthExpiredError(err)) {
-          logout();
-          throw err;
-        }
-        setMe(null);
+      if (supabaseUser) {
+        await upsertSupabaseProfile(supabaseUser, { email });
       }
 
-      return t;
+      if (nextSession) {
+        await hydrateSession(nextSession);
+      } else {
+        setLoading(false);
+      }
+
+      return {
+        user: supabaseUser,
+        session: nextSession,
+        needsEmailConfirmation: !nextSession,
+      };
     },
-    [refreshMe, logout, setAuthToken]
+    [hydrateSession]
   );
 
   const deleteAccount = useCallback(async () => {
     if (!token) throw new Error("No hay sesión activa");
     await apiDeleteMe(token);
-    logout();
+    await logout();
     return true;
   }, [token, logout]);
 
   useEffect(() => {
     let alive = true;
 
-    async function loadMe() {
-      if (!token) {
-        if (!alive) return;
-        setMe(null);
-        setLoading(false);
-        return;
-      }
-
-      if (alive) setLoading(true);
-
+    async function bootstrap() {
       try {
-        const data = await apiMeProfile(token);
+        const currentSession = await getSupabaseSession();
         if (!alive) return;
-        setMe(data);
-      } catch (err) {
+        await hydrateSession(currentSession);
+      } catch {
         if (!alive) return;
-
-        if (isAuthExpiredError(err)) {
-          logout();
-        } else if (isNetworkLikeError(err)) {
-          setMe(null);
-        } else {
-          setMe(null);
-        }
-      } finally {
-        if (alive) setLoading(false);
+        setSession(null);
+        setMe(null);
+        setProfile(null);
+        setLoading(false);
       }
     }
 
-    loadMe();
+    bootstrap();
+
+    const unsubscribe = onSupabaseAuthStateChange(async (nextSession) => {
+      if (!alive) return;
+      await hydrateSession(nextSession);
+    });
 
     return () => {
       alive = false;
+      unsubscribe?.();
     };
-  }, [token, logout]);
+  }, [hydrateSession]);
 
   const value = useMemo(
     () => ({
       token,
+      session,
+      user,
       me,
+      profile,
       loading,
       isAuthed,
-      setAuthToken,
       login,
       register,
       logout,
       refreshMe,
+      refreshProfile,
       deleteAccount,
     }),
-    [token, me, loading, isAuthed, setAuthToken, login, register, logout, refreshMe, deleteAccount]
+    [
+      token,
+      session,
+      user,
+      me,
+      profile,
+      loading,
+      isAuthed,
+      login,
+      register,
+      logout,
+      refreshMe,
+      refreshProfile,
+      deleteAccount,
+    ]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
