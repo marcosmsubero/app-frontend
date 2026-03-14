@@ -25,7 +25,7 @@ export default function SSEListener() {
   const { isAuthed } = useAuth();
 
   const API_BASE = useMemo(() => {
-    const fallback = `http://${window.location.hostname}:8000`;
+    const fallback = "https://app-backend-jd8f.onrender.com";
     return import.meta.env.VITE_API_BASE || fallback;
   }, []);
 
