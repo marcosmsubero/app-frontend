@@ -7,7 +7,7 @@ function isValidEmail(email) {
 }
 
 export default function AuthPage({ defaultTab = "login" }) {
-  const { login, register, isAuthed } = useAuth();
+  const { login, register, isAuthed, me } = useAuth();
   const location = useLocation();
   const nav = useNavigate();
 
@@ -82,7 +82,7 @@ export default function AuthPage({ defaultTab = "login" }) {
       if (tab === "login") {
         await login(cleanEmail, password);
         setSuccess("Acceso correcto.");
-        nav("/perfil", { replace: true });
+        nav("/", { replace: true });
         return;
       }
 
@@ -126,7 +126,7 @@ export default function AuthPage({ defaultTab = "login" }) {
   }
 
   if (isAuthed) {
-    return <Navigate to="/perfil" replace />;
+    return <Navigate to={me?.onboarding_completed ? "/" : "/onboarding"} replace />;
   }
 
   const isLogin = tab === "login";
