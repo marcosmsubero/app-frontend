@@ -71,7 +71,7 @@ function RequireCompletedProfile({ children }) {
   }
 
   if (needsOnboarding(me)) {
-    return <Navigate to="/onboarding" replace />;
+    return <Navigate to="/onboarding" replace state={{ from: location }} />;
   }
 
   return children;
