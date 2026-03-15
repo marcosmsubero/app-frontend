@@ -19,6 +19,7 @@ function getLSBool(key, fallback = false) {
   if (v === null) return fallback;
   return v === "1" || v === "true";
 }
+
 function setLSBool(key, val) {
   localStorage.setItem(key, val ? "1" : "0");
 }
@@ -65,154 +66,193 @@ export default function PlaceholderSettingsPage() {
   useEffect(() => setLSBool("st_location", showLocation), [showLocation]);
   useEffect(() => setLSBool("st_private", privateAccount), [privateAccount]);
 
-  function handleLogout() {
-    logout();
+  async function handleLogout() {
+    await logout();
     toast?.info?.("Sesión cerrada");
-    nav("/", { replace: true });
+    nav("/login", { replace: true });
   }
 
   return (
-    <div className="settings-page">
-      <div className="settings-wrap">
-        {/* Hero */}
-        <div className="st-hero">
-          <div className="st-hero__left">
-            <div className="st-hero__txt">
-              <div className="st-title">Ajustes</div>
-              <div className="st-sub"></div>
-            </div>
-          </div>
-        </div>
-
-        {/* Cuenta */}
-        <div className="st-section">
-          <div className="st-sectionHead">
-            <div>
-              <div className="st-sectionTitle">Cuenta</div>
-              <div className="st-sectionHint">Perfil y seguridad</div>
-            </div>
-          </div>
-
-          <div className="st-list">
-            <Row
-              title="Editar perfil"
-              subtitle="Nombre, bio, disciplinas…"
-              right={<span className="st-chevron">›</span>}
-              onClick={() => nav("/onboarding")}
-            />
-            <Row
-              title="Cambiar contraseña"
-              subtitle="Actualiza tu contraseña"
-              right={<span className="st-chevron">›</span>}
-              onClick={() => toast?.info?.("Cambio de contraseña (próximamente)")}
-            />
-          </div>
-        </div>
-
-        {/* Notificaciones */}
-        <div className="st-section">
-          <div className="st-sectionHead">
-            <div>
-              <div className="st-sectionTitle">Notificaciones</div>
-              <div className="st-sectionHint">Controla avisos</div>
-            </div>
-          </div>
-
-          <div className="st-list">
-            <Row
-              title="Notificaciones push"
-              subtitle="Avisos en el móvil"
-              right={<Toggle checked={pushNotifs} />}
-              onClick={() => setPushNotifs((v) => !v)}
-            />
-            <Row
-              title="Notificaciones por email"
-              subtitle="Resumen y avisos importantes"
-              right={<Toggle checked={emailNotifs} />}
-              onClick={() => setEmailNotifs((v) => !v)}
-            />
-          </div>
-        </div>
-
-        {/* Privacidad */}
-        <div className="st-section">
-          <div className="st-sectionHead">
-            <div>
-              <div className="st-sectionTitle">Privacidad</div>
-              <div className="st-sectionHint">Visibilidad</div>
-            </div>
-          </div>
-
-          <div className="st-list">
-            <Row
-              title="Cuenta privada"
-              subtitle="Solo te ven quienes apruebes"
-              right={<Toggle checked={privateAccount} />}
-              onClick={() => setPrivateAccount((v) => !v)}
-            />
-            <Row
-              title="Mostrar ubicación"
-              subtitle="Permite ver tu ciudad"
-              right={<Toggle checked={showLocation} />}
-              onClick={() => setShowLocation((v) => !v)}
-            />
-          </div>
-        </div>
-
-        {/* Ayuda */}
-        <div className="st-section">
-          <div className="st-sectionHead">
-            <div>
-              <div className="st-sectionTitle">Ayuda</div>
-              <div className="st-sectionHint">Soporte</div>
-            </div>
-          </div>
-
-          <div className="st-list">
-            <Row
-              title="Reportar un problema"
-              subtitle="Cuéntanos qué ha pasado"
-              right={<span className="st-chevron">›</span>}
-              onClick={() => toast?.info?.("Soporte (próximamente)")}
-            />
-            <Row
-              title="Términos y privacidad"
-              subtitle="Información legal"
-              right={<span className="st-chevron">›</span>}
-              onClick={() => toast?.info?.("Legal (próximamente)")}
-            />
-          </div>
-        </div>
-
-        {/* Centro de cuentas */}
-        <div className="st-section">
-          <div className="st-sectionHead">
-            <div>
-              <div className="st-sectionTitle">Centro de cuentas</div>
-              <div className="st-sectionHint">Acciones avanzadas</div>
-            </div>
-          </div>
-
-          <div className="st-list">
-            <Row
-              title="Eliminar cuenta"
-              subtitle="Proceso de eliminación"
-              right={<span className="st-chevron">›</span>}
-              onClick={() => nav("/account/delete")}
-              tone="danger"
-            />
-          </div>
-        </div>
-
-        {/* Logout */}
-        <div className="st-section">
-          <div className="st-card">
-            <button type="button" className="st-logout" onClick={handleLogout}>
-              ⏻ Cerrar sesión
-            </button>
-          </div>
+    <section className="page-shell">
+      <div className="page-shell__header">
+        <div>
+          <span className="app-kicker">Cuenta</span>
+          <h1 className="page-shell__title">Ajustes</h1>
+          <p className="page-shell__subtitle">
+            Gestiona tu perfil, privacidad, notificaciones y acceso a la cuenta.
+          </p>
         </div>
       </div>
-    </div>
+
+      <div className="profile-layout">
+        <div className="profile-main">
+          <section className="app-section">
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "auto 1fr",
+                gap: "1rem",
+                alignItems: "center",
+              }}
+            >
+              <div
+                style={{
+                  width: "64px",
+                  height: "64px",
+                  borderRadius: "999px",
+                  display: "grid",
+                  placeItems: "center",
+                  fontWeight: 700,
+                  fontSize: "1rem",
+                  border: "1px solid var(--line, rgba(255,255,255,.08))",
+                  background: "var(--panel-2, rgba(255,255,255,.03))",
+                }}
+              >
+                {initials}
+              </div>
+
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontWeight: 700 }}>
+                  {me?.full_name || me?.handle || "Tu cuenta"}
+                </div>
+                <div style={{ opacity: 0.78, fontSize: "0.95rem" }}>
+                  {me?.email || "Sin email"}
+                </div>
+                {me?.handle ? (
+                  <div style={{ opacity: 0.72, fontSize: "0.9rem", marginTop: "0.25rem" }}>
+                    @{me.handle}
+                  </div>
+                ) : null}
+              </div>
+            </div>
+          </section>
+
+          <section className="app-section">
+            <div className="st-sectionHead">
+              <div>
+                <div className="st-sectionTitle">Cuenta</div>
+                <div className="st-sectionHint">Perfil y seguridad</div>
+              </div>
+            </div>
+
+            <div className="st-list">
+              <Row
+                title="Editar perfil"
+                subtitle="Nombre, bio, disciplinas y datos visibles"
+                right={<span className="st-chevron">›</span>}
+                onClick={() => nav("/onboarding")}
+              />
+              <Row
+                title="Cambiar contraseña"
+                subtitle="Actualiza tus credenciales de acceso"
+                right={<span className="st-chevron">›</span>}
+                onClick={() => toast?.info?.("Cambio de contraseña próximamente")}
+              />
+            </div>
+          </section>
+
+          <section className="app-section">
+            <div className="st-sectionHead">
+              <div>
+                <div className="st-sectionTitle">Notificaciones</div>
+                <div className="st-sectionHint">Controla cómo quieres recibir avisos</div>
+              </div>
+            </div>
+
+            <div className="st-list">
+              <Row
+                title="Notificaciones push"
+                subtitle="Avisos inmediatos en tu dispositivo"
+                right={<Toggle checked={pushNotifs} />}
+                onClick={() => setPushNotifs((v) => !v)}
+              />
+              <Row
+                title="Notificaciones por email"
+                subtitle="Resumen y comunicaciones importantes"
+                right={<Toggle checked={emailNotifs} />}
+                onClick={() => setEmailNotifs((v) => !v)}
+              />
+            </div>
+          </section>
+
+          <section className="app-section">
+            <div className="st-sectionHead">
+              <div>
+                <div className="st-sectionTitle">Privacidad</div>
+                <div className="st-sectionHint">Controla la visibilidad de tu cuenta</div>
+              </div>
+            </div>
+
+            <div className="st-list">
+              <Row
+                title="Cuenta privada"
+                subtitle="Solo te verán las personas que apruebes"
+                right={<Toggle checked={privateAccount} />}
+                onClick={() => setPrivateAccount((v) => !v)}
+              />
+              <Row
+                title="Mostrar ubicación"
+                subtitle="Permite mostrar tu ciudad o zona"
+                right={<Toggle checked={showLocation} />}
+                onClick={() => setShowLocation((v) => !v)}
+              />
+            </div>
+          </section>
+
+          <section className="app-section">
+            <div className="st-sectionHead">
+              <div>
+                <div className="st-sectionTitle">Ayuda</div>
+                <div className="st-sectionHint">Soporte y documentación</div>
+              </div>
+            </div>
+
+            <div className="st-list">
+              <Row
+                title="Reportar un problema"
+                subtitle="Cuéntanos qué ha pasado"
+                right={<span className="st-chevron">›</span>}
+                onClick={() => toast?.info?.("Soporte próximamente")}
+              />
+              <Row
+                title="Términos y privacidad"
+                subtitle="Información legal y condiciones"
+                right={<span className="st-chevron">›</span>}
+                onClick={() => toast?.info?.("Sección legal próximamente")}
+              />
+            </div>
+          </section>
+
+          <section className="app-section">
+            <div className="st-sectionHead">
+              <div>
+                <div className="st-sectionTitle">Centro de cuentas</div>
+                <div className="st-sectionHint">Acciones avanzadas y permanentes</div>
+              </div>
+            </div>
+
+            <div className="st-list">
+              <Row
+                title="Eliminar cuenta"
+                subtitle="Inicia el proceso de eliminación"
+                right={<span className="st-chevron">›</span>}
+                onClick={() => nav("/eliminar-cuenta")}
+                tone="danger"
+              />
+            </div>
+          </section>
+
+          <section className="app-section">
+            <button
+              type="button"
+              className="app-button app-button--secondary app-button--block"
+              onClick={handleLogout}
+            >
+              Cerrar sesión
+            </button>
+          </section>
+        </div>
+      </div>
+    </section>
   );
 }
