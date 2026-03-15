@@ -127,17 +127,17 @@ export const apiDMSend = (threadId, text, token) =>
   });
 
 export const apiVerifyEmailStart = (token) =>
-  api(`/me/verify/start`, { method: "POST", token });
+  api(`/me/send-verification-code`, { method: "POST", token });
 
 export const apiVerifyEmailConfirm = (code, token) =>
-  api(`/me/verify/confirm`, {
+  api(`/me/verify-email`, {
     method: "POST",
     token,
     body: { code },
   });
 
 export const apiVerifyLocation = (lat, lng, accuracy_m, token) =>
-  api(`/me/location/verify`, {
+  api(`/me/verify-location`, {
     method: "POST",
     token,
     body: { lat, lng, accuracy_m },
