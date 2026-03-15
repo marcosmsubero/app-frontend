@@ -16,6 +16,7 @@ import {
   signUpWithSupabase,
   upsertSupabaseProfile,
 } from "../services/auth";
+import { normalizeUserContract } from "../lib/userContract";
 
 const AuthContext = createContext(null);
 
@@ -34,6 +35,8 @@ export function AuthProvider({ children }) {
   const [me, setMe] = useState(null);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [meReady, setMeReady] = useState(false);
+  const [meError, setMeError] = useState("");
 
   const token = session?.access_token ?? null;
   const user = session?.user ?? null;
@@ -43,6 +46,8 @@ export function AuthProvider({ children }) {
     setSession(null);
     setMe(null);
     setProfile(null);
+    setMeReady(false);
+    setMeError("");
   }, []);
 
   const logout = useCallback(async () => {
@@ -52,21 +57,30 @@ export function AuthProvider({ children }) {
       // ignore
     } finally {
       clearAuthState();
+      setMeReady(true);
       setLoading(false);
     }
   }, [clearAuthState]);
 
-  const refreshMe = useCallback(async () => {
+  const refreshMe = useCallback(async (explicitToken) => {
+    setMeReady(false);
+    setMeError("");
+
     try {
-      const data = await apiMeProfile();
-      setMe(data);
-      return data;
+      const data = await apiMeProfile(explicitToken);
+      const normalized = normalizeUserContract(data || {});
+      setMe(normalized);
+      return normalized;
     } catch (err) {
       if (isAuthExpiredError(err)) {
         throw err;
       }
+
       setMe(null);
+      setMeError(err?.message || "No se pudo cargar el perfil.");
       return null;
+    } finally {
+      setMeReady(true);
     }
   }, []);
 
@@ -88,17 +102,21 @@ export function AuthProvider({ children }) {
 
   const hydrateSession = useCallback(
     async (incomingSession) => {
+      setLoading(true);
+
       if (!incomingSession?.user) {
         clearAuthState();
+        setMeReady(true);
         setLoading(false);
         return null;
       }
 
       setSession(incomingSession);
+      setMeError("");
 
       try {
         await Promise.all([
-          refreshMe(),
+          refreshMe(incomingSession.access_token),
           refreshProfile(incomingSession.user.id),
         ]);
       } catch (err) {
@@ -165,6 +183,7 @@ export function AuthProvider({ children }) {
         if (nextSession) {
           await hydrateSession(nextSession);
         } else {
+          setMeReady(true);
           setLoading(false);
         }
 
@@ -218,6 +237,7 @@ export function AuthProvider({ children }) {
       } catch {
         if (!alive) return;
         clearAuthState();
+        setMeReady(true);
         setLoading(false);
       }
     }
@@ -243,6 +263,8 @@ export function AuthProvider({ children }) {
       me,
       profile,
       loading,
+      meReady,
+      meError,
       isAuthed,
       login,
       register,
@@ -259,6 +281,8 @@ export function AuthProvider({ children }) {
       me,
       profile,
       loading,
+      meReady,
+      meError,
       isAuthed,
       login,
       register,
