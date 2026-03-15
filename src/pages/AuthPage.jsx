@@ -6,8 +6,19 @@ function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || "").trim());
 }
 
+function AuthPageLoader() {
+  return (
+    <div className="app-loader-screen">
+      <div className="app-loader-screen__inner">
+        <div className="app-loader-screen__spinner" />
+        <div className="app-loader-screen__label">Cargando…</div>
+      </div>
+    </div>
+  );
+}
+
 export default function AuthPage({ defaultTab = "login" }) {
-  const { login, register, isAuthed, me } = useAuth();
+  const { login, register, isAuthed, me, meReady } = useAuth();
   const location = useLocation();
   const nav = useNavigate();
 
@@ -125,7 +136,11 @@ export default function AuthPage({ defaultTab = "login" }) {
     }
   }
 
-  if (isAuthed) {
+  if (isAuthed && !meReady) {
+    return <AuthPageLoader />;
+  }
+
+  if (isAuthed && meReady) {
     return <Navigate to={me?.onboarding_completed ? "/" : "/onboarding"} replace />;
   }
 
