@@ -24,7 +24,11 @@ function StepPill({ active, done, number, label }) {
   if (done) variant = " app-badge--success";
   else if (active) variant = " app-badge--primary";
 
-  return <span className={`app-badge${variant}`}>{done ? "✓" : number} · {label}</span>;
+  return (
+    <span className={`app-badge${variant}`}>
+      {done ? "✓" : number} · {label}
+    </span>
+  );
 }
 
 export default function ProfileOnboardingPage() {
@@ -398,8 +402,7 @@ export default function ProfileOnboardingPage() {
                       <option value="">Selecciona una opción</option>
                       <option value="athlete">Deportista</option>
                       <option value="coach">Entrenador</option>
-                      <option value="organizer">Organizador</option>
-                      <option value="club">Club</option>
+                      <option value="group">Grupo</option>
                     </select>
                   </div>
 
@@ -491,8 +494,8 @@ export default function ProfileOnboardingPage() {
                     />
                   </div>
 
-                  <div className="app-field">
-                    <label className="app-label">Disciplinas</label>
+                  <fieldset className="app-field">
+                    <legend className="app-label">Disciplinas</legend>
                     <div className="onboardingSimple__chips">
                       {DISCIPLINES.map((discipline) => {
                         const active = form.disciplines?.includes(discipline);
@@ -511,7 +514,7 @@ export default function ProfileOnboardingPage() {
                         );
                       })}
                     </div>
-                  </div>
+                  </fieldset>
 
                   <div className="app-field">
                     <label className="app-label" htmlFor="link-strava">
