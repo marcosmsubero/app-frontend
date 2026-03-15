@@ -1,5 +1,6 @@
-import { Navigate, Route, Routes, Outlet, useLocation } from "react-router-dom";
+import { Link, Navigate, Outlet, Route, Routes, useLocation } from "react-router-dom";
 import { useAuth } from "./hooks/useAuth";
+import { isOnboardingComplete } from "./lib/userContract";
 
 import AppChrome from "./components/AppChrome";
 import BottomNav from "./components/BottomNav";
@@ -31,27 +32,72 @@ function FullPageLoader() {
   );
 }
 
+function FullPageProfileError() {
+  const { logout } = useAuth();
+
+  return (
+    <div className="app-loader-screen">
+      <div className="app-loader-screen__inner" style={{ maxWidth: 420, textAlign: "center" }}>
+        <div className="app-loader-screen__label" style={{ marginBottom: 12 }}>
+          No se pudo cargar tu perfil.
+        </div>
+        <p style={{ margin: "0 0 16px", color: "var(--app-text-muted)" }}>
+          La sesión existe, pero la app no ha podido resolver correctamente el estado del usuario.
+        </p>
+        <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
+          <button
+            type="button"
+            className="app-button app-button--primary"
+            onClick={() => window.location.reload()}
+          >
+            Reintentar
+          </button>
+          <button
+            type="button"
+            className="app-button app-button--secondary"
+            onClick={logout}
+          >
+            Cerrar sesión
+          </button>
+          <Link to="/login" className="app-button app-button--ghost">
+            Ir a login
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function needsOnboarding(me) {
-  return !me?.onboarding_completed;
+  if (!me) return false;
+  return !isOnboardingComplete(me);
 }
 
 function RequireAuth({ children }) {
-  const { isAuthed, loading } = useAuth();
+  const { isAuthed, loading, meReady, meError } = useAuth();
   const location = useLocation();
 
-  if (loading) return <FullPageLoader />;
+  if (loading || (isAuthed && !meReady)) return <FullPageLoader />;
 
   if (!isAuthed) {
     return <Navigate to="/login" replace state={{ from: location }} />;
+  }
+
+  if (meError) {
+    return <FullPageProfileError />;
   }
 
   return children;
 }
 
 function RequireGuest({ children }) {
-  const { isAuthed, loading, me } = useAuth();
+  const { isAuthed, loading, me, meReady, meError } = useAuth();
 
-  if (loading) return <FullPageLoader />;
+  if (loading || (isAuthed && !meReady)) return <FullPageLoader />;
+
+  if (isAuthed && meError) {
+    return <FullPageProfileError />;
+  }
 
   if (isAuthed) {
     return <Navigate to={needsOnboarding(me) ? "/onboarding" : "/"} replace />;
@@ -61,13 +107,17 @@ function RequireGuest({ children }) {
 }
 
 function RequireCompletedProfile({ children }) {
-  const { isAuthed, loading, me } = useAuth();
+  const { isAuthed, loading, me, meReady, meError } = useAuth();
   const location = useLocation();
 
-  if (loading) return <FullPageLoader />;
+  if (loading || (isAuthed && !meReady)) return <FullPageLoader />;
 
   if (!isAuthed) {
     return <Navigate to="/login" replace state={{ from: location }} />;
+  }
+
+  if (meError) {
+    return <FullPageProfileError />;
   }
 
   if (needsOnboarding(me)) {
