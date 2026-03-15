@@ -32,29 +32,25 @@ export default function ProfileOnboardingPage() {
   const location = useLocation();
   const { token, me, refreshMe, logout } = useAuth();
 
-  const isNewProfile = !me?.handle;
+  const isNewProfile = !me?.onboarding_completed;
   const cameFromRegister = !!location.state?.fromRegister;
 
   const initial = useMemo(
     () => ({
-      handle: isNewProfile ? "" : me?.handle || "",
-      full_name: isNewProfile ? "" : me?.full_name || "",
-      bio: isNewProfile ? "" : me?.bio || "",
-      role: isNewProfile ? "" : me?.role || "athlete",
-      location: isNewProfile ? "" : me?.location || "",
-      avatar_url: isNewProfile ? "" : me?.avatar_url || "",
-      disciplines: isNewProfile
-        ? []
-        : Array.isArray(me?.disciplines)
-          ? me.disciplines
-          : [],
+      handle: me?.handle || "",
+      full_name: me?.full_name || "",
+      bio: me?.bio || "",
+      role: me?.role || "athlete",
+      location: me?.location || "",
+      avatar_url: me?.avatar_url || "",
+      disciplines: Array.isArray(me?.disciplines) ? me.disciplines : [],
       links: {
-        strava: isNewProfile ? "" : me?.links?.strava || "",
-        instagram: isNewProfile ? "" : me?.links?.instagram || "",
-        website: isNewProfile ? "" : me?.links?.website || "",
+        strava: me?.links?.strava || "",
+        instagram: me?.links?.instagram || "",
+        website: me?.links?.website || "",
       },
     }),
-    [me, isNewProfile]
+    [me]
   );
 
   const [step, setStep] = useState(1);
@@ -62,7 +58,7 @@ export default function ProfileOnboardingPage() {
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState({ type: "", text: "" });
 
-  const isEmailVerified = !!me?.is_verified;
+  const isEmailVerified = !!(me?.email_verified ?? me?.is_verified);
   const isLocVerified = !!me?.location_verified;
 
   const [code, setCode] = useState("");
@@ -89,16 +85,6 @@ export default function ProfileOnboardingPage() {
 
   function setField(k, v) {
     setForm((prev) => ({ ...prev, [k]: v }));
-  }
-
-  function setLinkField(key, value) {
-    setForm((prev) => ({
-      ...prev,
-      links: {
-        ...(prev.links || {}),
-        [key]: value,
-      },
-    }));
   }
 
   function toggleDiscipline(d) {
@@ -132,7 +118,6 @@ export default function ProfileOnboardingPage() {
       return;
     }
 
-
     nav("/perfil", { replace: true });
   }
 
@@ -164,7 +149,7 @@ export default function ProfileOnboardingPage() {
 
     try {
       await apiVerifyEmailConfirm(cleanCode, token);
-      await refreshMe(token);
+      await refreshMe();
       setInfo("Email verificado correctamente.");
     } catch (e) {
       setError(e?.message || "Código inválido.");
@@ -188,7 +173,7 @@ export default function ProfileOnboardingPage() {
         try {
           const { latitude, longitude, accuracy } = pos.coords;
           await apiVerifyLocation(latitude, longitude, accuracy, token);
-          await refreshMe(token);
+          await refreshMe();
           setInfo("Ubicación verificada.");
         } catch (e) {
           setError(e?.message || "No se pudo verificar la ubicación.");
@@ -249,13 +234,14 @@ export default function ProfileOnboardingPage() {
         instagram: form.links?.instagram?.trim() || "",
         website: form.links?.website?.trim() || "",
       },
+      onboarding_completed: true,
     };
 
     setSaving(true);
 
     try {
       await apiUpdateProfile(payload, token);
-      await refreshMe(token);
+      await refreshMe();
       nav("/perfil", { replace: true });
     } catch (e) {
       setError(e?.message || "No se pudo guardar el perfil.");
@@ -527,48 +513,61 @@ export default function ProfileOnboardingPage() {
                     </div>
                   </div>
 
-                  <div className="onboardingSimple__links">
-                    <div className="app-field">
-                      <label className="app-label" htmlFor="strava">
-                        Strava
-                      </label>
-                      <input
-                        id="strava"
-                        className="app-input"
-                        value={form.links?.strava || ""}
-                        onChange={(e) => setLinkField("strava", e.target.value)}
-                        disabled={saving}
-                        placeholder="https://www.strava.com/athletes/..."
-                      />
-                    </div>
+                  <div className="app-field">
+                    <label className="app-label" htmlFor="link-strava">
+                      Strava
+                    </label>
+                    <input
+                      id="link-strava"
+                      className="app-input"
+                      value={form.links?.strava || ""}
+                      onChange={(e) =>
+                        setForm((prev) => ({
+                          ...prev,
+                          links: { ...(prev.links || {}), strava: e.target.value },
+                        }))
+                      }
+                      disabled={saving}
+                      placeholder="https://www.strava.com/..."
+                    />
+                  </div>
 
-                    <div className="app-field">
-                      <label className="app-label" htmlFor="instagram">
-                        Instagram
-                      </label>
-                      <input
-                        id="instagram"
-                        className="app-input"
-                        value={form.links?.instagram || ""}
-                        onChange={(e) => setLinkField("instagram", e.target.value)}
-                        disabled={saving}
-                        placeholder="https://instagram.com/..."
-                      />
-                    </div>
+                  <div className="app-field">
+                    <label className="app-label" htmlFor="link-instagram">
+                      Instagram
+                    </label>
+                    <input
+                      id="link-instagram"
+                      className="app-input"
+                      value={form.links?.instagram || ""}
+                      onChange={(e) =>
+                        setForm((prev) => ({
+                          ...prev,
+                          links: { ...(prev.links || {}), instagram: e.target.value },
+                        }))
+                      }
+                      disabled={saving}
+                      placeholder="https://instagram.com/..."
+                    />
+                  </div>
 
-                    <div className="app-field">
-                      <label className="app-label" htmlFor="website">
-                        Web
-                      </label>
-                      <input
-                        id="website"
-                        className="app-input"
-                        value={form.links?.website || ""}
-                        onChange={(e) => setLinkField("website", e.target.value)}
-                        disabled={saving}
-                        placeholder="https://..."
-                      />
-                    </div>
+                  <div className="app-field">
+                    <label className="app-label" htmlFor="link-website">
+                      Web
+                    </label>
+                    <input
+                      id="link-website"
+                      className="app-input"
+                      value={form.links?.website || ""}
+                      onChange={(e) =>
+                        setForm((prev) => ({
+                          ...prev,
+                          links: { ...(prev.links || {}), website: e.target.value },
+                        }))
+                      }
+                      disabled={saving}
+                      placeholder="https://..."
+                    />
                   </div>
                 </div>
 
@@ -579,7 +578,7 @@ export default function ProfileOnboardingPage() {
                     onClick={goBack}
                     disabled={saving}
                   >
-                    Volver
+                    Atrás
                   </button>
 
                   <button
@@ -588,7 +587,7 @@ export default function ProfileOnboardingPage() {
                     onClick={finish}
                     disabled={saving}
                   >
-                    {saving ? "Guardando…" : "Guardar y entrar"}
+                    {saving ? "Guardando…" : "Finalizar"}
                   </button>
                 </div>
               </div>
