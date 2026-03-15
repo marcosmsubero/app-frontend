@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import { isOnboardingComplete } from "../lib/userContract";
 
 function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || "").trim());
@@ -97,15 +98,9 @@ export default function AuthPage({ defaultTab = "login" }) {
         return;
       }
 
-      const result = await register(cleanEmail, password);
+      await register(cleanEmail, password);
 
-      if (result?.needsEmailConfirmation) {
-        setSuccess("Cuenta creada. Revisa tu email para confirmar la cuenta.");
-        nav("/login", { replace: true });
-        return;
-      }
-
-      setSuccess("Cuenta creada.");
+      setSuccess("Cuenta creada. Continúa con tu onboarding.");
       nav("/onboarding", {
         replace: true,
         state: { fromRegister: true, registeredEmail: cleanEmail },
@@ -117,6 +112,10 @@ export default function AuthPage({ defaultTab = "login" }) {
         setError("Email o contraseña incorrectos.");
       } else if (message.includes("user already registered")) {
         setError("Ese email ya está registrado.");
+      } else if (message.includes("registro incompleto")) {
+        setError(
+          "La cuenta se ha creado sin sesión automática. Revisa Supabase Auth: la confirmación obligatoria de email debe seguir desactivada."
+        );
       } else if (
         message.includes("network") ||
         message.includes("conectar") ||
@@ -141,7 +140,7 @@ export default function AuthPage({ defaultTab = "login" }) {
   }
 
   if (isAuthed && meReady) {
-    return <Navigate to={me?.onboarding_completed ? "/" : "/onboarding"} replace />;
+    return <Navigate to={isOnboardingComplete(me) ? "/" : "/onboarding"} replace />;
   }
 
   const isLogin = tab === "login";
@@ -201,7 +200,7 @@ export default function AuthPage({ defaultTab = "login" }) {
               <p className="authSimple__panelText">
                 {isLogin
                   ? "Accede a tu perfil, tus grupos y entrenamientos."
-                  : "Completa tu perfil en el onboarding."}
+                  : "Tu cuenta quedará lista al momento y pasarás directamente al onboarding."}
               </p>
             </div>
 
