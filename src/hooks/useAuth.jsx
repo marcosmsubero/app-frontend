@@ -172,25 +172,27 @@ export function AuthProvider({ children }) {
         const supabaseUser = data?.user ?? null;
         const nextSession = data?.session ?? null;
 
-        if (supabaseUser && nextSession) {
-          try {
-            await upsertSupabaseProfile(supabaseUser, { email });
-          } catch {
-            // no bloquear registro si profiles falla
-          }
+        if (!supabaseUser) {
+          throw new Error("No se pudo crear la cuenta en Supabase Auth.");
         }
 
-        if (nextSession) {
-          await hydrateSession(nextSession);
-        } else {
-          setMeReady(true);
-          setLoading(false);
+        if (!nextSession) {
+          throw new Error(
+            "Registro incompleto: no se ha creado sesión automáticamente. Revisa la configuración de Supabase Auth y desactiva la confirmación obligatoria de email."
+          );
         }
+
+        try {
+          await upsertSupabaseProfile(supabaseUser, { email });
+        } catch {
+          // no bloquear registro si profiles falla
+        }
+
+        await hydrateSession(nextSession);
 
         return {
           user: supabaseUser,
           session: nextSession,
-          needsEmailConfirmation: !nextSession,
         };
       } finally {
         setLoading(false);
