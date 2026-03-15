@@ -1,9 +1,6 @@
 import { Link } from "react-router-dom";
-import { useMemo, useState } from "react";
-import UpcomingMeetups from "../components/UpcomingMeetups";
-import Toasts from "../components/Toasts";
+import { useMemo } from "react";
 import { useAuth } from "../hooks/useAuth";
-import { useLiveMeetupEvents } from "../hooks/useLiveMeetupEvents";
 
 function getInitials(name = "") {
   return String(name)
@@ -12,6 +9,13 @@ function getInitials(name = "") {
     .slice(0, 2)
     .map((part) => part[0]?.toUpperCase() || "")
     .join("");
+}
+
+function getPrimarySport(me) {
+  if (Array.isArray(me?.disciplines) && me.disciplines.length > 0) {
+    return me.disciplines[0];
+  }
+  return "Running";
 }
 
 function buildCommunityFeed(me) {
@@ -51,7 +55,7 @@ function buildCommunityFeed(me) {
       author: currentHandle,
       name: me?.full_name || me?.name || "Tu perfil",
       location: me?.location || "Tu ciudad",
-      sport: me?.discipline || "Running",
+      sport: getPrimarySport(me),
       image:
         "https://images.unsplash.com/photo-1486218119243-13883505764c?auto=format&fit=crop&w=1200&q=80",
       caption:
@@ -95,9 +99,7 @@ function FeedPostCard({ post }) {
           </div>
 
           <div className="homeFeed__authorMeta">
-            <strong className="homeFeed__authorName">
-              {post.author}
-            </strong>
+            <strong className="homeFeed__authorName">{post.author}</strong>
             <span className="homeFeed__authorSub">
               {[post.location, post.sport].filter(Boolean).join(" · ")}
             </span>
@@ -120,7 +122,9 @@ function FeedPostCard({ post }) {
         <div className="homeFeed__postMeta">
           <span className="app-badge">{post.likes} me gusta</span>
           <span className="app-badge">{post.comments} comentarios</span>
-          {post.isOwn ? <span className="app-badge app-badge--primary">Tu publicación</span> : null}
+          {post.isOwn ? (
+            <span className="app-badge app-badge--primary">Tu publicación</span>
+          ) : null}
         </div>
 
         <p className="homeFeed__caption">
@@ -145,87 +149,72 @@ function NewsCard({ item }) {
 
 export default function HomePage() {
   const { isAuthed, me } = useAuth();
-  const [agendaVersion, setAgendaVersion] = useState(0);
-
-  const { toasts, removeToast } = useLiveMeetupEvents({
-    enabled: isAuthed,
-    onAgendaUpdate: () => setAgendaVersion((current) => current + 1),
-  });
-
   const feedPosts = useMemo(() => buildCommunityFeed(me), [me]);
 
   if (!isAuthed) {
     return (
-      <>
-        <div className="app-page homeFeed">
-          <section className="homeFeed__guest app-section">
-            <div className="homeFeed__guestCopy">
-              <span className="app-kicker">App social deportiva</span>
-              <h1 className="homeFeed__guestTitle">
-                Un feed deportivo para descubrir comunidad, actividad y planes.
-              </h1>
-              <p className="homeFeed__guestSubtitle">
-                Entra para ver publicaciones, noticias y eventos deportivos en una experiencia más simple y visual.
-              </p>
-            </div>
+      <div className="app-page homeFeed">
+        <section className="homeFeed__guest app-section">
+          <div className="homeFeed__guestCopy">
+            <span className="app-kicker">App social deportiva</span>
+            <h1 className="homeFeed__guestTitle">
+              Un feed deportivo para descubrir comunidad, actividad y planes.
+            </h1>
+            <p className="homeFeed__guestSubtitle">
+              Entra para ver publicaciones, noticias y eventos deportivos en una
+              experiencia más simple y visual.
+            </p>
+          </div>
 
-            <div className="homeFeed__guestActions">
-              <Link to="/login" className="app-button app-button--primary">
-                Iniciar sesión
-              </Link>
-              <Link to="/register" className="app-button app-button--secondary">
-                Crear cuenta
-              </Link>
-            </div>
-          </section>
-        </div>
-
-        <Toasts toasts={toasts} onClose={removeToast} />
-      </>
+          <div className="homeFeed__guestActions">
+            <Link to="/login" className="app-button app-button--primary">
+              Iniciar sesión
+            </Link>
+            <Link to="/register" className="app-button app-button--secondary">
+              Crear cuenta
+            </Link>
+          </div>
+        </section>
+      </div>
     );
   }
 
   return (
-    <>
-      <div className="app-page homeFeed">
-        <section className="homeFeed__layout">
-          <div className="homeFeed__main">
-            <div className="homeFeed__feedHead app-section">
-              <div>
-                <span className="app-kicker">Inicio</span>
-                <h1 className="homeFeed__title">Feed deportivo</h1>
-                <p className="homeFeed__subtitle">
-                  Nuevas publicaciones y actividad reciente
-                </p>
-              </div>
-            </div>
-
-            <div className="homeFeed__posts">
-              {feedPosts.map((post) => (
-                <FeedPostCard key={post.id} post={post} />
-              ))}
+    <div className="app-page homeFeed">
+      <section className="homeFeed__layout">
+        <div className="homeFeed__main">
+          <div className="homeFeed__feedHead app-section">
+            <div>
+              <span className="app-kicker">Inicio</span>
+              <h1 className="homeFeed__title">Feed deportivo</h1>
+              <p className="homeFeed__subtitle">
+                Nuevas publicaciones y actividad reciente
+              </p>
             </div>
           </div>
 
-          <aside className="homeFeed__aside">
+          <div className="homeFeed__posts">
+            {feedPosts.map((post) => (
+              <FeedPostCard key={post.id} post={post} />
+            ))}
+          </div>
+        </div>
 
-            <section className="homeFeed__asideSection app-section">
-              <div className="homeFeed__asideHead">
-                <span className="app-kicker">Noticias</span>
-                <h2 className="app-title">Actualidad deportiva</h2>
-              </div>
+        <aside className="homeFeed__aside">
+          <section className="homeFeed__asideSection app-section">
+            <div className="homeFeed__asideHead">
+              <span className="app-kicker">Noticias</span>
+              <h2 className="app-title">Actualidad deportiva</h2>
+            </div>
 
-              <div className="homeFeed__newsList">
-                {SPORTS_NEWS.map((item) => (
-                  <NewsCard key={item.id} item={item} />
-                ))}
-              </div>
-            </section>
-          </aside>
-        </section>
-      </div>
-
-      <Toasts toasts={toasts} onClose={removeToast} />
-    </>
+            <div className="homeFeed__newsList">
+              {SPORTS_NEWS.map((item) => (
+                <NewsCard key={item.id} item={item} />
+              ))}
+            </div>
+          </section>
+        </aside>
+      </section>
+    </div>
   );
 }
