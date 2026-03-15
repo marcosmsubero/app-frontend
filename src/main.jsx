@@ -5,6 +5,7 @@ import App from "./App.jsx";
 import { ToastProvider } from "./hooks/useToast.jsx";
 import { AuthProvider } from "./hooks/useAuth";
 import "./styles/app.css";
+import "./styles/settings-shell.css";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
