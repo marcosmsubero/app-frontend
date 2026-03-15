@@ -149,10 +149,7 @@ export default function AppChrome() {
   return (
     <>
       <header className="app-topbar app-topbar--minimal">
-        <div
-          className="app-topbar__actions"
-          style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}
-        >
+        <div className="app-topbar__actions">
           <NavLink
             to="/ajustes"
             className={({ isActive }) =>
@@ -166,7 +163,9 @@ export default function AppChrome() {
 
           <NavLink
             to="/perfil"
-            className="app-topbar__profileIconOnly"
+            className={({ isActive }) =>
+              `app-topbar__profileIconOnly${isActive ? " app-sidebar__profileIconOnly--active" : ""}`
+            }
             aria-label="Perfil"
             title="Perfil"
           >
@@ -192,10 +191,7 @@ export default function AppChrome() {
             ))}
           </nav>
 
-          <div
-            className="app-sidebar__bottomActions"
-            style={{ display: "flex", flexDirection: "column", gap: "0.8rem" }}
-          >
+          <div className="app-sidebar__bottomActions">
             <NavLink
               to="/ajustes"
               aria-label="Ajustes"
