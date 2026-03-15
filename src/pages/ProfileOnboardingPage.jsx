@@ -203,7 +203,7 @@ export default function ProfileOnboardingPage() {
 
   const title = isNewProfile ? "Completa tu perfil" : "Actualizar perfil";
   const subtitle = cameFromRegister
-    ? "Tu cuenta ya está creada. Solo faltan unos pasos para entrar."
+    ? "Tu cuenta ya está creada y la sesión está iniciada. Solo faltan unos pasos para entrar."
     : "Configura tu identidad deportiva y deja tu perfil listo.";
 
   return (
@@ -224,7 +224,7 @@ export default function ProfileOnboardingPage() {
               <div className="onboardingSimple__statusItem">
                 <span className="app-badge app-badge--success">Email</span>
                 <strong>{me?.email || location.state?.registeredEmail || "Email no disponible"}</strong>
-                <p>Verificación temporalmente desactivada para pruebas.</p>
+                <p>Email operativo. No se requiere confirmación para continuar.</p>
               </div>
 
               <div className="onboardingSimple__statusItem">
@@ -260,7 +260,9 @@ export default function ProfileOnboardingPage() {
                 </div>
 
                 <div className="onboardingSimple__verified">
-                  <span className="app-badge app-badge--success">Email listo para continuar</span>
+                  <span className="app-badge app-badge--success">
+                    Cuenta lista para continuar
+                  </span>
                 </div>
 
                 <div className="onboardingSimple__form">
@@ -421,17 +423,17 @@ export default function ProfileOnboardingPage() {
                   </fieldset>
 
                   <div className="app-field">
-                    <label className="app-label" htmlFor="link-strava">
+                    <label className="app-label" htmlFor="strava">
                       Strava
                     </label>
                     <input
-                      id="link-strava"
+                      id="strava"
                       className="app-input"
-                      value={form.links?.strava || ""}
+                      value={form.links.strava}
                       onChange={(e) =>
                         setForm((prev) => ({
                           ...prev,
-                          links: { ...(prev.links || {}), strava: e.target.value },
+                          links: { ...prev.links, strava: e.target.value },
                         }))
                       }
                       disabled={saving}
@@ -440,17 +442,17 @@ export default function ProfileOnboardingPage() {
                   </div>
 
                   <div className="app-field">
-                    <label className="app-label" htmlFor="link-instagram">
+                    <label className="app-label" htmlFor="instagram">
                       Instagram
                     </label>
                     <input
-                      id="link-instagram"
+                      id="instagram"
                       className="app-input"
-                      value={form.links?.instagram || ""}
+                      value={form.links.instagram}
                       onChange={(e) =>
                         setForm((prev) => ({
                           ...prev,
-                          links: { ...(prev.links || {}), instagram: e.target.value },
+                          links: { ...prev.links, instagram: e.target.value },
                         }))
                       }
                       disabled={saving}
@@ -459,17 +461,17 @@ export default function ProfileOnboardingPage() {
                   </div>
 
                   <div className="app-field">
-                    <label className="app-label" htmlFor="link-website">
+                    <label className="app-label" htmlFor="website">
                       Web
                     </label>
                     <input
-                      id="link-website"
+                      id="website"
                       className="app-input"
-                      value={form.links?.website || ""}
+                      value={form.links.website}
                       onChange={(e) =>
                         setForm((prev) => ({
                           ...prev,
-                          links: { ...(prev.links || {}), website: e.target.value },
+                          links: { ...prev.links, website: e.target.value },
                         }))
                       }
                       disabled={saving}
@@ -485,7 +487,7 @@ export default function ProfileOnboardingPage() {
                     onClick={goBack}
                     disabled={saving}
                   >
-                    Atrás
+                    Volver
                   </button>
 
                   <button
@@ -494,7 +496,7 @@ export default function ProfileOnboardingPage() {
                     onClick={finish}
                     disabled={saving}
                   >
-                    {saving ? "Guardando…" : "Finalizar"}
+                    {saving ? "Guardando…" : "Entrar en la app"}
                   </button>
                 </div>
               </div>
