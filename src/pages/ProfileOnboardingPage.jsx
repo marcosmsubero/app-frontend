@@ -1,12 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
-import {
-  apiUpdateProfile,
-  apiVerifyEmailStart,
-  apiVerifyEmailConfirm,
-  apiVerifyLocation,
-} from "../services/api";
+import { apiUpdateProfile, apiVerifyLocation } from "../services/api";
 
 const DISCIPLINES = ["Running", "Ciclismo", "Montañismo", "Senderismo"];
 
@@ -61,13 +56,6 @@ export default function ProfileOnboardingPage() {
   const [form, setForm] = useState(initial);
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState({ type: "", text: "" });
-
-  const isEmailVerified = !!(me?.email_verified ?? me?.is_verified);
-  const isLocVerified = !!me?.location_verified;
-
-  const [code, setCode] = useState("");
-  const [sendingCode, setSendingCode] = useState(false);
-  const [confirmingCode, setConfirmingCode] = useState(false);
   const [verifyingLoc, setVerifyingLoc] = useState(false);
 
   useEffect(() => {
@@ -101,14 +89,11 @@ export default function ProfileOnboardingPage() {
   }
 
   function validateStep1() {
-    if (!isEmailVerified) return "Verifica tu email para continuar.";
-
     const h = normalizeHandle(form.handle);
     if (!h || h.length < 3) return "Tu @ debe tener al menos 3 caracteres.";
     if (h.length > 20) return "Tu @ no puede tener más de 20 caracteres.";
     if (!form.full_name?.trim()) return "Introduce tu nombre completo.";
     if (!form.role) return "Selecciona tu perfil.";
-
     return "";
   }
 
@@ -123,43 +108,6 @@ export default function ProfileOnboardingPage() {
     }
 
     nav("/perfil", { replace: true });
-  }
-
-  async function sendCode() {
-    if (sendingCode || saving) return;
-    clearMsg();
-    setSendingCode(true);
-
-    try {
-      await apiVerifyEmailStart(token);
-      setInfo("Código enviado. Revisa tu bandeja de entrada.");
-    } catch (e) {
-      setError(e?.message || "No se pudo enviar el código.");
-    } finally {
-      setSendingCode(false);
-    }
-  }
-
-  async function confirmCode() {
-    if (confirmingCode || saving) return;
-    clearMsg();
-
-    const cleanCode = String(code || "").trim();
-    if (!cleanCode) {
-      return setError("Introduce el código.");
-    }
-
-    setConfirmingCode(true);
-
-    try {
-      await apiVerifyEmailConfirm(cleanCode, token);
-      await refreshMe();
-      setInfo("Email verificado correctamente.");
-    } catch (e) {
-      setError(e?.message || "Código inválido.");
-    } finally {
-      setConfirmingCode(false);
-    }
   }
 
   async function verifyLoc() {
@@ -214,11 +162,6 @@ export default function ProfileOnboardingPage() {
     if (saving) return;
     clearMsg();
 
-    if (!isEmailVerified) {
-      setStep(1);
-      return setError("Verifica tu email para continuar.");
-    }
-
     const err1 = validateStep1();
     if (err1) {
       setStep(1);
@@ -244,10 +187,14 @@ export default function ProfileOnboardingPage() {
     setSaving(true);
 
     try {
-      await apiUpdateProfile(payload, token);
+      const res = await apiUpdateProfile(payload, token);
+      console.log("[ONBOARDING] update_profile response:", res);
+
       await refreshMe();
-      nav("/perfil", { replace: true });
+
+      nav("/", { replace: true });
     } catch (e) {
+      console.error("[ONBOARDING] finish error:", e);
       setError(e?.message || "No se pudo guardar el perfil.");
     } finally {
       setSaving(false);
@@ -275,16 +222,16 @@ export default function ProfileOnboardingPage() {
 
             <div className="onboardingSimple__status">
               <div className="onboardingSimple__statusItem">
-                <span className="app-badge app-badge--primary">Cuenta</span>
+                <span className="app-badge app-badge--success">Email</span>
                 <strong>{me?.email || location.state?.registeredEmail || "Email no disponible"}</strong>
-                <p>{isEmailVerified ? "Email verificado" : "Email pendiente de verificación"}</p>
+                <p>Verificación temporalmente desactivada para pruebas.</p>
               </div>
 
               <div className="onboardingSimple__statusItem">
-                <span className={`app-badge${isLocVerified ? " app-badge--success" : ""}`}>
+                <span className={`app-badge${me?.location_verified ? " app-badge--success" : ""}`}>
                   Ubicación
                 </span>
-                <strong>{isLocVerified ? "Verificada" : "Opcional"}</strong>
+                <strong>{me?.location_verified ? "Verificada" : "Opcional"}</strong>
                 <p>Ayuda a mostrar mejor tu actividad y tus planes cercanos.</p>
               </div>
             </div>
@@ -312,52 +259,9 @@ export default function ProfileOnboardingPage() {
                   </p>
                 </div>
 
-                {!isEmailVerified ? (
-                  <div className="onboardingSimple__verify">
-                    <div className="onboardingSimple__verifyHead">
-                      <strong>Verifica tu email</strong>
-                      <p>Necesitas completar esta verificación antes de continuar.</p>
-                    </div>
-
-                    <div className="onboardingSimple__verifyActions">
-                      <button
-                        type="button"
-                        className="app-button app-button--secondary"
-                        onClick={sendCode}
-                        disabled={sendingCode || saving}
-                      >
-                        {sendingCode ? "Enviando…" : "Enviar código"}
-                      </button>
-                    </div>
-
-                    <div className="app-field">
-                      <label className="app-label" htmlFor="verify-code">
-                        Código
-                      </label>
-                      <input
-                        id="verify-code"
-                        className="app-input"
-                        value={code}
-                        onChange={(e) => setCode(e.target.value)}
-                        disabled={confirmingCode || saving}
-                        placeholder="Introduce el código recibido"
-                      />
-                    </div>
-
-                    <button
-                      type="button"
-                      className="app-button app-button--primary"
-                      onClick={confirmCode}
-                      disabled={confirmingCode || saving}
-                    >
-                      {confirmingCode ? "Confirmando…" : "Confirmar código"}
-                    </button>
-                  </div>
-                ) : (
-                  <div className="onboardingSimple__verified">
-                    <span className="app-badge app-badge--success">Email verificado</span>
-                  </div>
-                )}
+                <div className="onboardingSimple__verified">
+                  <span className="app-badge app-badge--success">Email listo para continuar</span>
+                </div>
 
                 <div className="onboardingSimple__form">
                   <div className="app-field">
@@ -429,7 +333,7 @@ export default function ProfileOnboardingPage() {
                     >
                       {verifyingLoc
                         ? "Verificando…"
-                        : isLocVerified
+                        : me?.location_verified
                           ? "Re-verificar ubicación"
                           : "Verificar ubicación"}
                     </button>
