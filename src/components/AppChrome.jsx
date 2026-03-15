@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { apiDMThreads } from "../services/api";
 
@@ -62,6 +62,15 @@ function IconProfile() {
     <ShellIcon>
       <circle cx="12" cy="8.5" r="3.5" />
       <path d="M5 19a7 7 0 0 1 14 0" />
+    </ShellIcon>
+  );
+}
+
+function IconSettings() {
+  return (
+    <ShellIcon>
+      <circle cx="12" cy="12" r="3.25" />
+      <path d="M19.4 15a1 1 0 0 0 .2 1.1l.05.05a2 2 0 0 1-2.83 2.83l-.05-.05a1 1 0 0 0-1.1-.2 1 1 0 0 0-.6.91V20a2 2 0 0 1-4 0v-.08a1 1 0 0 0-.66-.94 1 1 0 0 0-1.09.23l-.05.05a2 2 0 1 1-2.83-2.83l.05-.05a1 1 0 0 0 .2-1.1 1 1 0 0 0-.91-.6H4a2 2 0 0 1 0-4h.08a1 1 0 0 0 .94-.66 1 1 0 0 0-.23-1.09l-.05-.05a2 2 0 1 1 2.83-2.83l.05.05a1 1 0 0 0 1.1.2 1 1 0 0 0 .6-.91V4a2 2 0 0 1 4 0v.08a1 1 0 0 0 .66.94 1 1 0 0 0 1.09-.23l.05-.05a2 2 0 0 1 2.83 2.83l-.05.05a1 1 0 0 0-.2 1.1 1 1 0 0 0 .91.6H20a2 2 0 0 1 0 4h-.08a1 1 0 0 0-.94.66 1 1 0 0 0 .23 1.09Z" />
     </ShellIcon>
   );
 }
@@ -140,14 +149,30 @@ export default function AppChrome() {
   return (
     <>
       <header className="app-topbar app-topbar--minimal">
-        <NavLink
-          to="/perfil"
-          className="app-topbar__profileIconOnly"
-          aria-label="Perfil"
-          title="Perfil"
+        <div
+          className="app-topbar__actions"
+          style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}
         >
-          <IconProfile />
-        </NavLink>
+          <NavLink
+            to="/ajustes"
+            className={({ isActive }) =>
+              `app-topbar__profileIconOnly${isActive ? " app-sidebar__profileIconOnly--active" : ""}`
+            }
+            aria-label="Ajustes"
+            title="Ajustes"
+          >
+            <IconSettings />
+          </NavLink>
+
+          <NavLink
+            to="/perfil"
+            className="app-topbar__profileIconOnly"
+            aria-label="Perfil"
+            title="Perfil"
+          >
+            <IconProfile />
+          </NavLink>
+        </div>
       </header>
 
       <aside
@@ -167,18 +192,36 @@ export default function AppChrome() {
             ))}
           </nav>
 
-          <NavLink
-            to="/perfil"
-            aria-label="Perfil"
-            title="Perfil"
-            className={({ isActive }) =>
-              `app-sidebar__profileIconOnly${
-                isActive ? " app-sidebar__profileIconOnly--active" : ""
-              }`
-            }
+          <div
+            className="app-sidebar__bottomActions"
+            style={{ display: "flex", flexDirection: "column", gap: "0.8rem" }}
           >
-            <IconProfile />
-          </NavLink>
+            <NavLink
+              to="/ajustes"
+              aria-label="Ajustes"
+              title="Ajustes"
+              className={({ isActive }) =>
+                `app-sidebar__profileIconOnly${
+                  isActive ? " app-sidebar__profileIconOnly--active" : ""
+                }`
+              }
+            >
+              <IconSettings />
+            </NavLink>
+
+            <NavLink
+              to="/perfil"
+              aria-label="Perfil"
+              title="Perfil"
+              className={({ isActive }) =>
+                `app-sidebar__profileIconOnly${
+                  isActive ? " app-sidebar__profileIconOnly--active" : ""
+                }`
+              }
+            >
+              <IconProfile />
+            </NavLink>
+          </div>
         </div>
       </aside>
     </>
