@@ -31,6 +31,10 @@ function FullPageLoader() {
   );
 }
 
+function needsOnboarding(me) {
+  return !me?.onboarding_completed;
+}
+
 function RequireAuth({ children }) {
   const { isAuthed, loading } = useAuth();
   const location = useLocation();
@@ -50,8 +54,7 @@ function RequireGuest({ children }) {
   if (loading) return <FullPageLoader />;
 
   if (isAuthed) {
-    const needsOnboarding = !me?.handle;
-    return <Navigate to={needsOnboarding ? "/onboarding" : "/"} replace />;
+    return <Navigate to={needsOnboarding(me) ? "/onboarding" : "/"} replace />;
   }
 
   return children;
@@ -67,7 +70,7 @@ function RequireCompletedProfile({ children }) {
     return <Navigate to="/login" replace state={{ from: location }} />;
   }
 
-  if (!me?.handle) {
+  if (needsOnboarding(me)) {
     return <Navigate to="/onboarding" replace />;
   }
 
