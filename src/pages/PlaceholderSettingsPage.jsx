@@ -1,225 +1,231 @@
-import { NavLink } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
-import { apiDMThreads } from "../services/api";
+import { useToast } from "../hooks/useToast";
 
-function ShellIcon({ children }) {
+function initialsFromNameOrEmail(me) {
+  const name = (me?.full_name || "").trim();
+  if (name) {
+    const parts = name.split(/\s+/).filter(Boolean);
+    const a = parts[0]?.[0] || "";
+    const b = parts[1]?.[0] || "";
+    return (a + b).toUpperCase() || (me?.email?.[0] || "U").toUpperCase();
+  }
+  return (me?.email?.[0] || "U").toUpperCase();
+}
+
+function getLSBool(key, fallback = false) {
+  const v = localStorage.getItem(key);
+  if (v === null) return fallback;
+  return v === "1" || v === "true";
+}
+
+function setLSBool(key, val) {
+  localStorage.setItem(key, val ? "1" : "0");
+}
+
+function Row({ title, subtitle, right, onClick, disabled, tone = "default" }) {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.9"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
+    <button
+      type="button"
+      className={`st-row ${disabled ? "is-disabled" : ""} ${tone === "danger" ? "is-danger" : ""}`}
+      onClick={onClick}
+      disabled={disabled}
     >
-      {children}
-    </svg>
+      <div className="st-row__left">
+        <div className="st-row__title">{title}</div>
+        {subtitle ? <div className="st-row__sub">{subtitle}</div> : null}
+      </div>
+      <div className="st-row__right">{right}</div>
+    </button>
   );
 }
 
-function IconHome() {
+function Toggle({ checked }) {
   return (
-    <ShellIcon>
-      <path d="M3 10.5 12 3l9 7.5" />
-      <path d="M5 9.5V20h14V9.5" />
-    </ShellIcon>
+    <span className={`st-toggle ${checked ? "on" : ""}`} aria-hidden="true">
+      <span className="st-toggle__dot" />
+    </span>
   );
 }
 
-function IconMeetups() {
-  return (
-    <ShellIcon>
-      <path d="M12 21s-6.5-4.35-6.5-10A4.5 4.5 0 0 1 10 6.5c.84 0 1.64.23 2.35.65A4.46 4.46 0 0 1 14.7 6.5 4.5 4.5 0 0 1 19.5 11c0 5.65-7.5 10-7.5 10Z" />
-      <path d="M12 9.2v3.8" />
-      <path d="M10.1 11.1H14" />
-    </ShellIcon>
-  );
-}
+export default function PlaceholderSettingsPage() {
+  const { me, logout } = useAuth();
+  const toast = useToast();
+  const nav = useNavigate();
 
-function IconUsers() {
-  return (
-    <ShellIcon>
-      <path d="M16 20a4 4 0 0 0-8 0" />
-      <circle cx="12" cy="10" r="3.5" />
-      <path d="M20 19a3.5 3.5 0 0 0-3-3.46" />
-      <path d="M17.5 6.7A3 3 0 0 1 18 12.6" />
-    </ShellIcon>
-  );
-}
+  const initials = useMemo(() => initialsFromNameOrEmail(me), [me]);
 
-function IconMessage() {
-  return (
-    <ShellIcon>
-      <path d="M5 18.5 4 21l3.1-1.2c.6.1 1.3.2 1.9.2h7a5 5 0 0 0 5-5v-5a5 5 0 0 0-5-5H8a5 5 0 0 0-5 5v5c0 1.4.6 2.7 1.7 3.6Z" />
-    </ShellIcon>
-  );
-}
+  const [pushNotifs, setPushNotifs] = useState(() => getLSBool("st_push", true));
+  const [emailNotifs, setEmailNotifs] = useState(() => getLSBool("st_email", false));
+  const [showLocation, setShowLocation] = useState(() => getLSBool("st_location", true));
+  const [privateAccount, setPrivateAccount] = useState(() => getLSBool("st_private", false));
 
-function IconProfile() {
-  return (
-    <ShellIcon>
-      <circle cx="12" cy="8.5" r="3.5" />
-      <path d="M5 19a7 7 0 0 1 14 0" />
-    </ShellIcon>
-  );
-}
+  useEffect(() => setLSBool("st_push", pushNotifs), [pushNotifs]);
+  useEffect(() => setLSBool("st_email", emailNotifs), [emailNotifs]);
+  useEffect(() => setLSBool("st_location", showLocation), [showLocation]);
+  useEffect(() => setLSBool("st_private", privateAccount), [privateAccount]);
 
-function IconSettings() {
-  return (
-    <ShellIcon>
-      <circle cx="12" cy="12" r="3.25" />
-      <path d="M19.4 15a1 1 0 0 0 .2 1.1l.05.05a2 2 0 0 1-2.83 2.83l-.05-.05a1 1 0 0 0-1.1-.2 1 1 0 0 0-.6.91V20a2 2 0 0 1-4 0v-.08a1 1 0 0 0-.66-.94 1 1 0 0 0-1.09.23l-.05.05a2 2 0 1 1-2.83-2.83l.05-.05a1 1 0 0 0 .2-1.1 1 1 0 0 0-.91-.6H4a2 2 0 0 1 0-4h.08a1 1 0 0 0 .94-.66 1 1 0 0 0-.23-1.09l-.05-.05a2 2 0 1 1 2.83-2.83l.05.05a1 1 0 0 0 1.1.2 1 1 0 0 0 .6-.91V4a2 2 0 0 1 4 0v.08a1 1 0 0 0 .66.94 1 1 0 0 0 1.09-.23l.05-.05a2 2 0 0 1 2.83 2.83l-.05.05a1 1 0 0 0-.2 1.1 1 1 0 0 0 .91.6H20a2 2 0 0 1 0 4h-.08a1 1 0 0 0-.94.66 1 1 0 0 0 .23 1.09Z" />
-    </ShellIcon>
-  );
-}
-
-const NAV_ITEMS = [
-  { to: "/", icon: <IconHome />, label: "Inicio" },
-  { to: "/explorar", icon: <IconMeetups />, label: "Quedadas" },
-  { to: "/groups", icon: <IconUsers />, label: "Grupos" },
-  { to: "/mensajes", icon: <IconMessage />, label: "Mensajes", withCounter: true },
-];
-
-function getUnreadCount(thread) {
-  if (typeof thread?.unread_count === "number") return thread.unread_count;
-  if (thread?.unread === true) return 1;
-  return 0;
-}
-
-function DesktopNavItem({ to, icon, label, badgeCount = 0 }) {
-  return (
-    <NavLink
-      to={to}
-      aria-label={label}
-      title={label}
-      className={({ isActive }) =>
-        `app-sidebar__iconLink${isActive ? " app-sidebar__iconLink--active" : ""}`
-      }
-    >
-      <span className="app-sidebar__iconGlyph">{icon}</span>
-
-      {badgeCount > 0 ? (
-        <span className="app-sidebar__iconBadge">
-          {badgeCount > 99 ? "99+" : badgeCount}
-        </span>
-      ) : null}
-    </NavLink>
-  );
-}
-
-export default function AppChrome() {
-  const { token } = useAuth();
-  const [unreadMessages, setUnreadMessages] = useState(0);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    async function loadUnread() {
-      if (!token) {
-        setUnreadMessages(0);
-        return;
-      }
-
-      try {
-        const res = await apiDMThreads("", token);
-        const items = Array.isArray(res) ? res : res?.items || [];
-        const total = items.reduce((acc, thread) => acc + getUnreadCount(thread), 0);
-
-        if (!cancelled) {
-          setUnreadMessages(total);
-        }
-      } catch {
-        if (!cancelled) {
-          setUnreadMessages(0);
-        }
-      }
-    }
-
-    loadUnread();
-    const intervalId = window.setInterval(loadUnread, 20000);
-
-    return () => {
-      cancelled = true;
-      window.clearInterval(intervalId);
-    };
-  }, [token]);
+  async function handleLogout() {
+    await logout();
+    toast?.info?.("Sesión cerrada");
+    nav("/login", { replace: true });
+  }
 
   return (
-    <>
-      <header className="app-topbar app-topbar--minimal">
-        <div className="app-topbar__actions">
-          <NavLink
-            to="/ajustes"
-            className={({ isActive }) =>
-              `app-topbar__profileIconOnly${isActive ? " app-sidebar__profileIconOnly--active" : ""}`
-            }
-            aria-label="Ajustes"
-            title="Ajustes"
-          >
-            <IconSettings />
-          </NavLink>
-
-          <NavLink
-            to="/perfil"
-            className={({ isActive }) =>
-              `app-topbar__profileIconOnly${isActive ? " app-sidebar__profileIconOnly--active" : ""}`
-            }
-            aria-label="Perfil"
-            title="Perfil"
-          >
-            <IconProfile />
-          </NavLink>
+    <section className="page-shell settings-pageV2">
+      <div className="page-shell__header settings-pageV2__header">
+        <div>
+          <span className="app-kicker">Cuenta</span>
+          <h1 className="page-shell__title">Ajustes</h1>
+          <p className="page-shell__subtitle">
+            Gestiona tu perfil, privacidad, notificaciones y acceso a la cuenta.
+          </p>
         </div>
-      </header>
+      </div>
 
-      <aside
-        className="app-sidebar app-sidebar--floating"
-        aria-label="Navegación principal"
-      >
-        <div className="app-sidebar__floatingRail">
-          <nav className="app-sidebar__iconNav">
-            {NAV_ITEMS.map((item) => (
-              <DesktopNavItem
-                key={item.to}
-                to={item.to}
-                icon={item.icon}
-                label={item.label}
-                badgeCount={item.withCounter ? unreadMessages : 0}
+      <div className="profile-layout settings-pageV2__layout">
+        <div className="profile-main settings-pageV2__main">
+          <section className="app-section settings-profileCard">
+            <div className="settings-profileCard__avatar">{initials}</div>
+
+            <div className="settings-profileCard__meta">
+              <div className="settings-profileCard__name">
+                {me?.full_name || me?.handle || "Tu cuenta"}
+              </div>
+              <div className="settings-profileCard__email">{me?.email || "Sin email"}</div>
+              {me?.handle ? (
+                <div className="settings-profileCard__handle">@{me.handle}</div>
+              ) : null}
+            </div>
+          </section>
+
+          <section className="app-section settings-section">
+            <div className="st-sectionHead">
+              <div>
+                <div className="st-sectionTitle">Cuenta</div>
+                <div className="st-sectionHint">Perfil y seguridad</div>
+              </div>
+            </div>
+
+            <div className="st-list">
+              <Row
+                title="Editar perfil"
+                subtitle="Nombre, bio, disciplinas y datos visibles"
+                right={<span className="st-chevron">›</span>}
+                onClick={() => nav("/onboarding")}
               />
-            ))}
-          </nav>
+              <Row
+                title="Cambiar contraseña"
+                subtitle="Actualiza tus credenciales de acceso"
+                right={<span className="st-chevron">›</span>}
+                onClick={() => toast?.info?.("Cambio de contraseña próximamente")}
+              />
+            </div>
+          </section>
 
-          <div className="app-sidebar__bottomActions">
-            <NavLink
-              to="/ajustes"
-              aria-label="Ajustes"
-              title="Ajustes"
-              className={({ isActive }) =>
-                `app-sidebar__profileIconOnly${
-                  isActive ? " app-sidebar__profileIconOnly--active" : ""
-                }`
-              }
-            >
-              <IconSettings />
-            </NavLink>
+          <section className="app-section settings-section">
+            <div className="st-sectionHead">
+              <div>
+                <div className="st-sectionTitle">Notificaciones</div>
+                <div className="st-sectionHint">Controla cómo quieres recibir avisos</div>
+              </div>
+            </div>
 
-            <NavLink
-              to="/perfil"
-              aria-label="Perfil"
-              title="Perfil"
-              className={({ isActive }) =>
-                `app-sidebar__profileIconOnly${
-                  isActive ? " app-sidebar__profileIconOnly--active" : ""
-                }`
-              }
+            <div className="st-list">
+              <Row
+                title="Notificaciones push"
+                subtitle="Avisos inmediatos en tu dispositivo"
+                right={<Toggle checked={pushNotifs} />}
+                onClick={() => setPushNotifs((v) => !v)}
+              />
+              <Row
+                title="Notificaciones por email"
+                subtitle="Resumen y comunicaciones importantes"
+                right={<Toggle checked={emailNotifs} />}
+                onClick={() => setEmailNotifs((v) => !v)}
+              />
+            </div>
+          </section>
+
+          <section className="app-section settings-section">
+            <div className="st-sectionHead">
+              <div>
+                <div className="st-sectionTitle">Privacidad</div>
+                <div className="st-sectionHint">Controla la visibilidad de tu cuenta</div>
+              </div>
+            </div>
+
+            <div className="st-list">
+              <Row
+                title="Cuenta privada"
+                subtitle="Solo te verán las personas que apruebes"
+                right={<Toggle checked={privateAccount} />}
+                onClick={() => setPrivateAccount((v) => !v)}
+              />
+              <Row
+                title="Mostrar ubicación"
+                subtitle="Permite mostrar tu ciudad o zona"
+                right={<Toggle checked={showLocation} />}
+                onClick={() => setShowLocation((v) => !v)}
+              />
+            </div>
+          </section>
+
+          <section className="app-section settings-section">
+            <div className="st-sectionHead">
+              <div>
+                <div className="st-sectionTitle">Ayuda</div>
+                <div className="st-sectionHint">Soporte y documentación</div>
+              </div>
+            </div>
+
+            <div className="st-list">
+              <Row
+                title="Reportar un problema"
+                subtitle="Cuéntanos qué ha pasado"
+                right={<span className="st-chevron">›</span>}
+                onClick={() => toast?.info?.("Soporte próximamente")}
+              />
+              <Row
+                title="Términos y privacidad"
+                subtitle="Información legal y condiciones"
+                right={<span className="st-chevron">›</span>}
+                onClick={() => toast?.info?.("Sección legal próximamente")}
+              />
+            </div>
+          </section>
+
+          <section className="app-section settings-section">
+            <div className="st-sectionHead">
+              <div>
+                <div className="st-sectionTitle">Centro de cuentas</div>
+                <div className="st-sectionHint">Acciones avanzadas y permanentes</div>
+              </div>
+            </div>
+
+            <div className="st-list">
+              <Row
+                title="Eliminar cuenta"
+                subtitle="Inicia el proceso de eliminación"
+                right={<span className="st-chevron">›</span>}
+                onClick={() => nav("/eliminar-cuenta")}
+                tone="danger"
+              />
+            </div>
+          </section>
+
+          <section className="app-section settings-section">
+            <button
+              type="button"
+              className="app-button app-button--secondary app-button--block settings-pageV2__logout"
+              onClick={handleLogout}
             >
-              <IconProfile />
-            </NavLink>
-          </div>
+              Cerrar sesión
+            </button>
+          </section>
         </div>
-      </aside>
-    </>
+      </div>
+    </section>
   );
 }
