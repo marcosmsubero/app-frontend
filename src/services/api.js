@@ -1,5 +1,6 @@
 import API_BASE, { buildApiUrl } from "../config/api.js";
 import { supabase } from "../lib/supabase.js";
+import { normalizeUserContract } from "../lib/userContract.js";
 
 export { API_BASE };
 
@@ -9,6 +10,40 @@ async function getAccessToken() {
   } = await supabase.auth.getSession();
 
   return session?.access_token ?? null;
+}
+
+async function normalizeApiResponse(path, data) {
+  if (!data) return data;
+
+  if (path === "/me" || path === "/auth/me") {
+    return normalizeUserContract(data);
+  }
+
+  if (
+    path === "/me/profile" &&
+    data?.user &&
+    typeof data.user === "object" &&
+    !Array.isArray(data.user)
+  ) {
+    return {
+      ...data,
+      user: normalizeUserContract(data.user),
+    };
+  }
+
+  if (
+    ["/me/avatar", "/me/send-verification-code", "/me/verify-email", "/me/verify-location"].includes(path) &&
+    data?.user &&
+    typeof data.user === "object" &&
+    !Array.isArray(data.user)
+  ) {
+    return {
+      ...data,
+      user: normalizeUserContract(data.user),
+    };
+  }
+
+  return data;
 }
 
 export async function api(path, { method = "GET", token, body } = {}) {
@@ -52,8 +87,11 @@ export async function api(path, { method = "GET", token, body } = {}) {
     );
   }
 
-  return data;
+  return normalizeApiResponse(path, data);
 }
+
+export const apiResolveHandle = (handle) =>
+  api(`/users/by-handle/${encodeURIComponent(String(handle || "").trim())}`);
 
 export const apiJoinMeetup = (meetupId, token) =>
   api(`/meetups/${meetupId}/join`, { method: "POST", token });
