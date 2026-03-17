@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
-import { isOnboardingComplete } from "../lib/userContract";
+import { getPreferredLoginIdentifier, isOnboardingComplete } from "../lib/userContract";
 
 function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || "").trim());
@@ -30,7 +30,7 @@ export default function AuthPage({ defaultTab = "login" }) {
   }, [defaultTab, location.pathname]);
 
   const [tab, setTab] = useState(initialTab);
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [password2, setPassword2] = useState("");
   const [loading, setLoading] = useState(false);
@@ -42,7 +42,7 @@ export default function AuthPage({ defaultTab = "login" }) {
   }, [location.pathname]);
 
   useEffect(() => {
-    setEmail("");
+    setIdentifier("");
     setPassword("");
     setPassword2("");
     setMsg({ type: "", text: "" });
@@ -64,9 +64,18 @@ export default function AuthPage({ defaultTab = "login" }) {
     e.preventDefault();
     resetMsg();
 
-    const cleanEmail = email.trim();
+    const cleanIdentifier = identifier.trim();
 
-    if (!isValidEmail(cleanEmail)) {
+    if (!cleanIdentifier) {
+      return setError(tab === "login" ? "Introduce tu email o usuario." : "Introduce un email válido.");
+    }
+
+    if (tab === "login") {
+      const parsed = getPreferredLoginIdentifier(cleanIdentifier);
+      if (parsed.type === "empty") {
+        return setError("Introduce tu email o usuario.");
+      }
+    } else if (!isValidEmail(cleanIdentifier)) {
       return setError("Introduce un email válido.");
     }
 
@@ -92,24 +101,26 @@ export default function AuthPage({ defaultTab = "login" }) {
 
     try {
       if (tab === "login") {
-        await login(cleanEmail, password);
+        await login(cleanIdentifier, password);
         setSuccess("Acceso correcto.");
         nav("/", { replace: true });
         return;
       }
 
-      await register(cleanEmail, password);
+      await register(cleanIdentifier, password);
 
       setSuccess("Cuenta creada. Continúa con tu onboarding.");
       nav("/onboarding", {
         replace: true,
-        state: { fromRegister: true, registeredEmail: cleanEmail },
+        state: { fromRegister: true, registeredEmail: cleanIdentifier },
       });
     } catch (err) {
       const message = err?.message?.toLowerCase?.() || "";
 
       if (message.includes("invalid login credentials")) {
-        setError("Email o contraseña incorrectos.");
+        setError("Usuario/email o contraseña incorrectos.");
+      } else if (message.includes("usuario no encontrado")) {
+        setError("Ese usuario no existe.");
       } else if (message.includes("user already registered")) {
         setError("Ese email ya está registrado.");
       } else if (message.includes("registro incompleto")) {
@@ -206,17 +217,18 @@ export default function AuthPage({ defaultTab = "login" }) {
 
             <form className="authSimple__form" onSubmit={handleSubmit}>
               <div className="app-field">
-                <label className="app-label" htmlFor="auth-email">
-                  Email
+                <label className="app-label" htmlFor="auth-identifier">
+                  {isLogin ? "Email o usuario" : "Email"}
                 </label>
                 <input
-                  id="auth-email"
+                  id="auth-identifier"
                   className="app-input"
-                  type="email"
-                  autoComplete="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  type={isLogin ? "text" : "email"}
+                  autoComplete={isLogin ? "username" : "email"}
+                  value={identifier}
+                  onChange={(e) => setIdentifier(e.target.value)}
                   disabled={loading}
+                  placeholder={isLogin ? "email o @usuario" : "tu@email.com"}
                 />
               </div>
 
