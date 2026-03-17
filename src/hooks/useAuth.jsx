@@ -6,7 +6,7 @@ import {
   useMemo,
   useState,
 } from "react";
-import { apiDeleteMe, apiMeProfile } from "../services/api";
+import { apiDeleteMe, apiMeProfile, apiResolveHandle } from "../services/api";
 import {
   getSupabaseProfile,
   getSupabaseSession,
@@ -16,7 +16,7 @@ import {
   signUpWithSupabase,
   upsertSupabaseProfile,
 } from "../services/auth";
-import { normalizeUserContract } from "../lib/userContract";
+import { getPreferredLoginIdentifier, normalizeUserContract } from "../lib/userContract";
 
 const AuthContext = createContext(null);
 
@@ -134,15 +134,32 @@ export function AuthProvider({ children }) {
   );
 
   const login = useCallback(
-    async (email, password) => {
-      if (!email || !password) {
-        throw new Error("Introduce email y contraseña");
+    async (identifier, password) => {
+      if (!identifier || !password) {
+        throw new Error("Introduce usuario/email y contraseña");
       }
 
       setLoading(true);
 
       try {
-        const data = await signInWithSupabase(email, password);
+        const parsed = getPreferredLoginIdentifier(identifier);
+
+        let emailToUse = null;
+
+        if (parsed.type === "email") {
+          emailToUse = parsed.value;
+        } else if (parsed.type === "handle") {
+          const resolved = await apiResolveHandle(parsed.value);
+          emailToUse = resolved?.email ?? null;
+        } else {
+          throw new Error("Introduce un email o usuario válido");
+        }
+
+        if (!emailToUse) {
+          throw new Error("No se pudo resolver el usuario");
+        }
+
+        const data = await signInWithSupabase(emailToUse, password);
         const nextSession = data?.session ?? null;
 
         if (!nextSession) {
