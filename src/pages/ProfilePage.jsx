@@ -1,11 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import MeetupCalendar from "../components/MeetupCalendar";
 import { useAuth } from "../hooks/useAuth";
-import { useGroups } from "../hooks/useGroups";
 import { useMyMeetups } from "../hooks/useMyMeetups";
 import { useToast } from "../hooks/useToast";
-import { apiCreateMeetup, apiUpdateProfile } from "../services/api";
+import { apiUpdateProfile } from "../services/api";
 import { uploadAvatarToSupabase } from "../services/storage";
 
 function formatHandle(handle) {
@@ -132,8 +131,6 @@ export default function ProfilePage() {
   const toast = useToast();
   const fileInputRef = useRef(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
-
-  useGroups(token, toast);
 
   if (!meReady) {
     return (
@@ -263,7 +260,12 @@ export default function ProfilePage() {
                   <IconSettings />
                 </IconButton>
 
-                <IconButton as={Link} to="/onboarding" title="Editar perfil">
+                <IconButton
+                  as={Link}
+                  to="/onboarding?mode=edit"
+                  state={{ editProfile: true }}
+                  title="Editar perfil"
+                >
                   <IconEdit />
                 </IconButton>
 
