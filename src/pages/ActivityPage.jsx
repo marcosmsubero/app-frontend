@@ -147,10 +147,10 @@ function NotificationRow({ notification, onOpen }) {
 }
 
 function routeFromNotif(notification) {
-  if (notification?.type === "message") return "/actividad?tab=messages";
+  if (notification?.type === "message") return "/mensajes";
   if (notification?.type === "group") return "/groups";
   if (notification?.type === "meetup") return "/explorar";
-  return "/actividad?tab=notifications";
+  return "/explorar";
 }
 
 export default function ActivityPage() {
@@ -159,8 +159,10 @@ export default function ActivityPage() {
   const { token } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const currentTab = searchParams.get("tab") === "notifications" ? "notifications" : "messages";
-  const notifFilter = searchParams.get("filter") === "mentions" ? "mentions" : "all";
+  const currentTab =
+    searchParams.get("tab") === "notifications" ? "notifications" : "messages";
+  const notifFilter =
+    searchParams.get("filter") === "mentions" ? "mentions" : "all";
 
   const [messageQuery, setMessageQuery] = useState("");
   const [threads, setThreads] = useState([]);
@@ -227,7 +229,7 @@ export default function ActivityPage() {
 
     timerRef.current = setTimeout(() => {
       loadMessages(messageQuery);
-    }, 300);
+    }, 250);
 
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
@@ -254,9 +256,7 @@ export default function ActivityPage() {
   function switchTab(tab) {
     const next = new URLSearchParams(searchParams);
     next.set("tab", tab);
-    if (tab !== "notifications") {
-      next.delete("filter");
-    }
+    if (tab !== "notifications") next.delete("filter");
     setSearchParams(next, { replace: true });
   }
 
@@ -293,22 +293,127 @@ export default function ActivityPage() {
     nav(routeFromNotif(notification));
   }
 
+  function renderEmptyLogin(text) {
+    return (
+      <div className="app-empty">
+        <div className="notificationsSimple__emptyBody">
+          <strong>Necesitas iniciar sesión</strong>
+          <p>{text}</p>
+          <Link to="/login" className="app-button app-button--primary">
+            Iniciar sesión
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  function renderMessagesContent() {
+    if (!token) {
+      return renderEmptyLogin("Accede a tu cuenta para revisar tus conversaciones.");
+    }
+
+    if (messagesLoading) {
+      return (
+        <div className="app-empty">
+          <div className="notificationsSimple__emptyBody">
+            <strong>Cargando mensajes</strong>
+            <p>Estamos actualizando tu bandeja.</p>
+          </div>
+        </div>
+      );
+    }
+
+    if (messagesError) {
+      return (
+        <div className="app-empty">
+          <div className="notificationsSimple__emptyBody">
+            <strong>No se pudieron cargar</strong>
+            <p>{messagesError}</p>
+          </div>
+        </div>
+      );
+    }
+
+    if (messageList.length === 0) {
+      return (
+        <div className="app-empty">
+          <div className="notificationsSimple__emptyBody">
+            <strong>No hay conversaciones</strong>
+            <p>Cuando inicies o recibas mensajes, aparecerán aquí.</p>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="messagesSimple__list">
+        {messageList.map((thread) => (
+          <MessageRow key={thread.id} thread={thread} onOpen={openThread} />
+        ))}
+      </div>
+    );
+  }
+
+  function renderNotificationsContent() {
+    if (!token) {
+      return renderEmptyLogin("Accede a tu cuenta para revisar tu actividad.");
+    }
+
+    if (notificationsLoading) {
+      return (
+        <div className="app-empty">
+          <div className="notificationsSimple__emptyBody">
+            <strong>Cargando notificaciones</strong>
+            <p>Estamos actualizando tu centro de actividad.</p>
+          </div>
+        </div>
+      );
+    }
+
+    if (notificationsError) {
+      return (
+        <div className="app-empty">
+          <div className="notificationsSimple__emptyBody">
+            <strong>No se pudieron cargar</strong>
+            <p>{notificationsError}</p>
+          </div>
+        </div>
+      );
+    }
+
+    if (notificationsList.length === 0) {
+      return (
+        <div className="app-empty">
+          <div className="notificationsSimple__emptyBody">
+            <strong>No hay notificaciones</strong>
+            <p>Cuando ocurra algo relevante, aparecerá aquí.</p>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="notificationsSimple__list">
+        {notificationsList.map((notification) => (
+          <NotificationRow
+            key={notification.id}
+            notification={notification}
+            onOpen={openNotif}
+          />
+        ))}
+      </div>
+    );
+  }
+
   return (
     <section className="page">
       <div className="app-card">
-        <div className="app-card__body">
-          <div className="page__header">
+        <div className="app-card__body" style={{ display: "grid", gap: 16 }}>
+          <div className="page__header" style={{ marginBottom: 0 }}>
             <span className="page__eyebrow">Actividad</span>
             <h1 className="page__title">Mensajes y notificaciones</h1>
-            <p className="page__subtitle">
-              Un único centro para tus conversaciones y tu actividad reciente.
-            </p>
           </div>
-        </div>
-      </div>
 
-      <div className="app-card">
-        <div className="app-card__body">
           <div className="notificationsSimple__tabs">
             <button
               type="button"
@@ -340,197 +445,74 @@ export default function ActivityPage() {
               ) : null}
             </button>
           </div>
-        </div>
-      </div>
 
-      {currentTab === "messages" ? (
-        <div className="page__columns">
-          <div className="app-stack app-stack--lg">
-            <div className="app-card">
-              <div className="app-card__header">
-                <div className="app-section-header">
-                  <div>
-                    <div className="app-section-header__title">
-                      Bandeja de conversaciones
-                    </div>
-
-                    <div className="app-section-header__subtitle">
-                      Tus chats ordenados por actividad reciente.
-                    </div>
-                  </div>
-
-                  {unreadThreads > 0 && (
-                    <span className="app-badge app-badge--primary">
-                      {unreadThreads} sin leer
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              <div className="app-card__body app-stack">
-                <div className="messagesSimple__toolbar">
-                  <div className="app-field">
-                    <label className="app-label">Buscar conversación</label>
-
-                    <input
-                      className="app-input"
-                      placeholder="Ej. Carlos, trail..."
-                      value={messageQuery}
-                      onChange={(e) => setMessageQuery(e.target.value)}
-                      disabled={!token}
-                    />
-                  </div>
-                </div>
-
-                {!token ? (
-                  <div className="app-empty">
-                    <div className="notificationsSimple__emptyBody">
-                      <strong>Necesitas iniciar sesión</strong>
-                      <p>Accede a tu cuenta para revisar tus conversaciones.</p>
-                      <Link to="/login" className="app-button app-button--primary">
-                        Iniciar sesión
-                      </Link>
-                    </div>
-                  </div>
-                ) : messagesLoading ? (
-                  <div className="app-empty">
-                    <div className="notificationsSimple__emptyBody">
-                      <strong>Cargando mensajes</strong>
-                      <p>Estamos actualizando tu bandeja.</p>
-                    </div>
-                  </div>
-                ) : messagesError ? (
-                  <div className="app-empty">
-                    <div className="notificationsSimple__emptyBody">
-                      <strong>No se pudieron cargar</strong>
-                      <p>{messagesError}</p>
-                    </div>
-                  </div>
-                ) : messageList.length === 0 ? (
-                  <div className="app-empty">
-                    <div className="notificationsSimple__emptyBody">
-                      <strong>No hay conversaciones</strong>
-                      <p>Cuando inicies o recibas mensajes, aparecerán aquí.</p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="messagesSimple__list">
-                    {messageList.map((thread) => (
-                      <MessageRow key={thread.id} thread={thread} onOpen={openThread} />
-                    ))}
-                  </div>
-                )}
+          {currentTab === "messages" ? (
+            <div className="messagesSimple__toolbar">
+              <div className="app-field" style={{ marginBottom: 0 }}>
+                <label className="app-label">Buscar conversación</label>
+                <input
+                  className="app-input"
+                  placeholder="Ej. Carlos, trail..."
+                  value={messageQuery}
+                  onChange={(e) => setMessageQuery(e.target.value)}
+                  disabled={!token}
+                />
               </div>
             </div>
-          </div>
-        </div>
-      ) : (
-        <section className="notificationsSimple">
-          <div className="notificationsSimple__hero app-section">
-            <div className="notificationsSimple__heroCopy">
-              <span className="app-kicker">Notificaciones</span>
-              <h2 className="notificationsSimple__title">Actividad reciente</h2>
-              <p className="notificationsSimple__subtitle">
-                Revisa mensajes, menciones y cambios relevantes relacionados con tu actividad.
-              </p>
-            </div>
+          ) : (
+            <div
+              style={{
+                display: "flex",
+                gap: 8,
+                flexWrap: "wrap",
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
+            >
+              <div className="notificationsSimple__tabs" style={{ marginBottom: 0 }}>
+                <button
+                  type="button"
+                  className={`notificationsSimple__tab${
+                    notifFilter === "all" ? " notificationsSimple__tab--active" : ""
+                  }`}
+                  onClick={() => setNotificationFilter("all")}
+                  disabled={notificationsLoading}
+                >
+                  Todo
+                </button>
 
-            <div className="notificationsSimple__heroActions">
+                <button
+                  type="button"
+                  className={`notificationsSimple__tab${
+                    notifFilter === "mentions" ? " notificationsSimple__tab--active" : ""
+                  }`}
+                  onClick={() => setNotificationFilter("mentions")}
+                  disabled={notificationsLoading}
+                >
+                  Menciones
+                </button>
+              </div>
+
               <button
                 type="button"
-                className="app-button app-button--primary"
+                className="app-button app-button--secondary"
                 onClick={() => loadNotifications(notifFilter)}
                 disabled={notificationsLoading || !token}
               >
                 {notificationsLoading ? "Actualizando…" : "Recargar"}
               </button>
             </div>
-          </div>
+          )}
+        </div>
+      </div>
 
-          <div className="notificationsSimple__layout">
-            <div className="notificationsSimple__main">
-              <section className="notificationsSimple__panel app-section">
-                <div className="notificationsSimple__panelHead">
-                  <div>
-                    <p className="app-kicker">Centro de actividad</p>
-                    <h2 className="app-title">Tus notificaciones</h2>
-                    <p className="app-subtitle">
-                      Filtra entre el flujo completo o solo menciones.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="notificationsSimple__tabs">
-                  <button
-                    type="button"
-                    className={`notificationsSimple__tab${
-                      notifFilter === "all" ? " notificationsSimple__tab--active" : ""
-                    }`}
-                    onClick={() => setNotificationFilter("all")}
-                    disabled={notificationsLoading}
-                  >
-                    Todo
-                  </button>
-
-                  <button
-                    type="button"
-                    className={`notificationsSimple__tab${
-                      notifFilter === "mentions" ? " notificationsSimple__tab--active" : ""
-                    }`}
-                    onClick={() => setNotificationFilter("mentions")}
-                    disabled={notificationsLoading}
-                  >
-                    Menciones
-                  </button>
-                </div>
-
-                {!token ? (
-                  <div className="app-empty">
-                    <div className="notificationsSimple__emptyBody">
-                      <strong>Necesitas iniciar sesión</strong>
-                      <p>Accede a tu cuenta para revisar actividad y avisos pendientes.</p>
-                      <Link to="/login" className="app-button app-button--primary">
-                        Iniciar sesión
-                      </Link>
-                    </div>
-                  </div>
-                ) : notificationsLoading ? (
-                  <div className="app-empty">
-                    <div className="notificationsSimple__emptyBody">
-                      <strong>Cargando notificaciones</strong>
-                      <p>Estamos actualizando tu centro de actividad.</p>
-                    </div>
-                  </div>
-                ) : notificationsError ? (
-                  <div className="app-empty">
-                    <div className="notificationsSimple__emptyBody">
-                      <strong>No se pudieron cargar</strong>
-                      <p>{notificationsError}</p>
-                    </div>
-                  </div>
-                ) : notificationsList.length === 0 ? (
-                  <div className="app-empty">
-                    <div className="notificationsSimple__emptyBody">
-                      <strong>No hay notificaciones</strong>
-                      <p>Cuando ocurra algo relevante en tu red deportiva, aparecerá aquí.</p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="notificationsSimple__list">
-                    {notificationsList.map((notification) => (
-                      <NotificationRow
-                        key={notification.id}
-                        notification={notification}
-                        onOpen={openNotif}
-                      />
-                    ))}
-                  </div>
-                )}
-              </section>
-            </div>
-          </div>
-        </section>
-      )}
+      <div className="app-card">
+        <div className="app-card__body">
+          {currentTab === "messages"
+            ? renderMessagesContent()
+            : renderNotificationsContent()}
+        </div>
+      </div>
     </section>
   );
 }
