@@ -1,16 +1,11 @@
-import { Link } from "react-router-dom";
-import { useEffect, useMemo, useRef, useState } from "react";
-import MeetupCard from "../components/MeetupCard";
+import { useMemo, useState } from "react";
 import { useMeetupSearch } from "../hooks/useMeetupSearch";
-import { useAuth } from "../hooks/useAuth";
-import { useToast } from "../hooks/useToast";
-import { useMeetups } from "../hooks/useMeetups";
-import { on } from "../utils/events";
 import {
   addMonths,
   buildMonthGrid,
   localDayKey,
   monthLabel,
+  timeLabel,
 } from "../utils/dates";
 
 const WEEKDAYS = ["L", "M", "X", "J", "V", "S", "D"];
@@ -23,7 +18,7 @@ const DEFAULT_FILTERS = {
   pace_min: "",
   pace_max: "",
   only_open: true,
-  limit: 60,
+  limit: 100,
   offset: 0,
 };
 
@@ -45,16 +40,10 @@ function groupByDay(meetups = []) {
   return map;
 }
 
-function dotKind(meetup, myUserId) {
-  if (meetup?.created_by === myUserId) return "own";
-  if (meetup?.is_joined) return "joined";
-  return "other";
-}
-
 function daySummary(items = []) {
-  if (!items.length) return "Sin actividad";
-  if (items.length === 1) return "1 actividad";
-  return `${items.length} actividades`;
+  if (!items.length) return "No hay eventos este día";
+  if (items.length === 1) return "1 evento";
+  return `${items.length} eventos`;
 }
 
 function formatDayTitle(dayKey) {
@@ -65,90 +54,142 @@ function formatDayTitle(dayKey) {
     weekday: "long",
     day: "numeric",
     month: "long",
+    year: "numeric",
   });
 }
 
-function smallMetric(value, label) {
+function DayModal({ open, dayKey, events, onClose }) {
+  if (!open) return null;
+
   return (
     <div
-      className="app-card"
-      style={{
-        minHeight: 92,
-        background: "rgba(255,255,255,0.62)",
-      }}
+      className="ui-modalBackdrop"
+      role="presentation"
+      onClick={onClose}
     >
       <div
-        className="app-card__body"
-        style={{
-          display: "grid",
-          gap: 4,
-          alignContent: "center",
-        }}
+        className="ui-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="blablarun-day-title"
+        onClick={(e) => e.stopPropagation()}
+        style={{ width: "min(640px, 100%)" }}
       >
-        <strong style={{ fontSize: "1.8rem", lineHeight: 1 }}>{value}</strong>
-        <span style={{ color: "var(--app-text-muted)" }}>{label}</span>
+        <div style={{ padding: 22, display: "grid", gap: 18 }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-start",
+              gap: 16,
+            }}
+          >
+            <div>
+              <p className="page__eyebrow" style={{ margin: 0 }}>
+                BlaBlaRun
+              </p>
+              <h2 id="blablarun-day-title" style={{ margin: "4px 0 0" }}>
+                {formatDayTitle(dayKey)}
+              </h2>
+              <p style={{ margin: "8px 0 0", color: "var(--app-text-muted)" }}>
+                {daySummary(events)}
+              </p>
+            </div>
+
+            <button
+              type="button"
+              className="app-button app-button--secondary"
+              onClick={onClose}
+            >
+              Cerrar
+            </button>
+          </div>
+
+          {events.length === 0 ? (
+            <div className="app-empty">
+              <div className="notificationsSimple__emptyBody">
+                <strong>No hay eventos este día</strong>
+                <p>Cuando exista actividad para esta fecha, aparecerá aquí.</p>
+              </div>
+            </div>
+          ) : (
+            <div style={{ display: "grid", gap: 12 }}>
+              {events.map((event) => (
+                <article
+                  key={event.id}
+                  className="app-card"
+                  style={{ background: "rgba(255,255,255,0.62)" }}
+                >
+                  <div className="app-card__body" style={{ display: "grid", gap: 8 }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        gap: 12,
+                        flexWrap: "wrap",
+                        alignItems: "center",
+                      }}
+                    >
+                      <h4 style={{ margin: 0 }}>
+                        {event.meeting_point || event.title || "Evento"}
+                      </h4>
+                      <span className="app-chip app-chip--soft">
+                        {timeLabel(event.starts_at)}
+                      </span>
+                    </div>
+
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: 8,
+                        flexWrap: "wrap",
+                        color: "var(--app-text-muted)",
+                        fontSize: "var(--font-sm)",
+                      }}
+                    >
+                      {event.group_name ? <span>{event.group_name}</span> : null}
+                      {event.level_tag ? <span>• {event.level_tag}</span> : null}
+                      {typeof event.participants_count === "number" ? (
+                        <span>• {event.participants_count} inscritos</span>
+                      ) : null}
+                    </div>
+
+                    {event.notes ? (
+                      <p style={{ margin: 0, color: "var(--app-text-muted)" }}>
+                        {event.notes}
+                      </p>
+                    ) : null}
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
 }
 
 export default function BlaBlaRunPage() {
-  const { token, isAuthed, me } = useAuth();
-  const toast = useToast();
-  const { joinMeetup, leaveMeetup } = useMeetups(token, toast);
-
-  const { filters, items, loading, error, run } = useMeetupSearch(DEFAULT_FILTERS);
-
-  const refreshTimer = useRef(null);
+  const { items, loading, error } = useMeetupSearch(DEFAULT_FILTERS);
 
   const [month, setMonth] = useState(() => new Date());
-  const [selectedDay, setSelectedDay] = useState(() => localDayKey(new Date()));
-
-  useEffect(() => {
-    const unsub = on("meetup_changed", () => {
-      if (refreshTimer.current) clearTimeout(refreshTimer.current);
-      refreshTimer.current = setTimeout(() => {
-        run();
-      }, 250);
-    });
-
-    return () => {
-      if (refreshTimer.current) clearTimeout(refreshTimer.current);
-      unsub?.();
-    };
-  }, [run]);
+  const [selectedDay, setSelectedDay] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
 
   const byDay = useMemo(() => groupByDay(items), [items]);
   const days = useMemo(() => buildMonthGrid(month), [month]);
   const monthIndex = month.getMonth();
   const todayKey = localDayKey(new Date());
-  const selectedItems = selectedDay ? byDay.get(selectedDay) || [] : [];
 
-  const joinedCount = useMemo(
-    () => items.filter((item) => item?.is_joined).length,
-    [items]
-  );
-
-  const upcomingCount = useMemo(() => items.length, [items]);
+  const selectedEvents = useMemo(() => {
+    if (!selectedDay) return [];
+    return byDay.get(selectedDay) || [];
+  }, [byDay, selectedDay]);
 
   const visibleDaysWithActivity = useMemo(() => {
     return [...byDay.keys()].length;
   }, [byDay]);
-
-  useEffect(() => {
-    if (selectedDay) return;
-
-    const firstWithActivity = items[0]?.starts_at ? localDayKey(items[0].starts_at) : todayKey;
-    setSelectedDay(firstWithActivity);
-  }, [items, selectedDay, todayKey]);
-
-  function updateFilter(key, value) {
-    run({ [key]: value, offset: 0 });
-  }
-
-  function resetFilters() {
-    run(DEFAULT_FILTERS);
-  }
 
   function goPrevMonth() {
     setMonth((prev) => addMonths(prev, -1));
@@ -159,163 +200,41 @@ export default function BlaBlaRunPage() {
   }
 
   function goToday() {
-    const now = new Date();
-    setMonth(now);
-    setSelectedDay(localDayKey(now));
+    setMonth(new Date());
   }
 
-  async function handleJoin(meetup) {
-    await joinMeetup(meetup.id);
-    await run();
-  }
-
-  async function handleLeave(meetup) {
-    await leaveMeetup(meetup.id);
-    await run();
+  function openDay(dayKey) {
+    setSelectedDay(dayKey);
+    setModalOpen(true);
   }
 
   return (
-    <section className="page">
-      <div className="app-card">
-        <div className="app-card__body" style={{ display: "grid", gap: 18 }}>
-          <div className="page__header" style={{ marginBottom: 0 }}>
-            <span className="page__eyebrow">BlaBlaRun</span>
-            <h1 className="page__title">Agenda runner</h1>
-            <p className="page__subtitle">
-              Consulta entrenamientos, quedadas y actividad próxima en formato calendario.
-            </p>
-          </div>
-
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-              gap: 14,
-            }}
-          >
-            {smallMetric(upcomingCount, "actividades visibles")}
-            {smallMetric(visibleDaysWithActivity, "días con actividad")}
-            {smallMetric(joinedCount, "actividades a las que te has unido")}
-          </div>
-
-          {!isAuthed ? (
-            <div className="app-empty">
-              <div className="notificationsSimple__emptyBody">
-                <strong>Necesitas iniciar sesión</strong>
-                <p>Accede para consultar la agenda y apuntarte a actividades.</p>
-                <Link to="/login" className="app-button app-button--primary">
-                  Iniciar sesión
-                </Link>
-              </div>
-            </div>
-          ) : null}
-        </div>
-      </div>
-
-      <div className="app-card">
-        <div className="app-card__body" style={{ display: "grid", gap: 14 }}>
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "minmax(0, 1.6fr) minmax(180px, 0.8fr) auto auto",
-              gap: 12,
-              alignItems: "end",
-            }}
-          >
-            <div className="app-field" style={{ marginBottom: 0 }}>
-              <label className="app-label" htmlFor="blablarun-search">
-                Buscar actividad
-              </label>
-              <input
-                id="blablarun-search"
-                className="app-input"
-                value={filters.q}
-                placeholder="Lugar, grupo o punto de encuentro"
-                onChange={(e) => updateFilter("q", e.target.value)}
-                disabled={!isAuthed}
-              />
-            </div>
-
-            <div className="app-field" style={{ marginBottom: 0 }}>
-              <label className="app-label" htmlFor="blablarun-level">
-                Nivel
-              </label>
-              <select
-                id="blablarun-level"
-                className="app-select"
-                value={filters.level}
-                onChange={(e) => updateFilter("level", e.target.value)}
-                disabled={!isAuthed}
-              >
-                <option value="">Todos</option>
-                <option value="suave">Suave</option>
-                <option value="medio">Medio</option>
-                <option value="rapido">Rápido</option>
-              </select>
-            </div>
-
-            <button
-              type="button"
-              className="app-button app-button--secondary"
-              onClick={resetFilters}
-              disabled={!isAuthed}
-            >
-              Limpiar
-            </button>
-
-            <label
-              style={{
-                display: "flex",
-                gap: 10,
-                alignItems: "center",
-                fontWeight: 600,
-                whiteSpace: "nowrap",
-                height: 44,
-              }}
-            >
-              <input
-                type="checkbox"
-                checked={!!filters.only_open}
-                onChange={(e) => updateFilter("only_open", e.target.checked)}
-                disabled={!isAuthed}
-              />
-              Solo abiertas
-            </label>
-          </div>
-
-          {error ? (
-            <div className="app-empty">
-              <div className="notificationsSimple__emptyBody">
-                <strong>No se pudo cargar la agenda</strong>
-                <p>{error}</p>
-              </div>
-            </div>
-          ) : null}
-        </div>
-      </div>
-
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "minmax(0, 1.25fr) minmax(0, 1fr)",
-          gap: 18,
-          alignItems: "start",
-        }}
-      >
+    <>
+      <section className="page">
         <div className="app-card">
-          <div className="app-card__body" style={{ display: "grid", gap: 16 }}>
+          <div className="app-card__body" style={{ display: "grid", gap: 18 }}>
+            <div className="page__header" style={{ marginBottom: 0 }}>
+              <span className="page__eyebrow">BlaBlaRun</span>
+              <h1 className="page__title">Calendario de eventos</h1>
+              <p className="page__subtitle">
+                Explora la actividad del mes y consulta los eventos de cualquier día.
+              </p>
+            </div>
+
             <div
               style={{
                 display: "flex",
-                alignItems: "center",
                 justifyContent: "space-between",
                 gap: 12,
+                alignItems: "center",
                 flexWrap: "wrap",
               }}
             >
-              <div>
-                <span className="page__eyebrow">Calendario</span>
-                <h2 style={{ margin: "4px 0 0" }}>{monthLabel(month)}</h2>
+              <div style={{ display: "grid", gap: 4 }}>
+                <h2 style={{ margin: 0 }}>{monthLabel(month)}</h2>
+                <p style={{ margin: 0, color: "var(--app-text-muted)" }}>
+                  {visibleDaysWithActivity} días con actividad visible
+                </p>
               </div>
 
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
@@ -345,149 +264,139 @@ export default function BlaBlaRunPage() {
               </div>
             </div>
 
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(7, minmax(0, 1fr))",
-                gap: 8,
-              }}
-            >
-              {WEEKDAYS.map((weekday) => (
-                <div
-                  key={weekday}
-                  style={{
-                    textAlign: "center",
-                    fontSize: "var(--font-sm)",
-                    color: "var(--app-text-muted)",
-                    fontWeight: 700,
-                  }}
-                >
-                  {weekday}
+            {error ? (
+              <div className="app-empty">
+                <div className="notificationsSimple__emptyBody">
+                  <strong>No se pudo cargar el calendario</strong>
+                  <p>{error}</p>
                 </div>
-              ))}
-            </div>
-
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(7, minmax(0, 1fr))",
-                gap: 8,
-              }}
-            >
-              {days.map((day) => {
-                const inMonth = day.getMonth() === monthIndex;
-                const key = localDayKey(day);
-                const dayItems = byDay.get(key) || [];
-                const isSelected = selectedDay === key;
-                const isToday = key === todayKey;
-
-                return (
-                  <button
-                    key={`${key}-${inMonth ? "in" : "out"}`}
-                    type="button"
-                    onClick={() => setSelectedDay(key)}
-                    title={`${key} · ${daySummary(dayItems)}`}
-                    style={{
-                      minHeight: 72,
-                      borderRadius: 18,
-                      border: isSelected
-                        ? "1px solid rgba(15,23,42,0.24)"
-                        : "1px solid rgba(148,163,184,0.18)",
-                      background: isSelected
-                        ? "rgba(255,255,255,0.92)"
-                        : "rgba(255,255,255,0.58)",
-                      padding: 10,
-                      textAlign: "left",
-                      display: "grid",
-                      alignContent: "space-between",
-                      opacity: inMonth ? 1 : 0.48,
-                      boxShadow: isToday ? "0 0 0 1px rgba(15,23,42,0.10) inset" : "none",
-                      cursor: "pointer",
-                    }}
-                  >
-                    <span
-                      style={{
-                        fontWeight: 700,
-                        color: "var(--app-text)",
-                      }}
-                    >
-                      {day.getDate()}
-                    </span>
-
-                    <span
-                      style={{
-                        display: "flex",
-                        gap: 5,
-                        flexWrap: "wrap",
-                        minHeight: 10,
-                      }}
-                    >
-                      {dayItems.slice(0, 3).map((meetup) => (
-                        <span
-                          key={meetup.id}
-                          title={meetup.meeting_point || "Actividad"}
-                          style={{
-                            width: 8,
-                            height: 8,
-                            borderRadius: "50%",
-                            background:
-                              dotKind(meetup, me?.id) === "own"
-                                ? "var(--app-success)"
-                                : dotKind(meetup, me?.id) === "joined"
-                                ? "var(--app-warning)"
-                                : "var(--app-text-muted)",
-                            display: "inline-block",
-                          }}
-                        />
-                      ))}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-
-        <div className="app-card">
-          <div className="app-card__body" style={{ display: "grid", gap: 16 }}>
-            <div>
-              <span className="page__eyebrow">Detalle del día</span>
-              <h2 style={{ margin: "4px 0 0" }}>{formatDayTitle(selectedDay)}</h2>
-              <p style={{ margin: "6px 0 0", color: "var(--app-text-muted)" }}>
-                {daySummary(selectedItems)}
-              </p>
-            </div>
+              </div>
+            ) : null}
 
             {loading ? (
               <div className="app-empty">
                 <div className="notificationsSimple__emptyBody">
-                  <strong>Cargando agenda</strong>
-                  <p>Estamos buscando actividad disponible.</p>
-                </div>
-              </div>
-            ) : selectedItems.length === 0 ? (
-              <div className="app-empty">
-                <div className="notificationsSimple__emptyBody">
-                  <strong>Sin actividad en este día</strong>
-                  <p>No hay entrenamientos o quedadas que coincidan con tus filtros.</p>
+                  <strong>Cargando eventos</strong>
+                  <p>Estamos preparando el calendario.</p>
                 </div>
               </div>
             ) : (
-              <div style={{ display: "grid", gap: 14 }}>
-                {selectedItems.map((meetup) => (
-                  <MeetupCard
-                    key={meetup.id}
-                    meetup={meetup}
-                    isAuthed={isAuthed}
-                    onJoin={token ? () => handleJoin(meetup) : null}
-                    onLeave={token ? () => handleLeave(meetup) : null}
-                  />
-                ))}
-              </div>
+              <>
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(7, minmax(0, 1fr))",
+                    gap: 8,
+                  }}
+                >
+                  {WEEKDAYS.map((weekday) => (
+                    <div
+                      key={weekday}
+                      style={{
+                        textAlign: "center",
+                        fontSize: "var(--font-sm)",
+                        color: "var(--app-text-muted)",
+                        fontWeight: 700,
+                      }}
+                    >
+                      {weekday}
+                    </div>
+                  ))}
+                </div>
+
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(7, minmax(0, 1fr))",
+                    gap: 8,
+                  }}
+                >
+                  {days.map((day) => {
+                    const inMonth = day.getMonth() === monthIndex;
+                    const key = localDayKey(day);
+                    const dayItems = byDay.get(key) || [];
+                    const isToday = key === todayKey;
+
+                    return (
+                      <button
+                        key={`${key}-${inMonth ? "in" : "out"}`}
+                        type="button"
+                        onClick={() => openDay(key)}
+                        title={`${key} · ${daySummary(dayItems)}`}
+                        style={{
+                          minHeight: 84,
+                          borderRadius: 18,
+                          border: isToday
+                            ? "1px solid rgba(15,23,42,0.24)"
+                            : "1px solid rgba(148,163,184,0.18)",
+                          background: "rgba(255,255,255,0.62)",
+                          padding: 10,
+                          textAlign: "left",
+                          display: "grid",
+                          alignContent: "space-between",
+                          opacity: inMonth ? 1 : 0.48,
+                          cursor: "pointer",
+                        }}
+                      >
+                        <span
+                          style={{
+                            fontWeight: 700,
+                            color: "var(--app-text)",
+                          }}
+                        >
+                          {day.getDate()}
+                        </span>
+
+                        <div style={{ display: "grid", gap: 6 }}>
+                          <span
+                            style={{
+                              display: "flex",
+                              gap: 5,
+                              flexWrap: "wrap",
+                              minHeight: 10,
+                            }}
+                          >
+                            {dayItems.slice(0, 3).map((event) => (
+                              <span
+                                key={event.id}
+                                title={event.meeting_point || "Evento"}
+                                style={{
+                                  width: 8,
+                                  height: 8,
+                                  borderRadius: "50%",
+                                  background: "var(--app-text-muted)",
+                                  display: "inline-block",
+                                }}
+                              />
+                            ))}
+                          </span>
+
+                          <span
+                            style={{
+                              fontSize: "0.72rem",
+                              color: "var(--app-text-muted)",
+                              lineHeight: 1.2,
+                            }}
+                          >
+                            {dayItems.length ? `${dayItems.length} evento${dayItems.length > 1 ? "s" : ""}` : ""}
+                          </span>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </>
             )}
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+
+      <DayModal
+        open={modalOpen}
+        dayKey={selectedDay}
+        events={selectedEvents}
+        onClose={() => setModalOpen(false)}
+      />
+    </>
   );
 }
