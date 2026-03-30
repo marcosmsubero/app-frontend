@@ -277,16 +277,6 @@ export default function ProfilePage() {
                 >
                   <IconEdit />
                 </IconButton>
-
-                <span
-                  style={{
-                    color: "var(--app-text-faint)",
-                    fontSize: "var(--font-sm)",
-                    fontWeight: 600,
-                  }}
-                >
-                  {uploadingAvatar ? "Subiendo foto…" : "Perfil"}
-                </span>
               </div>
             </div>
           </div>
