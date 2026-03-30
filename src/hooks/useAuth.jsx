@@ -9,13 +9,11 @@ import {
 } from "react";
 import { apiDeleteMe, apiMeProfile, apiResolveHandle } from "../services/api";
 import {
-  getSupabaseProfile,
   getSupabaseSession,
   onSupabaseAuthStateChange,
   signInWithSupabase,
   signOutWithSupabase,
   signUpWithSupabase,
-  upsertSupabaseProfile,
 } from "../services/auth";
 import {
   getPreferredLoginIdentifier,
@@ -23,7 +21,6 @@ import {
 } from "../lib/userContract";
 
 const AuthContext = createContext(null);
-const ONBOARDING_CACHE_PREFIX = "app:onboarding-complete:";
 
 function isAuthExpiredError(err) {
   const msg = String(err?.message || "").toLowerCase();
@@ -35,49 +32,9 @@ function isAuthExpiredError(err) {
   );
 }
 
-function safeProfileObject(value) {
-  return value && typeof value === "object" && !Array.isArray(value) ? value : null;
-}
-
-function onboardingCacheKey(supabaseUserId = "") {
-  const cleanId = String(supabaseUserId || "").trim();
-  return cleanId ? `${ONBOARDING_CACHE_PREFIX}${cleanId}` : "";
-}
-
-function readCachedOnboardingCompletion(supabaseUserId = "") {
-  const key = onboardingCacheKey(supabaseUserId);
-  if (!key || typeof window === "undefined") return false;
-
-  try {
-    return window.localStorage.getItem(key) === "1";
-  } catch {
-    return false;
-  }
-}
-
-function writeCachedOnboardingCompletion(supabaseUserId = "", completed = true) {
-  const key = onboardingCacheKey(supabaseUserId);
-  if (!key || typeof window === "undefined") return;
-
-  try {
-    if (completed) {
-      window.localStorage.setItem(key, "1");
-    } else {
-      window.localStorage.removeItem(key);
-    }
-  } catch {
-    // ignore storage errors
-  }
-}
-
-function clearCachedOnboardingCompletion(supabaseUserId = "") {
-  writeCachedOnboardingCompletion(supabaseUserId, false);
-}
-
 export function AuthProvider({ children }) {
   const [session, setSession] = useState(null);
   const [me, setMe] = useState(null);
-  const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [meReady, setMeReady] = useState(false);
   const [meError, setMeError] = useState("");
@@ -88,35 +45,9 @@ export function AuthProvider({ children }) {
   const user = session?.user ?? null;
   const isAuthed = !!session;
 
-  const mergeResolvedUser = useCallback((nextMe, nextProfile, sessionUser) => {
-    const normalized = normalizeUserContract(nextMe || {});
-    const supabaseUserId =
-      sessionUser?.id ||
-      normalized.supabase_user_id ||
-      safeProfileObject(nextProfile)?.id ||
-      null;
-
-    const cachedCompleted = readCachedOnboardingCompletion(supabaseUserId);
-    const profileCompleted = Boolean(safeProfileObject(nextProfile)?.onboarding_completed);
-    const resolvedCompleted =
-      Boolean(normalized.onboarding_completed) || profileCompleted || cachedCompleted;
-
-    const merged = {
-      ...normalized,
-      onboarding_completed: resolvedCompleted,
-    };
-
-    if (resolvedCompleted && supabaseUserId) {
-      writeCachedOnboardingCompletion(supabaseUserId, true);
-    }
-
-    return merged;
-  }, []);
-
   const clearAuthState = useCallback(() => {
     setSession(null);
     setMe(null);
-    setProfile(null);
     setMeReady(false);
     setMeError("");
   }, []);
@@ -144,16 +75,6 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  const fetchProfile = useCallback(async (supabaseUserId) => {
-    if (!supabaseUserId) return null;
-
-    try {
-      return await getSupabaseProfile(supabaseUserId);
-    } catch {
-      return null;
-    }
-  }, []);
-
   const refreshMe = useCallback(
     async (explicitToken) => {
       if (!session?.user && !explicitToken) {
@@ -167,9 +88,8 @@ export function AuthProvider({ children }) {
 
       try {
         const nextMe = await fetchMe(explicitToken);
-        const merged = mergeResolvedUser(nextMe, profile, session?.user);
-        setMe(merged);
-        return merged;
+        setMe(nextMe);
+        return nextMe;
       } catch (err) {
         if (isAuthExpiredError(err)) {
           throw err;
@@ -182,22 +102,7 @@ export function AuthProvider({ children }) {
         setMeReady(true);
       }
     },
-    [fetchMe, mergeResolvedUser, profile, session?.user]
-  );
-
-  const refreshProfile = useCallback(
-    async (supabaseUserId) => {
-      if (!supabaseUserId) {
-        setProfile(null);
-        return null;
-      }
-
-      const nextProfile = await fetchProfile(supabaseUserId);
-      setProfile(nextProfile);
-      setMe((prev) => (prev ? mergeResolvedUser(prev, nextProfile, session?.user) : prev));
-      return nextProfile;
-    },
-    [fetchProfile, mergeResolvedUser, session?.user]
+    [fetchMe, session?.user]
   );
 
   const hydrateSession = useCallback(
@@ -217,17 +122,13 @@ export function AuthProvider({ children }) {
       setSession(incomingSession);
 
       try {
-        const [nextMe, nextProfile] = await Promise.all([
-          fetchMe(incomingSession.access_token),
-          fetchProfile(incomingSession.user.id),
-        ]);
+        const nextMe = await fetchMe(incomingSession.access_token);
 
         if (seq !== hydrateSeqRef.current) {
           return incomingSession;
         }
 
-        setProfile(nextProfile);
-        setMe(mergeResolvedUser(nextMe, nextProfile, incomingSession.user));
+        setMe(nextMe);
         setMeError("");
       } catch (err) {
         if (seq !== hydrateSeqRef.current) {
@@ -239,7 +140,6 @@ export function AuthProvider({ children }) {
           return null;
         }
 
-        setProfile(null);
         setMe(null);
         setMeError(err?.message || "No se pudo cargar el perfil.");
       } finally {
@@ -251,7 +151,7 @@ export function AuthProvider({ children }) {
 
       return incomingSession;
     },
-    [clearAuthState, fetchMe, fetchProfile, logout, mergeResolvedUser]
+    [clearAuthState, fetchMe, logout]
   );
 
   const login = useCallback(
@@ -296,63 +196,48 @@ export function AuthProvider({ children }) {
     [hydrateSession]
   );
 
-  const register = useCallback(async (email, password) => {
-    if (!email || !password) {
-      throw new Error("Introduce email y contraseña");
-    }
-
-    setLoading(true);
-
-    try {
-      const data = await signUpWithSupabase(email, password);
-
-      const supabaseUser = data?.user ?? null;
-      const nextSession = data?.session ?? null;
-      const requiresEmailConfirmation = !nextSession;
-
-      if (!supabaseUser) {
-        throw new Error("No se pudo crear la cuenta en Supabase Auth.");
+  const register = useCallback(
+    async (email, password) => {
+      if (!email || !password) {
+        throw new Error("Introduce email y contraseña");
       }
+
+      setLoading(true);
 
       try {
-        await upsertSupabaseProfile(supabaseUser, { email });
-      } catch {
-        // no bloquear registro si profiles falla
-      }
+        const data = await signUpWithSupabase(email, password);
 
-      if (nextSession) {
-        await hydrateSession(nextSession);
-      } else {
-        clearAuthState();
-        setMeReady(true);
-      }
+        const supabaseUser = data?.user ?? null;
+        const nextSession = data?.session ?? null;
+        const requiresEmailConfirmation = !nextSession;
 
-      return {
-        user: supabaseUser,
-        session: nextSession,
-        requiresEmailConfirmation,
-      };
-    } finally {
-      setLoading(false);
-    }
-  }, [clearAuthState, hydrateSession]);
+        if (!supabaseUser) {
+          throw new Error("No se pudo crear la cuenta en Supabase Auth.");
+        }
+
+        if (nextSession) {
+          await hydrateSession(nextSession);
+        } else {
+          clearAuthState();
+          setMeReady(true);
+        }
+
+        return {
+          user: supabaseUser,
+          session: nextSession,
+          requiresEmailConfirmation,
+        };
+      } finally {
+        setLoading(false);
+      }
+    },
+    [clearAuthState, hydrateSession]
+  );
 
   const ensureProfile = useCallback(async () => {
     if (!session?.user) return null;
-
-    const existing = await refreshProfile(session.user.id);
-    if (existing) return existing;
-
-    try {
-      const created = await upsertSupabaseProfile(session.user, {
-        email: session.user.email ?? null,
-      });
-      setProfile(created);
-      return created;
-    } catch {
-      return null;
-    }
-  }, [refreshProfile, session]);
+    return refreshMe(session.access_token);
+  }, [refreshMe, session]);
 
   const deleteAccount = useCallback(async () => {
     if (!token) {
@@ -360,12 +245,9 @@ export function AuthProvider({ children }) {
     }
 
     await apiDeleteMe(token);
-    if (session?.user?.id) {
-      clearCachedOnboardingCompletion(session.user.id);
-    }
     await logout();
     return true;
-  }, [logout, session?.user?.id, token]);
+  }, [logout, token]);
 
   useEffect(() => {
     let alive = true;
@@ -402,7 +284,7 @@ export function AuthProvider({ children }) {
       session,
       user,
       me,
-      profile,
+      profile: null,
       loading,
       meReady,
       meError,
@@ -411,7 +293,7 @@ export function AuthProvider({ children }) {
       register,
       logout,
       refreshMe,
-      refreshProfile,
+      refreshProfile: async () => null,
       ensureProfile,
       deleteAccount,
     }),
@@ -420,7 +302,6 @@ export function AuthProvider({ children }) {
       session,
       user,
       me,
-      profile,
       loading,
       meReady,
       meError,
@@ -429,7 +310,6 @@ export function AuthProvider({ children }) {
       register,
       logout,
       refreshMe,
-      refreshProfile,
       ensureProfile,
       deleteAccount,
     ]
