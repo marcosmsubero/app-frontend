@@ -1,417 +1,317 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import GroupList from "../components/GroupList";
-import { useGroups } from "../hooks/useGroups";
+import { Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { useToast } from "../hooks/useToast";
+import { api } from "../services/api";
 
-function GroupInsight({ value, label, tone = "primary" }) {
+function normalizeGroupsResponse(res) {
+  if (Array.isArray(res)) return res;
+  if (Array.isArray(res?.items)) return res.items;
+  if (Array.isArray(res?.groups)) return res.groups;
+  return [];
+}
+
+function getGroupLocation(group) {
   return (
-    <div className="groupsPage__insightCard">
-      <span className={`app-badge${tone !== "neutral" ? ` app-badge--${tone}` : ""}`}>
-        {label}
-      </span>
-      <strong className="groupsPage__insightValue">{value}</strong>
-    </div>
+    group?.city ||
+    group?.location ||
+    group?.place ||
+    group?.zone ||
+    "Ubicación no indicada"
+  );
+}
+
+function getGroupTitle(group) {
+  return group?.name || group?.title || "Grupo";
+}
+
+function getGroupDescription(group) {
+  return (
+    group?.description ||
+    group?.bio ||
+    "Grupo de running para entrenar, quedar y compartir actividad."
+  );
+}
+
+function getMembersCount(group) {
+  if (typeof group?.members_count === "number") return group.members_count;
+  if (typeof group?.member_count === "number") return group.member_count;
+  if (Array.isArray(group?.members)) return group.members.length;
+  return 0;
+}
+
+function isPrivateGroup(group) {
+  return Boolean(group?.is_private || group?.private);
+}
+
+function GroupCard({ group, onJoin, joiningId }) {
+  const title = getGroupTitle(group);
+  const description = getGroupDescription(group);
+  const location = getGroupLocation(group);
+  const members = getMembersCount(group);
+  const isPrivate = isPrivateGroup(group);
+  const isJoining = joiningId === group.id;
+
+  return (
+    <article className="app-card">
+      <div className="app-card__body" style={{ display: "grid", gap: 16 }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            gap: 12,
+            alignItems: "flex-start",
+            flexWrap: "wrap",
+          }}
+        >
+          <div style={{ display: "grid", gap: 8 }}>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+              <h3 style={{ margin: 0 }}>{title}</h3>
+              <span className="app-chip app-chip--soft">
+                {isPrivate ? "Privado" : "Público"}
+              </span>
+            </div>
+
+            <div
+              style={{
+                display: "flex",
+                gap: 8,
+                flexWrap: "wrap",
+                color: "var(--app-text-muted)",
+                fontSize: "var(--font-sm)",
+              }}
+            >
+              <span>{location}</span>
+              <span>•</span>
+              <span>{members} miembros</span>
+            </div>
+          </div>
+
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <button
+              type="button"
+              className="app-button app-button--primary"
+              onClick={() => onJoin?.(group)}
+              disabled={isJoining}
+            >
+              {isJoining
+                ? "Procesando…"
+                : isPrivate
+                ? "Solicitar acceso"
+                : "Unirme"}
+            </button>
+
+            <Link to={`/groups/${group.id}`} className="app-button app-button--secondary">
+              Ver grupo
+            </Link>
+          </div>
+        </div>
+
+        <p style={{ margin: 0, color: "var(--app-text-muted)" }}>{description}</p>
+      </div>
+    </article>
   );
 }
 
 export default function GroupsPage() {
-  const nav = useNavigate();
+  const { token } = useAuth();
   const toast = useToast();
-  const { token, isAuthed } = useAuth();
 
-  const {
-    groups,
-    loadGroups,
-    createGroup,
-    joinGroup,
-    joinByInvite,
-    loadingGroups,
-    creatingGroup,
-    joiningByInvite,
-  } = useGroups(token, toast);
+  const [groups, setGroups] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const [showCreate, setShowCreate] = useState(false);
-  const [gName, setGName] = useState("");
-  const [gSport, setGSport] = useState("");
-  const [gCity, setGCity] = useState("");
-  const [gPrivate, setGPrivate] = useState(false);
-
-  const [inviteToken, setInviteToken] = useState("");
-
-  const [filterSport, setFilterSport] = useState("");
-  const [filterCity, setFilterCity] = useState("");
-
-  const isValidGroup = useMemo(() => {
-    return gName.trim() && gSport.trim() && gCity.trim();
-  }, [gName, gSport, gCity]);
-
-  const visibleGroups = Array.isArray(groups) ? groups : [];
-  const joinedGroups = visibleGroups.filter((group) => !!group?.my_role).length;
-  const privateGroups = visibleGroups.filter((group) => !!group?.is_private).length;
+  const [query, setQuery] = useState("");
+  const [locationFilter, setLocationFilter] = useState("");
+  const [privacyFilter, setPrivacyFilter] = useState("all");
+  const [joiningId, setJoiningId] = useState(null);
 
   useEffect(() => {
-    if (!isAuthed) return;
-    loadGroups();
-  }, [isAuthed]);
+    let cancelled = false;
 
-  async function handleCreateGroup() {
-    if (!isValidGroup) {
-      toast?.error?.("Completa nombre, deporte y ciudad");
-      return;
+    async function loadGroups() {
+      setLoading(true);
+      setError("");
+
+      try {
+        const res = await api("/groups", { token });
+        const items = normalizeGroupsResponse(res);
+
+        if (!cancelled) {
+          setGroups(items);
+        }
+      } catch (e) {
+        if (!cancelled) {
+          setError(e?.message || "No se pudieron cargar los grupos.");
+          setGroups([]);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
     }
 
-    const group = await createGroup({
-      name: gName.trim(),
-      sport: gSport.trim(),
-      city: gCity.trim(),
-      is_private: gPrivate,
+    loadGroups();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [token]);
+
+  const availableLocations = useMemo(() => {
+    const values = [...new Set(groups.map((group) => getGroupLocation(group)).filter(Boolean))];
+    return values.sort((a, b) => a.localeCompare(b));
+  }, [groups]);
+
+  const filteredGroups = useMemo(() => {
+    const q = query.trim().toLowerCase();
+
+    return groups.filter((group) => {
+      const title = getGroupTitle(group).toLowerCase();
+      const description = getGroupDescription(group).toLowerCase();
+      const location = getGroupLocation(group);
+
+      const matchesQuery =
+        !q || title.includes(q) || description.includes(q) || location.toLowerCase().includes(q);
+
+      const matchesLocation = !locationFilter || location === locationFilter;
+
+      const matchesPrivacy =
+        privacyFilter === "all" ||
+        (privacyFilter === "public" && !isPrivateGroup(group)) ||
+        (privacyFilter === "private" && isPrivateGroup(group));
+
+      return matchesQuery && matchesLocation && matchesPrivacy;
     });
+  }, [groups, locationFilter, privacyFilter, query]);
 
-    setShowCreate(false);
-    setGName("");
-    setGSport("");
-    setGCity("");
-    setGPrivate(false);
-
-    if (group?.id) {
-      nav(`/groups/${group.id}`, { state: { groupName: group.name } });
-    }
-  }
-
-  async function handleJoinInvite() {
-    const tokenValue = inviteToken.trim();
-
-    if (!tokenValue) {
-      toast?.info?.("Pega un token de invitación");
-      return;
-    }
-
-    await joinByInvite(tokenValue);
-    setInviteToken("");
-  }
-
-  async function handleSearch() {
-    const qs = new URLSearchParams();
-
-    if (filterSport.trim()) qs.set("sport", filterSport.trim());
-    if (filterCity.trim()) qs.set("city", filterCity.trim());
-
-    const query = qs.toString() ? `?${qs.toString()}` : "";
-    await loadGroups(query);
-  }
-
-  function handleClearFilters() {
-    setFilterSport("");
-    setFilterCity("");
-    loadGroups();
-  }
-
-  async function handleOpenOrJoinGroup(group) {
+  async function handleJoin(group) {
     if (!group?.id) return;
 
-    if (group.my_role) {
-      nav(`/groups/${group.id}`, { state: { groupName: group.name } });
-      return;
-    }
+    setJoiningId(group.id);
 
-    if (group.is_private) {
-      toast?.info?.("Grupo privado. Únete con una invitación.");
-      return;
-    }
+    try {
+      await api(`/groups/${group.id}/join`, { method: "POST", token });
 
-    await joinGroup(group.id);
-    nav(`/groups/${group.id}`, { state: { groupName: group.name } });
+      toast?.success?.(
+        isPrivateGroup(group)
+          ? "Solicitud enviada correctamente."
+          : "Te has unido al grupo."
+      );
+    } catch (e) {
+      toast?.error?.(e?.message || "No se pudo completar la acción.");
+    } finally {
+      setJoiningId(null);
+    }
   }
 
   return (
-    <section className="groupsPage">
-      <div className="groupsPage__hero app-section">
-        <div className="groupsPage__heroMain">
-          <div className="groupsPage__heroCopy">
-            <span className="app-kicker">Comunidad</span>
-            <h1 className="groupsPage__heroTitle">Gestiona tus grupos deportivos</h1>
-            <p className="groupsPage__heroSubtitle">
-              Busca comunidades por ciudad y deporte, crea tu propio grupo o accede
-              con una invitación privada desde una experiencia más clara y escalable.
+    <section className="page">
+      <div className="app-card">
+        <div className="app-card__body" style={{ display: "grid", gap: 16 }}>
+          <div className="page__header" style={{ marginBottom: 0 }}>
+            <span className="page__eyebrow">Grupos</span>
+            <h1 className="page__title">Encuentra tu grupo runner</h1>
+            <p className="page__subtitle">
+              Explora grupos por ubicación, busca por nombre y únete o solicita acceso.
             </p>
           </div>
 
-          <div className="groupsPage__heroActions">
-            <button
-              type="button"
-              className="app-button app-button--primary"
-              onClick={() => setShowCreate((value) => !value)}
-            >
-              {showCreate ? "Cerrar creación" : "Crear grupo"}
-            </button>
-
-            <button
-              type="button"
-              className="app-button app-button--secondary"
-              onClick={() => loadGroups()}
-              disabled={loadingGroups}
-            >
-              {loadingGroups ? "Cargando…" : "Recargar"}
-            </button>
-          </div>
-        </div>
-
-        <div className="groupsPage__heroStats">
-          <GroupInsight
-            value={visibleGroups.length}
-            label="Grupos visibles"
-            tone="primary"
-          />
-          <GroupInsight
-            value={joinedGroups}
-            label="Ya unidos"
-            tone="success"
-          />
-          <GroupInsight
-            value={privateGroups}
-            label="Privados"
-            tone="warning"
-          />
-        </div>
-      </div>
-
-      <div className="groupsPage__layout">
-        <div className="groupsPage__main">
-          <section className="groupsPage__panel app-section">
-            <div className="groupsPage__panelHead">
-              <div>
-                <p className="app-kicker">Discovery</p>
-                <h2 className="app-title">Buscar grupos</h2>
-                <p className="app-subtitle">
-                  Filtra por deporte y ciudad para encontrar una comunidad afín con menos fricción.
-                </p>
-              </div>
-            </div>
-
-            <div className="groupsPage__filters">
-              <div className="app-field">
-                <label className="app-label" htmlFor="filter-sport">
-                  Deporte
-                </label>
-                <input
-                  id="filter-sport"
-                  className="app-input"
-                  placeholder="Ej. running, ciclismo, trail"
-                  value={filterSport}
-                  onChange={(e) => setFilterSport(e.target.value)}
-                  disabled={loadingGroups}
-                />
-              </div>
-
-              <div className="app-field">
-                <label className="app-label" htmlFor="filter-city">
-                  Ciudad
-                </label>
-                <input
-                  id="filter-city"
-                  className="app-input"
-                  placeholder="Ej. Alicante"
-                  value={filterCity}
-                  onChange={(e) => setFilterCity(e.target.value)}
-                  disabled={loadingGroups}
-                />
-              </div>
-            </div>
-
-            <div className="groupsPage__panelActions">
-              <button
-                type="button"
-                className="app-button app-button--primary"
-                onClick={handleSearch}
-                disabled={loadingGroups}
-              >
-                Buscar
-              </button>
-
-              <button
-                type="button"
-                className="app-button app-button--secondary"
-                onClick={handleClearFilters}
-                disabled={loadingGroups}
-              >
-                Limpiar filtros
-              </button>
-            </div>
-          </section>
-
-          {showCreate ? (
-            <section className="groupsPage__panel app-section">
-              <div className="groupsPage__panelHead">
-                <div>
-                  <p className="app-kicker">Creación</p>
-                  <h2 className="app-title">Nuevo grupo</h2>
-                  <p className="app-subtitle">
-                    Crea una comunidad pública o privada con una configuración mínima y clara.
-                  </p>
-                </div>
-              </div>
-
-              <div className="groupsPage__createGrid">
-                <div className="app-field">
-                  <label className="app-label" htmlFor="group-name">
-                    Nombre del grupo
-                  </label>
-                  <input
-                    id="group-name"
-                    className="app-input"
-                    placeholder="Ej. Alicante Runners"
-                    value={gName}
-                    onChange={(e) => setGName(e.target.value)}
-                    disabled={creatingGroup}
-                  />
-                </div>
-
-                <div className="app-field">
-                  <label className="app-label" htmlFor="group-sport">
-                    Deporte
-                  </label>
-                  <input
-                    id="group-sport"
-                    className="app-input"
-                    placeholder="Ej. running"
-                    value={gSport}
-                    onChange={(e) => setGSport(e.target.value)}
-                    disabled={creatingGroup}
-                  />
-                </div>
-
-                <div className="app-field">
-                  <label className="app-label" htmlFor="group-city">
-                    Ciudad
-                  </label>
-                  <input
-                    id="group-city"
-                    className="app-input"
-                    placeholder="Ej. Alicante"
-                    value={gCity}
-                    onChange={(e) => setGCity(e.target.value)}
-                    disabled={creatingGroup}
-                  />
-                </div>
-
-                <div className="app-field">
-                  <label className="app-label" htmlFor="group-private">
-                    Privacidad
-                  </label>
-
-                  <label className="groupsPage__checkbox" htmlFor="group-private">
-                    <input
-                      id="group-private"
-                      type="checkbox"
-                      checked={gPrivate}
-                      onChange={(e) => setGPrivate(e.target.checked)}
-                      disabled={creatingGroup}
-                    />
-                    <span>Grupo privado</span>
-                  </label>
-
-                  <p className="groupsPage__hint">
-                    Los grupos privados requieren invitación para unirse.
-                  </p>
-                </div>
-              </div>
-
-              <div className="groupsPage__panelActions">
-                <button
-                  type="button"
-                  className="app-button app-button--primary"
-                  disabled={!isValidGroup || creatingGroup}
-                  onClick={handleCreateGroup}
-                >
-                  {creatingGroup ? "Creando…" : "Crear grupo"}
-                </button>
-
-                <button
-                  type="button"
-                  className="app-button app-button--ghost"
-                  onClick={() => setShowCreate(false)}
-                  disabled={creatingGroup}
-                >
-                  Cancelar
-                </button>
-              </div>
-            </section>
-          ) : null}
-
-          <section className="groupsPage__panel app-section">
-            <div className="groupsPage__panelHead">
-              <div>
-                <p className="app-kicker">Comunidad</p>
-                <h2 className="app-title">Listado de grupos</h2>
-                <p className="app-subtitle">
-                  Abre un grupo existente o únete directamente si está disponible.
-                </p>
-              </div>
-            </div>
-
-            <GroupList
-              isAuthed={isAuthed}
-              groups={groups}
-              loadingGroups={loadingGroups}
-              onLoadGroups={loadGroups}
-              onOpenGroup={handleOpenOrJoinGroup}
-            />
-          </section>
-        </div>
-
-        <aside className="groupsPage__aside">
-          <section className="groupsPage__asideCard app-section">
-            <div className="groupsPage__panelHead">
-              <div>
-                <p className="app-kicker">Privado</p>
-                <h2 className="app-title">Unirme con invitación</h2>
-                <p className="app-subtitle">
-                  Accede a grupos privados pegando el token compartido por un administrador.
-                </p>
-              </div>
-            </div>
-
-            <div className="app-field">
-              <label className="app-label" htmlFor="invite-token">
-                Token de invitación
-              </label>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "minmax(0, 1.6fr) minmax(180px, 0.8fr) minmax(180px, 0.8fr)",
+              gap: 12,
+            }}
+          >
+            <div className="app-field" style={{ marginBottom: 0 }}>
+              <label className="app-label">Buscar grupo</label>
               <input
-                id="invite-token"
                 className="app-input"
-                placeholder="Pega aquí tu token"
-                value={inviteToken}
-                onChange={(e) => setInviteToken(e.target.value)}
-                disabled={joiningByInvite}
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Ej. Alicante Runners, trail, pista..."
               />
             </div>
 
-            <div className="groupsPage__panelActions">
-              <button
-                type="button"
-                className="app-button app-button--primary"
-                onClick={handleJoinInvite}
-                disabled={joiningByInvite}
+            <div className="app-field" style={{ marginBottom: 0 }}>
+              <label className="app-label">Ubicación</label>
+              <select
+                className="app-select"
+                value={locationFilter}
+                onChange={(e) => setLocationFilter(e.target.value)}
               >
-                {joiningByInvite ? "Uniéndome…" : "Unirme al grupo"}
-              </button>
+                <option value="">Todas</option>
+                {availableLocations.map((location) => (
+                  <option key={location} value={location}>
+                    {location}
+                  </option>
+                ))}
+              </select>
             </div>
-          </section>
 
-          <section className="groupsPage__asideCard app-section">
-            <div className="groupsPage__panelHead">
-              <div>
-                <p className="app-kicker">Consejo</p>
-                <h2 className="app-title">Mejor descubrimiento</h2>
-                <p className="app-subtitle">
-                  Prioriza nombres claros, una ciudad bien definida y un deporte principal por grupo para acelerar el descubrimiento.
-                </p>
+            <div className="app-field" style={{ marginBottom: 0 }}>
+              <label className="app-label">Tipo</label>
+              <select
+                className="app-select"
+                value={privacyFilter}
+                onChange={(e) => setPrivacyFilter(e.target.value)}
+              >
+                <option value="all">Todos</option>
+                <option value="public">Públicos</option>
+                <option value="private">Privados</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {loading ? (
+        <div className="app-card">
+          <div className="app-card__body">
+            <div className="app-empty">
+              <div className="notificationsSimple__emptyBody">
+                <strong>Cargando grupos</strong>
+                <p>Estamos preparando la exploración.</p>
               </div>
             </div>
-          </section>
-        </aside>
-      </div>
+          </div>
+        </div>
+      ) : error ? (
+        <div className="app-card">
+          <div className="app-card__body">
+            <div className="app-empty">
+              <div className="notificationsSimple__emptyBody">
+                <strong>No se pudieron cargar</strong>
+                <p>{error}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : filteredGroups.length === 0 ? (
+        <div className="app-card">
+          <div className="app-card__body">
+            <div className="app-empty">
+              <div className="notificationsSimple__emptyBody">
+                <strong>No hay grupos para este filtro</strong>
+                <p>Prueba otra búsqueda o cambia la ubicación.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div style={{ display: "grid", gap: 16 }}>
+          {filteredGroups.map((group) => (
+            <GroupCard
+              key={group.id}
+              group={group}
+              onJoin={handleJoin}
+              joiningId={joiningId}
+            />
+          ))}
+        </div>
+      )}
     </section>
   );
 }
