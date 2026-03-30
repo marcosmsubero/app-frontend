@@ -1,203 +1,137 @@
-import { Link, Navigate, Outlet, Route, Routes, useLocation } from "react-router-dom";
+import { Navigate, Outlet, Route, Routes, useLocation } from "react-router-dom";
+import AppChrome from "./components/AppChrome";
 import { useAuth } from "./hooks/useAuth";
 import { isOnboardingComplete } from "./lib/userContract";
 
-import AppChrome from "./components/AppChrome";
-import BottomNav from "./components/BottomNav";
-import SSEListener from "./components/SSEListener";
-
 import AuthPage from "./pages/AuthPage";
-import HomePage from "./pages/HomePage";
 import BlaBlaRunPage from "./pages/BlaBlaRunPage";
 import ChatThreadPage from "./pages/ChatThreadPage";
-import DeleteAccountPage from "./pages/DeleteAccountPage";
-import FollowersPage from "./pages/FollowersPage";
-import FollowingPage from "./pages/FollowingPage";
+import ExplorePage from "./pages/ExplorePage";
+import GroupDetailPage from "./pages/GroupDetailPage";
 import GroupPage from "./pages/GroupPage";
-import GroupsPage from "./pages/GroupsPage";
 import MessagesPage from "./pages/MessagesPage";
 import NotificationsPage from "./pages/NotificationsPage";
-import PlaceholderSettingsPage from "./pages/PlaceholderSettingsPage";
 import ProfileOnboardingPage from "./pages/ProfileOnboardingPage";
 import ProfilePage from "./pages/ProfilePage";
+import SettingsPage from "./pages/SettingsPage";
 
-function FullPageLoader() {
+function FullScreenLoader({ label = "Cargando…" }) {
   return (
     <div className="app-loader-screen">
       <div className="app-loader-screen__inner">
         <div className="app-loader-screen__spinner" />
-        <div className="app-loader-screen__label">Cargando…</div>
+        <div className="app-loader-screen__label">{label}</div>
       </div>
     </div>
   );
 }
 
-function FullPageProfileError() {
-  const { logout } = useAuth();
-
-  return (
-    <div className="app-loader-screen">
-      <div className="app-loader-screen__inner" style={{ maxWidth: 420, textAlign: "center" }}>
-        <div className="app-loader-screen__label" style={{ marginBottom: 12 }}>
-          No se pudo cargar tu perfil.
-        </div>
-        <p style={{ margin: "0 0 16px", color: "var(--app-text-muted)" }}>
-          La sesión existe, pero la app no ha podido resolver correctamente el estado del usuario.
-        </p>
-        <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-          <button
-            type="button"
-            className="app-button app-button--primary"
-            onClick={() => window.location.reload()}
-          >
-            Reintentar
-          </button>
-          <button
-            type="button"
-            className="app-button app-button--secondary"
-            onClick={logout}
-          >
-            Cerrar sesión
-          </button>
-          <Link to="/login" className="app-button app-button--ghost">
-            Ir a login
-          </Link>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function needsOnboarding(me) {
-  if (!me) return false;
-  return !isOnboardingComplete(me);
-}
-
-function RequireAuth({ children }) {
-  const { isAuthed, loading, meReady, meError } = useAuth();
+function RequireAuth() {
+  const { isAuthed, loading, meReady } = useAuth();
   const location = useLocation();
 
-  if (loading || (isAuthed && !meReady)) return <FullPageLoader />;
+  if (loading) {
+    return <FullScreenLoader label="Cargando sesión…" />;
+  }
 
   if (!isAuthed) {
     return <Navigate to="/login" replace state={{ from: location }} />;
   }
 
-  if (meError) {
-    return <FullPageProfileError />;
+  if (!meReady) {
+    return <FullScreenLoader label="Cargando perfil…" />;
   }
 
-  return children;
+  return <Outlet />;
 }
 
-function RequireGuest({ children }) {
-  const { isAuthed, loading, me, meReady, meError } = useAuth();
+function RequireCompletedOnboarding() {
+  const { me, meReady } = useAuth();
 
-  if (loading || (isAuthed && !meReady)) return <FullPageLoader />;
-
-  if (isAuthed && meError) {
-    return <FullPageProfileError />;
+  if (!meReady) {
+    return <FullScreenLoader label="Preparando cuenta…" />;
   }
 
-  if (isAuthed) {
-    return <Navigate to={needsOnboarding(me) ? "/onboarding" : "/"} replace />;
+  if (!isOnboardingComplete(me)) {
+    return <Navigate to="/onboarding" replace />;
   }
 
-  return children;
+  return <Outlet />;
 }
 
-function RequireCompletedProfile({ children }) {
-  const { isAuthed, loading, me, meReady, meError } = useAuth();
-  const location = useLocation();
+function RedirectAuthenticatedUser() {
+  const { isAuthed, loading, me, meReady } = useAuth();
 
-  if (loading || (isAuthed && !meReady)) return <FullPageLoader />;
+  if (loading) {
+    return <FullScreenLoader label="Cargando…" />;
+  }
 
   if (!isAuthed) {
-    return <Navigate to="/login" replace state={{ from: location }} />;
+    return <Outlet />;
   }
 
-  if (meError) {
-    return <FullPageProfileError />;
+  if (!meReady) {
+    return <FullScreenLoader label="Preparando cuenta…" />;
   }
 
-  if (needsOnboarding(me)) {
-    return <Navigate to="/onboarding" replace state={{ from: location }} />;
-  }
-
-  return children;
+  return <Navigate to={isOnboardingComplete(me) ? "/" : "/onboarding"} replace />;
 }
 
-function ProtectedAppLayout() {
-  const { me } = useAuth();
-
+function AppLayout() {
   return (
-    <div className="app-root">
-      <SSEListener />
-
-      <div className="app-shell app-shell--withChrome">
-        <AppChrome me={me} />
-
-        <main className="app-main app-main--withChrome">
-          <div className="app-main__inner">
-            <Outlet />
-          </div>
-        </main>
-
-        <BottomNav />
-      </div>
-    </div>
+    <AppChrome>
+      <Outlet />
+    </AppChrome>
   );
+}
+
+function RootRedirect() {
+  const { isAuthed, loading, me, meReady } = useAuth();
+
+  if (loading) {
+    return <FullScreenLoader label="Cargando…" />;
+  }
+
+  if (!isAuthed) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (!meReady) {
+    return <FullScreenLoader label="Preparando cuenta…" />;
+  }
+
+  if (!isOnboardingComplete(me)) {
+    return <Navigate to="/onboarding" replace />;
+  }
+
+  return <Navigate to="/explorar" replace />;
 }
 
 export default function App() {
   return (
     <Routes>
-      <Route
-        path="/login"
-        element={
-          <RequireGuest>
-            <AuthPage defaultTab="login" />
-          </RequireGuest>
-        }
-      />
+      <Route element={<RedirectAuthenticatedUser />}>
+        <Route path="/login" element={<AuthPage defaultTab="login" />} />
+        <Route path="/register" element={<AuthPage defaultTab="register" />} />
+      </Route>
 
-      <Route
-        path="/register"
-        element={
-          <RequireGuest>
-            <AuthPage defaultTab="register" />
-          </RequireGuest>
-        }
-      />
+      <Route element={<RequireAuth />}>
+        <Route path="/onboarding" element={<ProfileOnboardingPage />} />
 
-      <Route
-        path="/onboarding"
-        element={
-          <RequireAuth>
-            <ProfileOnboardingPage />
-          </RequireAuth>
-        }
-      />
-
-      <Route
-        element={
-          <RequireCompletedProfile>
-            <ProtectedAppLayout />
-          </RequireCompletedProfile>
-        }
-      >
-        <Route path="/" element={<HomePage />} />
-        <Route path="/explorar" element={<BlaBlaRunPage />} />
-        <Route path="/groups" element={<GroupsPage />} />
-        <Route path="/groups/:groupId" element={<GroupPage />} />
-        <Route path="/notificaciones" element={<NotificationsPage />} />
-        <Route path="/mensajes" element={<MessagesPage />} />
-        <Route path="/mensajes/:threadId" element={<ChatThreadPage />} />
-        <Route path="/perfil" element={<ProfilePage />} />
-        <Route path="/perfil/seguidores" element={<FollowersPage />} />
-        <Route path="/perfil/siguiendo" element={<FollowingPage />} />
-        <Route path="/ajustes" element={<PlaceholderSettingsPage />} />
-        <Route path="/eliminar-cuenta" element={<DeleteAccountPage />} />
+        <Route element={<RequireCompletedOnboarding />}>
+          <Route element={<AppLayout />}>
+            <Route path="/" element={<RootRedirect />} />
+            <Route path="/explorar" element={<ExplorePage />} />
+            <Route path="/grupos" element={<GroupPage />} />
+            <Route path="/grupos/:groupId" element={<GroupDetailPage />} />
+            <Route path="/mensajes" element={<MessagesPage />} />
+            <Route path="/mensajes/:threadId" element={<ChatThreadPage />} />
+            <Route path="/notificaciones" element={<NotificationsPage />} />
+            <Route path="/blablarun" element={<BlaBlaRunPage />} />
+            <Route path="/perfil" element={<ProfilePage />} />
+            <Route path="/ajustes" element={<SettingsPage />} />
+          </Route>
+        </Route>
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
