@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, Outlet } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { apiDMThreads } from "../services/api";
@@ -94,7 +94,7 @@ function DesktopNavItem({ to, icon, label, badgeCount = 0 }) {
   );
 }
 
-export default function AppChrome({ children }) {
+export default function AppChrome() {
   const { token } = useAuth();
   const [unreadMessages, setUnreadMessages] = useState(0);
 
@@ -173,7 +173,9 @@ export default function AppChrome({ children }) {
       </aside>
 
       <main className="app-main app-main--withChrome">
-        <div className="app-main__inner">{children}</div>
+        <div className="app-main__inner">
+          <Outlet />
+        </div>
       </main>
 
       <BottomNav unreadMessages={unreadMessages} />
