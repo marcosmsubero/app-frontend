@@ -72,6 +72,7 @@ export function normalizeUserContract(input = {}) {
     is_deleted: Boolean(data.is_deleted),
     email_verified: Boolean(data.email_verified),
     location_verified: Boolean(data.location_verified),
+    location_verified_at: data.location_verified_at || null,
     onboarding_completed: Boolean(data.onboarding_completed),
     created_at: data.created_at || null,
     updated_at: data.updated_at || null,
