@@ -2,24 +2,10 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { api } from "../services/api";
 import { useAuth } from "../hooks/useAuth";
-import MeetupCard from "../components/MeetupCard";
 
-function toLocalDatetimeValue(date = new Date()) {
-  const pad = (n) => String(n).padStart(2, "0");
-  const y = date.getFullYear();
-  const m = pad(date.getMonth() + 1);
-  const d = pad(date.getDate());
-  const hh = pad(date.getHours());
-  const mm = pad(date.getMinutes());
-  return `${y}-${m}-${d}T${hh}:${mm}`;
-}
-
-function fmtDateTime(iso) {
-  try {
-    return new Date(iso).toLocaleString();
-  } catch {
-    return iso || "";
-  }
+function initialsFromEmail(email = "") {
+  const clean = String(email || "").trim();
+  return (clean[0] || "U").toUpperCase();
 }
 
 export default function GroupPage() {
@@ -29,283 +15,219 @@ export default function GroupPage() {
 
   const gid = useMemo(() => Number(groupId), [groupId]);
 
-  const [loading, setLoading] = useState(true);
   const [group, setGroup] = useState(null);
-  const [upcoming, setUpcoming] = useState([]);
-  const [allMeetups, setAllMeetups] = useState([]);
-  const [err, setErr] = useState("");
-
-  const [busyCreate, setBusyCreate] = useState(false);
-  const [busyDelete, setBusyDelete] = useState(false);
-  const [busyJoin, setBusyJoin] = useState(false);
-
-  // ✅ Form controlado (permite escribir siempre)
-  const [startsAt, setStartsAt] = useState("");
-  const [meetingPoint, setMeetingPoint] = useState("");
-  const [notes, setNotes] = useState("");
-  const [capacity, setCapacity] = useState("");
-
-  async function loadAll() {
-    if (!token || !gid) return;
-    setErr("");
-    setLoading(true);
-
-    try {
-      const g = await api(`/groups/${gid}`, { token });
-      setGroup(g);
-
-      let all = [];
-      try {
-        const resAll = await api(`/groups/${gid}/meetups`, { token });
-        all = Array.isArray(resAll) ? resAll : resAll?.items || [];
-      } catch {
-        all = [];
-      }
-      setAllMeetups(all);
-
-      // Tu backend no necesita scope=upcoming (y puede que ni exista)
-      // así que lo calculamos de forma segura desde "all"
-      const now = Date.now();
-      const up = all
-        .filter((m) => {
-          const t = new Date(m.starts_at).getTime();
-          if (!Number.isFinite(t)) return false;
-          const status = m.status || "open";
-          return t >= now && status !== "cancelled" && status !== "done";
-        })
-        .sort((a, b) => new Date(a.starts_at) - new Date(b.starts_at));
-
-      setUpcoming(up);
-    } catch (e) {
-      setErr(e?.message || "Error cargando el grupo");
-    } finally {
-      setLoading(false);
-    }
-  }
+  const [members, setMembers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    loadAll();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token, gid]);
+    let cancelled = false;
 
-  async function handleDeleteGroup() {
-    if (!token || !gid) return;
-    const ok = confirm("¿Eliminar este grupo? Esta acción no se puede deshacer.");
-    if (!ok) return;
+    async function loadGroup() {
+      if (!gid) return;
 
-    setBusyDelete(true);
-    setErr("");
+      setLoading(true);
+      setError("");
 
-    try {
-      await api(`/groups/${gid}`, { method: "DELETE", token });
-      nav("/groups");
-    } catch (e) {
-      setErr(e?.message || "No se pudo eliminar el grupo");
-    } finally {
-      setBusyDelete(false);
+      try {
+        const groupRes = await api(`/groups/${gid}`, { token });
+        let membersRes = [];
+
+        if (token) {
+          try {
+            membersRes = await api(`/groups/${gid}/members`, { token });
+          } catch {
+            membersRes = [];
+          }
+        }
+
+        if (!cancelled) {
+          setGroup(groupRes);
+          setMembers(Array.isArray(membersRes) ? membersRes : []);
+        }
+      } catch (e) {
+        if (!cancelled) {
+          setError(e?.message || "No se pudo cargar el grupo.");
+          setGroup(null);
+          setMembers([]);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
     }
-  }
 
-  async function handleCreateMeetup(e) {
-    e.preventDefault();
-    if (!token || !gid) return;
+    loadGroup();
 
-    if (!startsAt) return alert("Selecciona fecha y hora");
-    if (!meetingPoint.trim()) return alert("Indica punto de encuentro");
-
-    const startsISO = new Date(startsAt).toISOString();
-
-    const payload = {
-      starts_at: startsISO,
-      meeting_point: meetingPoint.trim(),
-      notes: notes.trim() ? notes.trim() : null,
-      capacity: capacity === "" ? null : Number(capacity),
+    return () => {
+      cancelled = true;
     };
-
-    setBusyCreate(true);
-    setErr("");
-
-    try {
-      await api(`/groups/${gid}/meetups`, { method: "POST", token, body: payload });
-
-      // ✅ reset solo tras éxito (no borra mientras escribes)
-      setStartsAt("");
-      setMeetingPoint("");
-      setNotes("");
-      setCapacity("");
-
-      await loadAll();
-    } catch (e2) {
-      setErr(e2?.message || "No se pudo crear la quedada");
-    } finally {
-      setBusyCreate(false);
-    }
-  }
-
-  // ✅ NUEVO: unirse / salir de quedada (opcional, no automático)
-  async function handleJoinMeetup(meetupId) {
-    if (!token || !meetupId) return;
-    setBusyJoin(true);
-    setErr("");
-    try {
-      await api(`/meetups/${meetupId}/join`, { method: "POST", token });
-      await loadAll();
-    } catch (e) {
-      setErr(e?.message || "No se pudo unir a la quedada");
-    } finally {
-      setBusyJoin(false);
-    }
-  }
-
-  async function handleLeaveMeetup(meetupId) {
-    if (!token || !meetupId) return;
-    setBusyJoin(true);
-    setErr("");
-    try {
-      await api(`/meetups/${meetupId}/leave`, { method: "POST", token });
-      await loadAll();
-    } catch (e) {
-      setErr(e?.message || "No se pudo salir de la quedada");
-    } finally {
-      setBusyJoin(false);
-    }
-  }
+  }, [gid, token]);
 
   if (loading) {
     return (
-      <div className="stack" style={{ padding: 16 }}>
-        <p className="muted">Cargando grupo…</p>
-      </div>
+      <section className="page">
+        <div className="app-card">
+          <div className="app-card__body">
+            <div className="app-empty">
+              <div className="notificationsSimple__emptyBody">
+                <strong>Cargando grupo</strong>
+                <p>Estamos preparando el detalle.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (error || !group) {
+    return (
+      <section className="page">
+        <div className="app-card">
+          <div className="app-card__body" style={{ display: "grid", gap: 14 }}>
+            <button
+              type="button"
+              className="app-button app-button--secondary"
+              onClick={() => nav(-1)}
+              style={{ width: "fit-content" }}
+            >
+              Volver
+            </button>
+
+            <div className="app-empty">
+              <div className="notificationsSimple__emptyBody">
+                <strong>No se pudo cargar el grupo</strong>
+                <p>{error || "Grupo no encontrado."}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     );
   }
 
   return (
-    <div className="stack" style={{ maxWidth: 900 }}>
-      <div className="row" style={{ justifyContent: "space-between", alignItems: "center" }}>
-        <div>
-          <h2 className="m0">{group?.name || `Grupo #${gid}`}</h2>
-          <p className="muted" style={{ marginTop: 6 }}>
-            Gestiona quedadas y miembros desde aquí.
-          </p>
-        </div>
+    <section className="page">
+      <div className="app-card">
+        <div className="app-card__body" style={{ display: "grid", gap: 18 }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              gap: 12,
+              alignItems: "flex-start",
+              flexWrap: "wrap",
+            }}
+          >
+            <div style={{ display: "grid", gap: 8 }}>
+              <button
+                type="button"
+                className="app-button app-button--secondary"
+                onClick={() => nav(-1)}
+                style={{ width: "fit-content" }}
+              >
+                Volver
+              </button>
 
-        <div className="row" style={{ gap: 10 }}>
-          <button onClick={() => nav(-1)}>← Volver</button>
-          <button title="Eliminar grupo" onClick={handleDeleteGroup} disabled={busyDelete}>
-            🗑️ Eliminar grupo
-          </button>
+              <div className="page__header" style={{ marginBottom: 0 }}>
+                <span className="page__eyebrow">Grupo</span>
+                <h1 className="page__title">{group.name}</h1>
+                <p className="page__subtitle">
+                  {group.city} · {group.is_private ? "Privado" : "Público"}
+                </p>
+              </div>
+            </div>
+
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              <span className="app-chip app-chip--soft">
+                {group.members_count ?? members.length} miembros
+              </span>
+              <span className="app-chip app-chip--soft">Running</span>
+            </div>
+          </div>
         </div>
       </div>
 
-      {err ? (
-        <div className="card" style={{ border: "1px solid #f99" }}>
-          <p className="muted" style={{ margin: 0 }}>{err}</p>
-        </div>
-      ) : null}
+      <div className="app-card">
+        <div className="app-card__body" style={{ display: "grid", gap: 14 }}>
+          <h3 style={{ margin: 0 }}>Miembros</h3>
 
-      <div className="card">
-        <h3 className="m0">Crear quedada</h3>
-
-        <form onSubmit={handleCreateMeetup} className="stack" style={{ gap: 10, marginTop: 10 }}>
-          <label className="small-muted">Fecha y hora</label>
-          <input
-            type="datetime-local"
-            value={startsAt}
-            onChange={(e) => setStartsAt(e.target.value)}
-            min={toLocalDatetimeValue(new Date())}
-          />
-
-          <label className="small-muted">Punto de encuentro</label>
-          <input
-            value={meetingPoint}
-            onChange={(e) => setMeetingPoint(e.target.value)}
-            placeholder="Ej. Plaza del Pilar"
-          />
-
-          <label className="small-muted">Notas</label>
-          <textarea
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            placeholder="Detalles, qué llevar, etc."
-            rows={4}
-          />
-
-          <label className="small-muted">Aforo (opcional)</label>
-          <input
-            type="number"
-            value={capacity}
-            onChange={(e) => setCapacity(e.target.value)}
-            min={1}
-            placeholder="Ej. 10"
-          />
-
-          <button type="submit" disabled={busyCreate}>
-            {busyCreate ? "Creando…" : "Crear quedada"}
-          </button>
-        </form>
-      </div>
-
-      <div className="card">
-        <h3 className="m0">Próximas quedadas</h3>
-        <div style={{ marginTop: 10 }}>
-          {upcoming.length === 0 ? (
-            <p className="muted">No hay próximas quedadas</p>
+          {!token ? (
+            <div className="app-empty">
+              <div className="notificationsSimple__emptyBody">
+                <strong>Inicia sesión para ver miembros</strong>
+                <p>El detalle del grupo es público, pero la lista de miembros requiere sesión.</p>
+              </div>
+            </div>
+          ) : members.length === 0 ? (
+            <div className="app-empty">
+              <div className="notificationsSimple__emptyBody">
+                <strong>No hay miembros visibles</strong>
+                <p>Este grupo aún no muestra miembros o no tiene participantes.</p>
+              </div>
+            </div>
           ) : (
-            <div className="stack">
-              {upcoming.map((m) => (
-                <MeetupCard
-                  key={`up-${m.id}`}
-                  meetup={m}
-                  isAuthed={!!token}
-                  onJoin={() => handleJoinMeetup(m.id)}
-                  onLeave={() => handleLeaveMeetup(m.id)}
-                />
+            <div style={{ display: "grid", gap: 10 }}>
+              {members.map((member) => (
+                <article
+                  key={member.user_id}
+                  className="app-card"
+                  style={{ background: "rgba(255,255,255,0.56)" }}
+                >
+                  <div
+                    className="app-card__body"
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      gap: 12,
+                      flexWrap: "wrap",
+                    }}
+                  >
+                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                      <div
+                        style={{
+                          width: 42,
+                          height: 42,
+                          borderRadius: "50%",
+                          display: "grid",
+                          placeItems: "center",
+                          background: "rgba(16,24,40,0.08)",
+                          fontWeight: 700,
+                          color: "var(--app-text)",
+                        }}
+                      >
+                        {initialsFromEmail(member.email)}
+                      </div>
+
+                      <div style={{ display: "grid", gap: 4 }}>
+                        <strong>{member.email}</strong>
+                        <span style={{ color: "var(--app-text-muted)", fontSize: "var(--font-sm)" }}>
+                          {member.role === "owner"
+                            ? "Creador"
+                            : member.role === "mod"
+                            ? "Administrador"
+                            : "Miembro"}
+                        </span>
+                      </div>
+                    </div>
+
+                    <span className="app-chip app-chip--soft">
+                      {member.role === "owner"
+                        ? "Creador"
+                        : member.role === "mod"
+                        ? "Admin"
+                        : "Miembro"}
+                    </span>
+                  </div>
+                </article>
               ))}
-              {busyJoin ? <p className="muted">Actualizando…</p> : null}
             </div>
           )}
         </div>
       </div>
-
-      <div className="card">
-        <h3 className="m0">Todas las quedadas</h3>
-        <div style={{ marginTop: 10 }}>
-          {allMeetups.length === 0 ? (
-            <p className="muted">No hay quedadas aún</p>
-          ) : (
-            <div className="stack">
-              {allMeetups.map((m) => (
-                <MeetupCard
-                  key={m.id}
-                  meetup={m}
-                  isAuthed={!!token}
-                  onJoin={() => handleJoinMeetup(m.id)}
-                  onLeave={() => handleLeaveMeetup(m.id)}
-                />
-              ))}
-              {busyJoin ? <p className="muted">Actualizando…</p> : null}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Mantengo tu listado simple por si lo usabas para depurar */}
-      <div className="card" style={{ opacity: 0.85 }}>
-        <h3 className="m0">Debug (texto)</h3>
-        <div style={{ marginTop: 10 }}>
-          {allMeetups.length === 0 ? (
-            <p className="muted">—</p>
-          ) : (
-            <ul>
-              {allMeetups.map((m) => (
-                <li key={`dbg-${m.id}`}>
-                  <b>{fmtDateTime(m.starts_at)}</b> · 📍 {m.meeting_point}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      </div>
-    </div>
+    </section>
   );
 }
