@@ -20,21 +20,22 @@ function ShellIcon({ children }) {
   );
 }
 
-function IconHome() {
+function IconMessage() {
   return (
     <ShellIcon>
-      <path d="M3 10.5 12 3l9 7.5" />
-      <path d="M5 9.5V20h14V9.5" />
+      <path d="M5 18.5 4 21l3.1-1.2c.6.1 1.3.2 1.9.2h7a5 5 0 0 0 5-5v-5a5 5 0 0 0-5-5H8a5 5 0 0 0-5 5v5c0 1.4.6 2.7 1.7 3.6Z" />
     </ShellIcon>
   );
 }
 
-function IconMeetups() {
+function IconRun() {
   return (
     <ShellIcon>
-      <path d="M12 21s-6.5-4.35-6.5-10A4.5 4.5 0 0 1 10 6.5c.84 0 1.64.23 2.35.65A4.46 4.46 0 0 1 14.7 6.5 4.5 4.5 0 0 1 19.5 11c0 5.65-7.5 10-7.5 10Z" />
-      <path d="M12 9.2v3.8" />
-      <path d="M10.1 11.1H14" />
+      <path d="M13.5 5.5a1.75 1.75 0 1 0 0-3.5 1.75 1.75 0 0 0 0 3.5Z" />
+      <path d="M7 20l2.2-5.1 2.1-1.6 1.7 1.2V20" />
+      <path d="M10 9.5l2.5-1.5 2.5 1 2 2.5" />
+      <path d="M9.5 12.5 7 14l-2 4" />
+      <path d="M13.5 10.5 16 13" />
     </ShellIcon>
   );
 }
@@ -50,19 +51,20 @@ function IconUsers() {
   );
 }
 
-function IconMessage() {
+function IconProfile() {
   return (
     <ShellIcon>
-      <path d="M5 18.5 4 21l3.1-1.2c.6.1 1.3.2 1.9.2h7a5 5 0 0 0 5-5v-5a5 5 0 0 0-5-5H8a5 5 0 0 0-5 5v5c0 1.4.6 2.7 1.7 3.6Z" />
+      <circle cx="12" cy="8.5" r="3.5" />
+      <path d="M5 19a7 7 0 0 1 14 0" />
     </ShellIcon>
   );
 }
 
 const NAV_ITEMS = [
-  { to: "/", icon: <IconHome />, label: "Inicio" },
-  { to: "/explorar", icon: <IconMeetups />, label: "Quedadas" },
-  { to: "/groups", icon: <IconUsers />, label: "Grupos" },
+  { to: "/perfil", icon: <IconProfile />, label: "Perfil" },
   { to: "/mensajes", icon: <IconMessage />, label: "Mensajes", withCounter: true },
+  { to: "/blablarun", icon: <IconRun />, label: "BlaBlaRun" },
+  { to: "/groups", icon: <IconUsers />, label: "Grupos" },
 ];
 
 function getUnreadCount(thread) {
@@ -82,8 +84,11 @@ function DesktopNavItem({ to, icon, label, badgeCount = 0 }) {
       }
     >
       <span className="app-sidebar__iconGlyph">{icon}</span>
+
       {badgeCount > 0 ? (
-        <span className="app-sidebar__iconBadge">{badgeCount > 99 ? "99+" : badgeCount}</span>
+        <span className="app-sidebar__iconBadge">
+          {badgeCount > 99 ? "99+" : badgeCount}
+        </span>
       ) : null}
     </NavLink>
   );
@@ -106,9 +111,14 @@ export default function AppChrome({ children }) {
         const res = await apiDMThreads("", token);
         const items = Array.isArray(res) ? res : res?.items || [];
         const total = items.reduce((acc, thread) => acc + getUnreadCount(thread), 0);
-        if (!cancelled) setUnreadMessages(total);
+
+        if (!cancelled) {
+          setUnreadMessages(total);
+        }
       } catch {
-        if (!cancelled) setUnreadMessages(0);
+        if (!cancelled) {
+          setUnreadMessages(0);
+        }
       }
     }
 
@@ -136,25 +146,17 @@ export default function AppChrome({ children }) {
               title="Perfil"
             >
               <span className="app-sidebar__iconGlyph">
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.9"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
-                >
-                  <circle cx="12" cy="8.5" r="3.5" />
-                  <path d="M5 19a7 7 0 0 1 14 0" />
-                </svg>
+                <IconProfile />
               </span>
             </NavLink>
           </div>
         </div>
       </header>
 
-      <aside className="app-sidebar app-sidebar--floating" aria-label="Navegación principal">
+      <aside
+        className="app-sidebar app-sidebar--floating"
+        aria-label="Navegación principal"
+      >
         <div className="app-sidebar__floatingRail">
           <nav className="app-sidebar__iconNav">
             {NAV_ITEMS.map((item) => (
@@ -167,30 +169,6 @@ export default function AppChrome({ children }) {
               />
             ))}
           </nav>
-
-          <div className="app-sidebar__bottomActions">
-            <NavLink
-              to="/perfil"
-              aria-label="Perfil"
-              title="Perfil"
-              className={({ isActive }) =>
-                `app-sidebar__profileIconOnly${isActive ? " app-sidebar__profileIconOnly--active" : ""}`
-              }
-            >
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.9"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <circle cx="12" cy="8.5" r="3.5" />
-                <path d="M5 19a7 7 0 0 1 14 0" />
-              </svg>
-            </NavLink>
-          </div>
         </div>
       </aside>
 
