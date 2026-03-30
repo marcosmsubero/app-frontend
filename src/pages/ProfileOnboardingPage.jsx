@@ -1,508 +1,281 @@
 import { useEffect, useMemo, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
-import { apiUpdateProfile, apiVerifyLocation } from "../services/api";
+import { isOnboardingComplete } from "../lib/userContract";
+import { apiUpdateProfile } from "../services/api";
 
-const DISCIPLINES = ["Running", "Ciclismo", "Montañismo", "Senderismo"];
-
-function normalizeHandle(v) {
-  return String(v || "")
+function normalizeHandle(value = "") {
+  return String(value || "")
     .trim()
-    .toLowerCase()
-    .replace(/\s+/g, "")
     .replace(/^@+/, "")
-    .replace(/[^a-z0-9._-]/g, "");
-}
-
-function StepPill({ active, done, number, label }) {
-  let variant = "";
-  if (done) variant = " app-badge--success";
-  else if (active) variant = " app-badge--primary";
-
-  return (
-    <span className={`app-badge${variant}`}>
-      {done ? "✓" : number} · {label}
-    </span>
-  );
+    .replace(/\s+/g, "")
+    .toLowerCase();
 }
 
 export default function ProfileOnboardingPage() {
+  const { token, me, meReady, refreshMe, ensureProfile, profile } = useAuth();
   const nav = useNavigate();
   const location = useLocation();
-  const { token, me, refreshMe, logout } = useAuth();
 
-  const isNewProfile = !me?.onboarding_completed;
-  const cameFromRegister = !!location.state?.fromRegister;
+  const [form, setForm] = useState({
+    full_name: "",
+    handle: "",
+    bio: "",
+    location: "",
+  });
 
-  const initial = useMemo(
-    () => ({
-      handle: me?.handle || "",
-      full_name: me?.full_name || "",
-      bio: me?.bio || "",
-      role: me?.role || "athlete",
-      location: me?.location || "",
-      avatar_url: me?.avatar_url || "",
-      disciplines: Array.isArray(me?.disciplines) ? me.disciplines : [],
-      links: {
-        strava: me?.links?.strava || "",
-        instagram: me?.links?.instagram || "",
-        website: me?.links?.website || "",
-      },
-    }),
-    [me]
-  );
-
-  const [step, setStep] = useState(1);
-  const [form, setForm] = useState(initial);
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState({ type: "", text: "" });
-  const [verifyingLoc, setVerifyingLoc] = useState(false);
+
+  const initialEmail = useMemo(() => {
+    return (
+      location.state?.registeredEmail ||
+      me?.email ||
+      profile?.email ||
+      ""
+    );
+  }, [location.state?.registeredEmail, me?.email, profile?.email]);
 
   useEffect(() => {
-    setForm(initial);
-    setStep(1);
-  }, [initial]);
+    if (!meReady) return;
+
+    setForm({
+      full_name: me?.full_name || "",
+      handle: me?.handle || "",
+      bio: me?.bio || "",
+      location: me?.location || "",
+    });
+  }, [me, meReady]);
+
+  function updateField(field, value) {
+    setForm((prev) => ({ ...prev, [field]: value }));
+  }
 
   function setError(text) {
     setMsg({ type: "error", text });
   }
 
-  function setInfo(text) {
-    setMsg({ type: "info", text });
+  function setSuccess(text) {
+    setMsg({ type: "success", text });
   }
 
-  function clearMsg() {
-    setMsg({ type: "", text: "" });
-  }
+  async function handleSubmit(e) {
+    e.preventDefault();
 
-  function setField(k, v) {
-    setForm((prev) => ({ ...prev, [k]: v }));
-  }
+    const full_name = form.full_name.trim();
+    const handle = normalizeHandle(form.handle);
+    const bio = form.bio.trim();
+    const locationValue = form.location.trim();
 
-  function toggleDiscipline(d) {
-    setForm((prev) => {
-      const current = Array.isArray(prev.disciplines) ? prev.disciplines : [];
-      const has = current.includes(d);
-      const next = has ? current.filter((x) => x !== d) : [...current, d];
-      return { ...prev, disciplines: next };
-    });
-  }
-
-  function validateStep1() {
-    const h = normalizeHandle(form.handle);
-    if (!h || h.length < 3) return "Tu @ debe tener al menos 3 caracteres.";
-    if (h.length > 20) return "Tu @ no puede tener más de 20 caracteres.";
-    if (!form.full_name?.trim()) return "Introduce tu nombre completo.";
-    if (!form.role) return "Selecciona tu perfil.";
-    return "";
-  }
-
-  async function handleExit() {
-    if (saving) return;
-    clearMsg();
-
-    if (isNewProfile) {
-      await logout();
-      nav("/login", { replace: true });
-      return;
+    if (!full_name) {
+      return setError("Introduce tu nombre.");
     }
 
-    nav("/perfil", { replace: true });
-  }
-
-  async function verifyLoc() {
-    if (verifyingLoc || saving) return;
-    clearMsg();
-
-    if (!("geolocation" in navigator)) {
-      return setError("Tu navegador no soporta geolocalización.");
+    if (full_name.length < 2) {
+      return setError("El nombre debe tener al menos 2 caracteres.");
     }
 
-    setVerifyingLoc(true);
-
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        try {
-          const { latitude, longitude, accuracy } = pos.coords;
-          await apiVerifyLocation(latitude, longitude, accuracy, token);
-          await refreshMe();
-          setInfo("Ubicación verificada.");
-        } catch (e) {
-          setError(e?.message || "No se pudo verificar la ubicación.");
-        } finally {
-          setVerifyingLoc(false);
-        }
-      },
-      () => {
-        setVerifyingLoc(false);
-        setError("No se pudo obtener tu ubicación. Revisa permisos de GPS.");
-      },
-      { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
-    );
-  }
-
-  function goNext() {
-    if (saving) return;
-    clearMsg();
-
-    const err = validateStep1();
-    if (err) return setError(err);
-
-    setField("handle", normalizeHandle(form.handle));
-    setStep(2);
-  }
-
-  function goBack() {
-    if (saving) return;
-    clearMsg();
-    setStep(1);
-  }
-
-  async function finish() {
-    if (saving) return;
-    clearMsg();
-
-    const err1 = validateStep1();
-    if (err1) {
-      setStep(1);
-      return setError(err1);
+    if (!handle) {
+      return setError("Introduce un nombre de usuario.");
     }
 
-    const payload = {
-      handle: normalizeHandle(form.handle),
-      full_name: form.full_name?.trim(),
-      bio: form.bio?.trim() || "",
-      role: form.role,
-      location: form.location?.trim() || "",
-      avatar_url: form.avatar_url?.trim() || "",
-      disciplines: form.disciplines || [],
-      links: {
-        strava: form.links?.strava?.trim() || "",
-        instagram: form.links?.instagram?.trim() || "",
-        website: form.links?.website?.trim() || "",
-      },
-      onboarding_completed: true,
-    };
+    if (!/^[a-z0-9._-]{3,30}$/.test(handle)) {
+      return setError(
+        "El usuario debe tener entre 3 y 30 caracteres y solo puede incluir letras, números, punto, guion y guion bajo."
+      );
+    }
+
+    if (bio.length > 280) {
+      return setError("La bio no puede superar los 280 caracteres.");
+    }
 
     setSaving(true);
+    setMsg({ type: "", text: "" });
 
     try {
-      const res = await apiUpdateProfile(payload, token);
-      console.log("[ONBOARDING] update_profile response:", res);
+      await ensureProfile();
 
-      await refreshMe();
+      const payload = {
+        full_name,
+        handle,
+        bio: bio || null,
+        location: locationValue || null,
+        disciplines: ["running"],
+        avatar_url: null,
+        onboarding_completed: true,
+      };
 
+      await apiUpdateProfile(payload, token);
+      await refreshMe(token);
+
+      setSuccess("Perfil completado.");
       nav("/", { replace: true });
-    } catch (e) {
-      console.error("[ONBOARDING] finish error:", e);
-      setError(e?.message || "No se pudo guardar el perfil.");
+    } catch (err) {
+      const message = String(err?.message || "").toLowerCase();
+
+      if (
+        message.includes("handle") &&
+        (message.includes("exists") ||
+          message.includes("taken") ||
+          message.includes("duplic") ||
+          message.includes("unique"))
+      ) {
+        setError("Ese nombre de usuario ya está en uso.");
+      } else {
+        setError(err?.message || "No se pudo completar el onboarding.");
+      }
     } finally {
       setSaving(false);
     }
   }
 
-  const title = isNewProfile ? "Completa tu perfil" : "Actualizar perfil";
-  const subtitle = cameFromRegister
-    ? "Tu cuenta ya está creada y la sesión está iniciada. Solo faltan unos pasos para entrar."
-    : "Configura tu identidad deportiva y deja tu perfil listo.";
+  if (!meReady) {
+    return (
+      <div className="app-loader-screen">
+        <div className="app-loader-screen__inner">
+          <div className="app-loader-screen__spinner" />
+          <div className="app-loader-screen__label">Cargando onboarding…</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isOnboardingComplete(me)) {
+    return <Navigate to="/" replace />;
+  }
 
   return (
-    <section className="onboardingSimple">
-      <div className="onboardingSimple__shell">
-        <div className="onboardingSimple__layout">
-          <div className="onboardingSimple__intro">
-            <span className="app-kicker">{isNewProfile ? "Primer acceso" : "Perfil"}</span>
-            <h1 className="onboardingSimple__title">{title}</h1>
-            <p className="onboardingSimple__subtitle">{subtitle}</p>
-
-            <div className="onboardingSimple__steps">
-              <StepPill active={step === 1} done={step > 1} number={1} label="Cuenta" />
-              <StepPill active={step === 2} done={false} number={2} label="Perfil" />
-            </div>
-
-            <div className="onboardingSimple__status">
-              <div className="onboardingSimple__statusItem">
-                <span className="app-badge app-badge--success">Email</span>
-                <strong>{me?.email || location.state?.registeredEmail || "Email no disponible"}</strong>
-                <p>Email operativo. No se requiere confirmación para continuar.</p>
-              </div>
-
-              <div className="onboardingSimple__statusItem">
-                <span className={`app-badge${me?.location_verified ? " app-badge--success" : ""}`}>
-                  Ubicación
-                </span>
-                <strong>{me?.location_verified ? "Verificada" : "Opcional"}</strong>
-                <p>Ayuda a mostrar mejor tu actividad y tus planes cercanos.</p>
-              </div>
-            </div>
-
-            {msg.text ? (
-              <div
-                className={`onboardingSimple__message ${
-                  msg.type === "error"
-                    ? "onboardingSimple__message--error"
-                    : "onboardingSimple__message--info"
-                }`}
-              >
-                {msg.text}
-              </div>
-            ) : null}
-          </div>
-
-          <div className="onboardingSimple__panel app-section">
-            {step === 1 ? (
-              <div className="onboardingSimple__formWrap">
-                <div className="onboardingSimple__head">
-                  <h2 className="onboardingSimple__panelTitle">Cuenta e identidad</h2>
-                  <p className="onboardingSimple__panelText">
-                    Define tu usuario y completa los datos básicos.
-                  </p>
-                </div>
-
-                <div className="onboardingSimple__verified">
-                  <span className="app-badge app-badge--success">
-                    Cuenta lista para continuar
-                  </span>
-                </div>
-
-                <div className="onboardingSimple__form">
-                  <div className="app-field">
-                    <label className="app-label" htmlFor="handle">
-                      Usuario (@)
-                    </label>
-                    <input
-                      id="handle"
-                      className="app-input"
-                      value={form.handle}
-                      onChange={(e) => setField("handle", normalizeHandle(e.target.value))}
-                      disabled={saving}
-                      placeholder="ejemplo_marcos"
-                    />
-                  </div>
-
-                  <div className="app-field">
-                    <label className="app-label" htmlFor="full_name">
-                      Nombre completo
-                    </label>
-                    <input
-                      id="full_name"
-                      className="app-input"
-                      value={form.full_name}
-                      onChange={(e) => setField("full_name", e.target.value)}
-                      disabled={saving}
-                      placeholder="Tu nombre y apellidos"
-                    />
-                  </div>
-
-                  <div className="app-field">
-                    <label className="app-label" htmlFor="role">
-                      Perfil
-                    </label>
-                    <select
-                      id="role"
-                      className="app-select"
-                      value={form.role}
-                      onChange={(e) => setField("role", e.target.value)}
-                      disabled={saving}
-                    >
-                      <option value="">Selecciona una opción</option>
-                      <option value="athlete">Deportista</option>
-                      <option value="coach">Entrenador</option>
-                      <option value="group">Grupo</option>
-                    </select>
-                  </div>
-
-                  <div className="app-field">
-                    <label className="app-label" htmlFor="location">
-                      Ubicación visible
-                    </label>
-                    <input
-                      id="location"
-                      className="app-input"
-                      value={form.location}
-                      onChange={(e) => setField("location", e.target.value)}
-                      disabled={saving}
-                      placeholder="Ej. Alicante"
-                    />
-                  </div>
-
-                  <div className="onboardingSimple__inlineActions">
-                    <button
-                      type="button"
-                      className="app-button app-button--secondary"
-                      onClick={verifyLoc}
-                      disabled={verifyingLoc || saving}
-                    >
-                      {verifyingLoc
-                        ? "Verificando…"
-                        : me?.location_verified
-                          ? "Re-verificar ubicación"
-                          : "Verificar ubicación"}
-                    </button>
-                  </div>
-                </div>
-
-                <div className="onboardingSimple__footer">
-                  <button
-                    type="button"
-                    className="app-button app-button--ghost"
-                    onClick={handleExit}
-                    disabled={saving}
-                  >
-                    Salir
-                  </button>
-
-                  <button
-                    type="button"
-                    className="app-button app-button--primary"
-                    onClick={goNext}
-                    disabled={saving}
-                  >
-                    Continuar
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div className="onboardingSimple__formWrap">
-                <div className="onboardingSimple__head">
-                  <h2 className="onboardingSimple__panelTitle">Perfil deportivo</h2>
-                  <p className="onboardingSimple__panelText">
-                    Añade solo lo necesario para dar contexto a tu perfil.
-                  </p>
-                </div>
-
-                <div className="onboardingSimple__form">
-                  <div className="app-field">
-                    <label className="app-label" htmlFor="bio">
-                      Bio
-                    </label>
-                    <textarea
-                      id="bio"
-                      className="app-textarea"
-                      value={form.bio}
-                      onChange={(e) => setField("bio", e.target.value)}
-                      disabled={saving}
-                      placeholder="Qué deporte practicas o qué buscas en la app."
-                    />
-                  </div>
-
-                  <div className="app-field">
-                    <label className="app-label" htmlFor="avatar_url">
-                      URL de avatar
-                    </label>
-                    <input
-                      id="avatar_url"
-                      className="app-input"
-                      value={form.avatar_url}
-                      onChange={(e) => setField("avatar_url", e.target.value)}
-                      disabled={saving}
-                      placeholder="https://..."
-                    />
-                  </div>
-
-                  <fieldset className="app-field">
-                    <legend className="app-label">Disciplinas</legend>
-                    <div className="onboardingSimple__chips">
-                      {DISCIPLINES.map((discipline) => {
-                        const active = form.disciplines?.includes(discipline);
-                        return (
-                          <button
-                            key={discipline}
-                            type="button"
-                            className={`onboardingSimple__chip${
-                              active ? " onboardingSimple__chip--active" : ""
-                            }`}
-                            onClick={() => toggleDiscipline(discipline)}
-                            disabled={saving}
-                          >
-                            {discipline}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </fieldset>
-
-                  <div className="app-field">
-                    <label className="app-label" htmlFor="strava">
-                      Strava
-                    </label>
-                    <input
-                      id="strava"
-                      className="app-input"
-                      value={form.links.strava}
-                      onChange={(e) =>
-                        setForm((prev) => ({
-                          ...prev,
-                          links: { ...prev.links, strava: e.target.value },
-                        }))
-                      }
-                      disabled={saving}
-                      placeholder="https://www.strava.com/..."
-                    />
-                  </div>
-
-                  <div className="app-field">
-                    <label className="app-label" htmlFor="instagram">
-                      Instagram
-                    </label>
-                    <input
-                      id="instagram"
-                      className="app-input"
-                      value={form.links.instagram}
-                      onChange={(e) =>
-                        setForm((prev) => ({
-                          ...prev,
-                          links: { ...prev.links, instagram: e.target.value },
-                        }))
-                      }
-                      disabled={saving}
-                      placeholder="https://instagram.com/..."
-                    />
-                  </div>
-
-                  <div className="app-field">
-                    <label className="app-label" htmlFor="website">
-                      Web
-                    </label>
-                    <input
-                      id="website"
-                      className="app-input"
-                      value={form.links.website}
-                      onChange={(e) =>
-                        setForm((prev) => ({
-                          ...prev,
-                          links: { ...prev.links, website: e.target.value },
-                        }))
-                      }
-                      disabled={saving}
-                      placeholder="https://..."
-                    />
-                  </div>
-                </div>
-
-                <div className="onboardingSimple__footer">
-                  <button
-                    type="button"
-                    className="app-button app-button--ghost"
-                    onClick={goBack}
-                    disabled={saving}
-                  >
-                    Volver
-                  </button>
-
-                  <button
-                    type="button"
-                    className="app-button app-button--primary"
-                    onClick={finish}
-                    disabled={saving}
-                  >
-                    {saving ? "Guardando…" : "Entrar en la app"}
-                  </button>
-                </div>
-              </div>
-            )}
+    <section className="app-shell app-shell--narrow">
+      <div className="app-section">
+        <div className="app-section__header">
+          <div>
+            <span className="app-eyebrow">Onboarding</span>
+            <h1 className="app-title">Completa tu perfil runner</h1>
+            <p className="app-subtitle">
+              Configura tu cuenta una sola vez para acceder a la comunidad.
+            </p>
           </div>
         </div>
+
+        <form className="app-form" onSubmit={handleSubmit}>
+          {initialEmail ? (
+            <div className="app-field">
+              <label className="app-label">Email</label>
+              <input
+                className="app-input"
+                type="email"
+                value={initialEmail}
+                disabled
+                readOnly
+              />
+            </div>
+          ) : null}
+
+          <div className="app-field">
+            <label className="app-label" htmlFor="onboarding-full-name">
+              Nombre
+            </label>
+            <input
+              id="onboarding-full-name"
+              className="app-input"
+              type="text"
+              value={form.full_name}
+              onChange={(e) => updateField("full_name", e.target.value)}
+              disabled={saving}
+              placeholder="Tu nombre"
+              autoComplete="name"
+            />
+          </div>
+
+          <div className="app-field">
+            <label className="app-label" htmlFor="onboarding-handle">
+              Nombre de usuario
+            </label>
+            <input
+              id="onboarding-handle"
+              className="app-input"
+              type="text"
+              value={form.handle}
+              onChange={(e) => updateField("handle", normalizeHandle(e.target.value))}
+              disabled={saving}
+              placeholder="tuusuario"
+              autoCapitalize="off"
+              autoCorrect="off"
+              autoComplete="username"
+            />
+            <small className="app-help">
+              Será tu identificador visible dentro de la app.
+            </small>
+          </div>
+
+          <div className="app-field">
+            <label className="app-label" htmlFor="onboarding-location">
+              Ubicación
+            </label>
+            <input
+              id="onboarding-location"
+              className="app-input"
+              type="text"
+              value={form.location}
+              onChange={(e) => updateField("location", e.target.value)}
+              disabled={saving}
+              placeholder="Ej. Alicante"
+              autoComplete="address-level2"
+            />
+          </div>
+
+          <div className="app-field">
+            <label className="app-label" htmlFor="onboarding-bio">
+              Bio
+            </label>
+            <textarea
+              id="onboarding-bio"
+              className="app-textarea"
+              rows={4}
+              value={form.bio}
+              onChange={(e) => updateField("bio", e.target.value)}
+              disabled={saving}
+              placeholder="Cuéntanos algo sobre ti como runner"
+            />
+            <small className="app-help">{form.bio.length}/280</small>
+          </div>
+
+          <div className="app-field">
+            <label className="app-label">Disciplina</label>
+            <input
+              className="app-input"
+              type="text"
+              value="Running"
+              disabled
+              readOnly
+            />
+            <small className="app-help">
+              La app está centrada en runners por ahora.
+            </small>
+          </div>
+
+          {msg.text ? (
+            <div
+              className={`authSimple__message ${
+                msg.type === "error"
+                  ? "authSimple__message--error"
+                  : "authSimple__message--success"
+              }`}
+            >
+              {msg.text}
+            </div>
+          ) : null}
+
+          <div className="app-actions">
+            <button
+              type="submit"
+              className="app-button app-button--primary"
+              disabled={saving}
+            >
+              {saving ? "Guardando…" : "Completar perfil"}
+            </button>
+          </div>
+        </form>
       </div>
     </section>
   );
