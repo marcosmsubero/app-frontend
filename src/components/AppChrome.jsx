@@ -58,28 +58,10 @@ function IconMessage() {
   );
 }
 
-function IconProfile() {
-  return (
-    <ShellIcon>
-      <circle cx="12" cy="8.5" r="3.5" />
-      <path d="M5 19a7 7 0 0 1 14 0" />
-    </ShellIcon>
-  );
-}
-
-function IconSettings() {
-  return (
-    <ShellIcon>
-      <circle cx="12" cy="12" r="3.25" />
-      <path d="M19.4 15a1 1 0 0 0 .2 1.1l.05.05a2 2 0 0 1-2.83 2.83l-.05-.05a1 1 0 0 0-1.1-.2 1 1 0 0 0-.6.91V20a2 2 0 0 1-4 0v-.08a1 1 0 0 0-.66-.94 1 1 0 0 0-1.09.23l-.05.05a2 2 0 1 1-2.83-2.83l.05-.05a1 1 0 0 0 .2-1.1 1 1 0 0 0-.91-.6H4a2 2 0 0 1 0-4h.08a1 1 0 0 0 .94-.66 1 1 0 0 0-.23-1.09l-.05-.05a2 2 0 1 1 2.83-2.83l.05.05a1 1 0 0 0 1.1.2 1 1 0 0 0 .6-.91V4a2 2 0 0 1 4 0v.08a1 1 0 0 0 .66.94 1 1 0 0 0 1.09-.23l.05-.05a2 2 0 0 1 2.83 2.83l-.05.05a1 1 0 0 0-.2 1.1 1 1 0 0 0 .91.6H20a2 2 0 0 1 0 4h-.08a1 1 0 0 0-.94.66 1 1 0 0 0 .23 1.09Z" />
-    </ShellIcon>
-  );
-}
-
 const NAV_ITEMS = [
   { to: "/", icon: <IconHome />, label: "Inicio" },
   { to: "/explorar", icon: <IconMeetups />, label: "Quedadas" },
-  { to: "/grupos", icon: <IconUsers />, label: "Grupos" },
+  { to: "/groups", icon: <IconUsers />, label: "Grupos" },
   { to: "/mensajes", icon: <IconMessage />, label: "Mensajes", withCounter: true },
 ];
 
@@ -100,11 +82,8 @@ function DesktopNavItem({ to, icon, label, badgeCount = 0 }) {
       }
     >
       <span className="app-sidebar__iconGlyph">{icon}</span>
-
       {badgeCount > 0 ? (
-        <span className="app-sidebar__iconBadge">
-          {badgeCount > 99 ? "99+" : badgeCount}
-        </span>
+        <span className="app-sidebar__iconBadge">{badgeCount > 99 ? "99+" : badgeCount}</span>
       ) : null}
     </NavLink>
   );
@@ -127,14 +106,9 @@ export default function AppChrome({ children }) {
         const res = await apiDMThreads("", token);
         const items = Array.isArray(res) ? res : res?.items || [];
         const total = items.reduce((acc, thread) => acc + getUnreadCount(thread), 0);
-
-        if (!cancelled) {
-          setUnreadMessages(total);
-        }
+        if (!cancelled) setUnreadMessages(total);
       } catch {
-        if (!cancelled) {
-          setUnreadMessages(0);
-        }
+        if (!cancelled) setUnreadMessages(0);
       }
     }
 
@@ -148,37 +122,39 @@ export default function AppChrome({ children }) {
   }, [token]);
 
   return (
-    <div className="app-layout-shell">
+    <div className="app-shell app-shell--withChrome">
       <header className="app-topbar app-topbar--minimal">
-        <div className="app-topbar__actions">
-          <NavLink
-            to="/ajustes"
-            className={({ isActive }) =>
-              `app-topbar__profileIconOnly${isActive ? " app-sidebar__profileIconOnly--active" : ""}`
-            }
-            aria-label="Ajustes"
-            title="Ajustes"
-          >
-            <IconSettings />
-          </NavLink>
-
-          <NavLink
-            to="/perfil"
-            className={({ isActive }) =>
-              `app-topbar__profileIconOnly${isActive ? " app-sidebar__profileIconOnly--active" : ""}`
-            }
-            aria-label="Perfil"
-            title="Perfil"
-          >
-            <IconProfile />
-          </NavLink>
+        <div className="app-topbar__row">
+          <div />
+          <div className="app-topbar__actions">
+            <NavLink
+              to="/perfil"
+              className={({ isActive }) =>
+                `app-topbar__profileIconOnly${isActive ? " app-sidebar__profileIconOnly--active" : ""}`
+              }
+              aria-label="Perfil"
+              title="Perfil"
+            >
+              <span className="app-sidebar__iconGlyph">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.9"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <circle cx="12" cy="8.5" r="3.5" />
+                  <path d="M5 19a7 7 0 0 1 14 0" />
+                </svg>
+              </span>
+            </NavLink>
+          </div>
         </div>
       </header>
 
-      <aside
-        className="app-sidebar app-sidebar--floating"
-        aria-label="Navegación principal"
-      >
+      <aside className="app-sidebar app-sidebar--floating" aria-label="Navegación principal">
         <div className="app-sidebar__floatingRail">
           <nav className="app-sidebar__iconNav">
             {NAV_ITEMS.map((item) => (
@@ -194,36 +170,32 @@ export default function AppChrome({ children }) {
 
           <div className="app-sidebar__bottomActions">
             <NavLink
-              to="/ajustes"
-              aria-label="Ajustes"
-              title="Ajustes"
-              className={({ isActive }) =>
-                `app-sidebar__profileIconOnly${
-                  isActive ? " app-sidebar__profileIconOnly--active" : ""
-                }`
-              }
-            >
-              <IconSettings />
-            </NavLink>
-
-            <NavLink
               to="/perfil"
               aria-label="Perfil"
               title="Perfil"
               className={({ isActive }) =>
-                `app-sidebar__profileIconOnly${
-                  isActive ? " app-sidebar__profileIconOnly--active" : ""
-                }`
+                `app-sidebar__profileIconOnly${isActive ? " app-sidebar__profileIconOnly--active" : ""}`
               }
             >
-              <IconProfile />
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.9"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <circle cx="12" cy="8.5" r="3.5" />
+                <path d="M5 19a7 7 0 0 1 14 0" />
+              </svg>
             </NavLink>
           </div>
         </div>
       </aside>
 
-      <main className="app-layout-main">
-        {children}
+      <main className="app-main app-main--withChrome">
+        <div className="app-main__inner">{children}</div>
       </main>
 
       <BottomNav unreadMessages={unreadMessages} />
