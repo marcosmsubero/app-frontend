@@ -1,60 +1,93 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { api } from "../services/api";
 import { useAuth } from "../hooks/useAuth";
 import { useToast } from "../hooks/useToast";
-import { api } from "../services/api";
 
-function normalizeGroupsResponse(res) {
-  if (Array.isArray(res)) return res;
-  if (Array.isArray(res?.items)) return res.items;
-  if (Array.isArray(res?.groups)) return res.groups;
-  return [];
-}
+const SPAIN_PROVINCES = [
+  "Álava",
+  "Albacete",
+  "Alicante",
+  "Almería",
+  "Asturias",
+  "Ávila",
+  "Badajoz",
+  "Barcelona",
+  "Burgos",
+  "Cáceres",
+  "Cádiz",
+  "Cantabria",
+  "Castellón",
+  "Ciudad Real",
+  "Córdoba",
+  "Cuenca",
+  "Girona",
+  "Granada",
+  "Guadalajara",
+  "Gipuzkoa",
+  "Huelva",
+  "Huesca",
+  "Illes Balears",
+  "Jaén",
+  "La Coruña",
+  "La Rioja",
+  "Las Palmas",
+  "León",
+  "Lleida",
+  "Lugo",
+  "Madrid",
+  "Málaga",
+  "Murcia",
+  "Navarra",
+  "Ourense",
+  "Palencia",
+  "Pontevedra",
+  "Salamanca",
+  "Santa Cruz de Tenerife",
+  "Segovia",
+  "Sevilla",
+  "Soria",
+  "Tarragona",
+  "Teruel",
+  "Toledo",
+  "Valencia",
+  "Valladolid",
+  "Vizcaya",
+  "Zamora",
+  "Zaragoza",
+  "Ceuta",
+  "Melilla",
+];
 
-function getGroupLocation(group) {
+function panelTitle(title, subtitle) {
   return (
-    group?.city ||
-    group?.location ||
-    group?.place ||
-    group?.zone ||
-    "Ubicación no indicada"
+    <div style={{ display: "grid", gap: 4 }}>
+      <h3 style={{ margin: 0 }}>{title}</h3>
+      {subtitle ? (
+        <p style={{ margin: 0, color: "var(--app-text-muted)" }}>{subtitle}</p>
+      ) : null}
+    </div>
   );
 }
 
-function getGroupTitle(group) {
-  return group?.name || group?.title || "Grupo";
-}
-
-function getGroupDescription(group) {
-  return (
-    group?.description ||
-    group?.bio ||
-    "Grupo de running para entrenar, quedar y compartir actividad."
-  );
-}
-
-function getMembersCount(group) {
-  if (typeof group?.members_count === "number") return group.members_count;
-  if (typeof group?.member_count === "number") return group.member_count;
-  if (Array.isArray(group?.members)) return group.members.length;
-  return 0;
-}
-
-function isPrivateGroup(group) {
-  return Boolean(group?.is_private || group?.private);
-}
-
-function GroupCard({ group, onJoin, joiningId }) {
-  const title = getGroupTitle(group);
-  const description = getGroupDescription(group);
-  const location = getGroupLocation(group);
-  const members = getMembersCount(group);
-  const isPrivate = isPrivateGroup(group);
-  const isJoining = joiningId === group.id;
+function GroupSummaryCard({
+  group,
+  isOwner,
+  onJoin,
+  onEdit,
+  onDelete,
+  busyId,
+  joinBusyId,
+}) {
+  const isPrivate = Boolean(group?.is_private);
+  const membersCount = Number(group?.members_count ?? 0);
+  const isJoined = Boolean(group?.my_role);
+  const title = group?.name || "Grupo";
+  const city = group?.city || "Provincia no indicada";
 
   return (
     <article className="app-card">
-      <div className="app-card__body" style={{ display: "grid", gap: 16 }}>
+      <div className="app-card__body" style={{ display: "grid", gap: 14 }}>
         <div
           style={{
             display: "flex",
@@ -66,7 +99,8 @@ function GroupCard({ group, onJoin, joiningId }) {
         >
           <div style={{ display: "grid", gap: 8 }}>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-              <h3 style={{ margin: 0 }}>{title}</h3>
+              <h4 style={{ margin: 0 }}>{title}</h4>
+              <span className="app-chip app-chip--soft">{city}</span>
               <span className="app-chip app-chip--soft">
                 {isPrivate ? "Privado" : "Público"}
               </span>
@@ -75,243 +109,492 @@ function GroupCard({ group, onJoin, joiningId }) {
             <div
               style={{
                 display: "flex",
-                gap: 8,
+                gap: 10,
                 flexWrap: "wrap",
                 color: "var(--app-text-muted)",
                 fontSize: "var(--font-sm)",
               }}
             >
-              <span>{location}</span>
-              <span>•</span>
-              <span>{members} miembros</span>
+              <span>{membersCount} miembros</span>
+              {group?.my_role ? <span>• Rol: {group.my_role}</span> : null}
             </div>
           </div>
 
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <Link to={`/groups/${group.id}`} className="app-button app-button--secondary">
+            Ver grupo
+          </Link>
+        </div>
+
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          {!isOwner && !isJoined && !isPrivate ? (
             <button
               type="button"
               className="app-button app-button--primary"
               onClick={() => onJoin?.(group)}
-              disabled={isJoining}
+              disabled={joinBusyId === group.id}
             >
-              {isJoining
-                ? "Procesando…"
-                : isPrivate
-                ? "Solicitar acceso"
-                : "Unirme"}
+              {joinBusyId === group.id ? "Uniéndome…" : "Unirme"}
             </button>
+          ) : null}
 
-            <Link to={`/groups/${group.id}`} className="app-button app-button--secondary">
-              Ver grupo
-            </Link>
-          </div>
+          {!isOwner && !isJoined && isPrivate ? (
+            <button
+              type="button"
+              className="app-button app-button--secondary"
+              onClick={() => onJoin?.(group)}
+              disabled
+              title="Actualmente los grupos privados requieren invitación"
+            >
+              Privado
+            </button>
+          ) : null}
+
+          {isOwner ? (
+            <>
+              <button
+                type="button"
+                className="app-button app-button--secondary"
+                onClick={() => onEdit?.(group)}
+              >
+                Editar
+              </button>
+
+              <button
+                type="button"
+                className="app-button app-button--secondary"
+                onClick={() => onDelete?.(group)}
+                disabled={busyId === group.id}
+              >
+                {busyId === group.id ? "Eliminando…" : "Eliminar"}
+              </button>
+            </>
+          ) : null}
         </div>
-
-        <p style={{ margin: 0, color: "var(--app-text-muted)" }}>{description}</p>
       </div>
     </article>
   );
 }
 
 export default function GroupsPage() {
-  const { token } = useAuth();
   const toast = useToast();
+  const { token, me } = useAuth();
 
+  const [selectedProvince, setSelectedProvince] = useState("");
   const [groups, setGroups] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const [query, setQuery] = useState("");
-  const [locationFilter, setLocationFilter] = useState("");
-  const [privacyFilter, setPrivacyFilter] = useState("all");
-  const [joiningId, setJoiningId] = useState(null);
+  const [creating, setCreating] = useState(false);
+  const [savingGroupId, setSavingGroupId] = useState(null);
+  const [joiningGroupId, setJoiningGroupId] = useState(null);
+
+  const [form, setForm] = useState({
+    id: null,
+    name: "",
+    city: "",
+    is_private: false,
+  });
+
+  const currentUserId = me?.id ?? null;
+
+  async function loadGroups(province = selectedProvince) {
+    setLoading(true);
+    setError("");
+
+    try {
+      const qs = new URLSearchParams();
+      if (province) qs.set("city", province);
+
+      const path = `/groups${qs.toString() ? `?${qs.toString()}` : ""}`;
+      const res = await api(path, { token });
+      setGroups(Array.isArray(res) ? res : []);
+    } catch (e) {
+      setError(e?.message || "No se pudieron cargar los grupos.");
+      setGroups([]);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
-    let cancelled = false;
-
-    async function loadGroups() {
-      setLoading(true);
-      setError("");
-
-      try {
-        const res = await api("/groups", { token });
-        const items = normalizeGroupsResponse(res);
-
-        if (!cancelled) {
-          setGroups(items);
-        }
-      } catch (e) {
-        if (!cancelled) {
-          setError(e?.message || "No se pudieron cargar los grupos.");
-          setGroups([]);
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
-    }
-
-    loadGroups();
-
-    return () => {
-      cancelled = true;
-    };
+    loadGroups("");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
-  const availableLocations = useMemo(() => {
-    const values = [...new Set(groups.map((group) => getGroupLocation(group)).filter(Boolean))];
-    return values.sort((a, b) => a.localeCompare(b));
-  }, [groups]);
+  const createdGroups = useMemo(() => {
+    return groups.filter((group) => currentUserId && group.owner_id === currentUserId);
+  }, [currentUserId, groups]);
 
-  const filteredGroups = useMemo(() => {
-    const q = query.trim().toLowerCase();
+  const joinedGroups = useMemo(() => {
+    return groups.filter(
+      (group) =>
+        Boolean(group?.my_role) &&
+        (!currentUserId || group.owner_id !== currentUserId)
+    );
+  }, [currentUserId, groups]);
 
-    return groups.filter((group) => {
-      const title = getGroupTitle(group).toLowerCase();
-      const description = getGroupDescription(group).toLowerCase();
-      const location = getGroupLocation(group);
-
-      const matchesQuery =
-        !q || title.includes(q) || description.includes(q) || location.toLowerCase().includes(q);
-
-      const matchesLocation = !locationFilter || location === locationFilter;
-
-      const matchesPrivacy =
-        privacyFilter === "all" ||
-        (privacyFilter === "public" && !isPrivateGroup(group)) ||
-        (privacyFilter === "private" && isPrivateGroup(group));
-
-      return matchesQuery && matchesLocation && matchesPrivacy;
+  function startCreate() {
+    setCreating(true);
+    setForm({
+      id: null,
+      name: "",
+      city: selectedProvince || "",
+      is_private: false,
     });
-  }, [groups, locationFilter, privacyFilter, query]);
+  }
+
+  function startEdit(group) {
+    setCreating(true);
+    setForm({
+      id: group.id,
+      name: group.name || "",
+      city: group.city || "",
+      is_private: Boolean(group.is_private),
+    });
+  }
+
+  function cancelForm() {
+    setCreating(false);
+    setForm({
+      id: null,
+      name: "",
+      city: "",
+      is_private: false,
+    });
+  }
+
+  function updateForm(field, value) {
+    setForm((prev) => ({ ...prev, [field]: value }));
+  }
+
+  async function submitForm(e) {
+    e.preventDefault();
+
+    if (!form.name.trim() || !form.city.trim()) {
+      toast?.error?.("Introduce nombre y provincia.");
+      return;
+    }
+
+    const payload = {
+      name: form.name.trim(),
+      sport: "running",
+      city: form.city.trim(),
+      is_private: Boolean(form.is_private),
+    };
+
+    const targetId = form.id ?? "new";
+    setSavingGroupId(targetId);
+
+    try {
+      if (form.id) {
+        await api(`/groups/${form.id}`, {
+          method: "PUT",
+          token,
+          body: payload,
+        });
+        toast?.success?.("Grupo actualizado.");
+      } else {
+        await api("/groups", {
+          method: "POST",
+          token,
+          body: payload,
+        });
+        toast?.success?.("Grupo creado.");
+      }
+
+      cancelForm();
+      await loadGroups(selectedProvince);
+    } catch (e2) {
+      toast?.error?.(e2?.message || "No se pudo guardar el grupo.");
+    } finally {
+      setSavingGroupId(null);
+    }
+  }
+
+  async function handleDelete(group) {
+    if (!group?.id) return;
+
+    const ok = window.confirm(`¿Eliminar "${group.name}"? Esta acción no se puede deshacer.`);
+    if (!ok) return;
+
+    setSavingGroupId(group.id);
+
+    try {
+      await api(`/groups/${group.id}`, {
+        method: "DELETE",
+        token,
+      });
+      toast?.success?.("Grupo eliminado.");
+      await loadGroups(selectedProvince);
+    } catch (e) {
+      toast?.error?.(e?.message || "No se pudo eliminar el grupo.");
+    } finally {
+      setSavingGroupId(null);
+    }
+  }
 
   async function handleJoin(group) {
     if (!group?.id) return;
 
-    setJoiningId(group.id);
+    if (group.is_private) {
+      toast?.info?.("Los grupos privados aún requieren invitación.");
+      return;
+    }
+
+    setJoiningGroupId(group.id);
 
     try {
-      await api(`/groups/${group.id}/join`, { method: "POST", token });
-
-      toast?.success?.(
-        isPrivateGroup(group)
-          ? "Solicitud enviada correctamente."
-          : "Te has unido al grupo."
-      );
+      await api(`/groups/${group.id}/join`, {
+        method: "POST",
+        token,
+      });
+      toast?.success?.("Te has unido al grupo.");
+      await loadGroups(selectedProvince);
     } catch (e) {
-      toast?.error?.(e?.message || "No se pudo completar la acción.");
+      toast?.error?.(e?.message || "No se pudo unir al grupo.");
     } finally {
-      setJoiningId(null);
+      setJoiningGroupId(null);
     }
   }
 
   return (
     <section className="page">
       <div className="app-card">
-        <div className="app-card__body" style={{ display: "grid", gap: 16 }}>
+        <div className="app-card__body" style={{ display: "grid", gap: 18 }}>
           <div className="page__header" style={{ marginBottom: 0 }}>
             <span className="page__eyebrow">Grupos</span>
-            <h1 className="page__title">Encuentra tu grupo runner</h1>
+            <h1 className="page__title">Explora grupos por provincia</h1>
             <p className="page__subtitle">
-              Explora grupos por ubicación, busca por nombre y únete o solicita acceso.
+              Busca grupos de running por provincia y gestiona tus grupos desde un panel personal.
             </p>
           </div>
 
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "minmax(0, 1.6fr) minmax(180px, 0.8fr) minmax(180px, 0.8fr)",
+              gridTemplateColumns: "minmax(0, 1fr) auto auto",
               gap: 12,
+              alignItems: "end",
             }}
           >
             <div className="app-field" style={{ marginBottom: 0 }}>
-              <label className="app-label">Buscar grupo</label>
-              <input
-                className="app-input"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Ej. Alicante Runners, trail, pista..."
-              />
-            </div>
-
-            <div className="app-field" style={{ marginBottom: 0 }}>
-              <label className="app-label">Ubicación</label>
+              <label className="app-label">Provincia</label>
               <select
                 className="app-select"
-                value={locationFilter}
-                onChange={(e) => setLocationFilter(e.target.value)}
+                value={selectedProvince}
+                onChange={(e) => setSelectedProvince(e.target.value)}
               >
-                <option value="">Todas</option>
-                {availableLocations.map((location) => (
-                  <option key={location} value={location}>
-                    {location}
+                <option value="">Todas las provincias</option>
+                {SPAIN_PROVINCES.map((province) => (
+                  <option key={province} value={province}>
+                    {province}
                   </option>
                 ))}
               </select>
             </div>
 
-            <div className="app-field" style={{ marginBottom: 0 }}>
-              <label className="app-label">Tipo</label>
-              <select
-                className="app-select"
-                value={privacyFilter}
-                onChange={(e) => setPrivacyFilter(e.target.value)}
-              >
-                <option value="all">Todos</option>
-                <option value="public">Públicos</option>
-                <option value="private">Privados</option>
-              </select>
-            </div>
+            <button
+              type="button"
+              className="app-button app-button--secondary"
+              onClick={() => loadGroups(selectedProvince)}
+              disabled={loading}
+            >
+              {loading ? "Buscando…" : "Buscar"}
+            </button>
+
+            <button
+              type="button"
+              className="app-button app-button--primary"
+              onClick={startCreate}
+            >
+              Crear grupo
+            </button>
           </div>
+
+          {creating ? (
+            <form onSubmit={submitForm} className="app-card" style={{ background: "rgba(255,255,255,0.56)" }}>
+              <div className="app-card__body" style={{ display: "grid", gap: 14 }}>
+                {panelTitle(
+                  form.id ? "Editar grupo" : "Nuevo grupo",
+                  "Solo grupos de running. El creador es quien puede editarlo o eliminarlo."
+                )}
+
+                <div className="app-field" style={{ marginBottom: 0 }}>
+                  <label className="app-label">Nombre del grupo</label>
+                  <input
+                    className="app-input"
+                    value={form.name}
+                    onChange={(e) => updateForm("name", e.target.value)}
+                    placeholder="Ej. Alicante Runners"
+                  />
+                </div>
+
+                <div className="app-field" style={{ marginBottom: 0 }}>
+                  <label className="app-label">Provincia</label>
+                  <select
+                    className="app-select"
+                    value={form.city}
+                    onChange={(e) => updateForm("city", e.target.value)}
+                  >
+                    <option value="">Selecciona provincia</option>
+                    {SPAIN_PROVINCES.map((province) => (
+                      <option key={province} value={province}>
+                        {province}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <label
+                  style={{
+                    display: "flex",
+                    gap: 10,
+                    alignItems: "center",
+                    fontWeight: 600,
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={form.is_private}
+                    onChange={(e) => updateForm("is_private", e.target.checked)}
+                  />
+                  Grupo privado
+                </label>
+
+                <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                  <button
+                    type="submit"
+                    className="app-button app-button--primary"
+                    disabled={savingGroupId === (form.id ?? "new")}
+                  >
+                    {savingGroupId === (form.id ?? "new")
+                      ? "Guardando…"
+                      : form.id
+                      ? "Guardar cambios"
+                      : "Crear grupo"}
+                  </button>
+
+                  <button
+                    type="button"
+                    className="app-button app-button--secondary"
+                    onClick={cancelForm}
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </div>
+            </form>
+          ) : null}
         </div>
       </div>
 
-      {loading ? (
+      <div style={{ display: "grid", gap: 18 }}>
         <div className="app-card">
-          <div className="app-card__body">
-            <div className="app-empty">
-              <div className="notificationsSimple__emptyBody">
-                <strong>Cargando grupos</strong>
-                <p>Estamos preparando la exploración.</p>
+          <div className="app-card__body" style={{ display: "grid", gap: 14 }}>
+            {panelTitle("Mis grupos creados", "Aquí aparecen solo los grupos que has creado tú.")}
+
+            {createdGroups.length === 0 ? (
+              <div className="app-empty">
+                <div className="notificationsSimple__emptyBody">
+                  <strong>No has creado grupos aún</strong>
+                  <p>Crea tu primer grupo para gestionar tu propia comunidad.</p>
+                </div>
               </div>
-            </div>
+            ) : (
+              <div style={{ display: "grid", gap: 14 }}>
+                {createdGroups.map((group) => (
+                  <GroupSummaryCard
+                    key={group.id}
+                    group={group}
+                    isOwner
+                    onEdit={startEdit}
+                    onDelete={handleDelete}
+                    busyId={savingGroupId}
+                    joinBusyId={joiningGroupId}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         </div>
-      ) : error ? (
+
         <div className="app-card">
-          <div className="app-card__body">
-            <div className="app-empty">
-              <div className="notificationsSimple__emptyBody">
-                <strong>No se pudieron cargar</strong>
-                <p>{error}</p>
+          <div className="app-card__body" style={{ display: "grid", gap: 14 }}>
+            {panelTitle("Grupos donde participo", "Grupos a los que perteneces y no has creado tú.")}
+
+            {joinedGroups.length === 0 ? (
+              <div className="app-empty">
+                <div className="notificationsSimple__emptyBody">
+                  <strong>No perteneces a otros grupos</strong>
+                  <p>Únete a grupos públicos desde la búsqueda por provincia.</p>
+                </div>
               </div>
-            </div>
+            ) : (
+              <div style={{ display: "grid", gap: 14 }}>
+                {joinedGroups.map((group) => (
+                  <GroupSummaryCard
+                    key={group.id}
+                    group={group}
+                    isOwner={false}
+                    onJoin={handleJoin}
+                    onEdit={startEdit}
+                    onDelete={handleDelete}
+                    busyId={savingGroupId}
+                    joinBusyId={joiningGroupId}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         </div>
-      ) : filteredGroups.length === 0 ? (
+
         <div className="app-card">
-          <div className="app-card__body">
-            <div className="app-empty">
-              <div className="notificationsSimple__emptyBody">
-                <strong>No hay grupos para este filtro</strong>
-                <p>Prueba otra búsqueda o cambia la ubicación.</p>
+          <div className="app-card__body" style={{ display: "grid", gap: 14 }}>
+            {panelTitle(
+              selectedProvince ? `Grupos en ${selectedProvince}` : "Todos los grupos",
+              "Explora grupos públicos o privados por provincia."
+            )}
+
+            {error ? (
+              <div className="app-empty">
+                <div className="notificationsSimple__emptyBody">
+                  <strong>No se pudieron cargar</strong>
+                  <p>{error}</p>
+                </div>
               </div>
-            </div>
+            ) : loading ? (
+              <div className="app-empty">
+                <div className="notificationsSimple__emptyBody">
+                  <strong>Cargando grupos</strong>
+                  <p>Estamos actualizando la búsqueda por provincia.</p>
+                </div>
+              </div>
+            ) : groups.length === 0 ? (
+              <div className="app-empty">
+                <div className="notificationsSimple__emptyBody">
+                  <strong>No hay grupos disponibles</strong>
+                  <p>No se han encontrado grupos para esta provincia.</p>
+                </div>
+              </div>
+            ) : (
+              <div style={{ display: "grid", gap: 14 }}>
+                {groups.map((group) => (
+                  <GroupSummaryCard
+                    key={group.id}
+                    group={group}
+                    isOwner={currentUserId && group.owner_id === currentUserId}
+                    onJoin={handleJoin}
+                    onEdit={startEdit}
+                    onDelete={handleDelete}
+                    busyId={savingGroupId}
+                    joinBusyId={joiningGroupId}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         </div>
-      ) : (
-        <div style={{ display: "grid", gap: 16 }}>
-          {filteredGroups.map((group) => (
-            <GroupCard
-              key={group.id}
-              group={group}
-              onJoin={handleJoin}
-              joiningId={joiningId}
-            />
-          ))}
-        </div>
-      )}
+      </div>
     </section>
   );
 }
