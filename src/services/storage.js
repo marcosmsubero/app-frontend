@@ -1,8 +1,21 @@
 import { supabase } from "../lib/supabase";
 
-const DEFAULT_BUCKET = import.meta.env.VITE_SUPABASE_AVATARS_BUCKET || "avatars";
+const DEFAULT_BUCKET = import.meta.env.VITE_SUPABASE_AVATARS_BUCKET || "avatar";
+
 const MAX_AVATAR_MB = 6;
 const MAX_AVATAR_BYTES = MAX_AVATAR_MB * 1024 * 1024;
+
+function getAvatarBucket() {
+  const bucket = String(DEFAULT_BUCKET || "").trim();
+
+  if (!bucket) {
+    throw new Error(
+      "Falta configurar VITE_SUPABASE_AVATARS_BUCKET con el nombre real del bucket."
+    );
+  }
+
+  return bucket;
+}
 
 function fileExtensionFromName(name = "") {
   const parts = String(name).split(".");
@@ -90,7 +103,7 @@ async function compressImage(file, { maxSize = 1200, quality = 0.84 } = {}) {
   });
 }
 
-async function removeExistingAvatars(userId, bucket = DEFAULT_BUCKET) {
+async function removeExistingAvatars(userId, bucket) {
   const folder = String(userId || "").trim();
   if (!folder) return;
 
@@ -100,6 +113,11 @@ async function removeExistingAvatars(userId, bucket = DEFAULT_BUCKET) {
   });
 
   if (error) {
+    if (String(error.message || "").toLowerCase().includes("bucket")) {
+      throw new Error(
+        `El bucket "${bucket}" no existe en Supabase Storage o no es accesible.`
+      );
+    }
     throw new Error(error.message || "No se pudo revisar el avatar actual.");
   }
 
@@ -117,7 +135,8 @@ async function removeExistingAvatars(userId, bucket = DEFAULT_BUCKET) {
   }
 }
 
-export async function uploadAvatarToSupabase(file, userId, bucket = DEFAULT_BUCKET) {
+export async function uploadAvatarToSupabase(file, userId) {
+  const bucket = getAvatarBucket();
   const cleanUserId = String(userId || "").trim();
 
   if (!cleanUserId) {
@@ -138,6 +157,11 @@ export async function uploadAvatarToSupabase(file, userId, bucket = DEFAULT_BUCK
     });
 
   if (uploadError) {
+    if (String(uploadError.message || "").toLowerCase().includes("bucket")) {
+      throw new Error(
+        `El bucket "${bucket}" no existe en Supabase Storage o no es accesible.`
+      );
+    }
     throw new Error(uploadError.message || "No se pudo subir la imagen a Storage.");
   }
 
