@@ -140,7 +140,7 @@ function IconCamera() {
 }
 
 export default function ProfilePage() {
-  const { me, profile, meReady, token, refreshMe, user } = useAuth();
+  const { me, meReady, token, refreshMe, user } = useAuth();
   const { items: meetups = [] } = useMyMeetups();
   const toast = useToast();
   const fileInputRef = useRef(null);
@@ -157,17 +157,11 @@ export default function ProfilePage() {
     );
   }
 
-  const displayName =
-    me?.full_name ||
-    profile?.full_name ||
-    me?.handle ||
-    profile?.handle ||
-    "Tu perfil";
-
-  const handle = me?.handle || profile?.handle || "";
-  const bio = me?.bio || profile?.bio || "";
-  const location = me?.location || profile?.location || "";
-  const avatarUrl = me?.avatar_url || profile?.avatar_url || "";
+  const displayName = me?.full_name || me?.handle || "Tu perfil";
+  const handle = me?.handle || "";
+  const bio = me?.bio || "";
+  const location = me?.location || "";
+  const avatarUrl = me?.avatar_url || "";
 
   const followers = Number(me?.followers_count ?? 0);
   const following = Number(me?.following_count ?? 0);
@@ -178,7 +172,7 @@ export default function ProfilePage() {
 
     if (!file) return;
 
-    const ownerId = user?.id || me?.supabase_user_id || profile?.id || null;
+    const ownerId = user?.id || me?.supabase_user_id || null;
 
     if (!ownerId) {
       toast?.error?.("No se pudo identificar al usuario.");
