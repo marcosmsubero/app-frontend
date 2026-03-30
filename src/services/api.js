@@ -112,6 +112,13 @@ export const apiCreateMeetup = (groupId, payload, token) =>
     body: payload,
   });
 
+export const apiCreateMyMeetup = (payload, token) =>
+  api(`/me/meetups`, {
+    method: "POST",
+    token,
+    body: payload,
+  });
+
 export const apiMeetupSearch = (filters = {}, token) => {
   const params = new URLSearchParams();
 
