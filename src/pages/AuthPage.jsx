@@ -30,11 +30,16 @@ export default function AuthPage({ defaultTab = "login" }) {
   }, [defaultTab, location.pathname]);
 
   const [tab, setTab] = useState(initialTab);
-  const [identifier, setIdentifier] = useState("");
+  const [identifier, setIdentifier] = useState(location.state?.registeredEmail || "");
   const [password, setPassword] = useState("");
   const [password2, setPassword2] = useState("");
   const [loading, setLoading] = useState(false);
-  const [msg, setMsg] = useState({ type: "", text: "" });
+  const [msg, setMsg] = useState({
+    type: location.state?.emailConfirmationPending ? "success" : "",
+    text: location.state?.emailConfirmationPending
+      ? "Cuenta creada. Revisa tu email, confirma la cuenta y después inicia sesión."
+      : "",
+  });
 
   useEffect(() => {
     if (location.pathname === "/register") setTab("register");
@@ -42,10 +47,8 @@ export default function AuthPage({ defaultTab = "login" }) {
   }, [location.pathname]);
 
   useEffect(() => {
-    setIdentifier("");
     setPassword("");
     setPassword2("");
-    setMsg({ type: "", text: "" });
   }, [location.pathname, tab]);
 
   function resetMsg() {
@@ -107,7 +110,18 @@ export default function AuthPage({ defaultTab = "login" }) {
         return;
       }
 
-      await register(cleanIdentifier, password);
+      const result = await register(cleanIdentifier, password);
+
+      if (result?.requiresEmailConfirmation) {
+        nav("/login", {
+          replace: true,
+          state: {
+            registeredEmail: cleanIdentifier,
+            emailConfirmationPending: true,
+          },
+        });
+        return;
+      }
 
       setSuccess("Cuenta creada. Continúa con tu onboarding.");
       nav("/onboarding", {
@@ -119,14 +133,12 @@ export default function AuthPage({ defaultTab = "login" }) {
 
       if (message.includes("invalid login credentials")) {
         setError("Usuario/email o contraseña incorrectos.");
+      } else if (message.includes("email not confirmed")) {
+        setError("Debes confirmar tu email antes de iniciar sesión.");
       } else if (message.includes("usuario no encontrado")) {
         setError("Ese usuario no existe.");
       } else if (message.includes("user already registered")) {
         setError("Ese email ya está registrado.");
-      } else if (message.includes("registro incompleto")) {
-        setError(
-          "La cuenta se ha creado sin sesión automática. Revisa Supabase Auth: la confirmación obligatoria de email debe seguir desactivada."
-        );
       } else if (
         message.includes("network") ||
         message.includes("conectar") ||
@@ -163,8 +175,8 @@ export default function AuthPage({ defaultTab = "login" }) {
           <div className="authSimple__intro">
             <h1 className="authSimple__title">
               {isLogin
-                ? "Accede a tu comunidad deportiva"
-                : "Crea tu cuenta y accede a nuestra comunidad"}
+                ? "Accede a tu comunidad runner"
+                : "Crea tu cuenta y accede a nuestra comunidad runner"}
             </h1>
             <p className="authSimple__subtitle">
               Grupos, quedadas y viajes en una interfaz rápida y consistente.
@@ -210,8 +222,8 @@ export default function AuthPage({ defaultTab = "login" }) {
               </h2>
               <p className="authSimple__panelText">
                 {isLogin
-                  ? "Accede a tu perfil, tus grupos y entrenamientos."
-                  : "Tu cuenta quedará lista al momento y pasarás directamente al onboarding."}
+                  ? "Accede a tu perfil, tus grupos y tus planes de running."
+                  : "Tu cuenta quedará preparada para completar el onboarding runner."}
               </p>
             </div>
 
