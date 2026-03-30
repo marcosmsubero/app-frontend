@@ -17,6 +17,10 @@ export default function ProfileOnboardingPage() {
   const nav = useNavigate();
   const location = useLocation();
 
+  const isEditMode =
+    location.state?.editProfile === true ||
+    new URLSearchParams(location.search).get("mode") === "edit";
+
   const [form, setForm] = useState({
     full_name: "",
     handle: "",
@@ -28,12 +32,7 @@ export default function ProfileOnboardingPage() {
   const [msg, setMsg] = useState({ type: "", text: "" });
 
   const initialEmail = useMemo(() => {
-    return (
-      location.state?.registeredEmail ||
-      me?.email ||
-      profile?.email ||
-      ""
-    );
+    return location.state?.registeredEmail || me?.email || profile?.email || "";
   }, [location.state?.registeredEmail, me?.email, profile?.email]);
 
   useEffect(() => {
@@ -101,15 +100,15 @@ export default function ProfileOnboardingPage() {
         bio: bio || null,
         location: locationValue || null,
         disciplines: ["running"],
-        avatar_url: null,
+        avatar_url: me?.avatar_url || profile?.avatar_url || null,
         onboarding_completed: true,
       };
 
       await apiUpdateProfile(payload, token);
       await refreshMe(token);
 
-      setSuccess("Perfil completado.");
-      nav("/", { replace: true });
+      setSuccess(isEditMode ? "Perfil actualizado." : "Perfil completado.");
+      nav(isEditMode ? "/perfil" : "/", { replace: true });
     } catch (err) {
       const message = String(err?.message || "").toLowerCase();
 
@@ -122,7 +121,7 @@ export default function ProfileOnboardingPage() {
       ) {
         setError("Ese nombre de usuario ya está en uso.");
       } else {
-        setError(err?.message || "No se pudo completar el onboarding.");
+        setError(err?.message || "No se pudo guardar el perfil.");
       }
     } finally {
       setSaving(false);
@@ -134,13 +133,15 @@ export default function ProfileOnboardingPage() {
       <div className="app-loader-screen">
         <div className="app-loader-screen__inner">
           <div className="app-loader-screen__spinner" />
-          <div className="app-loader-screen__label">Cargando onboarding…</div>
+          <div className="app-loader-screen__label">
+            {isEditMode ? "Cargando perfil…" : "Cargando onboarding…"}
+          </div>
         </div>
       </div>
     );
   }
 
-  if (isOnboardingComplete(me)) {
+  if (isOnboardingComplete(me) && !isEditMode) {
     return <Navigate to="/" replace />;
   }
 
@@ -149,10 +150,14 @@ export default function ProfileOnboardingPage() {
       <div className="app-section">
         <div className="app-section__header">
           <div>
-            <span className="app-eyebrow">Onboarding</span>
-            <h1 className="app-title">Completa tu perfil runner</h1>
+            <span className="app-eyebrow">{isEditMode ? "Perfil" : "Onboarding"}</span>
+            <h1 className="app-title">
+              {isEditMode ? "Editar perfil runner" : "Completa tu perfil runner"}
+            </h1>
             <p className="app-subtitle">
-              Configura tu cuenta una sola vez para acceder a la comunidad.
+              {isEditMode
+                ? "Actualiza la información principal de tu card de perfil."
+                : "Configura tu cuenta una sola vez para acceder a la comunidad."}
             </p>
           </div>
         </div>
@@ -272,7 +277,11 @@ export default function ProfileOnboardingPage() {
               className="app-button app-button--primary"
               disabled={saving}
             >
-              {saving ? "Guardando…" : "Completar perfil"}
+              {saving
+                ? "Guardando…"
+                : isEditMode
+                ? "Guardar cambios"
+                : "Completar perfil"}
             </button>
           </div>
         </form>
