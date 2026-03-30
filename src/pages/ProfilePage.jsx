@@ -32,12 +32,26 @@ function initialsFromName(name = "") {
   return `${parts[0]?.[0] || ""}${parts[1]?.[0] || ""}`.toUpperCase() || "R";
 }
 
-function StatCard({ value, label }) {
-  return (
-    <div className="profilePage__statCard">
+function StatCard({ value, label, to }) {
+  const content = (
+    <>
       <span className="profilePage__statValue">{value}</span>
       <span className="profilePage__statLabel">{label}</span>
-    </div>
+    </>
+  );
+
+  if (!to) {
+    return <div className="profilePage__statCard">{content}</div>;
+  }
+
+  return (
+    <Link
+      to={to}
+      className="profilePage__statCard"
+      style={{ textDecoration: "none", color: "inherit" }}
+    >
+      {content}
+    </Link>
   );
 }
 
@@ -184,17 +198,13 @@ export default function ProfilePage() {
   }
 
   return (
-    <section className="profilePage">
+    <section className="profilePage" style={{ width: "100%" }}>
       <article className="app-section profilePage__hero">
         <div className="profilePage__heroTop">
           <div className="profilePage__identity">
             <div style={{ position: "relative", width: 104, height: 104 }}>
               {avatarUrl ? (
-                <img
-                  src={avatarUrl}
-                  alt={displayName}
-                  className="profilePage__avatarImage"
-                />
+                <img src={avatarUrl} alt={displayName} className="profilePage__avatarImage" />
               ) : (
                 <div className="profilePage__avatarFallback">
                   {initialsFromName(displayName)}
@@ -244,9 +254,7 @@ export default function ProfilePage() {
 
                 <div className="profilePage__metaInline">
                   <span className="app-chip">Running</span>
-                  <span className="app-chip app-chip--soft">
-                    {formatLocation(location)}
-                  </span>
+                  <span className="app-chip app-chip--soft">{formatLocation(location)}</span>
                 </div>
               </div>
 
@@ -286,14 +294,14 @@ export default function ProfilePage() {
             className="profilePage__stats"
             style={{ gridTemplateColumns: "repeat(2, minmax(0, 1fr))" }}
           >
-            <StatCard value={followers} label="Seguidores" />
-            <StatCard value={following} label="Seguidos" />
+            <StatCard value={followers} label="Seguidores" to="/perfil/seguidores" />
+            <StatCard value={following} label="Seguidos" to="/perfil/seguidos" />
           </div>
         </div>
       </article>
 
-      <div className="profilePage__content profilePage__content--calendar">
-        <article className="app-section profilePage__calendarCard">
+      <div style={{ width: "100%" }}>
+        <article className="app-section profilePage__calendarCard" style={{ width: "100%" }}>
           <MeetupCalendar meetups={meetups} me={me} />
         </article>
       </div>
