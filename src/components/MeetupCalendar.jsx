@@ -1,10 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
+import { apiCreateMeetup } from "../services/api";
+import { useAuth } from "../hooks/useAuth";
+import { useGroups } from "../hooks/useGroups";
+import { useToast } from "../hooks/useToast";
 import {
+  addMonths,
   buildMonthGrid,
   localDayKey,
   monthLabel,
   timeLabel,
-  addMonths,
 } from "../utils/dates";
 
 const WEEKDAYS = ["L", "M", "X", "J", "V", "S", "D"];
@@ -14,7 +18,6 @@ function groupByDay(meetups = []) {
 
   for (const meetup of meetups) {
     if (!meetup?.starts_at) continue;
-
     const key = localDayKey(meetup.starts_at);
     if (!map.has(key)) map.set(key, []);
     map.get(key).push(meetup);
@@ -43,7 +46,7 @@ function daySummary(items = []) {
 function defaultTimeForDay(dayKey) {
   const now = new Date();
   const selected = new Date(`${dayKey}T00:00:00`);
-  const sameDay = localDayKey(now) === dayKey;
+  const sameDay = localDayKey(now) === localDayKey(selected);
 
   if (sameDay) {
     const hour = Math.min(21, Math.max(6, now.getHours() + 1));
@@ -53,7 +56,20 @@ function defaultTimeForDay(dayKey) {
   return "19:00";
 }
 
-function ModalIconClose() {
+function buildStartsAt(dayKey, timeValue) {
+  const [year, month, day] = String(dayKey).split("-").map(Number);
+  const [hours, minutes] = String(timeValue || "19:00").split(":").map(Number);
+  const date = new Date(year, (month || 1) - 1, day || 1, hours || 0, minutes || 0, 0, 0);
+  return date.toISOString();
+}
+
+function numberOrNull(value) {
+  if (value === "" || value === null || value === undefined) return null;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
+}
+
+function ModalCloseIcon() {
   return (
     <svg
       viewBox="0 0 24 24"
@@ -72,27 +88,14 @@ function ModalIconClose() {
   );
 }
 
-function buildStartsAt(dayKey, timeValue) {
-  const [year, month, day] = String(dayKey).split("-").map(Number);
-  const [hours, minutes] = String(timeValue || "19:00").split(":").map(Number);
-  const date = new Date(year, (month || 1) - 1, day || 1, hours || 0, minutes || 0, 0, 0);
-  return date.toISOString();
-}
-
-function numberOrNull(value) {
-  if (value === "" || value === null || value === undefined) return null;
-  const n = Number(value);
-  return Number.isFinite(n) ? n : null;
-}
-
-function EventCreateModal({
+function CreateEventModal({
   open,
   dayKey,
-  joinedGroups = [],
-  canCreate = true,
+  joinedGroups,
+  canCreate,
+  saving,
   onClose,
   onSubmit,
-  saving = false,
 }) {
   const [form, setForm] = useState({
     group_id: "",
@@ -108,9 +111,7 @@ function EventCreateModal({
 
   useEffect(() => {
     if (!open) return;
-
     const firstGroupId = joinedGroups[0]?.id ? String(joinedGroups[0].id) : "";
-
     setForm({
       group_id: firstGroupId,
       event_type: "entrenamiento",
@@ -128,9 +129,7 @@ function EventCreateModal({
     if (!open) return;
 
     function onKeyDown(event) {
-      if (event.key === "Escape") {
-        onClose?.();
-      }
+      if (event.key === "Escape") onClose?.();
     }
 
     window.addEventListener("keydown", onKeyDown);
@@ -148,9 +147,7 @@ function EventCreateModal({
 
   async function handleSubmit(e) {
     e.preventDefault();
-
-    if (!form.group_id) return;
-    if (!form.meeting_point.trim()) return;
+    if (!form.group_id || !form.meeting_point.trim()) return;
 
     const notesParts = [];
     if (form.event_type) notesParts.push(`Tipo: ${form.event_type}`);
@@ -165,6 +162,7 @@ function EventCreateModal({
       pace_min: numberOrNull(form.pace_min),
       pace_max: numberOrNull(form.pace_max),
       capacity: numberOrNull(form.capacity),
+      title: form.event_type,
     });
   }
 
@@ -212,7 +210,7 @@ function EventCreateModal({
                 cursor: "pointer",
               }}
             >
-              <ModalIconClose />
+              <ModalCloseIcon />
             </button>
           </div>
 
@@ -220,19 +218,14 @@ function EventCreateModal({
             <div className="app-empty">
               <div className="notificationsSimple__emptyBody">
                 <strong>Necesitas verificar tu ubicación</strong>
-                <p>
-                  El backend exige ubicación verificada para crear eventos desde calendario.
-                </p>
+                <p>Debes tener la ubicación verificada para crear eventos.</p>
               </div>
             </div>
           ) : !hasGroups ? (
             <div className="app-empty">
               <div className="notificationsSimple__emptyBody">
                 <strong>No tienes grupos disponibles</strong>
-                <p>
-                  El backend crea eventos dentro de un grupo. Únete a uno antes de crear
-                  actividad.
-                </p>
+                <p>Únete a un grupo antes de crear eventos desde el calendario.</p>
               </div>
             </div>
           ) : (
@@ -298,7 +291,7 @@ function EventCreateModal({
                   className="app-input"
                   value={form.meeting_point}
                   onChange={(e) => updateField("meeting_point", e.target.value)}
-                  placeholder="Ej. Paseo de la Explanada, Alicante"
+                  placeholder="Ej. Parque, pista, salida de carrera..."
                   disabled={disabled}
                 />
               </div>
@@ -383,12 +376,12 @@ function EventCreateModal({
                   rows={4}
                   value={form.notes}
                   onChange={(e) => updateField("notes", e.target.value)}
-                  placeholder="Detalles opcionales del evento"
+                  placeholder="Detalles opcionales"
                   disabled={disabled}
                 />
                 <small className="app-help">
-                  El tipo se guarda dentro de las notas porque el backend actual todavía
-                  no tiene un campo específico para ello.
+                  El tipo se añade dentro de las notas porque el backend actual no tiene
+                  un campo específico para ello.
                 </small>
               </div>
 
@@ -418,25 +411,35 @@ function EventCreateModal({
   );
 }
 
-export default function MeetupCalendar({
-  meetups = [],
-  me,
-  joinedGroups = [],
-  canCreate = true,
-  onCreateEvent = async () => {},
-}) {
+export default function MeetupCalendar({ meetups = [], me }) {
+  const toast = useToast();
+  const { token } = useAuth();
+  const { groups, loadGroups } = useGroups(token, toast);
+
   const today = useMemo(() => new Date(), []);
   const [month, setMonth] = useState(() => new Date());
   const [selectedDay, setSelectedDay] = useState(() => localDayKey(today));
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [savingEvent, setSavingEvent] = useState(false);
+  const [localMeetups, setLocalMeetups] = useState([]);
+
+  useEffect(() => {
+    if (!token) return;
+    loadGroups();
+  }, [loadGroups, token]);
+
+  const allMeetups = useMemo(() => {
+    return [...(Array.isArray(meetups) ? meetups : []), ...localMeetups];
+  }, [localMeetups, meetups]);
 
   const days = useMemo(() => buildMonthGrid(month), [month]);
-  const byDay = useMemo(() => groupByDay(meetups), [meetups]);
+  const byDay = useMemo(() => groupByDay(allMeetups), [allMeetups]);
 
   const monthIndex = month.getMonth();
   const todayKey = localDayKey(today);
   const selectedItems = selectedDay ? byDay.get(selectedDay) || [] : [];
+  const joinedGroups = (Array.isArray(groups) ? groups : []).filter((group) => !!group?.my_role);
+  const canCreate = Boolean(me?.location_verified);
 
   function goPrevMonth() {
     setMonth((prev) => addMonths(prev, -1));
@@ -456,9 +459,33 @@ export default function MeetupCalendar({
     setSavingEvent(true);
 
     try {
-      await onCreateEvent?.(payload);
+      const created = await apiCreateMeetup(payload.group_id, payload, token);
+
+      const selectedGroup = joinedGroups.find((group) => Number(group.id) === Number(payload.group_id));
+
+      const normalizedCreated = {
+        id: created?.id ?? `tmp-${Date.now()}`,
+        starts_at: payload.starts_at,
+        meeting_point: payload.meeting_point,
+        notes: payload.notes,
+        level_tag: payload.level_tag,
+        pace_min: payload.pace_min,
+        pace_max: payload.pace_max,
+        capacity: payload.capacity,
+        group_id: payload.group_id,
+        group_name: selectedGroup?.name || created?.group_name || "",
+        participants_count: created?.participants_count ?? 1,
+        created_by: me?.id ?? null,
+        is_joined: true,
+        title: payload.title,
+      };
+
+      setLocalMeetups((prev) => [normalizedCreated, ...prev]);
       setShowCreateModal(false);
-      setSelectedDay(localDayKey(payload.starts_at));
+      toast?.success?.("Evento creado correctamente.");
+    } catch (error) {
+      toast?.error?.(error?.message || "No se pudo crear el evento.");
+      throw error;
     } finally {
       setSavingEvent(false);
     }
@@ -534,7 +561,10 @@ export default function MeetupCalendar({
                 ]
                   .filter(Boolean)
                   .join(" ")}
-                onClick={() => setSelectedDay(key)}
+                onClick={() => {
+                  setSelectedDay(key);
+                  setShowCreateModal(true);
+                }}
                 title={`${key} · ${daySummary(items)}`}
                 aria-label={`Día ${key}${items.length ? `, ${items.length} actividades` : ""}`}
               >
@@ -572,27 +602,15 @@ export default function MeetupCalendar({
               </h4>
             </div>
 
-            <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-              {selectedDay ? (
-                <button
-                  type="button"
-                  className="calendarMini__textBtn"
-                  onClick={() => setShowCreateModal(true)}
-                >
-                  Crear evento
-                </button>
-              ) : null}
-
-              {selectedDay ? (
-                <button
-                  type="button"
-                  className="calendarMini__clearBtn"
-                  onClick={() => setSelectedDay(null)}
-                >
-                  Limpiar
-                </button>
-              ) : null}
-            </div>
+            {selectedDay ? (
+              <button
+                type="button"
+                className="calendarMini__textBtn"
+                onClick={() => setShowCreateModal(true)}
+              >
+                Crear evento
+              </button>
+            ) : null}
           </div>
 
           {!selectedDay ? (
@@ -633,7 +651,7 @@ export default function MeetupCalendar({
         </div>
       </section>
 
-      <EventCreateModal
+      <CreateEventModal
         open={showCreateModal}
         dayKey={selectedDay}
         joinedGroups={joinedGroups}
