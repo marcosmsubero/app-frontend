@@ -18,14 +18,12 @@ import {
   upsertSupabaseProfile,
 } from "../services/auth";
 import {
-  clearCachedOnboardingCompletion,
   getPreferredLoginIdentifier,
   normalizeUserContract,
-  readCachedOnboardingCompletion,
-  writeCachedOnboardingCompletion,
 } from "../lib/userContract";
 
 const AuthContext = createContext(null);
+const ONBOARDING_CACHE_PREFIX = "app:onboarding-complete:";
 
 function isAuthExpiredError(err) {
   const msg = String(err?.message || "").toLowerCase();
@@ -39,6 +37,41 @@ function isAuthExpiredError(err) {
 
 function safeProfileObject(value) {
   return value && typeof value === "object" && !Array.isArray(value) ? value : null;
+}
+
+function onboardingCacheKey(supabaseUserId = "") {
+  const cleanId = String(supabaseUserId || "").trim();
+  return cleanId ? `${ONBOARDING_CACHE_PREFIX}${cleanId}` : "";
+}
+
+function readCachedOnboardingCompletion(supabaseUserId = "") {
+  const key = onboardingCacheKey(supabaseUserId);
+  if (!key || typeof window === "undefined") return false;
+
+  try {
+    return window.localStorage.getItem(key) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function writeCachedOnboardingCompletion(supabaseUserId = "", completed = true) {
+  const key = onboardingCacheKey(supabaseUserId);
+  if (!key || typeof window === "undefined") return;
+
+  try {
+    if (completed) {
+      window.localStorage.setItem(key, "1");
+    } else {
+      window.localStorage.removeItem(key);
+    }
+  } catch {
+    // ignore storage errors
+  }
+}
+
+function clearCachedOnboardingCompletion(supabaseUserId = "") {
+  writeCachedOnboardingCompletion(supabaseUserId, false);
 }
 
 export function AuthProvider({ children }) {
