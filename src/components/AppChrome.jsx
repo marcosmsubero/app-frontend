@@ -140,7 +140,7 @@ export default function AppChrome() {
             <NavLink
               to="/perfil"
               className={({ isActive }) =>
-                `app-topbar__profileIconOnly${isActive ? " app-sidebar__profileIconOnly--active" : ""}`
+                `app-topbar__profileIconOnly${isActive ? " app-topbar__profileIconOnly--active" : ""}`
               }
               aria-label="Perfil"
               title="Perfil"
