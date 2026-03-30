@@ -271,7 +271,7 @@ export default function ProfilePage() {
                   as={Link}
                   to="/onboarding?mode=edit"
                   state={{ editProfile: true }}
-                  title="Editar perfil"
+                  title="Editar"
                 >
                   <IconEdit />
                 </IconButton>
