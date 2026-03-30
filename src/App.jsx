@@ -3,14 +3,13 @@ import AppChrome from "./components/AppChrome";
 import { useAuth } from "./hooks/useAuth";
 import { isOnboardingComplete } from "./lib/userContract";
 
+import ActivityPage from "./pages/ActivityPage";
 import AuthPage from "./pages/AuthPage";
 import BlaBlaRunPage from "./pages/BlaBlaRunPage";
 import ChatThreadPage from "./pages/ChatThreadPage";
 import DeleteAccountPage from "./pages/DeleteAccountPage";
 import GroupPage from "./pages/GroupPage";
 import GroupsPage from "./pages/GroupsPage";
-import MessagesPage from "./pages/MessagesPage";
-import NotificationsPage from "./pages/NotificationsPage";
 import PlaceholderSettingsPage from "./pages/PlaceholderSettingsPage";
 import ProfileOnboardingPage from "./pages/ProfileOnboardingPage";
 import ProfilePage from "./pages/ProfilePage";
@@ -94,9 +93,10 @@ export default function App() {
             <Route path="/groups" element={<GroupsPage />} />
             <Route path="/grupos/:groupId" element={<GroupPage />} />
             <Route path="/groups/:groupId" element={<GroupPage />} />
-            <Route path="/mensajes" element={<MessagesPage />} />
+            <Route path="/actividad" element={<ActivityPage />} />
+            <Route path="/mensajes" element={<Navigate to="/actividad?tab=messages" replace />} />
+            <Route path="/notificaciones" element={<Navigate to="/actividad?tab=notifications" replace />} />
             <Route path="/mensajes/:threadId" element={<ChatThreadPage />} />
-            <Route path="/notificaciones" element={<NotificationsPage />} />
             <Route path="/blablarun" element={<BlaBlaRunPage />} />
             <Route path="/perfil" element={<ProfilePage />} />
             <Route path="/ajustes" element={<PlaceholderSettingsPage />} />
