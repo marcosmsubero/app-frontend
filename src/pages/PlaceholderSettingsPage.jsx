@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { useToast } from "../hooks/useToast";
@@ -12,16 +12,6 @@ function initialsFromNameOrEmail(me) {
     return (a + b).toUpperCase() || (me?.email?.[0] || "U").toUpperCase();
   }
   return (me?.email?.[0] || "U").toUpperCase();
-}
-
-function getLSBool(key, fallback = false) {
-  const v = localStorage.getItem(key);
-  if (v === null) return fallback;
-  return v === "1" || v === "true";
-}
-
-function setLSBool(key, val) {
-  localStorage.setItem(key, val ? "1" : "0");
 }
 
 function Row({ title, subtitle, right, onClick, disabled, tone = "default" }) {
@@ -56,15 +46,10 @@ export default function PlaceholderSettingsPage() {
 
   const initials = useMemo(() => initialsFromNameOrEmail(me), [me]);
 
-  const [pushNotifs, setPushNotifs] = useState(() => getLSBool("st_push", true));
-  const [emailNotifs, setEmailNotifs] = useState(() => getLSBool("st_email", false));
-  const [showLocation, setShowLocation] = useState(() => getLSBool("st_location", true));
-  const [privateAccount, setPrivateAccount] = useState(() => getLSBool("st_private", false));
-
-  useEffect(() => setLSBool("st_push", pushNotifs), [pushNotifs]);
-  useEffect(() => setLSBool("st_email", emailNotifs), [emailNotifs]);
-  useEffect(() => setLSBool("st_location", showLocation), [showLocation]);
-  useEffect(() => setLSBool("st_private", privateAccount), [privateAccount]);
+  const [pushNotifs, setPushNotifs] = useState(true);
+  const [emailNotifs, setEmailNotifs] = useState(false);
+  const [showLocation, setShowLocation] = useState(true);
+  const [privateAccount, setPrivateAccount] = useState(false);
 
   async function handleLogout() {
     await logout();
@@ -117,7 +102,7 @@ export default function PlaceholderSettingsPage() {
             <div className="st-list">
               <Row
                 title="Editar perfil"
-                subtitle="Nombre, usuario, bio y ubicación visibles"
+                subtitle="Nombre, usuario, bio y datos visibles"
                 right={<span className="st-chevron">›</span>}
                 onClick={handleEditProfile}
               />
