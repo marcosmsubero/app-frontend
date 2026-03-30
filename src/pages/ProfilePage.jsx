@@ -112,7 +112,6 @@ export default function ProfilePage() {
         <article className="app-section profilePage__calendarCard">
           <MeetupCalendar meetups={meetups} me={me} />
         </article>
-      </div>
     </section>
   );
 }
