@@ -6,7 +6,6 @@ import { isOnboardingComplete } from "./lib/userContract";
 import AuthPage from "./pages/AuthPage";
 import BlaBlaRunPage from "./pages/BlaBlaRunPage";
 import ChatThreadPage from "./pages/ChatThreadPage";
-import GroupDetailPage from "./pages/GroupDetailPage";
 import GroupPage from "./pages/GroupPage";
 import MessagesPage from "./pages/MessagesPage";
 import NotificationsPage from "./pages/NotificationsPage";
@@ -122,7 +121,7 @@ export default function App() {
             <Route path="/" element={<RootRedirect />} />
             <Route path="/explorar" element={<GroupPage />} />
             <Route path="/grupos" element={<GroupPage />} />
-            <Route path="/grupos/:groupId" element={<GroupDetailPage />} />
+            <Route path="/grupos/:groupId" element={<GroupPage />} />
             <Route path="/mensajes" element={<MessagesPage />} />
             <Route path="/mensajes/:threadId" element={<ChatThreadPage />} />
             <Route path="/notificaciones" element={<NotificationsPage />} />
