@@ -178,7 +178,9 @@ export default function ProfilePage() {
 
     if (!file) return;
 
-    if (!user?.id) {
+    const ownerId = user?.id || me?.supabase_user_id || profile?.id || null;
+
+    if (!ownerId) {
       toast?.error?.("No se pudo identificar al usuario.");
       return;
     }
@@ -186,7 +188,7 @@ export default function ProfilePage() {
     setUploadingAvatar(true);
 
     try {
-      const { publicUrl } = await uploadAvatarToSupabase(file, user.id);
+      const { publicUrl } = await uploadAvatarToSupabase(file, ownerId);
       await apiUpdateProfile({ avatar_url: publicUrl }, token);
       await refreshMe(token);
       toast?.success?.("Foto de perfil actualizada.");
@@ -271,7 +273,7 @@ export default function ProfilePage() {
                   as={Link}
                   to="/onboarding?mode=edit"
                   state={{ editProfile: true }}
-                  title="Editar"
+                  title="Editar perfil"
                 >
                   <IconEdit />
                 </IconButton>
