@@ -6,7 +6,6 @@ import { isOnboardingComplete } from "./lib/userContract";
 import AuthPage from "./pages/AuthPage";
 import BlaBlaRunPage from "./pages/BlaBlaRunPage";
 import ChatThreadPage from "./pages/ChatThreadPage";
-import ExplorePage from "./pages/ExplorePage";
 import GroupDetailPage from "./pages/GroupDetailPage";
 import GroupPage from "./pages/GroupPage";
 import MessagesPage from "./pages/MessagesPage";
@@ -121,7 +120,7 @@ export default function App() {
         <Route element={<RequireCompletedOnboarding />}>
           <Route element={<AppLayout />}>
             <Route path="/" element={<RootRedirect />} />
-            <Route path="/explorar" element={<ExplorePage />} />
+            <Route path="/explorar" element={<GroupPage />} />
             <Route path="/grupos" element={<GroupPage />} />
             <Route path="/grupos/:groupId" element={<GroupDetailPage />} />
             <Route path="/mensajes" element={<MessagesPage />} />
