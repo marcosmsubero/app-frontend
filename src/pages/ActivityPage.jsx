@@ -423,52 +423,6 @@ export default function ActivityPage() {
               </div>
             </div>
           </div>
-
-          <aside className="page__sidebar">
-            <div className="app-card app-card--soft">
-              <div className="app-card__body app-stack">
-                <div className="app-section-header__title">
-                  Centro de mensajes
-                </div>
-
-                <p className="app-text-soft">
-                  Coordina quedadas, responde a otros usuarios y revisa tu actividad.
-                </p>
-
-                <div className="app-list">
-                  <div className="app-list-item">
-                    <div className="app-badge app-badge--primary">Chats</div>
-                    <div>
-                      <strong>Conversaciones privadas</strong>
-                      <div className="app-text-soft">
-                        Mensajes directos entre usuarios.
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="app-list-item">
-                    <div className="app-badge app-badge--success">Grupos</div>
-                    <div>
-                      <strong>Mensajes de comunidad</strong>
-                      <div className="app-text-soft">
-                        Actividad dentro de grupos y planes.
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="app-list-item">
-                    <div className="app-badge app-badge--warning">Actividad</div>
-                    <div>
-                      <strong>Coordina actividades</strong>
-                      <div className="app-text-soft">
-                        Mantén conversaciones antes de una quedada.
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </aside>
         </div>
       ) : (
         <section className="notificationsSimple">
@@ -574,37 +528,6 @@ export default function ActivityPage() {
                 )}
               </section>
             </div>
-
-            <aside className="notificationsSimple__aside">
-              <section className="notificationsSimple__asideCard app-section">
-                <div className="notificationsSimple__panelHead">
-                  <div>
-                    <p className="app-kicker">Qué verás aquí</p>
-                    <h2 className="app-title">Avisos importantes</h2>
-                    <p className="app-subtitle">
-                      Un resumen rápido de la actividad a la que conviene reaccionar antes.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="notificationsSimple__asideList">
-                  <div className="notificationsSimple__asideItem">
-                    <span className="app-badge app-badge--primary">Mensajes</span>
-                    <p>Nuevos chats o respuestas en conversaciones activas.</p>
-                  </div>
-
-                  <div className="notificationsSimple__asideItem">
-                    <span className="app-badge app-badge--success">Grupos</span>
-                    <p>Invitaciones, movimiento en comunidad o cambios compartidos.</p>
-                  </div>
-
-                  <div className="notificationsSimple__asideItem">
-                    <span className="app-badge app-badge--warning">Quedadas</span>
-                    <p>Confirmaciones, estados y novedades sobre tus planes.</p>
-                  </div>
-                </div>
-              </section>
-            </aside>
           </div>
         </section>
       )}
