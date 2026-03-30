@@ -20,10 +20,10 @@ function ShellIcon({ children }) {
   );
 }
 
-function IconMessage() {
+function IconActivity() {
   return (
     <ShellIcon>
-      <path d="M5 18.5 4 21l3.1-1.2c.6.1 1.3.2 1.9.2h7a5 5 0 0 0 5-5v-5a5 5 0 0 0-5-5H8a5 5 0 0 0-5 5v5c0 1.4.6 2.7 1.7 3.6Z" />
+      <path d="M4 12h3l2-4 4 8 2-4h5" />
     </ShellIcon>
   );
 }
@@ -62,7 +62,7 @@ function IconProfile() {
 
 const NAV_ITEMS = [
   { to: "/perfil", icon: <IconProfile />, label: "Perfil" },
-  { to: "/mensajes", icon: <IconMessage />, label: "Mensajes", withCounter: true },
+  { to: "/actividad", icon: <IconActivity />, label: "Actividad", withCounter: true },
   { to: "/blablarun", icon: <IconRun />, label: "BlaBlaRun" },
   { to: "/groups", icon: <IconUsers />, label: "Grupos" },
 ];
