@@ -105,6 +105,13 @@ export const apiUpcomingMeetups = (limit = 10, token) =>
 export const apiGroupMeetups = (groupId, token) =>
   api(`/groups/${groupId}/meetups`, { token });
 
+export const apiCreateMeetup = (groupId, payload, token) =>
+  api(`/groups/${groupId}/meetups`, {
+    method: "POST",
+    token,
+    body: payload,
+  });
+
 export const apiMeetupSearch = (filters = {}, token) => {
   const params = new URLSearchParams();
 
