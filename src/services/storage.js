@@ -1,6 +1,8 @@
 import { supabase } from "../lib/supabase";
 
 const DEFAULT_BUCKET = import.meta.env.VITE_SUPABASE_AVATARS_BUCKET || "avatars";
+const MAX_AVATAR_MB = 6;
+const MAX_AVATAR_BYTES = MAX_AVATAR_MB * 1024 * 1024;
 
 function fileExtensionFromName(name = "") {
   const parts = String(name).split(".");
@@ -13,12 +15,6 @@ function safeExt(ext = "") {
   return "jpg";
 }
 
-function avatarPath(userId, originalName = "avatar.jpg") {
-  const ext = safeExt(fileExtensionFromName(originalName));
-  const stamp = Date.now();
-  return `${userId}/avatar-${stamp}.${ext}`;
-}
-
 function ensureImageFile(file) {
   if (!file) {
     throw new Error("No se ha seleccionado ninguna imagen.");
@@ -26,6 +22,10 @@ function ensureImageFile(file) {
 
   if (!String(file.type || "").startsWith("image/")) {
     throw new Error("Selecciona un archivo de imagen válido.");
+  }
+
+  if (Number(file.size || 0) > MAX_AVATAR_BYTES) {
+    throw new Error(`La imagen supera el máximo permitido de ${MAX_AVATAR_MB} MB.`);
   }
 }
 
@@ -67,6 +67,9 @@ async function compressImage(file, { maxSize = 1200, quality = 0.84 } = {}) {
   ctx.drawImage(img, 0, 0, width, height);
 
   return new Promise((resolve, reject) => {
+    const originalExt = safeExt(fileExtensionFromName(file.name));
+    const outputType = originalExt === "png" ? "image/png" : "image/jpeg";
+
     canvas.toBlob(
       (blob) => {
         if (!blob) {
@@ -74,32 +77,58 @@ async function compressImage(file, { maxSize = 1200, quality = 0.84 } = {}) {
           return;
         }
 
-        const ext = safeExt(fileExtensionFromName(file.name));
-        const outType = ext === "png" ? "image/png" : "image/jpeg";
-        const finalBlob =
-          outType === "image/png"
-            ? blob
-            : blob.slice(0, blob.size, "image/jpeg");
-
+        const finalExt = outputType === "image/png" ? "png" : "jpg";
         resolve({
-          blob: finalBlob,
-          contentType: finalBlob.type || outType,
-          ext: outType === "image/png" ? "png" : "jpg",
+          blob,
+          contentType: blob.type || outputType,
+          ext: finalExt,
         });
       },
-      file.type === "image/png" ? "image/png" : "image/jpeg",
-      file.type === "image/png" ? undefined : quality
+      outputType,
+      outputType === "image/png" ? undefined : quality
     );
   });
 }
 
+async function removeExistingAvatars(userId, bucket = DEFAULT_BUCKET) {
+  const folder = String(userId || "").trim();
+  if (!folder) return;
+
+  const { data, error } = await supabase.storage.from(bucket).list(folder, {
+    limit: 100,
+    offset: 0,
+  });
+
+  if (error) {
+    throw new Error(error.message || "No se pudo revisar el avatar actual.");
+  }
+
+  const files = Array.isArray(data) ? data : [];
+  const paths = files
+    .filter((item) => item?.name && !item.name.endsWith("/"))
+    .map((item) => `${folder}/${item.name}`);
+
+  if (!paths.length) return;
+
+  const { error: removeError } = await supabase.storage.from(bucket).remove(paths);
+
+  if (removeError) {
+    throw new Error(removeError.message || "No se pudo reemplazar el avatar anterior.");
+  }
+}
+
 export async function uploadAvatarToSupabase(file, userId, bucket = DEFAULT_BUCKET) {
-  if (!userId) {
+  const cleanUserId = String(userId || "").trim();
+
+  if (!cleanUserId) {
     throw new Error("No hay usuario autenticado para subir la imagen.");
   }
 
   const { blob, contentType, ext } = await compressImage(file);
-  const path = `${userId}/avatar-${Date.now()}.${ext}`;
+
+  await removeExistingAvatars(cleanUserId, bucket);
+
+  const path = `${cleanUserId}/avatar-${Date.now()}.${ext}`;
 
   const { error: uploadError } = await supabase.storage
     .from(bucket)
@@ -113,7 +142,9 @@ export async function uploadAvatarToSupabase(file, userId, bucket = DEFAULT_BUCK
   }
 
   const { data: publicData } = supabase.storage.from(bucket).getPublicUrl(path);
-  const publicUrl = publicData?.publicUrl || null;
+  const publicUrl = publicData?.publicUrl
+    ? `${publicData.publicUrl}${publicData.publicUrl.includes("?") ? "&" : "?"}t=${Date.now()}`
+    : null;
 
   if (!publicUrl) {
     throw new Error("La imagen se subió, pero no se pudo obtener su URL pública.");
