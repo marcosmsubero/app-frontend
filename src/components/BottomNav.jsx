@@ -54,15 +54,6 @@ function IconMessage() {
   );
 }
 
-function IconSearch() {
-  return (
-    <ShellIcon>
-      <circle cx="11" cy="11" r="6.5" />
-      <path d="m16 16 4.5 4.5" />
-    </ShellIcon>
-  );
-}
-
 function IconProfile() {
   return (
     <ShellIcon>
@@ -76,7 +67,7 @@ const ITEMS = [
   { to: "/", label: "Inicio", icon: <IconHome /> },
   { to: "/explorar", label: "Quedadas", icon: <IconMeetups /> },
   { to: "/mensajes", label: "Mensajes", icon: <IconMessage /> },
-  { to: "/groups", label: "Buscar", icon: <IconSearch /> },
+  { to: "/groups", label: "Grupos", icon: <IconUsers /> },
   { to: "/perfil", label: "Perfil", icon: <IconProfile /> },
 ];
 
