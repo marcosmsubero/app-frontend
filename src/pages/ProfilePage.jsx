@@ -1,7 +1,11 @@
+import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import MeetupCalendar from "../components/MeetupCalendar";
 import { useAuth } from "../hooks/useAuth";
 import { useMyMeetups } from "../hooks/useMyMeetups";
+import { useToast } from "../hooks/useToast";
+import { apiUpdateProfile } from "../services/api";
+import { uploadAvatarToSupabase } from "../services/storage";
 
 function formatHandle(handle) {
   const clean = String(handle || "").trim().replace(/^@+/, "");
@@ -23,8 +27,9 @@ function initialsFromName(name = "") {
     .trim()
     .split(/\s+/)
     .filter(Boolean);
+
   if (!parts.length) return "R";
-  return `${parts[0]?.[0] || ""}${parts[1]?.[0] || ""}`.toUpperCase() || parts[0][0].toUpperCase();
+  return `${parts[0]?.[0] || ""}${parts[1]?.[0] || ""}`.toUpperCase() || "R";
 }
 
 function StatCard({ value, label }) {
@@ -36,9 +41,96 @@ function StatCard({ value, label }) {
   );
 }
 
+function IconButton({ children, title, as: Component = "button", ...props }) {
+  return (
+    <Component
+      title={title}
+      aria-label={title}
+      {...props}
+      style={{
+        width: 42,
+        height: 42,
+        borderRadius: 999,
+        display: "inline-grid",
+        placeItems: "center",
+        border: "1px solid var(--app-border)",
+        background: "rgba(255,255,255,0.84)",
+        boxShadow: "var(--shadow-xs)",
+        color: "var(--app-text)",
+        textDecoration: "none",
+        transition:
+          "transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast)",
+        ...props.style,
+      }}
+    >
+      {children}
+    </Component>
+  );
+}
+
+function IconSettings() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="18"
+      height="18"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.9"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="12" r="3.2" />
+      <path d="M19.4 15a1 1 0 0 0 .2 1.1l.05.05a2 2 0 0 1-2.83 2.83l-.05-.05a1 1 0 0 0-1.1-.2 1 1 0 0 0-.6.91V20a2 2 0 0 1-4 0v-.08a1 1 0 0 0-.66-.94 1 1 0 0 0-1.09.23l-.05.05a2 2 0 1 1-2.83-2.83l.05-.05a1 1 0 0 0 .2-1.1 1 1 0 0 0-.91-.6H4a2 2 0 0 1 0-4h.08a1 1 0 0 0 .94-.66 1 1 0 0 0-.23-1.09l-.05-.05a2 2 0 1 1 2.83-2.83l.05.05a1 1 0 0 0 1.1.2 1 1 0 0 0 .6-.91V4a2 2 0 0 1 4 0v.08a1 1 0 0 0 .66.94 1 1 0 0 0 1.09-.23l.05-.05a2 2 0 0 1 2.83 2.83l-.05.05a1 1 0 0 0-.2 1.1 1 1 0 0 0 .91.6H20a2 2 0 0 1 0 4h-.08a1 1 0 0 0-.94.66 1 1 0 0 0 .23 1.09Z" />
+    </svg>
+  );
+}
+
+function IconEdit() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="18"
+      height="18"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.9"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M12 20h9" />
+      <path d="M16.5 3.5a2.12 2.12 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5Z" />
+    </svg>
+  );
+}
+
+function IconCamera() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="16"
+      height="16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.9"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-2h6l2 2h4a2 2 0 0 1 2 2Z" />
+      <circle cx="12" cy="13" r="4" />
+    </svg>
+  );
+}
+
 export default function ProfilePage() {
-  const { me, profile, meReady } = useAuth();
-  const { items: meetups = [], loading: meetupsLoading, error: meetupsError } = useMyMeetups();
+  const { me, profile, meReady, token, refreshMe, user } = useAuth();
+  const { items: meetups = [] } = useMyMeetups();
+  const toast = useToast();
+  const fileInputRef = useRef(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
   if (!meReady) {
     return (
@@ -65,18 +157,84 @@ export default function ProfilePage() {
 
   const followers = Number(me?.followers_count ?? 0);
   const following = Number(me?.following_count ?? 0);
-  const planned = Array.isArray(meetups) ? meetups.length : 0;
+  const recentCount = Array.isArray(meetups) ? meetups.length : 0;
+
+  async function handleAvatarChange(event) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+
+    if (!file) return;
+
+    if (!user?.id) {
+      toast?.error?.("No se pudo identificar al usuario.");
+      return;
+    }
+
+    setUploadingAvatar(true);
+
+    try {
+      const { publicUrl } = await uploadAvatarToSupabase(file, user.id);
+      await apiUpdateProfile({ avatar_url: publicUrl }, token);
+      await refreshMe(token);
+      toast?.success?.("Foto de perfil actualizada.");
+    } catch (error) {
+      toast?.error?.(error?.message || "No se pudo actualizar la foto.");
+    } finally {
+      setUploadingAvatar(false);
+    }
+  }
 
   return (
     <section className="profilePage">
       <article className="app-section profilePage__hero">
         <div className="profilePage__heroTop">
           <div className="profilePage__identity">
-            {avatarUrl ? (
-              <img src={avatarUrl} alt={displayName} className="profilePage__avatarImage" />
-            ) : (
-              <div className="profilePage__avatarFallback">{initialsFromName(displayName)}</div>
-            )}
+            <div style={{ position: "relative", width: 104, height: 104 }}>
+              {avatarUrl ? (
+                <img
+                  src={avatarUrl}
+                  alt={displayName}
+                  className="profilePage__avatarImage"
+                />
+              ) : (
+                <div className="profilePage__avatarFallback">
+                  {initialsFromName(displayName)}
+                </div>
+              )}
+
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploadingAvatar}
+                title="Cambiar foto de perfil"
+                aria-label="Cambiar foto de perfil"
+                style={{
+                  position: "absolute",
+                  right: -2,
+                  bottom: -2,
+                  width: 34,
+                  height: 34,
+                  borderRadius: 999,
+                  border: "1px solid var(--app-border)",
+                  background: "#fff",
+                  display: "grid",
+                  placeItems: "center",
+                  boxShadow: "var(--shadow-sm)",
+                  color: "var(--app-text)",
+                  cursor: uploadingAvatar ? "default" : "pointer",
+                }}
+              >
+                <IconCamera />
+              </button>
+
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleAvatarChange}
+                style={{ display: "none" }}
+              />
+            </div>
 
             <div className="profilePage__identityCopy">
               <div className="profilePage__identityHead">
@@ -87,31 +245,98 @@ export default function ProfilePage() {
 
                 <div className="profilePage__metaInline">
                   <span className="app-chip">Running</span>
-                  <span className="app-chip app-chip--soft">{formatLocation(location)}</span>
+                  <span className="app-chip app-chip--soft">
+                    {formatLocation(location)}
+                  </span>
                 </div>
               </div>
 
               <p className="profilePage__bio">{formatBio(bio)}</p>
 
-              <div className="profilePage__actions">
-                <Link to="/ajustes" className="app-button app-button--ghost">
-                  Ajustes
-                </Link>
+              <div
+                className="profilePage__actions"
+                style={{ justifyContent: "flex-start", alignItems: "center" }}
+              >
+                <IconButton as={Link} to="/ajustes" title="Ajustes">
+                  <IconSettings />
+                </IconButton>
+
+                <IconButton as={Link} to="/onboarding" title="Editar perfil">
+                  <IconEdit />
+                </IconButton>
+
+                <span
+                  style={{
+                    color: "var(--app-text-faint)",
+                    fontSize: "var(--font-sm)",
+                    fontWeight: 600,
+                  }}
+                >
+                  {uploadingAvatar ? "Subiendo foto…" : "Perfil"}
+                </span>
               </div>
             </div>
           </div>
 
-          <div className="profilePage__stats">
+          <div
+            className="profilePage__stats"
+            style={{ gridTemplateColumns: "repeat(2, minmax(0, 1fr))" }}
+          >
             <StatCard value={followers} label="Seguidores" />
             <StatCard value={following} label="Seguidos" />
-            <StatCard value={planned} label="Planes" />
           </div>
         </div>
       </article>
 
+      <div className="profilePage__content profilePage__content--calendar">
+        <article className="app-section profilePage__contentCard">
+          <div className="profilePage__sectionHead">
+            <div>
+              <p className="app-kicker">Perfil</p>
+              <h2 className="app-title">Resumen</h2>
+              <p className="app-subtitle">
+                Vista simple de tu cuenta runner y tu actividad prevista.
+              </p>
+            </div>
+          </div>
+
+          <div className="profilePage__activityList">
+            <div className="profilePage__activityRow">
+              <div className="profilePage__activityAvatar">RN</div>
+              <div className="profilePage__activityBody">
+                <div className="profilePage__activityTitle">Disciplina principal</div>
+                <div className="profilePage__activityMeta">
+                  La app queda centrada exclusivamente en running
+                </div>
+              </div>
+              <div className="profilePage__activityAside">
+                <div className="profilePage__activityNumber">1</div>
+                <div className="profilePage__activityLabel">deporte</div>
+              </div>
+            </div>
+
+            <div className="profilePage__activityRow">
+              <div className="profilePage__activityAvatar">AG</div>
+              <div className="profilePage__activityBody">
+                <div className="profilePage__activityTitle">Agenda actual</div>
+                <div className="profilePage__activityMeta">
+                  {recentCount > 0
+                    ? `Tienes ${recentCount} actividad${recentCount === 1 ? "" : "es"} en tu calendario`
+                    : "Todavía no tienes actividades registradas"}
+                </div>
+              </div>
+              <div className="profilePage__activityAside">
+                <div className="profilePage__activityNumber">{recentCount}</div>
+                <div className="profilePage__activityLabel">agenda</div>
+              </div>
+            </div>
+          </div>
+        </article>
+
         <article className="app-section profilePage__calendarCard">
           <MeetupCalendar meetups={meetups} me={me} />
         </article>
+      </div>
     </section>
   );
 }
