@@ -61,6 +61,31 @@ function getUnreadCount(thread) {
   return 0;
 }
 
+function IconRefresh({ spinning = false }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="18"
+      height="18"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      style={{
+        transformOrigin: "center",
+        animation: spinning ? "activitySpin 0.9s linear infinite" : "none",
+      }}
+    >
+      <polyline points="23 4 23 10 17 10" />
+      <polyline points="1 20 1 14 7 14" />
+      <path d="M3.51 9a9 9 0 0114.13-3.36L23 10" />
+      <path d="M20.49 15a9 9 0 01-14.13 3.36L1 14" />
+    </svg>
+  );
+}
+
 function MessageRow({ thread, onOpen }) {
   const unreadCount = getUnreadCount(thread);
 
@@ -407,6 +432,13 @@ export default function ActivityPage() {
 
   return (
     <section className="page">
+      <style>{`
+        @keyframes activitySpin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
+
       <div className="app-card">
         <div className="app-card__body" style={{ display: "grid", gap: 16 }}>
           <div className="page__header" style={{ marginBottom: 0 }}>
@@ -495,11 +527,24 @@ export default function ActivityPage() {
 
               <button
                 type="button"
-                className="app-button app-button--secondary"
                 onClick={() => loadNotifications(notifFilter)}
                 disabled={notificationsLoading || !token}
+                aria-label="Recargar"
+                title="Recargar"
+                style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: 999,
+                  border: "1px solid var(--app-border)",
+                  background: "#fff",
+                  display: "grid",
+                  placeItems: "center",
+                  cursor: notificationsLoading || !token ? "default" : "pointer",
+                  flexShrink: 0,
+                  color: "var(--app-text)",
+                }}
               >
-                {notificationsLoading ? "Actualizando…" : "Recargar"}
+                <IconRefresh spinning={notificationsLoading} />
               </button>
             </div>
           )}
