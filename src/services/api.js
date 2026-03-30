@@ -59,7 +59,7 @@ export async function api(path, { method = "GET", token, body } = {}) {
   };
 
   if (body !== undefined) headers["Content-Type"] = "application/json";
-  if (resolvedToken) headers["Authorization"] = `Bearer ${resolvedToken}`;
+  if (resolvedToken) headers.Authorization = `Bearer ${resolvedToken}`;
 
   let res;
 
