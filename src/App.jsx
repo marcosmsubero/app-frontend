@@ -9,9 +9,9 @@ import ChatThreadPage from "./pages/ChatThreadPage";
 import GroupPage from "./pages/GroupPage";
 import MessagesPage from "./pages/MessagesPage";
 import NotificationsPage from "./pages/NotificationsPage";
+import PlaceholderSettingsPage from "./pages/PlaceholderSettingsPage";
 import ProfileOnboardingPage from "./pages/ProfileOnboardingPage";
 import ProfilePage from "./pages/ProfilePage";
-import SettingsPage from "./pages/SettingsPage";
 
 function FullScreenLoader({ label = "Cargando…" }) {
   return (
@@ -127,7 +127,7 @@ export default function App() {
             <Route path="/notificaciones" element={<NotificationsPage />} />
             <Route path="/blablarun" element={<BlaBlaRunPage />} />
             <Route path="/perfil" element={<ProfilePage />} />
-            <Route path="/ajustes" element={<SettingsPage />} />
+            <Route path="/ajustes" element={<PlaceholderSettingsPage />} />
           </Route>
         </Route>
       </Route>
