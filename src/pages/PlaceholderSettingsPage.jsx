@@ -72,6 +72,12 @@ export default function PlaceholderSettingsPage() {
     nav("/login", { replace: true });
   }
 
+  function handleEditProfile() {
+    nav("/onboarding?mode=edit", {
+      state: { editProfile: true },
+    });
+  }
+
   return (
     <section className="page-shell settings-pageV2">
       <div className="page-shell__header settings-pageV2__header">
@@ -111,9 +117,9 @@ export default function PlaceholderSettingsPage() {
             <div className="st-list">
               <Row
                 title="Editar perfil"
-                subtitle="Nombre, bio, disciplinas y datos visibles"
+                subtitle="Nombre, usuario, bio y ubicación visibles"
                 right={<span className="st-chevron">›</span>}
-                onClick={() => nav("/onboarding")}
+                onClick={handleEditProfile}
               />
               <Row
                 title="Cambiar contraseña"
