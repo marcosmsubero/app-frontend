@@ -88,14 +88,7 @@ function ModalCloseIcon() {
   );
 }
 
-function CreateEventModal({
-  open,
-  dayKey,
-  joinedGroups,
-  saving,
-  onClose,
-  onSubmit,
-}) {
+function CreateEventModal({ open, dayKey, joinedGroups, saving, onClose, onSubmit }) {
   const [form, setForm] = useState({
     group_id: "",
     event_type: "entrenamiento",
@@ -371,10 +364,6 @@ function CreateEventModal({
                   placeholder="Detalles opcionales"
                   disabled={disabled}
                 />
-                <small className="app-help">
-                  El tipo se añade dentro de las notas porque el backend actual no tiene
-                  un campo específico para ello.
-                </small>
               </div>
 
               <div className="ui-row ui-row--end">
@@ -483,7 +472,7 @@ export default function MeetupCalendar({ meetups = [], me }) {
 
   return (
     <>
-      <section className="calendarMini" aria-label="Calendario de actividades">
+      <section className="calendarMini" aria-label="Calendario de actividades" style={{ width: "100%" }}>
         <div className="calendarMini__header">
           <div className="calendarMini__heading">
             <p className="app-kicker">Calendario</p>
