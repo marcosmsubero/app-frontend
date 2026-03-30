@@ -1,10 +1,11 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import MeetupCalendar from "../components/MeetupCalendar";
 import { useAuth } from "../hooks/useAuth";
+import { useGroups } from "../hooks/useGroups";
 import { useMyMeetups } from "../hooks/useMyMeetups";
 import { useToast } from "../hooks/useToast";
-import { apiUpdateProfile } from "../services/api";
+import { apiCreateMeetup, apiUpdateProfile } from "../services/api";
 import { uploadAvatarToSupabase } from "../services/storage";
 
 function formatHandle(handle) {
@@ -127,10 +128,20 @@ function IconCamera() {
 
 export default function ProfilePage() {
   const { me, profile, meReady, token, refreshMe, user } = useAuth();
-  const { items: meetups = [] } = useMyMeetups();
+  const { items: meetups = [], reload: reloadMeetups } = useMyMeetups();
   const toast = useToast();
   const fileInputRef = useRef(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+
+  const {
+    groups,
+    loadGroups,
+  } = useGroups(token, toast);
+
+  useEffect(() => {
+    if (!token) return;
+    loadGroups();
+  }, [loadGroups, token]);
 
   if (!meReady) {
     return (
@@ -159,6 +170,9 @@ export default function ProfilePage() {
   const following = Number(me?.following_count ?? 0);
   const recentCount = Array.isArray(meetups) ? meetups.length : 0;
 
+  const joinedGroups = (Array.isArray(groups) ? groups : []).filter((group) => !!group?.my_role);
+  const canCreateCalendarEvent = Boolean(me?.location_verified);
+
   async function handleAvatarChange(event) {
     const file = event.target.files?.[0];
     event.target.value = "";
@@ -181,6 +195,17 @@ export default function ProfilePage() {
       toast?.error?.(error?.message || "No se pudo actualizar la foto.");
     } finally {
       setUploadingAvatar(false);
+    }
+  }
+
+  async function handleCreateCalendarEvent(payload) {
+    try {
+      await apiCreateMeetup(payload.group_id, payload, token);
+      await reloadMeetups();
+      toast?.success?.("Evento creado correctamente.");
+    } catch (error) {
+      toast?.error?.(error?.message || "No se pudo crear el evento.");
+      throw error;
     }
   }
 
@@ -334,7 +359,13 @@ export default function ProfilePage() {
         </article>
 
         <article className="app-section profilePage__calendarCard">
-          <MeetupCalendar meetups={meetups} me={me} />
+          <MeetupCalendar
+            meetups={meetups}
+            me={me}
+            joinedGroups={joinedGroups}
+            canCreate={canCreateCalendarEvent}
+            onCreateEvent={handleCreateCalendarEvent}
+          />
         </article>
       </div>
     </section>
