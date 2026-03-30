@@ -92,7 +92,6 @@ function CreateEventModal({
   open,
   dayKey,
   joinedGroups,
-  canCreate,
   saving,
   onClose,
   onSubmit,
@@ -139,7 +138,7 @@ function CreateEventModal({
   if (!open) return null;
 
   const hasGroups = joinedGroups.length > 0;
-  const disabled = saving || !canCreate || !hasGroups;
+  const disabled = saving || !hasGroups;
 
   function updateField(field, value) {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -214,14 +213,7 @@ function CreateEventModal({
             </button>
           </div>
 
-          {!canCreate ? (
-            <div className="app-empty">
-              <div className="notificationsSimple__emptyBody">
-                <strong>Necesitas verificar tu ubicación</strong>
-                <p>Debes tener la ubicación verificada para crear eventos.</p>
-              </div>
-            </div>
-          ) : !hasGroups ? (
+          {!hasGroups ? (
             <div className="app-empty">
               <div className="notificationsSimple__emptyBody">
                 <strong>No tienes grupos disponibles</strong>
@@ -439,7 +431,6 @@ export default function MeetupCalendar({ meetups = [], me }) {
   const todayKey = localDayKey(today);
   const selectedItems = selectedDay ? byDay.get(selectedDay) || [] : [];
   const joinedGroups = (Array.isArray(groups) ? groups : []).filter((group) => !!group?.my_role);
-  const canCreate = Boolean(me?.location_verified);
 
   function goPrevMonth() {
     setMonth((prev) => addMonths(prev, -1));
@@ -460,7 +451,6 @@ export default function MeetupCalendar({ meetups = [], me }) {
 
     try {
       const created = await apiCreateMeetup(payload.group_id, payload, token);
-
       const selectedGroup = joinedGroups.find((group) => Number(group.id) === Number(payload.group_id));
 
       const normalizedCreated = {
@@ -655,7 +645,6 @@ export default function MeetupCalendar({ meetups = [], me }) {
         open={showCreateModal}
         dayKey={selectedDay}
         joinedGroups={joinedGroups}
-        canCreate={canCreate}
         onClose={() => setShowCreateModal(false)}
         onSubmit={handleCreateEvent}
         saving={savingEvent}
