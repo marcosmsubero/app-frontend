@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
+import MeetupCalendar from "../components/MeetupCalendar";
 import { useAuth } from "../hooks/useAuth";
+import { useMyMeetups } from "../hooks/useMyMeetups";
 
 function formatHandle(handle) {
   const clean = String(handle || "").trim().replace(/^@+/, "");
@@ -16,8 +18,27 @@ function formatBio(bio) {
   return clean || "Aún no has añadido una bio a tu perfil.";
 }
 
+function initialsFromName(name = "") {
+  const parts = String(name || "")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+  if (!parts.length) return "R";
+  return `${parts[0]?.[0] || ""}${parts[1]?.[0] || ""}`.toUpperCase() || parts[0][0].toUpperCase();
+}
+
+function StatCard({ value, label }) {
+  return (
+    <div className="profilePage__statCard">
+      <span className="profilePage__statValue">{value}</span>
+      <span className="profilePage__statLabel">{label}</span>
+    </div>
+  );
+}
+
 export default function ProfilePage() {
   const { me, profile, meReady } = useAuth();
+  const { items: meetups = [], loading: meetupsLoading, error: meetupsError } = useMyMeetups();
 
   if (!meReady) {
     return (
@@ -42,93 +63,102 @@ export default function ProfilePage() {
   const location = me?.location || profile?.location || "";
   const avatarUrl = me?.avatar_url || profile?.avatar_url || "";
 
-  return (
-    <section className="app-shell">
-      <div className="app-section">
-        <div className="app-section__header">
-          <div>
-            <span className="app-eyebrow">Perfil</span>
-            <h1 className="app-title">Tu perfil runner</h1>
-            <p className="app-subtitle">
-              Consulta tu información y tu calendario desde una sola pantalla.
-            </p>
-          </div>
-        </div>
+  const followers = Number(me?.followers_count ?? 0);
+  const following = Number(me?.following_count ?? 0);
+  const planned = Array.isArray(meetups) ? meetups.length : 0;
 
-        <div className="profile-page">
-          <article className="profile-card">
-            <div className="profile-card__top">
-              <div className="profile-card__identity">
-                <div className="profile-card__avatarWrap">
-                  {avatarUrl ? (
-                    <img
-                      src={avatarUrl}
-                      alt={displayName}
-                      className="profile-card__avatar"
-                    />
-                  ) : (
-                    <div className="profile-card__avatar profile-card__avatar--fallback">
-                      {String(displayName).trim().charAt(0).toUpperCase() || "R"}
-                    </div>
-                  )}
+  return (
+    <section className="profilePage">
+      <article className="app-section profilePage__hero">
+        <div className="profilePage__heroTop">
+          <div className="profilePage__identity">
+            {avatarUrl ? (
+              <img src={avatarUrl} alt={displayName} className="profilePage__avatarImage" />
+            ) : (
+              <div className="profilePage__avatarFallback">{initialsFromName(displayName)}</div>
+            )}
+
+            <div className="profilePage__identityCopy">
+              <div className="profilePage__identityHead">
+                <div className="profilePage__nameBlock">
+                  <h1 className="profilePage__name">{displayName}</h1>
+                  <p className="profilePage__handle">{formatHandle(handle)}</p>
                 </div>
 
-                <div className="profile-card__meta">
-                  <h2 className="profile-card__name">{displayName}</h2>
-                  <p className="profile-card__handle">{formatHandle(handle)}</p>
-                  <p className="profile-card__location">{formatLocation(location)}</p>
+                <div className="profilePage__metaInline">
+                  <span className="app-chip">Running</span>
+                  <span className="app-chip app-chip--soft">{formatLocation(location)}</span>
                 </div>
               </div>
 
-              <div className="profile-card__actions">
-                <Link
-                  to="/ajustes"
-                  className="app-button app-button--ghost"
-                  aria-label="Abrir ajustes"
-                  title="Ajustes"
-                >
+              <p className="profilePage__bio">{formatBio(bio)}</p>
+
+              <div className="profilePage__actions">
+                <Link to="/ajustes" className="app-button app-button--ghost">
                   Ajustes
                 </Link>
               </div>
             </div>
+          </div>
 
-            <div className="profile-card__body">
-              <div className="profile-card__block">
-                <h3 className="profile-card__blockTitle">Bio</h3>
-                <p className="profile-card__bio">{formatBio(bio)}</p>
-              </div>
-
-              <div className="profile-card__block">
-                <h3 className="profile-card__blockTitle">Disciplina</h3>
-                <p className="profile-card__singleValue">Running</p>
-              </div>
-            </div>
-          </article>
-
-          <article className="profile-calendar-card">
-            <div className="profile-calendar-card__header">
-              <div>
-                <h2 className="profile-calendar-card__title">Calendario</h2>
-                <p className="profile-calendar-card__subtitle">
-                  Aquí verás tus planes, quedadas y actividad programada.
-                </p>
-              </div>
-            </div>
-
-            <div className="profile-calendar-card__content">
-              <div className="profile-calendar-placeholder">
-                <div className="profile-calendar-placeholder__icon">📅</div>
-                <h3 className="profile-calendar-placeholder__title">
-                  Calendario del runner
-                </h3>
-                <p className="profile-calendar-placeholder__text">
-                  Este espacio queda reservado para tu calendario. Las publicaciones
-                  se han eliminado del perfil para dejar la pantalla más clara.
-                </p>
-              </div>
-            </div>
-          </article>
+          <div className="profilePage__stats">
+            <StatCard value={followers} label="Seguidores" />
+            <StatCard value={following} label="Seguidos" />
+            <StatCard value={planned} label="Planes" />
+          </div>
         </div>
+      </article>
+
+      <div className="profilePage__content profilePage__content--calendar">
+        <article className="app-section profilePage__contentCard">
+          <div className="profilePage__sectionHead">
+            <div>
+              <p className="app-kicker">Perfil</p>
+              <h2 className="app-title">Resumen runner</h2>
+              <p className="app-subtitle">
+                Las publicaciones se han eliminado del perfil. Esta vista queda centrada en tu cuenta y tu agenda.
+              </p>
+            </div>
+          </div>
+
+          <div className="profilePage__activityList">
+            <div className="profilePage__activityRow">
+              <div className="profilePage__activityAvatar">RN</div>
+              <div className="profilePage__activityBody">
+                <div className="profilePage__activityTitle">Disciplina principal</div>
+                <div className="profilePage__activityMeta">La app queda orientada solo a running</div>
+              </div>
+              <div className="profilePage__activityAside">
+                <div className="profilePage__activityNumber">1</div>
+                <div className="profilePage__activityLabel">deporte</div>
+              </div>
+            </div>
+
+            <div className="profilePage__activityRow">
+              <div className="profilePage__activityAvatar">AG</div>
+              <div className="profilePage__activityBody">
+                <div className="profilePage__activityTitle">Actividad prevista</div>
+                <div className="profilePage__activityMeta">
+                  {meetupsLoading
+                    ? "Cargando tus quedadas…"
+                    : meetupsError
+                    ? "No se pudo cargar la agenda"
+                    : planned > 0
+                    ? `Tienes ${planned} actividad${planned === 1 ? "" : "es"} registrada${planned === 1 ? "" : "s"}`
+                    : "Todavía no tienes actividades guardadas"}
+                </div>
+              </div>
+              <div className="profilePage__activityAside">
+                <div className="profilePage__activityNumber">{planned}</div>
+                <div className="profilePage__activityLabel">planes</div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article className="app-section profilePage__calendarCard">
+          <MeetupCalendar meetups={meetups} me={me} />
+        </article>
       </div>
     </section>
   );
