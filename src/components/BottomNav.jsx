@@ -16,10 +16,10 @@ function ShellIcon({ children }) {
   );
 }
 
-function IconMessage() {
+function IconActivity() {
   return (
     <ShellIcon>
-      <path d="M5 18.5 4 21l3.1-1.2c.6.1 1.3.2 1.9.2h7a5 5 0 0 0 5-5v-5a5 5 0 0 0-5-5H8a5 5 0 0 0-5 5v5c0 1.4.6 2.7 1.7 3.6Z" />
+      <path d="M4 12h3l2-4 4 8 2-4h5" />
     </ShellIcon>
   );
 }
@@ -58,7 +58,7 @@ function IconProfile() {
 
 const ITEMS = [
   { to: "/perfil", label: "Perfil", icon: <IconProfile /> },
-  { to: "/mensajes", label: "Mensajes", icon: <IconMessage /> },
+  { to: "/actividad", label: "Actividad", icon: <IconActivity /> },
   { to: "/blablarun", label: "BlaBlaRun", icon: <IconRun /> },
   { to: "/groups", label: "Grupos", icon: <IconUsers /> },
 ];
@@ -67,7 +67,7 @@ export default function BottomNav({ unreadMessages = 0 }) {
   return (
     <nav className="app-bottom-nav app-bottom-nav--instagram" aria-label="Navegación inferior">
       {ITEMS.map((item) => {
-        const showBadge = item.to === "/mensajes" && unreadMessages > 0;
+        const showBadge = item.to === "/actividad" && unreadMessages > 0;
 
         return (
           <NavLink
