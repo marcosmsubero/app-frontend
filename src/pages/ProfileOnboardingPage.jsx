@@ -17,9 +17,10 @@ export default function ProfileOnboardingPage() {
   const nav = useNavigate();
   const location = useLocation();
 
+  const searchParams = useMemo(() => new URLSearchParams(location.search), [location.search]);
+
   const isEditMode =
-    location.state?.editProfile === true ||
-    new URLSearchParams(location.search).get("mode") === "edit";
+    location.state?.editProfile === true || searchParams.get("mode") === "edit";
 
   const [form, setForm] = useState({
     full_name: "",
@@ -56,6 +57,10 @@ export default function ProfileOnboardingPage() {
 
   function setSuccess(text) {
     setMsg({ type: "success", text });
+  }
+
+  function goBackAfterEdit() {
+    nav("/perfil", { replace: true });
   }
 
   async function handleSubmit(e) {
@@ -117,7 +122,8 @@ export default function ProfileOnboardingPage() {
         (message.includes("exists") ||
           message.includes("taken") ||
           message.includes("duplic") ||
-          message.includes("unique"))
+          message.includes("unique") ||
+          message.includes("uso"))
       ) {
         setError("Ese nombre de usuario ya está en uso.");
       } else {
@@ -156,7 +162,7 @@ export default function ProfileOnboardingPage() {
             </h1>
             <p className="app-subtitle">
               {isEditMode
-                ? "Actualiza la información principal de tu perfil."
+                ? "Actualiza tu información principal. Este formulario reutiliza el onboarding en modo edición."
                 : "Configura tu cuenta una sola vez para acceder a la comunidad."}
             </p>
           </div>
@@ -202,9 +208,7 @@ export default function ProfileOnboardingPage() {
               autoCorrect="off"
               autoComplete="username"
             />
-            <small className="app-help">
-              Será tu identificador visible dentro de la app.
-            </small>
+            <small className="app-help">Será tu identificador visible dentro de la app.</small>
           </div>
 
           <div className="app-field">
@@ -239,11 +243,6 @@ export default function ProfileOnboardingPage() {
             <small className="app-help">{form.bio.length}/280</small>
           </div>
 
-          <div className="app-field">
-            <label className="app-label">Disciplina</label>
-            <input className="app-input" type="text" value="Running" disabled readOnly />
-          </div>
-
           {msg.text ? (
             <div
               className={`authSimple__message ${
@@ -257,6 +256,17 @@ export default function ProfileOnboardingPage() {
           ) : null}
 
           <div className="app-actions">
+            {isEditMode ? (
+              <button
+                type="button"
+                className="app-button app-button--secondary"
+                onClick={goBackAfterEdit}
+                disabled={saving}
+              >
+                Cancelar
+              </button>
+            ) : null}
+
             <button type="submit" className="app-button app-button--primary" disabled={saving}>
               {saving ? "Guardando…" : isEditMode ? "Guardar cambios" : "Completar perfil"}
             </button>
