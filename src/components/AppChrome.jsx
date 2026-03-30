@@ -2,6 +2,7 @@ import { NavLink } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { apiDMThreads } from "../services/api";
+import BottomNav from "./BottomNav";
 
 function ShellIcon({ children }) {
   return (
@@ -78,7 +79,7 @@ function IconSettings() {
 const NAV_ITEMS = [
   { to: "/", icon: <IconHome />, label: "Inicio" },
   { to: "/explorar", icon: <IconMeetups />, label: "Quedadas" },
-  { to: "/groups", icon: <IconUsers />, label: "Grupos" },
+  { to: "/grupos", icon: <IconUsers />, label: "Grupos" },
   { to: "/mensajes", icon: <IconMessage />, label: "Mensajes", withCounter: true },
 ];
 
@@ -109,7 +110,7 @@ function DesktopNavItem({ to, icon, label, badgeCount = 0 }) {
   );
 }
 
-export default function AppChrome() {
+export default function AppChrome({ children }) {
   const { token } = useAuth();
   const [unreadMessages, setUnreadMessages] = useState(0);
 
@@ -147,7 +148,7 @@ export default function AppChrome() {
   }, [token]);
 
   return (
-    <>
+    <div className="app-layout-shell">
       <header className="app-topbar app-topbar--minimal">
         <div className="app-topbar__actions">
           <NavLink
@@ -220,6 +221,12 @@ export default function AppChrome() {
           </div>
         </div>
       </aside>
-    </>
+
+      <main className="app-layout-main">
+        {children}
+      </main>
+
+      <BottomNav unreadMessages={unreadMessages} />
+    </div>
   );
 }
