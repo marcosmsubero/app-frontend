@@ -128,20 +128,12 @@ function IconCamera() {
 
 export default function ProfilePage() {
   const { me, profile, meReady, token, refreshMe, user } = useAuth();
-  const { items: meetups = [], reload: reloadMeetups } = useMyMeetups();
+  const { items: meetups = [] } = useMyMeetups();
   const toast = useToast();
   const fileInputRef = useRef(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
-  const {
-    groups,
-    loadGroups,
-  } = useGroups(token, toast);
-
-  useEffect(() => {
-    if (!token) return;
-    loadGroups();
-  }, [loadGroups, token]);
+  useGroups(token, toast);
 
   if (!meReady) {
     return (
@@ -168,10 +160,6 @@ export default function ProfilePage() {
 
   const followers = Number(me?.followers_count ?? 0);
   const following = Number(me?.following_count ?? 0);
-  const recentCount = Array.isArray(meetups) ? meetups.length : 0;
-
-  const joinedGroups = (Array.isArray(groups) ? groups : []).filter((group) => !!group?.my_role);
-  const canCreateCalendarEvent = Boolean(me?.location_verified);
 
   async function handleAvatarChange(event) {
     const file = event.target.files?.[0];
@@ -195,17 +183,6 @@ export default function ProfilePage() {
       toast?.error?.(error?.message || "No se pudo actualizar la foto.");
     } finally {
       setUploadingAvatar(false);
-    }
-  }
-
-  async function handleCreateCalendarEvent(payload) {
-    try {
-      await apiCreateMeetup(payload.group_id, payload, token);
-      await reloadMeetups();
-      toast?.success?.("Evento creado correctamente.");
-    } catch (error) {
-      toast?.error?.(error?.message || "No se pudo crear el evento.");
-      throw error;
     }
   }
 
@@ -314,58 +291,8 @@ export default function ProfilePage() {
       </article>
 
       <div className="profilePage__content profilePage__content--calendar">
-        <article className="app-section profilePage__contentCard">
-          <div className="profilePage__sectionHead">
-            <div>
-              <p className="app-kicker">Perfil</p>
-              <h2 className="app-title">Resumen</h2>
-              <p className="app-subtitle">
-                Vista simple de tu cuenta runner y tu actividad prevista.
-              </p>
-            </div>
-          </div>
-
-          <div className="profilePage__activityList">
-            <div className="profilePage__activityRow">
-              <div className="profilePage__activityAvatar">RN</div>
-              <div className="profilePage__activityBody">
-                <div className="profilePage__activityTitle">Disciplina principal</div>
-                <div className="profilePage__activityMeta">
-                  La app queda centrada exclusivamente en running
-                </div>
-              </div>
-              <div className="profilePage__activityAside">
-                <div className="profilePage__activityNumber">1</div>
-                <div className="profilePage__activityLabel">deporte</div>
-              </div>
-            </div>
-
-            <div className="profilePage__activityRow">
-              <div className="profilePage__activityAvatar">AG</div>
-              <div className="profilePage__activityBody">
-                <div className="profilePage__activityTitle">Agenda actual</div>
-                <div className="profilePage__activityMeta">
-                  {recentCount > 0
-                    ? `Tienes ${recentCount} actividad${recentCount === 1 ? "" : "es"} en tu calendario`
-                    : "Todavía no tienes actividades registradas"}
-                </div>
-              </div>
-              <div className="profilePage__activityAside">
-                <div className="profilePage__activityNumber">{recentCount}</div>
-                <div className="profilePage__activityLabel">agenda</div>
-              </div>
-            </div>
-          </div>
-        </article>
-
         <article className="app-section profilePage__calendarCard">
-          <MeetupCalendar
-            meetups={meetups}
-            me={me}
-            joinedGroups={joinedGroups}
-            canCreate={canCreateCalendarEvent}
-            onCreateEvent={handleCreateCalendarEvent}
-          />
+          <MeetupCalendar meetups={meetups} me={me} />
         </article>
       </div>
     </section>
