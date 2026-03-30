@@ -6,7 +6,9 @@ import { isOnboardingComplete } from "./lib/userContract";
 import AuthPage from "./pages/AuthPage";
 import BlaBlaRunPage from "./pages/BlaBlaRunPage";
 import ChatThreadPage from "./pages/ChatThreadPage";
+import DeleteAccountPage from "./pages/DeleteAccountPage";
 import GroupPage from "./pages/GroupPage";
+import GroupsPage from "./pages/GroupsPage";
 import MessagesPage from "./pages/MessagesPage";
 import NotificationsPage from "./pages/NotificationsPage";
 import PlaceholderSettingsPage from "./pages/PlaceholderSettingsPage";
@@ -28,17 +30,9 @@ function RequireAuth() {
   const { isAuthed, loading, meReady } = useAuth();
   const location = useLocation();
 
-  if (loading) {
-    return <FullScreenLoader label="Cargando sesión…" />;
-  }
-
-  if (!isAuthed) {
-    return <Navigate to="/login" replace state={{ from: location }} />;
-  }
-
-  if (!meReady) {
-    return <FullScreenLoader label="Cargando perfil…" />;
-  }
+  if (loading) return <FullScreenLoader label="Cargando sesión…" />;
+  if (!isAuthed) return <Navigate to="/login" replace state={{ from: location }} />;
+  if (!meReady) return <FullScreenLoader label="Cargando perfil…" />;
 
   return <Outlet />;
 }
@@ -46,13 +40,8 @@ function RequireAuth() {
 function RequireCompletedOnboarding() {
   const { me, meReady } = useAuth();
 
-  if (!meReady) {
-    return <FullScreenLoader label="Preparando cuenta…" />;
-  }
-
-  if (!isOnboardingComplete(me)) {
-    return <Navigate to="/onboarding" replace />;
-  }
+  if (!meReady) return <FullScreenLoader label="Preparando cuenta…" />;
+  if (!isOnboardingComplete(me)) return <Navigate to="/onboarding" replace />;
 
   return <Outlet />;
 }
@@ -60,17 +49,9 @@ function RequireCompletedOnboarding() {
 function RedirectAuthenticatedUser() {
   const { isAuthed, loading, me, meReady } = useAuth();
 
-  if (loading) {
-    return <FullScreenLoader label="Cargando…" />;
-  }
-
-  if (!isAuthed) {
-    return <Outlet />;
-  }
-
-  if (!meReady) {
-    return <FullScreenLoader label="Preparando cuenta…" />;
-  }
+  if (loading) return <FullScreenLoader label="Cargando…" />;
+  if (!isAuthed) return <Outlet />;
+  if (!meReady) return <FullScreenLoader label="Preparando cuenta…" />;
 
   return <Navigate to={isOnboardingComplete(me) ? "/" : "/onboarding"} replace />;
 }
@@ -86,21 +67,10 @@ function AppLayout() {
 function RootRedirect() {
   const { isAuthed, loading, me, meReady } = useAuth();
 
-  if (loading) {
-    return <FullScreenLoader label="Cargando…" />;
-  }
-
-  if (!isAuthed) {
-    return <Navigate to="/login" replace />;
-  }
-
-  if (!meReady) {
-    return <FullScreenLoader label="Preparando cuenta…" />;
-  }
-
-  if (!isOnboardingComplete(me)) {
-    return <Navigate to="/onboarding" replace />;
-  }
+  if (loading) return <FullScreenLoader label="Cargando…" />;
+  if (!isAuthed) return <Navigate to="/login" replace />;
+  if (!meReady) return <FullScreenLoader label="Preparando cuenta…" />;
+  if (!isOnboardingComplete(me)) return <Navigate to="/onboarding" replace />;
 
   return <Navigate to="/explorar" replace />;
 }
@@ -119,15 +89,18 @@ export default function App() {
         <Route element={<RequireCompletedOnboarding />}>
           <Route element={<AppLayout />}>
             <Route path="/" element={<RootRedirect />} />
-            <Route path="/explorar" element={<GroupPage />} />
-            <Route path="/grupos" element={<GroupPage />} />
+            <Route path="/explorar" element={<GroupsPage />} />
+            <Route path="/grupos" element={<GroupsPage />} />
+            <Route path="/groups" element={<GroupsPage />} />
             <Route path="/grupos/:groupId" element={<GroupPage />} />
+            <Route path="/groups/:groupId" element={<GroupPage />} />
             <Route path="/mensajes" element={<MessagesPage />} />
             <Route path="/mensajes/:threadId" element={<ChatThreadPage />} />
             <Route path="/notificaciones" element={<NotificationsPage />} />
             <Route path="/blablarun" element={<BlaBlaRunPage />} />
             <Route path="/perfil" element={<ProfilePage />} />
             <Route path="/ajustes" element={<PlaceholderSettingsPage />} />
+            <Route path="/eliminar-cuenta" element={<DeleteAccountPage />} />
           </Route>
         </Route>
       </Route>
