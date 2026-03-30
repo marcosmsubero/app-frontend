@@ -156,7 +156,7 @@ export default function ProfileOnboardingPage() {
             </h1>
             <p className="app-subtitle">
               {isEditMode
-                ? "Actualiza la información principal de tu card de perfil."
+                ? "Actualiza la información principal de tu perfil."
                 : "Configura tu cuenta una sola vez para acceder a la comunidad."}
             </p>
           </div>
@@ -166,13 +166,7 @@ export default function ProfileOnboardingPage() {
           {initialEmail ? (
             <div className="app-field">
               <label className="app-label">Email</label>
-              <input
-                className="app-input"
-                type="email"
-                value={initialEmail}
-                disabled
-                readOnly
-              />
+              <input className="app-input" type="email" value={initialEmail} disabled readOnly />
             </div>
           ) : null}
 
@@ -247,16 +241,7 @@ export default function ProfileOnboardingPage() {
 
           <div className="app-field">
             <label className="app-label">Disciplina</label>
-            <input
-              className="app-input"
-              type="text"
-              value="Running"
-              disabled
-              readOnly
-            />
-            <small className="app-help">
-              La app está centrada en runners por ahora.
-            </small>
+            <input className="app-input" type="text" value="Running" disabled readOnly />
           </div>
 
           {msg.text ? (
@@ -272,16 +257,8 @@ export default function ProfileOnboardingPage() {
           ) : null}
 
           <div className="app-actions">
-            <button
-              type="submit"
-              className="app-button app-button--primary"
-              disabled={saving}
-            >
-              {saving
-                ? "Guardando…"
-                : isEditMode
-                ? "Guardar cambios"
-                : "Completar perfil"}
+            <button type="submit" className="app-button app-button--primary" disabled={saving}>
+              {saving ? "Guardando…" : isEditMode ? "Guardar cambios" : "Completar perfil"}
             </button>
           </div>
         </form>
