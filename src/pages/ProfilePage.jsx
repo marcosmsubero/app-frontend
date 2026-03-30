@@ -109,53 +109,6 @@ export default function ProfilePage() {
         </div>
       </article>
 
-      <div className="profilePage__content profilePage__content--calendar">
-        <article className="app-section profilePage__contentCard">
-          <div className="profilePage__sectionHead">
-            <div>
-              <p className="app-kicker">Perfil</p>
-              <h2 className="app-title">Resumen runner</h2>
-              <p className="app-subtitle">
-                Las publicaciones se han eliminado del perfil. Esta vista queda centrada en tu cuenta y tu agenda.
-              </p>
-            </div>
-          </div>
-
-          <div className="profilePage__activityList">
-            <div className="profilePage__activityRow">
-              <div className="profilePage__activityAvatar">RN</div>
-              <div className="profilePage__activityBody">
-                <div className="profilePage__activityTitle">Disciplina principal</div>
-                <div className="profilePage__activityMeta">La app queda orientada solo a running</div>
-              </div>
-              <div className="profilePage__activityAside">
-                <div className="profilePage__activityNumber">1</div>
-                <div className="profilePage__activityLabel">deporte</div>
-              </div>
-            </div>
-
-            <div className="profilePage__activityRow">
-              <div className="profilePage__activityAvatar">AG</div>
-              <div className="profilePage__activityBody">
-                <div className="profilePage__activityTitle">Actividad prevista</div>
-                <div className="profilePage__activityMeta">
-                  {meetupsLoading
-                    ? "Cargando tus quedadas…"
-                    : meetupsError
-                    ? "No se pudo cargar la agenda"
-                    : planned > 0
-                    ? `Tienes ${planned} actividad${planned === 1 ? "" : "es"} registrada${planned === 1 ? "" : "s"}`
-                    : "Todavía no tienes actividades guardadas"}
-                </div>
-              </div>
-              <div className="profilePage__activityAside">
-                <div className="profilePage__activityNumber">{planned}</div>
-                <div className="profilePage__activityLabel">planes</div>
-              </div>
-            </div>
-          </div>
-        </article>
-
         <article className="app-section profilePage__calendarCard">
           <MeetupCalendar meetups={meetups} me={me} />
         </article>
