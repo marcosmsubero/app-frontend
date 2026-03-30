@@ -19,6 +19,8 @@ export const USER_CONTRACT_DEFAULTS = Object.freeze({
   updated_at: null,
 });
 
+const ONBOARDING_CACHE_PREFIX = "app:onboarding-complete:";
+
 export function normalizeUserContract(input = {}) {
   const data = { ...USER_CONTRACT_DEFAULTS, ...(input || {}) };
 
@@ -95,4 +97,39 @@ export function getPreferredLoginIdentifier(value = "") {
     type: "handle",
     value: raw.replace(/^@+/, "").toLowerCase(),
   };
+}
+
+export function onboardingCacheKey(supabaseUserId = "") {
+  const cleanId = String(supabaseUserId || "").trim();
+  return cleanId ? `${ONBOARDING_CACHE_PREFIX}${cleanId}` : "";
+}
+
+export function readCachedOnboardingCompletion(supabaseUserId = "") {
+  const key = onboardingCacheKey(supabaseUserId);
+  if (!key || typeof window === "undefined") return false;
+
+  try {
+    return window.localStorage.getItem(key) === "1";
+  } catch {
+    return false;
+  }
+}
+
+export function writeCachedOnboardingCompletion(supabaseUserId = "", completed = true) {
+  const key = onboardingCacheKey(supabaseUserId);
+  if (!key || typeof window === "undefined") return;
+
+  try {
+    if (completed) {
+      window.localStorage.setItem(key, "1");
+    } else {
+      window.localStorage.removeItem(key);
+    }
+  } catch {
+    // ignore storage errors
+  }
+}
+
+export function clearCachedOnboardingCompletion(supabaseUserId = "") {
+  writeCachedOnboardingCompletion(supabaseUserId, false);
 }
