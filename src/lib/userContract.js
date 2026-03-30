@@ -15,6 +15,8 @@ export const USER_CONTRACT_DEFAULTS = Object.freeze({
   location_verified: false,
   location_verified_at: null,
   onboarding_completed: false,
+  followers_count: 0,
+  following_count: 0,
   created_at: null,
   updated_at: null,
 });
@@ -72,6 +74,8 @@ export function normalizeUserContract(input = {}) {
     location_verified: Boolean(data.location_verified),
     location_verified_at: data.location_verified_at || null,
     onboarding_completed: Boolean(data.onboarding_completed),
+    followers_count: Number(data.followers_count ?? 0) || 0,
+    following_count: Number(data.following_count ?? 0) || 0,
     created_at: data.created_at || null,
     updated_at: data.updated_at || null,
   };
