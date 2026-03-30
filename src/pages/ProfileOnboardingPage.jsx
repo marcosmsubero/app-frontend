@@ -13,7 +13,7 @@ function normalizeHandle(value = "") {
 }
 
 export default function ProfileOnboardingPage() {
-  const { token, me, meReady, refreshMe, ensureProfile, profile } = useAuth();
+  const { token, me, meReady, refreshMe } = useAuth();
   const nav = useNavigate();
   const location = useLocation();
 
@@ -33,8 +33,8 @@ export default function ProfileOnboardingPage() {
   const [msg, setMsg] = useState({ type: "", text: "" });
 
   const initialEmail = useMemo(() => {
-    return location.state?.registeredEmail || me?.email || profile?.email || "";
-  }, [location.state?.registeredEmail, me?.email, profile?.email]);
+    return location.state?.registeredEmail || me?.email || "";
+  }, [location.state?.registeredEmail, me?.email]);
 
   useEffect(() => {
     if (!meReady) return;
@@ -97,20 +97,22 @@ export default function ProfileOnboardingPage() {
     setMsg({ type: "", text: "" });
 
     try {
-      await ensureProfile();
-
       const payload = {
         full_name,
         handle,
         bio: bio || null,
         location: locationValue || null,
         disciplines: ["running"],
-        avatar_url: me?.avatar_url || profile?.avatar_url || null,
+        avatar_url: me?.avatar_url || null,
         onboarding_completed: true,
       };
 
       await apiUpdateProfile(payload, token);
-      await refreshMe(token);
+      const nextMe = await refreshMe(token);
+
+      if (!nextMe?.onboarding_completed) {
+        throw new Error("El backend no confirmó la finalización del onboarding.");
+      }
 
       setSuccess(isEditMode ? "Perfil actualizado." : "Perfil completado.");
       nav(isEditMode ? "/perfil" : "/", { replace: true });
@@ -162,7 +164,7 @@ export default function ProfileOnboardingPage() {
             </h1>
             <p className="app-subtitle">
               {isEditMode
-                ? "Actualiza tu información principal. Este formulario reutiliza el onboarding en modo edición."
+                ? "Actualiza tu información principal desde la fuente de verdad del producto."
                 : "Configura tu cuenta una sola vez para acceder a la comunidad."}
             </p>
           </div>
