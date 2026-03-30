@@ -253,7 +253,6 @@ export default function ProfilePage() {
                 </div>
 
                 <div className="profilePage__metaInline">
-                  <span className="app-chip">Running</span>
                   <span className="app-chip app-chip--soft">{formatLocation(location)}</span>
                 </div>
               </div>
