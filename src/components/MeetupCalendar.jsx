@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { apiCreateMeetup } from "../services/api";
+import { apiCreateMyMeetup } from "../services/api";
 import { useAuth } from "../hooks/useAuth";
-import { useGroups } from "../hooks/useGroups";
 import { useToast } from "../hooks/useToast";
 import {
   addMonths,
@@ -88,9 +87,8 @@ function ModalCloseIcon() {
   );
 }
 
-function CreateEventModal({ open, dayKey, joinedGroups, saving, onClose, onSubmit }) {
+function CreateEventModal({ open, dayKey, saving, onClose, onSubmit }) {
   const [form, setForm] = useState({
-    group_id: "",
     event_type: "entrenamiento",
     time: "19:00",
     meeting_point: "",
@@ -103,9 +101,7 @@ function CreateEventModal({ open, dayKey, joinedGroups, saving, onClose, onSubmi
 
   useEffect(() => {
     if (!open) return;
-    const firstGroupId = joinedGroups[0]?.id ? String(joinedGroups[0].id) : "";
     setForm({
-      group_id: firstGroupId,
       event_type: "entrenamiento",
       time: defaultTimeForDay(dayKey),
       meeting_point: "",
@@ -115,7 +111,7 @@ function CreateEventModal({ open, dayKey, joinedGroups, saving, onClose, onSubmi
       pace_max: "",
       capacity: "",
     });
-  }, [dayKey, joinedGroups, open]);
+  }, [dayKey, open]);
 
   useEffect(() => {
     if (!open) return;
@@ -130,23 +126,19 @@ function CreateEventModal({ open, dayKey, joinedGroups, saving, onClose, onSubmi
 
   if (!open) return null;
 
-  const hasGroups = joinedGroups.length > 0;
-  const disabled = saving || !hasGroups;
-
   function updateField(field, value) {
     setForm((prev) => ({ ...prev, [field]: value }));
   }
 
   async function handleSubmit(e) {
     e.preventDefault();
-    if (!form.group_id || !form.meeting_point.trim()) return;
+    if (!form.meeting_point.trim()) return;
 
     const notesParts = [];
     if (form.event_type) notesParts.push(`Tipo: ${form.event_type}`);
     if (form.notes.trim()) notesParts.push(form.notes.trim());
 
     await onSubmit?.({
-      group_id: Number(form.group_id),
       starts_at: buildStartsAt(dayKey, form.time),
       meeting_point: form.meeting_point.trim(),
       notes: notesParts.join("\n"),
@@ -206,186 +198,158 @@ function CreateEventModal({ open, dayKey, joinedGroups, saving, onClose, onSubmi
             </button>
           </div>
 
-          {!hasGroups ? (
-            <div className="app-empty">
-              <div className="notificationsSimple__emptyBody">
-                <strong>No tienes grupos disponibles</strong>
-                <p>Únete a un grupo antes de crear eventos desde el calendario.</p>
-              </div>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="ui-stack">
-              <div className="app-field">
-                <label className="app-label" htmlFor="calendar-group">
-                  Grupo
+          <form onSubmit={handleSubmit} className="ui-stack">
+            <div className="ui-row" style={{ alignItems: "flex-start" }}>
+              <div className="app-field" style={{ flex: 1 }}>
+                <label className="app-label" htmlFor="calendar-event-type">
+                  Tipo
                 </label>
                 <select
-                  id="calendar-group"
+                  id="calendar-event-type"
                   className="app-select"
-                  value={form.group_id}
-                  onChange={(e) => updateField("group_id", e.target.value)}
-                  disabled={disabled}
+                  value={form.event_type}
+                  onChange={(e) => updateField("event_type", e.target.value)}
+                  disabled={saving}
                 >
-                  {joinedGroups.map((group) => (
-                    <option key={group.id} value={group.id}>
-                      {group.name}
-                    </option>
-                  ))}
+                  <option value="entrenamiento">Entrenamiento</option>
+                  <option value="quedada">Quedada</option>
+                  <option value="carrera">Carrera</option>
                 </select>
               </div>
 
-              <div className="ui-row" style={{ alignItems: "flex-start" }}>
-                <div className="app-field" style={{ flex: 1 }}>
-                  <label className="app-label" htmlFor="calendar-event-type">
-                    Tipo
-                  </label>
-                  <select
-                    id="calendar-event-type"
-                    className="app-select"
-                    value={form.event_type}
-                    onChange={(e) => updateField("event_type", e.target.value)}
-                    disabled={disabled}
-                  >
-                    <option value="entrenamiento">Entrenamiento</option>
-                    <option value="quedada">Quedada</option>
-                    <option value="carrera">Carrera</option>
-                  </select>
-                </div>
-
-                <div className="app-field" style={{ width: 140 }}>
-                  <label className="app-label" htmlFor="calendar-time">
-                    Hora
-                  </label>
-                  <input
-                    id="calendar-time"
-                    className="app-input"
-                    type="time"
-                    value={form.time}
-                    onChange={(e) => updateField("time", e.target.value)}
-                    disabled={disabled}
-                  />
-                </div>
-              </div>
-
-              <div className="app-field">
-                <label className="app-label" htmlFor="calendar-meeting-point">
-                  Punto de encuentro
+              <div className="app-field" style={{ width: 140 }}>
+                <label className="app-label" htmlFor="calendar-time">
+                  Hora
                 </label>
                 <input
-                  id="calendar-meeting-point"
+                  id="calendar-time"
                   className="app-input"
-                  value={form.meeting_point}
-                  onChange={(e) => updateField("meeting_point", e.target.value)}
-                  placeholder="Ej. Parque, pista, salida de carrera..."
-                  disabled={disabled}
+                  type="time"
+                  value={form.time}
+                  onChange={(e) => updateField("time", e.target.value)}
+                  disabled={saving}
                 />
               </div>
+            </div>
 
-              <div className="ui-row" style={{ alignItems: "flex-start" }}>
-                <div className="app-field" style={{ flex: 1 }}>
-                  <label className="app-label" htmlFor="calendar-level">
-                    Nivel
-                  </label>
-                  <select
-                    id="calendar-level"
-                    className="app-select"
-                    value={form.level_tag}
-                    onChange={(e) => updateField("level_tag", e.target.value)}
-                    disabled={disabled}
-                  >
-                    <option value="">Sin especificar</option>
-                    <option value="suave">Suave</option>
-                    <option value="medio">Medio</option>
-                    <option value="rapido">Rápido</option>
-                  </select>
-                </div>
+            <div className="app-field">
+              <label className="app-label" htmlFor="calendar-meeting-point">
+                Punto de encuentro
+              </label>
+              <input
+                id="calendar-meeting-point"
+                className="app-input"
+                value={form.meeting_point}
+                onChange={(e) => updateField("meeting_point", e.target.value)}
+                placeholder="Ej. parque, pista, salida de carrera..."
+                disabled={saving}
+              />
+            </div>
 
-                <div className="app-field" style={{ width: 120 }}>
-                  <label className="app-label" htmlFor="calendar-capacity">
-                    Aforo
-                  </label>
-                  <input
-                    id="calendar-capacity"
-                    className="app-input"
-                    type="number"
-                    min="1"
-                    value={form.capacity}
-                    onChange={(e) => updateField("capacity", e.target.value)}
-                    placeholder="10"
-                    disabled={disabled}
-                  />
-                </div>
-              </div>
-
-              <div className="ui-row" style={{ alignItems: "flex-start" }}>
-                <div className="app-field" style={{ flex: 1 }}>
-                  <label className="app-label" htmlFor="calendar-pace-min">
-                    Ritmo mín. (seg/km)
-                  </label>
-                  <input
-                    id="calendar-pace-min"
-                    className="app-input"
-                    type="number"
-                    min="1"
-                    value={form.pace_min}
-                    onChange={(e) => updateField("pace_min", e.target.value)}
-                    placeholder="300"
-                    disabled={disabled}
-                  />
-                </div>
-
-                <div className="app-field" style={{ flex: 1 }}>
-                  <label className="app-label" htmlFor="calendar-pace-max">
-                    Ritmo máx. (seg/km)
-                  </label>
-                  <input
-                    id="calendar-pace-max"
-                    className="app-input"
-                    type="number"
-                    min="1"
-                    value={form.pace_max}
-                    onChange={(e) => updateField("pace_max", e.target.value)}
-                    placeholder="360"
-                    disabled={disabled}
-                  />
-                </div>
-              </div>
-
-              <div className="app-field">
-                <label className="app-label" htmlFor="calendar-notes">
-                  Notas
+            <div className="ui-row" style={{ alignItems: "flex-start" }}>
+              <div className="app-field" style={{ flex: 1 }}>
+                <label className="app-label" htmlFor="calendar-level">
+                  Nivel
                 </label>
-                <textarea
-                  id="calendar-notes"
-                  className="app-textarea"
-                  rows={4}
-                  value={form.notes}
-                  onChange={(e) => updateField("notes", e.target.value)}
-                  placeholder="Detalles opcionales"
-                  disabled={disabled}
-                />
-              </div>
-
-              <div className="ui-row ui-row--end">
-                <button
-                  type="button"
-                  className="app-button app-button--secondary"
-                  onClick={() => onClose?.()}
+                <select
+                  id="calendar-level"
+                  className="app-select"
+                  value={form.level_tag}
+                  onChange={(e) => updateField("level_tag", e.target.value)}
                   disabled={saving}
                 >
-                  Cancelar
-                </button>
-
-                <button
-                  type="submit"
-                  className="app-button app-button--primary"
-                  disabled={disabled || !form.meeting_point.trim()}
-                >
-                  {saving ? "Guardando…" : "Crear evento"}
-                </button>
+                  <option value="">Sin especificar</option>
+                  <option value="suave">Suave</option>
+                  <option value="medio">Medio</option>
+                  <option value="rapido">Rápido</option>
+                </select>
               </div>
-            </form>
-          )}
+
+              <div className="app-field" style={{ width: 120 }}>
+                <label className="app-label" htmlFor="calendar-capacity">
+                  Aforo
+                </label>
+                <input
+                  id="calendar-capacity"
+                  className="app-input"
+                  type="number"
+                  min="1"
+                  value={form.capacity}
+                  onChange={(e) => updateField("capacity", e.target.value)}
+                  placeholder="10"
+                  disabled={saving}
+                />
+              </div>
+            </div>
+
+            <div className="ui-row" style={{ alignItems: "flex-start" }}>
+              <div className="app-field" style={{ flex: 1 }}>
+                <label className="app-label" htmlFor="calendar-pace-min">
+                  Ritmo mín. (seg/km)
+                </label>
+                <input
+                  id="calendar-pace-min"
+                  className="app-input"
+                  type="number"
+                  min="1"
+                  value={form.pace_min}
+                  onChange={(e) => updateField("pace_min", e.target.value)}
+                  placeholder="300"
+                  disabled={saving}
+                />
+              </div>
+
+              <div className="app-field" style={{ flex: 1 }}>
+                <label className="app-label" htmlFor="calendar-pace-max">
+                  Ritmo máx. (seg/km)
+                </label>
+                <input
+                  id="calendar-pace-max"
+                  className="app-input"
+                  type="number"
+                  min="1"
+                  value={form.pace_max}
+                  onChange={(e) => updateField("pace_max", e.target.value)}
+                  placeholder="360"
+                  disabled={saving}
+                />
+              </div>
+            </div>
+
+            <div className="app-field">
+              <label className="app-label" htmlFor="calendar-notes">
+                Notas
+              </label>
+              <textarea
+                id="calendar-notes"
+                className="app-textarea"
+                rows={4}
+                value={form.notes}
+                onChange={(e) => updateField("notes", e.target.value)}
+                placeholder="Detalles opcionales"
+                disabled={saving}
+              />
+            </div>
+
+            <div className="ui-row ui-row--end">
+              <button
+                type="button"
+                className="app-button app-button--secondary"
+                onClick={() => onClose?.()}
+                disabled={saving}
+              >
+                Cancelar
+              </button>
+
+              <button
+                type="submit"
+                className="app-button app-button--primary"
+                disabled={saving || !form.meeting_point.trim()}
+              >
+                {saving ? "Guardando…" : "Crear evento"}
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
@@ -395,7 +359,6 @@ function CreateEventModal({ open, dayKey, joinedGroups, saving, onClose, onSubmi
 export default function MeetupCalendar({ meetups = [], me }) {
   const toast = useToast();
   const { token } = useAuth();
-  const { groups, loadGroups } = useGroups(token, toast);
 
   const today = useMemo(() => new Date(), []);
   const [month, setMonth] = useState(() => new Date());
@@ -403,11 +366,6 @@ export default function MeetupCalendar({ meetups = [], me }) {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [savingEvent, setSavingEvent] = useState(false);
   const [localMeetups, setLocalMeetups] = useState([]);
-
-  useEffect(() => {
-    if (!token) return;
-    loadGroups();
-  }, [loadGroups, token]);
 
   const allMeetups = useMemo(() => {
     return [...(Array.isArray(meetups) ? meetups : []), ...localMeetups];
@@ -419,7 +377,6 @@ export default function MeetupCalendar({ meetups = [], me }) {
   const monthIndex = month.getMonth();
   const todayKey = localDayKey(today);
   const selectedItems = selectedDay ? byDay.get(selectedDay) || [] : [];
-  const joinedGroups = (Array.isArray(groups) ? groups : []).filter((group) => !!group?.my_role);
 
   function goPrevMonth() {
     setMonth((prev) => addMonths(prev, -1));
@@ -439,22 +396,21 @@ export default function MeetupCalendar({ meetups = [], me }) {
     setSavingEvent(true);
 
     try {
-      const created = await apiCreateMeetup(payload.group_id, payload, token);
-      const selectedGroup = joinedGroups.find((group) => Number(group.id) === Number(payload.group_id));
+      const created = await apiCreateMyMeetup(payload, token);
 
       const normalizedCreated = {
         id: created?.id ?? `tmp-${Date.now()}`,
-        starts_at: payload.starts_at,
-        meeting_point: payload.meeting_point,
-        notes: payload.notes,
-        level_tag: payload.level_tag,
-        pace_min: payload.pace_min,
-        pace_max: payload.pace_max,
-        capacity: payload.capacity,
-        group_id: payload.group_id,
-        group_name: selectedGroup?.name || created?.group_name || "",
+        starts_at: created?.starts_at || payload.starts_at,
+        meeting_point: created?.meeting_point || payload.meeting_point,
+        notes: created?.notes || payload.notes,
+        level_tag: created?.level_tag ?? payload.level_tag,
+        pace_min: created?.pace_min ?? payload.pace_min,
+        pace_max: created?.pace_max ?? payload.pace_max,
+        capacity: created?.capacity ?? payload.capacity,
+        group_id: created?.group_id ?? null,
+        group_name: created?.group_name || "Agenda personal",
         participants_count: created?.participants_count ?? 1,
-        created_by: me?.id ?? null,
+        created_by: created?.created_by ?? me?.id ?? null,
         is_joined: true,
         title: payload.title,
       };
@@ -540,10 +496,7 @@ export default function MeetupCalendar({ meetups = [], me }) {
                 ]
                   .filter(Boolean)
                   .join(" ")}
-                onClick={() => {
-                  setSelectedDay(key);
-                  setShowCreateModal(true);
-                }}
+                onClick={() => setSelectedDay(key)}
                 title={`${key} · ${daySummary(items)}`}
                 aria-label={`Día ${key}${items.length ? `, ${items.length} actividades` : ""}`}
               >
@@ -633,7 +586,6 @@ export default function MeetupCalendar({ meetups = [], me }) {
       <CreateEventModal
         open={showCreateModal}
         dayKey={selectedDay}
-        joinedGroups={joinedGroups}
         onClose={() => setShowCreateModal(false)}
         onSubmit={handleCreateEvent}
         saving={savingEvent}
