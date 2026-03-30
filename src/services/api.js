@@ -32,7 +32,12 @@ async function normalizeApiResponse(path, data) {
   }
 
   if (
-    ["/me/avatar", "/me/send-verification-code", "/me/verify-email", "/me/verify-location"].includes(path) &&
+    [
+      "/me/avatar",
+      "/me/send-verification-code",
+      "/me/verify-email",
+      "/me/verify-location",
+    ].includes(path) &&
     data?.user &&
     typeof data.user === "object" &&
     !Array.isArray(data.user)
