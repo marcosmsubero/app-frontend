@@ -126,11 +126,6 @@ export default function AppChrome() {
       <aside className="app-sidebar app-sidebar--rail" aria-label="Navegación principal">
         <div className="app-sidebar__panel app-sidebar__panel--rail">
           <div className="app-sidebar__brand app-sidebar__brand--rail">
-            <div className="app-sidebar__brand-icon">BR</div>
-            <div className="app-sidebar__brand-copy">
-              <p className="app-sidebar__brand-overline">App</p>
-              <h1 className="app-sidebar__brand-title">BlaBlaRun</h1>
-            </div>
           </div>
 
           <nav className="app-sidebar__nav app-sidebar__nav--rail">
@@ -172,10 +167,6 @@ export default function AppChrome() {
           <Outlet />
         </div>
       </main>
-
-      <div className="app-bottom-nav-wrap">
-        <BottomNav unreadMessages={unreadMessages} />
-      </div>
     </div>
   );
 }
