@@ -406,7 +406,7 @@ export default function ProfilePage() {
         following_count: Number(me?.following_count ?? 0),
         links: me?.links || {},
         profile_type: me?.profile_type || "individual",
-        members: [],
+        members: me?.members || [],
         future_meetups: mySplit.future,
         past_meetups: mySplit.past,
       };
