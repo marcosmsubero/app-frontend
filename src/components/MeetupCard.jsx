@@ -123,6 +123,14 @@ function fmtPaceRange(minSec, maxSec) {
   return a || b || "";
 }
 
+function ownerLabel(meetup) {
+  return (
+    meetup?.creator_profile_name ||
+    meetup?.group_name ||
+    "Perfil"
+  );
+}
+
 export default function MeetupCard({
   meetup,
   isAuthed,
@@ -142,7 +150,6 @@ export default function MeetupCard({
     participants_count,
     capacity,
     is_joined,
-    group_name,
     level_tag,
     pace_min,
     pace_max,
@@ -179,11 +186,9 @@ export default function MeetupCard({
         <div className="meetupCard__meta">
           <div className="meetupCard__date">{dateLabel}</div>
 
-          {group_name && (
-            <div className="meetupCard__group">
-              {group_name}
-            </div>
-          )}
+          <div className="meetupCard__group">
+            {ownerLabel(meetup)}
+          </div>
         </div>
 
         <div className="meetupCard__badges">
@@ -248,7 +253,7 @@ export default function MeetupCard({
             {onCancel && (
               <button
                 type="button"
-                className="app-button app-button--danger app-button--sm"
+                className="app-button app-button--ghost app-button--sm"
                 onClick={onCancel}
               >
                 Cancelar
@@ -258,30 +263,22 @@ export default function MeetupCard({
             {onDone && (
               <button
                 type="button"
-                className="app-button app-button--secondary app-button--sm"
+                className="app-button app-button--ghost app-button--sm"
                 onClick={onDone}
               >
                 Finalizar
               </button>
             )}
-
-            <button
-              type="button"
-              className="app-button app-button--ghost app-button--sm"
-              onClick={() => downloadICS(meetup)}
-            >
-              Calendario
-            </button>
           </>
-        ) : (
-          <button
-            type="button"
-            className="app-button app-button--ghost app-button--sm"
-            onClick={() => downloadICS(meetup)}
-          >
-            Calendario
-          </button>
-        )}
+        ) : null}
+
+        <button
+          type="button"
+          className="app-button app-button--ghost app-button--sm"
+          onClick={() => downloadICS(meetup)}
+        >
+          Añadir al calendario
+        </button>
       </footer>
     </article>
   );
