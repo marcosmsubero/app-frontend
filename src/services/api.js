@@ -98,6 +98,14 @@ export async function api(path, { method = "GET", token, body } = {}) {
 export const apiResolveHandle = (handle) =>
   api(`/users/by-handle/${encodeURIComponent(String(handle || "").trim())}`);
 
+export const apiPublicProfile = (profileId, token) =>
+  api(`/users/profiles/${profileId}`, { token });
+
+export const apiPublicProfileByHandle = (handle, token) =>
+  api(`/users/profiles/by-handle/${encodeURIComponent(String(handle || "").trim())}`, {
+    token,
+  });
+
 export const apiJoinMeetup = (meetupId, token) =>
   api(`/meetups/${meetupId}/join`, { method: "POST", token });
 
@@ -161,8 +169,7 @@ export const apiMyMeetups = (token, params = {}) => {
   return api(`/me/meetups${qs ? `?${qs}` : ""}`, { token });
 };
 
-export const apiDeleteMe = (token) =>
-  api(`/me`, { method: "DELETE", token });
+export const apiDeleteMe = (token) => api(`/me`, { method: "DELETE", token });
 
 export const apiNotifications = (tab = "all", token) =>
   api(`/notifications?tab=${encodeURIComponent(tab)}`, { token });
