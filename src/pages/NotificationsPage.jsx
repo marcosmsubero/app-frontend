@@ -74,6 +74,34 @@ function NotificationRow({ notification, onOpen }) {
   );
 }
 
+function routeFromNotif(notification) {
+  if (notification?.type === "message") {
+    if (notification.thread_id) return `/mensajes/${notification.thread_id}`;
+    return "/mensajes";
+  }
+
+  if (notification?.type === "mention") {
+    if (notification.profile_id) return `/perfil/${notification.profile_id}`;
+    return "/perfil";
+  }
+
+  if (notification?.type === "group") {
+    if (notification.group_profile_id) return `/perfil/${notification.group_profile_id}`;
+    if (notification.profile_id) return `/perfil/${notification.profile_id}`;
+    return "/blablarun";
+  }
+
+  if (notification?.type === "meetup") {
+    return "/blablarun";
+  }
+
+  if (notification?.profile_id) {
+    return `/perfil/${notification.profile_id}`;
+  }
+
+  return "/actividad";
+}
+
 export default function NotificationsPage() {
   const nav = useNavigate();
   const toast = useToast();
@@ -112,14 +140,6 @@ export default function NotificationsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tab, token]);
 
-  function routeFromNotif(notification) {
-    if (notification?.type === "message") return "/mensajes";
-    if (notification?.type === "mention") return "/perfil?tab=posts";
-    if (notification?.type === "group") return "/groups";
-    if (notification?.type === "meetup") return "/explorar";
-    return "/explorar";
-  }
-
   async function openNotif(notification) {
     if (!notification) return;
 
@@ -152,7 +172,6 @@ export default function NotificationsPage() {
         </div>
 
         <div className="notificationsSimple__heroActions">
-
           <button
             type="button"
             className="app-button app-button--primary"
@@ -265,8 +284,8 @@ export default function NotificationsPage() {
               </div>
 
               <div className="notificationsSimple__asideItem">
-                <span className="app-badge app-badge--success">Grupos</span>
-                <p>Invitaciones, movimiento en comunidad o cambios compartidos.</p>
+                <span className="app-badge app-badge--success">Perfiles</span>
+                <p>Menciones y actividad relacionada con perfiles individuales o grupales.</p>
               </div>
 
               <div className="notificationsSimple__asideItem">
