@@ -117,8 +117,6 @@ export default function AppChrome() {
     <div className="app-shell">
       {/* Sidebar (desktop only via CSS) */}
       <aside className="app-sidebar">
-        <div className="app-sidebar__brand">App Deportes</div>
-
         <nav className="app-sidebar__nav">
           {NAV_ITEMS.map((item) => (
             <DesktopNavItem
