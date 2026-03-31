@@ -201,12 +201,12 @@ function MembersBlock({ members = [] }) {
   );
 }
 
-function StatCard({ value, label }) {
+function StatLinkCard({ to, value, label }) {
   return (
-    <article className="profilePage__statCard">
+    <Link to={to} className="profilePage__statCard profilePage__statCard--link">
       <strong className="profilePage__statValue">{value}</strong>
       <span className="profilePage__statLabel">{label}</span>
-    </article>
+    </Link>
   );
 }
 
@@ -433,9 +433,7 @@ export default function ProfilePage() {
                 {!isPublicProfile ? (
                   <>
                     <ActionLink to="/onboarding?mode=edit">Editar perfil</ActionLink>
-                    <ActionLink to="/eliminar-cuenta" variant="secondary">
-                      Eliminar cuenta
-                    </ActionLink>
+                    <ActionLink to="/ajustes" variant="secondary">Ajustes</ActionLink>
                   </>
                 ) : (
                   <ActionLink to="/mensajes">Enviar mensaje</ActionLink>
@@ -445,8 +443,8 @@ export default function ProfilePage() {
           </div>
 
           <div className="profilePage__stats">
-            <StatCard value={profileData.followers_count} label="Seguidores" />
-            <StatCard value={profileData.following_count} label="Seguidos" />
+            <StatLinkCard to="/perfil/seguidores" value={profileData.followers_count} label="Seguidores" />
+            <StatLinkCard to="/perfil/seguidos" value={profileData.following_count} label="Seguidos" />
           </div>
         </div>
       </article>
