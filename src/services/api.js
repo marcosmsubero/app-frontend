@@ -24,22 +24,6 @@ async function normalizeApiResponse(path, data) {
     return normalizeUserContract(data);
   }
 
-  if (
-    [
-      "/me/send-verification-code",
-      "/me/verify-email",
-      "/me/verify-location",
-    ].includes(path) &&
-    data?.user &&
-    typeof data.user === "object" &&
-    !Array.isArray(data.user)
-  ) {
-    return {
-      ...data,
-      user: normalizeUserContract(data.user),
-    };
-  }
-
   return data;
 }
 
@@ -107,9 +91,6 @@ export const apiMeProfile = (token) => api(`/me`, { token });
 
 export const apiUpdateProfile = (payload, token) =>
   api(`/me/profile`, { method: "PUT", token, body: payload });
-
-export const apiUpdatePassword = (payload, token) =>
-  api(`/me/password`, { method: "PUT", token, body: payload });
 
 export const apiDeleteMe = (token) =>
   api(`/me`, { method: "DELETE", token });
@@ -200,25 +181,4 @@ export const apiDMSend = (threadId, text, token) =>
     method: "POST",
     token,
     body: { text },
-  });
-
-/* ============================================================================
-   VERIFICATION
-============================================================================ */
-
-export const apiVerifyEmailStart = (token) =>
-  api(`/me/send-verification-code`, { method: "POST", token });
-
-export const apiVerifyEmailComplete = (code, token) =>
-  api(`/me/verify-email`, {
-    method: "POST",
-    token,
-    body: { code },
-  });
-
-export const apiVerifyLocation = (payload, token) =>
-  api(`/me/verify-location`, {
-    method: "POST",
-    token,
-    body: payload,
   });
