@@ -53,7 +53,7 @@ const ITEMS = [
 
 export default function BottomNav({ unreadMessages = 0 }) {
   return (
-    <nav className="app-bottom-nav app-bottom-nav--instagram" aria-label="Navegación inferior">
+    <nav className="app-bottom-nav app-bottom-nav--refined" aria-label="Navegación inferior">
       {ITEMS.map((item) => {
         const showBadge = item.to === "/actividad" && unreadMessages > 0;
 
@@ -64,20 +64,17 @@ export default function BottomNav({ unreadMessages = 0 }) {
             aria-label={item.label}
             title={item.label}
             className={({ isActive }) =>
-              `app-bottom-nav__item app-bottom-nav__item--iconOnly${
-                isActive ? " app-bottom-nav__item--active" : ""
-              }`
+              `app-bottom-nav__item${isActive ? " app-bottom-nav__item--active" : ""}`
             }
           >
             <span className="app-bottom-nav__icon">{item.icon}</span>
+            <span className="app-bottom-nav__label">{item.label}</span>
 
             {showBadge ? (
               <span className="app-bottom-nav__badge">
                 {unreadMessages > 99 ? "99+" : unreadMessages}
               </span>
             ) : null}
-
-            <span className="sr-only">{item.label}</span>
           </NavLink>
         );
       })}
