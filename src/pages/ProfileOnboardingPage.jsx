@@ -23,6 +23,7 @@ export default function ProfileOnboardingPage() {
     location.state?.editProfile === true || searchParams.get("mode") === "edit";
 
   const [form, setForm] = useState({
+    profile_type: "individual",
     full_name: "",
     handle: "",
     bio: "",
@@ -40,7 +41,8 @@ export default function ProfileOnboardingPage() {
     if (!meReady) return;
 
     setForm({
-      full_name: me?.full_name || "",
+      profile_type: me?.profile_type || "individual",
+      full_name: me?.display_name || me?.full_name || "",
       handle: me?.handle || "",
       bio: me?.bio || "",
       location: me?.location || "",
@@ -66,13 +68,18 @@ export default function ProfileOnboardingPage() {
   async function handleSubmit(e) {
     e.preventDefault();
 
+    const profile_type = form.profile_type === "group" ? "group" : "individual";
     const full_name = form.full_name.trim();
     const handle = normalizeHandle(form.handle);
     const bio = form.bio.trim();
     const locationValue = form.location.trim();
 
     if (!full_name) {
-      return setError("Introduce tu nombre.");
+      return setError(
+        profile_type === "group"
+          ? "Introduce el nombre del grupo."
+          : "Introduce tu nombre."
+      );
     }
 
     if (full_name.length < 2) {
@@ -98,11 +105,11 @@ export default function ProfileOnboardingPage() {
 
     try {
       const payload = {
+        profile_type,
         full_name,
         handle,
         bio: bio || null,
         location: locationValue || null,
-        disciplines: ["running"],
         avatar_url: me?.avatar_url || null,
         onboarding_completed: true,
       };
@@ -112,6 +119,10 @@ export default function ProfileOnboardingPage() {
 
       if (!nextMe?.onboarding_completed) {
         throw new Error("El backend no confirmó la finalización del onboarding.");
+      }
+
+      if (nextMe?.profile_type !== profile_type) {
+        throw new Error("El backend no guardó correctamente el tipo de perfil.");
       }
 
       setSuccess(isEditMode ? "Perfil actualizado." : "Perfil completado.");
@@ -153,6 +164,8 @@ export default function ProfileOnboardingPage() {
     return <Navigate to="/" replace />;
   }
 
+  const isGroup = form.profile_type === "group";
+
   return (
     <section className="app-shell app-shell--narrow">
       <div className="app-section">
@@ -160,12 +173,10 @@ export default function ProfileOnboardingPage() {
           <div>
             <span className="app-eyebrow">{isEditMode ? "Perfil" : "Onboarding"}</span>
             <h1 className="app-title">
-              {isEditMode ? "Editar perfil runner" : "Completa tu perfil runner"}
+              {isEditMode ? "Editar perfil" : "Completa tu perfil"}
             </h1>
             <p className="app-subtitle">
-              {isEditMode
-                ? "Actualiza tu información principal desde la fuente de verdad del producto."
-                : "Configura tu cuenta una sola vez para acceder a la comunidad."}
+              Elige si tu presencia en la app será individual o grupal.
             </p>
           </div>
         </div>
@@ -179,8 +190,30 @@ export default function ProfileOnboardingPage() {
           ) : null}
 
           <div className="app-field">
+            <label className="app-label">Tipo de perfil</label>
+            <div className="authTabs" style={{ gridTemplateColumns: "repeat(2, minmax(0, 1fr))" }}>
+              <button
+                type="button"
+                className={form.profile_type === "individual" ? "authTab is-active" : "authTab"}
+                onClick={() => updateField("profile_type", "individual")}
+                disabled={saving}
+              >
+                Individual
+              </button>
+              <button
+                type="button"
+                className={form.profile_type === "group" ? "authTab is-active" : "authTab"}
+                onClick={() => updateField("profile_type", "group")}
+                disabled={saving}
+              >
+                Grupo
+              </button>
+            </div>
+          </div>
+
+          <div className="app-field">
             <label className="app-label" htmlFor="onboarding-full-name">
-              Nombre
+              {isGroup ? "Nombre del grupo" : "Nombre"}
             </label>
             <input
               id="onboarding-full-name"
@@ -189,7 +222,7 @@ export default function ProfileOnboardingPage() {
               value={form.full_name}
               onChange={(e) => updateField("full_name", e.target.value)}
               disabled={saving}
-              placeholder="Tu nombre"
+              placeholder={isGroup ? "Nombre de tu grupo" : "Tu nombre"}
               autoComplete="name"
             />
           </div>
@@ -205,7 +238,7 @@ export default function ProfileOnboardingPage() {
               value={form.handle}
               onChange={(e) => updateField("handle", normalizeHandle(e.target.value))}
               disabled={saving}
-              placeholder="tuusuario"
+              placeholder={isGroup ? "gruporunning" : "tuusuario"}
               autoCapitalize="off"
               autoCorrect="off"
               autoComplete="username"
@@ -240,7 +273,11 @@ export default function ProfileOnboardingPage() {
               value={form.bio}
               onChange={(e) => updateField("bio", e.target.value)}
               disabled={saving}
-              placeholder="Cuéntanos algo sobre ti como runner"
+              placeholder={
+                isGroup
+                  ? "Describe brevemente el grupo"
+                  : "Cuéntanos algo sobre ti como runner"
+              }
             />
             <small className="app-help">{form.bio.length}/280</small>
           </div>
