@@ -432,8 +432,10 @@ export default function ProfilePage() {
               <div className="profilePage__actions">
                 {!isPublicProfile ? (
                   <>
-                    <ActionLink to="/ajustes">Ajustes</ActionLink>
                     <ActionLink to="/onboarding?mode=edit">Editar perfil</ActionLink>
+                    <ActionLink to="/eliminar-cuenta" variant="secondary">
+                      Eliminar cuenta
+                    </ActionLink>
                   </>
                 ) : (
                   <ActionLink to="/mensajes">Enviar mensaje</ActionLink>
