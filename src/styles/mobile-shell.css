@@ -140,12 +140,12 @@ select {
   position: fixed;
   inset: 0 auto auto 0;
   width: 100%;
-  height: 220px;
+  height: 240px;
   pointer-events: none;
   background:
-    radial-gradient(circle at 15% 0%, rgba(89, 211, 154, 0.10), transparent 30%),
-    radial-gradient(circle at 85% 0%, rgba(77, 163, 255, 0.10), transparent 28%);
-  opacity: 0.95;
+    radial-gradient(circle at 12% 0%, rgba(89, 211, 154, 0.11), transparent 30%),
+    radial-gradient(circle at 88% 0%, rgba(77, 163, 255, 0.11), transparent 28%);
+  opacity: 0.96;
   z-index: 0;
 }
 
@@ -170,25 +170,28 @@ select {
   background: linear-gradient(
     180deg,
     rgba(7, 17, 26, 0.96) 0%,
-    rgba(7, 17, 26, 0.84) 72%,
+    rgba(7, 17, 26, 0.88) 70%,
+    rgba(7, 17, 26, 0.62) 88%,
     rgba(7, 17, 26, 0) 100%
   );
   backdrop-filter: var(--blur-xl);
 }
 
 .appChrome__headerInner {
-  min-height: var(--header-height);
-  padding: 10px var(--page-side) 12px;
+  padding: 8px var(--page-side) 10px;
+  display: grid;
+  gap: 14px;
+}
+
+.appChrome__topRow {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 12px;
 }
 
 .appChrome__brandBlock {
   min-width: 0;
-  display: grid;
-  gap: 10px;
 }
 
 .appChrome__brand {
@@ -200,47 +203,39 @@ select {
 }
 
 .appChrome__brandMark {
-  width: 34px;
-  height: 34px;
-  border-radius: 12px;
+  width: 38px;
+  height: 38px;
+  border-radius: 14px;
   display: grid;
   place-items: center;
   background: linear-gradient(135deg, var(--brand) 0%, var(--accent) 100%);
   color: #08131d;
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 900;
   letter-spacing: 0.08em;
   box-shadow: var(--shadow-sm);
 }
 
-.appChrome__brandText {
-  font-size: 16px;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  color: var(--text-1);
-}
-
-.appChrome__section {
-  min-width: 0;
+.appChrome__brandCopy {
   display: grid;
-  gap: 4px;
+  gap: 2px;
 }
 
-.appChrome__title {
-  margin: 0;
-  font-size: 26px;
-  line-height: 1.05;
-  letter-spacing: -0.04em;
+.appChrome__brandEyebrow {
+  font-size: 10px;
+  line-height: 1;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-4);
   font-weight: 800;
-  color: var(--text-1);
 }
 
-.appChrome__subtitle {
-  margin: 0;
-  max-width: 28ch;
-  font-size: 13px;
-  line-height: 1.45;
-  color: var(--text-3);
+.appChrome__brandText {
+  font-size: 17px;
+  line-height: 1.05;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--text-1);
 }
 
 .appChrome__actions {
@@ -248,26 +243,25 @@ select {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding-top: 2px;
 }
 
 .appChrome__action {
-  min-width: 44px;
-  height: 44px;
+  min-width: 46px;
+  height: 46px;
   padding: 0 14px;
-  border-radius: 16px;
+  border-radius: 18px;
   border: 1px solid var(--border-soft);
   background: rgba(255, 255, 255, 0.05);
   backdrop-filter: var(--blur-xl);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  box-shadow: none;
+  text-decoration: none;
   transition:
     transform 180ms ease,
     border-color 180ms ease,
-    background 180ms ease;
-  text-decoration: none;
+    background 180ms ease,
+    box-shadow 180ms ease;
 }
 
 .appChrome__action:hover,
@@ -277,27 +271,202 @@ select {
   background: rgba(255, 255, 255, 0.08);
 }
 
+.appChrome__action--active {
+  background: linear-gradient(180deg, rgba(89, 211, 154, 0.15) 0%, rgba(89, 211, 154, 0.08) 100%);
+  border-color: rgba(89, 211, 154, 0.22);
+  box-shadow: inset 0 0 0 1px rgba(89, 211, 154, 0.12);
+}
+
+.appChrome__actionIcon {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+}
+
+.appChrome__actionIcon svg {
+  width: 18px;
+  height: 18px;
+  stroke: var(--text-2);
+  stroke-width: 1.9;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.appChrome__action--active .appChrome__actionIcon svg {
+  stroke: var(--text-1);
+}
+
 .appChrome__actionText {
   font-size: 0;
 }
 
-.appChrome__action::before {
-  font-size: 18px;
+.appChrome__heroCard {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 16px 16px 15px;
+  border-radius: 26px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background:
+    linear-gradient(180deg, rgba(18, 33, 46, 0.92) 0%, rgba(12, 24, 35, 0.94) 100%);
+  box-shadow:
+    0 18px 44px rgba(0, 0, 0, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.appChrome__heroCard::before {
+  content: "";
+  position: absolute;
+  right: -36px;
+  top: -46px;
+  width: 130px;
+  height: 130px;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(89, 211, 154, 0.18) 0%, rgba(89, 211, 154, 0) 72%);
+  pointer-events: none;
+}
+
+.appChrome__heroCard::after {
+  content: "";
+  position: absolute;
+  left: -24px;
+  bottom: -40px;
+  width: 120px;
+  height: 120px;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(77, 163, 255, 0.14) 0%, rgba(77, 163, 255, 0) 72%);
+  pointer-events: none;
+}
+
+.appChrome__heroMeta {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.appChrome__heroKicker {
+  font-size: 11px;
   line-height: 1;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--brand);
+  font-weight: 800;
 }
 
-.appChrome__action[href*="/notificaciones"]::before {
-  content: "◌";
-  color: var(--text-2);
+.appChrome__title {
+  margin: 0;
+  font-size: 28px;
+  line-height: 1.02;
+  letter-spacing: -0.05em;
+  font-weight: 900;
+  color: var(--text-1);
 }
 
-.appChrome__action[href*="/mensajes"]::before {
-  content: "✉";
+.appChrome__subtitle {
+  margin: 0;
+  max-width: 30ch;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--text-3);
+}
+
+.appChrome__heroBadge {
+  position: relative;
+  z-index: 1;
+  width: 54px;
+  height: 54px;
+  flex-shrink: 0;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.appChrome__heroBadgeRing {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  border: 2px solid rgba(89, 211, 154, 0.42);
+}
+
+.appChrome__heroBadgeDot {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--brand);
+  box-shadow: 0 0 14px rgba(89, 211, 154, 0.42);
+}
+
+.appChrome__quickLinks {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: none;
+}
+
+.appChrome__quickLinks::-webkit-scrollbar {
+  display: none;
+}
+
+.appChrome__quickLink {
+  flex: 0 0 auto;
+  min-height: 38px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(255, 255, 255, 0.035);
+  color: var(--text-3);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition:
+    transform 180ms ease,
+    background 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease;
+}
+
+.appChrome__quickLink:hover,
+.appChrome__quickLink:active {
+  transform: translateY(-1px);
   color: var(--text-2);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.appChrome__quickLink--active {
+  color: var(--text-1);
+  background: linear-gradient(180deg, rgba(89, 211, 154, 0.15) 0%, rgba(89, 211, 154, 0.09) 100%);
+  border-color: rgba(89, 211, 154, 0.18);
+}
+
+.appChrome__quickLinkDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: currentColor;
+  opacity: 0.9;
+}
+
+.appChrome__quickLinkLabel {
+  font-size: 12px;
+  line-height: 1;
+  font-weight: 800;
+  letter-spacing: 0.01em;
 }
 
 .appChrome__main {
-  padding: 6px 0 calc(var(--bottom-nav-height) + var(--safe-bottom) + 26px);
+  padding: 8px 0 calc(var(--bottom-nav-height) + var(--safe-bottom) + 26px);
 }
 
 .appChrome__content,
