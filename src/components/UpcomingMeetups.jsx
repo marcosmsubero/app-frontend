@@ -50,6 +50,15 @@ function statusTone(startsAt) {
   return "";
 }
 
+function ownerLabel(meetup) {
+  return (
+    meetup?.creator_profile_name ||
+    meetup?.group?.name ||
+    meetup?.group_name ||
+    "Perfil"
+  );
+}
+
 export default function UpcomingMeetups() {
   const nav = useNavigate();
   const toast = useToast();
@@ -134,12 +143,16 @@ export default function UpcomingMeetups() {
   const safeIndex = Math.min(index, items.length - 1);
   const meetup = items[safeIndex];
   const tone = statusTone(meetup.starts_at);
-  const groupName = meetup?.group?.name || meetup?.group_name || "Grupo";
-  const groupId = meetup?.group?.id || meetup?.group_id;
+  const creatorProfileId = meetup?.creator_profile_id;
+  const label = ownerLabel(meetup);
 
   function handleOpenMeetup() {
-    if (!groupId) return;
-    nav(`/groups/${groupId}`, { state: { groupName } });
+    if (creatorProfileId) {
+      nav(`/perfil/${creatorProfileId}`);
+      return;
+    }
+
+    nav("/blablarun");
   }
 
   return (
@@ -173,11 +186,10 @@ export default function UpcomingMeetups() {
 
         <article
           className="upcomingMeetups__card"
-          role={groupId ? "button" : undefined}
-          tabIndex={groupId ? 0 : -1}
+          role="button"
+          tabIndex={0}
           onClick={handleOpenMeetup}
           onKeyDown={(event) => {
-            if (!groupId) return;
             if (event.key === "Enter" || event.key === " ") {
               event.preventDefault();
               handleOpenMeetup();
@@ -204,7 +216,7 @@ export default function UpcomingMeetups() {
             </p>
 
             <p className="upcomingMeetups__cardSub">
-              {groupName}
+              {label}
             </p>
           </div>
         </article>
