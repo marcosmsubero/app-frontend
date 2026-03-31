@@ -139,26 +139,6 @@ export default function AppChrome() {
               />
             ))}
           </nav>
-
-          <div className="app-sidebar__footer">
-            <NavLink
-              to="/mensajes"
-              className={({ isActive }) =>
-                `app-sidebar__quickAction${isActive ? " app-sidebar__quickAction--active" : ""}`
-              }
-              aria-label="Mensajes"
-              title="Mensajes"
-            >
-              <span className="app-sidebar__iconGlyph">
-                <IconMessage />
-              </span>
-              {unreadMessages > 0 ? (
-                <span className="app-sidebar__iconBadge app-sidebar__iconBadge--footer">
-                  {unreadMessages > 99 ? "99+" : unreadMessages}
-                </span>
-              ) : null}
-            </NavLink>
-          </div>
         </div>
       </aside>
 
