@@ -40,17 +40,6 @@ function IconRun() {
   );
 }
 
-function IconUsers() {
-  return (
-    <ShellIcon>
-      <path d="M16 20a4 4 0 0 0-8 0" />
-      <circle cx="12" cy="10" r="3.5" />
-      <path d="M20 19a3.5 3.5 0 0 0-3-3.46" />
-      <path d="M17.5 6.7A3 3 0 0 1 18 12.6" />
-    </ShellIcon>
-  );
-}
-
 function IconProfile() {
   return (
     <ShellIcon>
@@ -64,7 +53,6 @@ const NAV_ITEMS = [
   { to: "/perfil", icon: <IconProfile />, label: "Perfil" },
   { to: "/actividad", icon: <IconActivity />, label: "Actividad", withCounter: true },
   { to: "/blablarun", icon: <IconRun />, label: "BlaBlaRun" },
-  { to: "/groups", icon: <IconUsers />, label: "Grupos" },
 ];
 
 function getUnreadCount(thread) {
@@ -123,59 +111,32 @@ export default function AppChrome() {
     }
 
     loadUnread();
-    const intervalId = window.setInterval(loadUnread, 20000);
 
     return () => {
       cancelled = true;
-      window.clearInterval(intervalId);
     };
   }, [token]);
 
   return (
-    <div className="app-shell app-shell--withChrome">
-      <header className="app-topbar app-topbar--minimal">
-        <div className="app-topbar__row">
-          <div />
-          <div className="app-topbar__actions">
-            <NavLink
-              to="/perfil"
-              className={({ isActive }) =>
-                `app-topbar__profileIconOnly${isActive ? " app-topbar__profileIconOnly--active" : ""}`
-              }
-              aria-label="Perfil"
-              title="Perfil"
-            >
-              <span className="app-sidebar__iconGlyph">
-                <IconProfile />
-              </span>
-            </NavLink>
-          </div>
-        </div>
-      </header>
+    <div className="app-shell">
+      <aside className="app-sidebar">
+        <div className="app-sidebar__brand">App Deportes</div>
 
-      <aside
-        className="app-sidebar app-sidebar--floating"
-        aria-label="Navegación principal"
-      >
-        <div className="app-sidebar__floatingRail">
-          <nav className="app-sidebar__iconNav">
-            {NAV_ITEMS.map((item) => (
-              <DesktopNavItem
-                key={item.to}
-                to={item.to}
-                icon={item.icon}
-                label={item.label}
-                badgeCount={item.withCounter ? unreadMessages : 0}
-              />
-            ))}
-          </nav>
-        </div>
+        <nav className="app-sidebar__nav" aria-label="Navegación principal">
+          {NAV_ITEMS.map((item) => (
+            <DesktopNavItem
+              key={item.to}
+              to={item.to}
+              icon={item.icon}
+              label={item.label}
+              badgeCount={item.withCounter ? unreadMessages : 0}
+            />
+          ))}
+        </nav>
       </aside>
 
-      <main className="app-main app-main--withChrome">
-        <div className="app-main__inner">
-          <Outlet />
-        </div>
+      <main className="app-main">
+        <Outlet />
       </main>
 
       <BottomNav unreadMessages={unreadMessages} />
