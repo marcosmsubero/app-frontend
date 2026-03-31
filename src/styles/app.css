@@ -6508,3 +6508,59 @@ textarea.input:focus {
     max-width: 860px;
   }
 }
+
+/* =========================
+   Layout shell
+   ========================= */
+
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Sidebar (hidden on mobile) */
+.app-sidebar {
+  display: none;
+}
+
+/* Sidebar content */
+.app-sidebar__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+/* Main content */
+.app-main {
+  flex: 1;
+  padding: 16px;
+}
+
+/* Bottom nav container */
+.app-bottom-nav {
+  display: block;
+}
+
+/* =========================
+   Desktop behavior
+   ========================= */
+
+@media (min-width: 1024px) {
+  .app-sidebar {
+    display: flex;
+    flex-direction: column;
+    width: 220px;
+    border-right: 1px solid var(--app-border);
+    background: #fff;
+    padding: 16px 8px;
+  }
+
+  .app-main {
+    padding: 24px 32px;
+  }
+
+  .app-bottom-nav {
+    display: none;
+  }
+}
