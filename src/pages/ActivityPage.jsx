@@ -61,28 +61,72 @@ function getUnreadCount(thread) {
   return 0;
 }
 
-function IconRefresh({ spinning = false }) {
+function ShellIcon({ children }) {
   return (
     <svg
       viewBox="0 0 24 24"
-      width="18"
-      height="18"
       fill="none"
       stroke="currentColor"
-      strokeWidth="2"
+      strokeWidth="1.9"
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"
-      style={{
-        transformOrigin: "center",
-        animation: spinning ? "activitySpin 0.9s linear infinite" : "none",
-      }}
     >
-      <polyline points="23 4 23 10 17 10" />
-      <polyline points="1 20 1 14 7 14" />
-      <path d="M3.51 9a9 9 0 0114.13-3.36L23 10" />
-      <path d="M20.49 15a9 9 0 01-14.13 3.36L1 14" />
+      {children}
     </svg>
+  );
+}
+
+function IconRefresh({ spinning = false }) {
+  return (
+    <span className={`activityPage__iconShell${spinning ? " is-spinning" : ""}`}>
+      <ShellIcon>
+        <polyline points="23 4 23 10 17 10" />
+        <polyline points="1 20 1 14 7 14" />
+        <path d="M3.51 9a9 9 0 0 1 14.13-3.36L23 10" />
+        <path d="M20.49 15a9 9 0 0 1-14.13 3.36L1 14" />
+      </ShellIcon>
+    </span>
+  );
+}
+
+function IconSearch() {
+  return (
+    <ShellIcon>
+      <circle cx="11" cy="11" r="7" />
+      <path d="m20 20-3.5-3.5" />
+    </ShellIcon>
+  );
+}
+
+function IconMessages() {
+  return (
+    <ShellIcon>
+      <path d="M21 12a8.5 8.5 0 0 1-8.5 8.5H4l2.6-3.2A8.5 8.5 0 1 1 21 12Z" />
+    </ShellIcon>
+  );
+}
+
+function IconBell() {
+  return (
+    <ShellIcon>
+      <path d="M15 17H5l1.2-1.2A2 2 0 0 0 6.8 14V11a5.2 5.2 0 1 1 10.4 0v3a2 2 0 0 0 .6 1.4L19 17h-4" />
+      <path d="M10 20a2 2 0 0 0 4 0" />
+    </ShellIcon>
+  );
+}
+
+function EmptyLogin({ text }) {
+  return (
+    <div className="app-empty">
+      <div className="notificationsSimple__emptyBody">
+        <strong>Necesitas iniciar sesión</strong>
+        <p>{text}</p>
+        <Link to="/login" className="app-button app-button--primary">
+          Iniciar sesión
+        </Link>
+      </div>
+    </div>
   );
 }
 
@@ -197,6 +241,14 @@ function routeFromNotif(notification) {
   }
 
   return "/actividad";
+}
+
+function SectionShell({ children }) {
+  return (
+    <article className="app-section activityPage__section">
+      <div className="activityPage__sectionBody">{children}</div>
+    </article>
+  );
 }
 
 export default function ActivityPage() {
@@ -339,23 +391,11 @@ export default function ActivityPage() {
     nav(routeFromNotif(notification));
   }
 
-  function renderEmptyLogin(text) {
-    return (
-      <div className="app-empty">
-        <div className="notificationsSimple__emptyBody">
-          <strong>Necesitas iniciar sesión</strong>
-          <p>{text}</p>
-          <Link to="/login" className="app-button app-button--primary">
-            Iniciar sesión
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
   function renderMessagesContent() {
     if (!token) {
-      return renderEmptyLogin("Accede a tu cuenta para revisar tus conversaciones.");
+      return (
+        <EmptyLogin text="Accede a tu cuenta para revisar tus conversaciones." />
+      );
     }
 
     if (messagesLoading) {
@@ -402,7 +442,7 @@ export default function ActivityPage() {
 
   function renderNotificationsContent() {
     if (!token) {
-      return renderEmptyLogin("Accede a tu cuenta para revisar tu actividad.");
+      return <EmptyLogin text="Accede a tu cuenta para revisar tu actividad." />;
     }
 
     if (notificationsLoading) {
@@ -452,81 +492,78 @@ export default function ActivityPage() {
   }
 
   return (
-    <section className="page">
-      <style>{`
-        @keyframes activitySpin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-      `}</style>
-
-      <div className="app-card">
-        <div className="app-card__body" style={{ display: "grid", gap: 16 }}>
-          <div className="page__header" style={{ marginBottom: 0 }}>
+    <section className="activityPage">
+      <SectionShell>
+        <div className="activityPage__hero">
+          <div className="activityPage__heroCopy">
             <span className="page__eyebrow">Actividad</span>
             <h1 className="page__title">Mensajes y notificaciones</h1>
+            <p className="activityPage__subtitle">
+              Una vista más limpia para seguir conversaciones, menciones y avisos.
+            </p>
           </div>
 
-          <div className="notificationsSimple__tabs">
+          <div className="activityPage__tabs" role="tablist" aria-label="Secciones de actividad">
             <button
               type="button"
-              className={`notificationsSimple__tab${
-                currentTab === "messages" ? " notificationsSimple__tab--active" : ""
+              className={`activityPage__tab${
+                currentTab === "messages" ? " activityPage__tab--active" : ""
               }`}
               onClick={() => switchTab("messages")}
             >
-              Mensajes
+              <span className="activityPage__tabIcon">
+                <IconMessages />
+              </span>
+              <span>Mensajes</span>
               {unreadThreads > 0 ? (
-                <span className="app-badge app-badge--primary" style={{ marginLeft: 8 }}>
-                  {unreadThreads}
+                <span className="activityPage__tabBadge">
+                  {unreadThreads > 99 ? "99+" : unreadThreads}
                 </span>
               ) : null}
             </button>
 
             <button
               type="button"
-              className={`notificationsSimple__tab${
-                currentTab === "notifications" ? " notificationsSimple__tab--active" : ""
+              className={`activityPage__tab${
+                currentTab === "notifications" ? " activityPage__tab--active" : ""
               }`}
               onClick={() => switchTab("notifications")}
             >
-              Notificaciones
+              <span className="activityPage__tabIcon">
+                <IconBell />
+              </span>
+              <span>Notificaciones</span>
               {unreadNotifications > 0 ? (
-                <span className="app-badge app-badge--primary" style={{ marginLeft: 8 }}>
-                  {unreadNotifications}
+                <span className="activityPage__tabBadge">
+                  {unreadNotifications > 99 ? "99+" : unreadNotifications}
                 </span>
               ) : null}
             </button>
           </div>
 
           {currentTab === "messages" ? (
-            <div className="messagesSimple__toolbar">
-              <div className="app-field" style={{ marginBottom: 0 }}>
-                <label className="app-label">Buscar conversación</label>
+            <div className="activityPage__toolbar">
+              <label className="activityPage__search" htmlFor="activity-message-search">
+                <span className="activityPage__searchIcon">
+                  <IconSearch />
+                </span>
                 <input
-                  className="app-input"
-                  placeholder="Ej. Carlos, trail..."
+                  id="activity-message-search"
+                  className="activityPage__searchInput"
+                  placeholder="Buscar conversación"
                   value={messageQuery}
                   onChange={(e) => setMessageQuery(e.target.value)}
                   disabled={!token}
                 />
-              </div>
+              </label>
             </div>
           ) : (
-            <div
-              style={{
-                display: "flex",
-                gap: 8,
-                flexWrap: "wrap",
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
-            >
-              <div className="notificationsSimple__tabs" style={{ marginBottom: 0 }}>
+            <div className="activityPage__toolbar activityPage__toolbar--split">
+              <div className="activityPage__subtabs">
                 <button
                   type="button"
-                  className={`notificationsSimple__tab${
-                    notifFilter === "all" ? " notificationsSimple__tab--active" : ""
+                  className={`activityPage__subtab${
+                    notifFilter === "all" ? " activityPage__subtab--active" : ""
                   }`}
                   onClick={() => setNotificationFilter("all")}
                   disabled={notificationsLoading}
@@ -536,8 +573,8 @@ export default function ActivityPage() {
 
                 <button
                   type="button"
-                  className={`notificationsSimple__tab${
-                    notifFilter === "mentions" ? " notificationsSimple__tab--active" : ""
+                  className={`activityPage__subtab${
+                    notifFilter === "mentions" ? " activityPage__subtab--active" : ""
                   }`}
                   onClick={() => setNotificationFilter("mentions")}
                   disabled={notificationsLoading}
@@ -548,37 +585,24 @@ export default function ActivityPage() {
 
               <button
                 type="button"
+                className="activityPage__refresh"
                 onClick={() => loadNotifications(notifFilter)}
                 disabled={notificationsLoading || !token}
                 aria-label="Recargar"
                 title="Recargar"
-                style={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: 999,
-                  border: "1px solid var(--app-border)",
-                  background: "#fff",
-                  display: "grid",
-                  placeItems: "center",
-                  cursor: notificationsLoading || !token ? "default" : "pointer",
-                  flexShrink: 0,
-                  color: "var(--app-text)",
-                }}
               >
                 <IconRefresh spinning={notificationsLoading} />
               </button>
             </div>
           )}
         </div>
-      </div>
+      </SectionShell>
 
-      <div className="app-card">
-        <div className="app-card__body">
-          {currentTab === "messages"
-            ? renderMessagesContent()
-            : renderNotificationsContent()}
-        </div>
-      </div>
+      <SectionShell>
+        {currentTab === "messages"
+          ? renderMessagesContent()
+          : renderNotificationsContent()}
+      </SectionShell>
     </section>
   );
 }
