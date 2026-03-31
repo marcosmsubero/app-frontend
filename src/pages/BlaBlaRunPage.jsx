@@ -60,11 +60,7 @@ function formatDayTitle(dayKey) {
 }
 
 function creatorLabel(event) {
-  return (
-    event?.creator_profile_name ||
-    event?.group_name ||
-    "Perfil"
-  );
+  return event?.creator_profile_name || event?.group_name || "Perfil";
 }
 
 function CreatorLink({ event }) {
@@ -75,14 +71,7 @@ function CreatorLink({ event }) {
   }
 
   return (
-    <Link
-      to={`/perfil/${event.creator_profile_id}`}
-      style={{
-        color: "inherit",
-        fontWeight: 700,
-        textDecoration: "none",
-      }}
-    >
+    <Link to={`/perfil/${event.creator_profile_id}`} className="blablarunPage__creatorLink">
       {label}
     </Link>
   );
@@ -90,38 +79,17 @@ function CreatorLink({ event }) {
 
 function EventCard({ event }) {
   return (
-    <article
-      className="app-card"
-      style={{ background: "rgba(255,255,255,0.62)" }}
-    >
-      <div className="app-card__body" style={{ display: "grid", gap: 12 }}>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            gap: 12,
-            flexWrap: "wrap",
-            alignItems: "center",
-          }}
-        >
-          <h4 style={{ margin: 0 }}>
+    <article className="app-card blablarunPage__eventCard">
+      <div className="app-card__body blablarunPage__eventCardBody">
+        <div className="blablarunPage__eventTop">
+          <h4 className="blablarunPage__eventTitle">
             {event.meeting_point || event.title || "Evento"}
           </h4>
 
-          <span className="app-chip app-chip--soft">
-            {timeLabel(event.starts_at)}
-          </span>
+          <span className="app-chip app-chip--soft">{timeLabel(event.starts_at)}</span>
         </div>
 
-        <div
-          style={{
-            display: "flex",
-            gap: 8,
-            flexWrap: "wrap",
-            color: "var(--app-text-muted)",
-            fontSize: "var(--font-sm)",
-          }}
-        >
+        <div className="blablarunPage__eventMeta">
           <span>
             Creador: <CreatorLink event={event} />
           </span>
@@ -137,11 +105,9 @@ function EventCard({ event }) {
           ) : null}
         </div>
 
-        {event.notes ? (
-          <p style={{ margin: 0, color: "var(--app-text-muted)" }}>{event.notes}</p>
-        ) : null}
+        {event.notes ? <p className="blablarunPage__eventNotes">{event.notes}</p> : null}
 
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        <div className="blablarunPage__eventActions">
           {event?.creator_profile_id ? (
             <Link
               to={`/perfil/${event.creator_profile_id}`}
@@ -162,32 +128,20 @@ function DayModal({ open, dayKey, events, onClose }) {
   return (
     <div className="ui-modalBackdrop" role="presentation" onClick={onClose}>
       <div
-        className="ui-modal"
+        className="ui-modal blablarunPage__modal"
         role="dialog"
         aria-modal="true"
         aria-labelledby="blablarun-day-title"
         onClick={(e) => e.stopPropagation()}
-        style={{ width: "min(720px, 100%)" }}
       >
-        <div style={{ padding: 22, display: "grid", gap: 18 }}>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "flex-start",
-              gap: 16,
-            }}
-          >
-            <div>
-              <p className="page__eyebrow" style={{ margin: 0 }}>
-                BlaBlaRun
-              </p>
-              <h2 id="blablarun-day-title" style={{ margin: "4px 0 0" }}>
+        <div className="blablarunPage__modalBody">
+          <div className="blablarunPage__modalHead">
+            <div className="blablarunPage__modalCopy">
+              <p className="page__eyebrow blablarunPage__modalEyebrow">BlaBlaRun</p>
+              <h2 id="blablarun-day-title" className="blablarunPage__modalTitle">
                 {formatDayTitle(dayKey)}
               </h2>
-              <p style={{ margin: "8px 0 0", color: "var(--app-text-muted)" }}>
-                {daySummary(events)}
-              </p>
+              <p className="blablarunPage__modalSubtitle">{daySummary(events)}</p>
             </div>
 
             <button
@@ -207,7 +161,7 @@ function DayModal({ open, dayKey, events, onClose }) {
               </div>
             </div>
           ) : (
-            <div style={{ display: "grid", gap: 12 }}>
+            <div className="blablarunPage__modalList">
               {events.map((event) => (
                 <EventCard key={event.id} event={event} />
               ))}
@@ -236,7 +190,9 @@ export default function BlaBlaRunPage() {
     return byDay.get(selectedDay) || [];
   }, [byDay, selectedDay]);
 
-  const visibleDaysWithActivity = useMemo(() => [...byDay.keys()].length, [byDay]);
+  const visibleDaysWithActivity = useMemo(() => {
+    return days.filter((day) => byDay.has(localDayKey(day))).length;
+  }, [byDay, days]);
 
   function goPrevMonth() {
     setMonth((prev) => addMonths(prev, -1));
@@ -257,10 +213,10 @@ export default function BlaBlaRunPage() {
 
   return (
     <>
-      <section className="page">
-        <div className="app-card">
-          <div className="app-card__body" style={{ display: "grid", gap: 18 }}>
-            <div className="page__header" style={{ marginBottom: 0 }}>
+      <section className="page blablarunPage">
+        <div className="app-card blablarunPage__shell">
+          <div className="app-card__body blablarunPage__shellBody">
+            <div className="page__header blablarunPage__hero">
               <span className="page__eyebrow">BlaBlaRun</span>
               <h1 className="page__title">Calendario de eventos</h1>
               <p className="page__subtitle">
@@ -268,23 +224,15 @@ export default function BlaBlaRunPage() {
               </p>
             </div>
 
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                gap: 12,
-                alignItems: "center",
-                flexWrap: "wrap",
-              }}
-            >
-              <div style={{ display: "grid", gap: 4 }}>
-                <h2 style={{ margin: 0 }}>{monthLabel(month)}</h2>
-                <p style={{ margin: 0, color: "var(--app-text-muted)" }}>
+            <div className="blablarunPage__toolbar">
+              <div className="blablarunPage__toolbarCopy">
+                <h2 className="blablarunPage__monthTitle">{monthLabel(month)}</h2>
+                <p className="blablarunPage__monthMeta">
                   {visibleDaysWithActivity} días con actividad visible
                 </p>
               </div>
 
-              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              <div className="blablarunPage__toolbarActions">
                 <button
                   type="button"
                   className="app-button app-button--secondary"
@@ -329,35 +277,15 @@ export default function BlaBlaRunPage() {
               </div>
             ) : (
               <>
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(7, minmax(0, 1fr))",
-                    gap: 8,
-                  }}
-                >
+                <div className="blablarunPage__week" aria-hidden="true">
                   {WEEKDAYS.map((weekday) => (
-                    <div
-                      key={weekday}
-                      style={{
-                        textAlign: "center",
-                        fontSize: "var(--font-sm)",
-                        color: "var(--app-text-muted)",
-                        fontWeight: 700,
-                      }}
-                    >
+                    <div key={weekday} className="blablarunPage__weekday">
                       {weekday}
                     </div>
                   ))}
                 </div>
 
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(7, minmax(0, 1fr))",
-                    gap: 8,
-                  }}
-                >
+                <div className="blablarunPage__grid">
                   {days.map((day) => {
                     const inMonth = day.getMonth() === monthIndex;
                     const key = localDayKey(day);
@@ -370,77 +298,31 @@ export default function BlaBlaRunPage() {
                         type="button"
                         onClick={() => openDay(key)}
                         title={`${key} · ${daySummary(dayItems)}`}
-                        style={{
-                          minHeight: 92,
-                          borderRadius: 18,
-                          border: "1px solid var(--app-border)",
-                          background: inMonth ? "#fff" : "rgba(255,255,255,0.48)",
-                          padding: 10,
-                          display: "grid",
-                          alignContent: "space-between",
-                          gap: 8,
-                          textAlign: "left",
-                          boxShadow: "var(--shadow-xs)",
-                          opacity: inMonth ? 1 : 0.7,
-                          position: "relative",
-                          cursor: "pointer",
-                        }}
+                        className={[
+                          "blablarunPage__day",
+                          !inMonth ? "blablarunPage__day--muted" : "",
+                          isToday ? "blablarunPage__day--today" : "",
+                        ]
+                          .filter(Boolean)
+                          .join(" ")}
                       >
-                        <div
-                          style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                            gap: 6,
-                          }}
-                        >
-                          <span
-                            style={{
-                              width: 28,
-                              height: 28,
-                              borderRadius: 999,
-                              display: "grid",
-                              placeItems: "center",
-                              background: isToday ? "var(--app-accent)" : "transparent",
-                              color: isToday ? "#fff" : "var(--app-text)",
-                              fontWeight: 700,
-                            }}
-                          >
-                            {day.getDate()}
-                          </span>
+                        <div className="blablarunPage__dayTop">
+                          <span className="blablarunPage__dayNumber">{day.getDate()}</span>
 
                           {dayItems.length > 0 ? (
-                            <span className="app-badge app-badge--primary">
-                              {dayItems.length}
-                            </span>
+                            <span className="app-badge app-badge--primary">{dayItems.length}</span>
                           ) : null}
                         </div>
 
-                        <div style={{ display: "grid", gap: 4 }}>
+                        <div className="blablarunPage__dayBody">
                           {dayItems.slice(0, 2).map((item) => (
-                            <div
-                              key={item.id}
-                              style={{
-                                fontSize: "12px",
-                                color: "var(--app-text-muted)",
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                                whiteSpace: "nowrap",
-                              }}
-                            >
+                            <div key={item.id} className="blablarunPage__dayItem">
                               {timeLabel(item.starts_at)} · {creatorLabel(item)}
                             </div>
                           ))}
 
                           {dayItems.length === 0 ? (
-                            <div
-                              style={{
-                                fontSize: "12px",
-                                color: "var(--app-text-soft)",
-                              }}
-                            >
-                              Sin eventos
-                            </div>
+                            <div className="blablarunPage__dayEmpty">Sin eventos</div>
                           ) : null}
                         </div>
                       </button>
