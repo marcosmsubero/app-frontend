@@ -15,12 +15,16 @@ async function getAccessToken() {
 async function normalizeApiResponse(path, data) {
   if (!data) return data;
 
-  if (path === "/me" || path === "/auth/me") {
+  if (path === "/me" || path === "/auth/me" || path === "/me/profile" || path === "/me/avatar") {
     return normalizeUserContract(data);
   }
 
   if (
-    path === "/me/profile" &&
+    [
+      "/me/send-verification-code",
+      "/me/verify-email",
+      "/me/verify-location",
+    ].includes(path) &&
     data?.user &&
     typeof data.user === "object" &&
     !Array.isArray(data.user)
@@ -30,6 +34,9 @@ async function normalizeApiResponse(path, data) {
       user: normalizeUserContract(data.user),
     };
   }
+
+  return data;
+}
 
   if (
     [
