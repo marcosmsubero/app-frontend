@@ -36,17 +36,6 @@ function IconRun() {
   );
 }
 
-function IconUsers() {
-  return (
-    <ShellIcon>
-      <path d="M16 20a4 4 0 0 0-8 0" />
-      <circle cx="12" cy="10" r="3.5" />
-      <path d="M20 19a3.5 3.5 0 0 0-3-3.46" />
-      <path d="M17.5 6.7A3 3 0 0 1 18 12.6" />
-    </ShellIcon>
-  );
-}
-
 function IconProfile() {
   return (
     <ShellIcon>
@@ -60,7 +49,6 @@ const ITEMS = [
   { to: "/perfil", label: "Perfil", icon: <IconProfile /> },
   { to: "/actividad", label: "Actividad", icon: <IconActivity /> },
   { to: "/blablarun", label: "BlaBlaRun", icon: <IconRun /> },
-  { to: "/groups", label: "Grupos", icon: <IconUsers /> },
 ];
 
 export default function BottomNav({ unreadMessages = 0 }) {
