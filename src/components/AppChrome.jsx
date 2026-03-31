@@ -100,13 +100,9 @@ export default function AppChrome() {
         const items = Array.isArray(res) ? res : res?.items || [];
         const total = items.reduce((acc, thread) => acc + getUnreadCount(thread), 0);
 
-        if (!cancelled) {
-          setUnreadMessages(total);
-        }
+        if (!cancelled) setUnreadMessages(total);
       } catch {
-        if (!cancelled) {
-          setUnreadMessages(0);
-        }
+        if (!cancelled) setUnreadMessages(0);
       }
     }
 
@@ -119,10 +115,11 @@ export default function AppChrome() {
 
   return (
     <div className="app-shell">
+      {/* Sidebar (desktop only via CSS) */}
       <aside className="app-sidebar">
         <div className="app-sidebar__brand">App Deportes</div>
 
-        <nav className="app-sidebar__nav" aria-label="Navegación principal">
+        <nav className="app-sidebar__nav">
           {NAV_ITEMS.map((item) => (
             <DesktopNavItem
               key={item.to}
@@ -135,11 +132,15 @@ export default function AppChrome() {
         </nav>
       </aside>
 
+      {/* Main content */}
       <main className="app-main">
         <Outlet />
       </main>
 
-      <BottomNav unreadMessages={unreadMessages} />
+      {/* Bottom nav (mobile only via CSS) */}
+      <div className="app-bottom-nav">
+        <BottomNav unreadMessages={unreadMessages} />
+      </div>
     </div>
   );
 }
