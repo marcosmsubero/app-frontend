@@ -1,18 +1,12 @@
 import { useEffect, useMemo, useRef } from "react";
+import { buildEventStreamUrl } from "../config/api";
 import { useAuth } from "../hooks/useAuth";
-import { EVENTS_URL } from "../config/api";
 
 export default function SSEListener() {
   const { token, isAuthed } = useAuth();
   const esRef = useRef(null);
 
-  const eventsUrl = useMemo(() => {
-    if (!token) return null;
-
-    const url = new URL(EVENTS_URL);
-    url.searchParams.set("token", token);
-    return url.toString();
-  }, [token]);
+  const eventsUrl = useMemo(() => buildEventStreamUrl(token), [token]);
 
   useEffect(() => {
     if (!isAuthed || !eventsUrl) return undefined;
@@ -20,12 +14,13 @@ export default function SSEListener() {
     const es = new EventSource(eventsUrl);
     esRef.current = es;
 
-    es.onopen = () => {
-      console.log("[SSE] connected");
-    };
+    es.addEventListener("READY", () => {
+      // conexión establecida
+    });
 
-    es.onerror = (err) => {
-      console.error("[SSE] error", err);
+    es.onerror = () => {
+      // EventSource reintenta automáticamente.
+      // Evitamos ruido en consola en producción.
     };
 
     return () => {
