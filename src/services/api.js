@@ -95,6 +95,10 @@ export async function api(path, { method = "GET", token, body } = {}) {
   return normalizeApiResponse(path, data);
 }
 
+/* ============================================================================
+   PROFILE / USER
+============================================================================ */
+
 export const apiResolveHandle = (handle) =>
   api(`/users/by-handle/${encodeURIComponent(String(handle || "").trim())}`);
 
@@ -102,9 +106,25 @@ export const apiPublicProfile = (profileId, token) =>
   api(`/users/profiles/${profileId}`, { token });
 
 export const apiPublicProfileByHandle = (handle, token) =>
-  api(`/users/profiles/by-handle/${encodeURIComponent(String(handle || "").trim())}`, {
-    token,
-  });
+  api(
+    `/users/profiles/by-handle/${encodeURIComponent(String(handle || "").trim())}`,
+    { token }
+  );
+
+export const apiMeProfile = (token) => api(`/me`, { token });
+
+export const apiUpdateProfile = (payload, token) =>
+  api(`/me/profile`, { method: "PUT", token, body: payload });
+
+export const apiUpdatePassword = (payload, token) =>
+  api(`/me/password`, { method: "PUT", token, body: payload });
+
+export const apiDeleteMe = (token) =>
+  api(`/me`, { method: "DELETE", token });
+
+/* ============================================================================
+   MEETUPS (CORE PRODUCT)
+============================================================================ */
 
 export const apiJoinMeetup = (meetupId, token) =>
   api(`/meetups/${meetupId}/join`, { method: "POST", token });
@@ -114,16 +134,6 @@ export const apiLeaveMeetup = (meetupId, token) =>
 
 export const apiUpcomingMeetups = (limit = 10, token) =>
   api(`/meetups/upcoming?limit=${limit}`, { token });
-
-export const apiGroupMeetups = (groupId, token) =>
-  api(`/groups/${groupId}/meetups`, { token });
-
-export const apiCreateMeetup = (groupId, payload, token) =>
-  api(`/groups/${groupId}/meetups`, {
-    method: "POST",
-    token,
-    body: payload,
-  });
 
 export const apiCreateMyMeetup = (payload, token) =>
   api(`/me/meetups`, {
@@ -156,26 +166,37 @@ export const apiMeetupSearch = (filters = {}, token) => {
   return api(`/meetups/search${qs ? `?${qs}` : ""}`, { token });
 };
 
-export const apiMeProfile = (token) => api(`/me`, { token });
-
-export const apiUpdateProfile = (payload, token) =>
-  api(`/me/profile`, { method: "PUT", token, body: payload });
-
-export const apiUpdatePassword = (payload, token) =>
-  api(`/me/password`, { method: "PUT", token, body: payload });
-
 export const apiMyMeetups = (token, params = {}) => {
   const qs = new URLSearchParams(params).toString();
   return api(`/me/meetups${qs ? `?${qs}` : ""}`, { token });
 };
 
-export const apiDeleteMe = (token) => api(`/me`, { method: "DELETE", token });
+/* ============================================================================
+   LEGACY GROUP COMPATIBILITY (temporary)
+   DO NOT USE for navigation or new features
+============================================================================ */
+
+// Still required internally by backend for some flows
+export const apiCreateMeetup = (groupId, payload, token) =>
+  api(`/groups/${groupId}/meetups`, {
+    method: "POST",
+    token,
+    body: payload,
+  });
+
+/* ============================================================================
+   NOTIFICATIONS
+============================================================================ */
 
 export const apiNotifications = (tab = "all", token) =>
   api(`/notifications?tab=${encodeURIComponent(tab)}`, { token });
 
 export const apiMarkNotifRead = (id, token) =>
   api(`/notifications/${id}/read`, { method: "POST", token });
+
+/* ============================================================================
+   MESSAGES
+============================================================================ */
 
 export const apiDMThreads = (q = "", token) =>
   api(`/dm/threads${q ? `?q=${encodeURIComponent(q)}` : ""}`, { token });
@@ -189,6 +210,10 @@ export const apiDMSend = (threadId, text, token) =>
     token,
     body: { text },
   });
+
+/* ============================================================================
+   VERIFICATION
+============================================================================ */
 
 export const apiVerifyEmailStart = (token) =>
   api(`/me/send-verification-code`, { method: "POST", token });
