@@ -68,6 +68,14 @@ function numberOrNull(value) {
   return Number.isFinite(n) ? n : null;
 }
 
+function ownerLabel(meetup) {
+  return (
+    meetup?.creator_profile_name ||
+    meetup?.group_name ||
+    "Perfil"
+  );
+}
+
 function ModalCloseIcon() {
   return (
     <svg
@@ -140,65 +148,47 @@ function CreateEventModal({ open, dayKey, saving, onClose, onSubmit }) {
 
     await onSubmit?.({
       starts_at: buildStartsAt(dayKey, form.time),
+      title: form.meeting_point.trim(),
       meeting_point: form.meeting_point.trim(),
       notes: notesParts.join("\n"),
       level_tag: form.level_tag || null,
       pace_min: numberOrNull(form.pace_min),
       pace_max: numberOrNull(form.pace_max),
       capacity: numberOrNull(form.capacity),
-      title: form.event_type,
     });
   }
 
   return (
-    <div className="ui-modalBackdrop" role="presentation" onClick={() => onClose?.()}>
+    <div className="ui-modalBackdrop" role="presentation" onClick={onClose}>
       <div
         className="ui-modal"
         role="dialog"
         aria-modal="true"
-        aria-labelledby="calendar-create-event-title"
+        aria-labelledby="calendar-create-title"
         onClick={(e) => e.stopPropagation()}
-        style={{ width: "min(560px, 100%)" }}
       >
-        <div style={{ padding: 20, display: "grid", gap: 16 }}>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "flex-start",
-              justifyContent: "space-between",
-              gap: 16,
-            }}
-          >
-            <div>
-              <p className="app-kicker" style={{ margin: 0 }}>
-                Calendario
-              </p>
-              <h3 id="calendar-create-event-title" style={{ margin: "4px 0 0" }}>
-                Crear evento para {dayKey}
-              </h3>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => onClose?.()}
-              aria-label="Cerrar"
-              title="Cerrar"
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: 999,
-                border: "1px solid var(--app-border)",
-                background: "#fff",
-                display: "grid",
-                placeItems: "center",
-                cursor: "pointer",
-              }}
-            >
-              <ModalCloseIcon />
-            </button>
+        <div className="ui-modal__header">
+          <div>
+            <p className="app-kicker">Nuevo evento</p>
+            <h3 id="calendar-create-title" className="ui-modal__title">
+              Crear actividad para {dayKey}
+            </h3>
           </div>
 
-          <form onSubmit={handleSubmit} className="ui-stack">
+          <button
+            type="button"
+            className="ui-iconBtn"
+            onClick={() => onClose?.()}
+            aria-label="Cerrar"
+            title="Cerrar"
+            disabled={saving}
+          >
+            <ModalCloseIcon />
+          </button>
+        </div>
+
+        <div className="ui-modal__body">
+          <form className="ui-stack" onSubmit={handleSubmit}>
             <div className="ui-row" style={{ alignItems: "flex-start" }}>
               <div className="app-field" style={{ flex: 1 }}>
                 <label className="app-label" htmlFor="calendar-event-type">
@@ -212,8 +202,11 @@ function CreateEventModal({ open, dayKey, saving, onClose, onSubmit }) {
                   disabled={saving}
                 >
                   <option value="entrenamiento">Entrenamiento</option>
-                  <option value="quedada">Quedada</option>
+                  <option value="rodaje">Rodaje</option>
+                  <option value="serie">Series</option>
+                  <option value="tirada_larga">Tirada larga</option>
                   <option value="carrera">Carrera</option>
+                  <option value="social">Social</option>
                 </select>
               </div>
 
@@ -408,7 +401,16 @@ export default function MeetupCalendar({ meetups = [], me }) {
         pace_max: created?.pace_max ?? payload.pace_max,
         capacity: created?.capacity ?? payload.capacity,
         group_id: created?.group_id ?? null,
-        group_name: created?.group_name || "Agenda personal",
+        creator_profile_id: created?.creator_profile_id ?? null,
+        creator_profile_type: created?.creator_profile_type ?? "individual",
+        creator_profile_name:
+          created?.creator_profile_name ||
+          me?.full_name ||
+          me?.name ||
+          me?.handle ||
+          me?.email ||
+          "Mi perfil",
+        creator_profile_handle: created?.creator_profile_handle ?? me?.handle ?? null,
         participants_count: created?.participants_count ?? 1,
         created_by: created?.created_by ?? me?.id ?? null,
         is_joined: true,
@@ -567,7 +569,7 @@ export default function MeetupCalendar({ meetups = [], me }) {
                   </div>
 
                   <div className="calendarMini__itemMeta">
-                    {meetup.group_name ? <span>{meetup.group_name}</span> : null}
+                    <span>{ownerLabel(meetup)}</span>
                     {meetup.level_tag ? <span>{meetup.level_tag}</span> : null}
                     {meetup.pace_min || meetup.pace_max ? (
                       <span>
