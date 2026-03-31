@@ -5,10 +5,13 @@ import { useAuth } from "../hooks/useAuth";
 import { useMyMeetups } from "../hooks/useMyMeetups";
 import { useToast } from "../hooks/useToast";
 import { apiPublicProfile, apiPublicProfileByHandle, apiUpdateProfile } from "../services/api";
-import { uploadAvatarToSupabase } from "../services/auth";
+import { uploadAvatarToSupabase } from "../services/storage";
 
 function initialsFromName(name = "") {
-  const parts = String(name || "").trim().split(/\s+/).filter(Boolean);
+  const parts = String(name || "")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
   const first = parts[0]?.[0] || "U";
   const second = parts[1]?.[0] || "";
   return `${first}${second}`.toUpperCase();
