@@ -12,6 +12,22 @@ function normalizeHandle(value = "") {
     .toLowerCase();
 }
 
+function parseMemberHandles(raw = "") {
+  return String(raw || "")
+    .split(/[\n,]/)
+    .map((item) => normalizeHandle(item))
+    .filter(Boolean);
+}
+
+function stringifyMemberHandles(members = []) {
+  if (!Array.isArray(members) || !members.length) return "";
+  return members
+    .map((member) => member?.handle)
+    .filter(Boolean)
+    .map((handle) => `@${normalizeHandle(handle)}`)
+    .join("\n");
+}
+
 export default function ProfileOnboardingPage() {
   const { token, me, meReady, refreshMe } = useAuth();
   const nav = useNavigate();
@@ -28,6 +44,7 @@ export default function ProfileOnboardingPage() {
     handle: "",
     bio: "",
     location: "",
+    member_handles_text: "",
   });
 
   const [saving, setSaving] = useState(false);
@@ -46,6 +63,7 @@ export default function ProfileOnboardingPage() {
       handle: me?.handle || "",
       bio: me?.bio || "",
       location: me?.location || "",
+      member_handles_text: stringifyMemberHandles(me?.members || []),
     });
   }, [me, meReady]);
 
@@ -73,6 +91,9 @@ export default function ProfileOnboardingPage() {
     const handle = normalizeHandle(form.handle);
     const bio = form.bio.trim();
     const locationValue = form.location.trim();
+    const member_handles = profile_type === "group"
+      ? parseMemberHandles(form.member_handles_text)
+      : [];
 
     if (!full_name) {
       return setError(
@@ -112,6 +133,7 @@ export default function ProfileOnboardingPage() {
         location: locationValue || null,
         avatar_url: me?.avatar_url || null,
         onboarding_completed: true,
+        member_handles,
       };
 
       await apiUpdateProfile(payload, token);
@@ -281,6 +303,27 @@ export default function ProfileOnboardingPage() {
             />
             <small className="app-help">{form.bio.length}/280</small>
           </div>
+
+          {isGroup ? (
+            <div className="app-field">
+              <label className="app-label" htmlFor="onboarding-members">
+                Miembros del grupo
+              </label>
+              <textarea
+                id="onboarding-members"
+                className="app-textarea"
+                rows={5}
+                value={form.member_handles_text}
+                onChange={(e) => updateField("member_handles_text", e.target.value)}
+                disabled={saving}
+                placeholder={"@marcos\n@ana\n@carlos"}
+              />
+              <small className="app-help">
+                Añade un usuario por línea o separados por comas. Solo se pueden añadir usuarios
+                que ya tengan perfil individual.
+              </small>
+            </div>
+          ) : null}
 
           {msg.text ? (
             <div
