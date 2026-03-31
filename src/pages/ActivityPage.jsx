@@ -172,10 +172,31 @@ function NotificationRow({ notification, onOpen }) {
 }
 
 function routeFromNotif(notification) {
-  if (notification?.type === "message") return "/mensajes";
-  if (notification?.type === "group") return "/groups";
-  if (notification?.type === "meetup") return "/explorar";
-  return "/explorar";
+  if (notification?.type === "message") {
+    if (notification.thread_id) return `/mensajes/${notification.thread_id}`;
+    return "/mensajes";
+  }
+
+  if (notification?.type === "mention") {
+    if (notification.profile_id) return `/perfil/${notification.profile_id}`;
+    return "/perfil";
+  }
+
+  if (notification?.type === "group") {
+    if (notification.group_profile_id) return `/perfil/${notification.group_profile_id}`;
+    if (notification.profile_id) return `/perfil/${notification.profile_id}`;
+    return "/blablarun";
+  }
+
+  if (notification?.type === "meetup") {
+    return "/blablarun";
+  }
+
+  if (notification?.profile_id) {
+    return `/perfil/${notification.profile_id}`;
+  }
+
+  return "/actividad";
 }
 
 export default function ActivityPage() {
