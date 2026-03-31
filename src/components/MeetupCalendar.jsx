@@ -58,7 +58,15 @@ function defaultTimeForDay(dayKey) {
 function buildStartsAt(dayKey, timeValue) {
   const [year, month, day] = String(dayKey).split("-").map(Number);
   const [hours, minutes] = String(timeValue || "19:00").split(":").map(Number);
-  const date = new Date(year, (month || 1) - 1, day || 1, hours || 0, minutes || 0, 0, 0);
+  const date = new Date(
+    year,
+    (month || 1) - 1,
+    day || 1,
+    hours || 0,
+    minutes || 0,
+    0,
+    0,
+  );
   return date.toISOString();
 }
 
@@ -69,11 +77,7 @@ function numberOrNull(value) {
 }
 
 function ownerLabel(meetup) {
-  return (
-    meetup?.creator_profile_name ||
-    meetup?.group_name ||
-    "Perfil"
-  );
+  return meetup?.creator_profile_name || meetup?.group_name || "Perfil";
 }
 
 function ModalCloseIcon() {
@@ -109,6 +113,7 @@ function CreateEventModal({ open, dayKey, saving, onClose, onSubmit }) {
 
   useEffect(() => {
     if (!open) return;
+
     setForm({
       event_type: "entrenamiento",
       time: defaultTimeForDay(dayKey),
@@ -161,7 +166,7 @@ function CreateEventModal({ open, dayKey, saving, onClose, onSubmit }) {
   return (
     <div className="ui-modalBackdrop" role="presentation" onClick={onClose}>
       <div
-        className="ui-modal"
+        className="ui-modal calendarMini__modal"
         role="dialog"
         aria-modal="true"
         aria-labelledby="calendar-create-title"
@@ -188,9 +193,9 @@ function CreateEventModal({ open, dayKey, saving, onClose, onSubmit }) {
         </div>
 
         <div className="ui-modal__body">
-          <form className="ui-stack" onSubmit={handleSubmit}>
-            <div className="ui-row" style={{ alignItems: "flex-start" }}>
-              <div className="app-field" style={{ flex: 1 }}>
+          <form className="calendarMini__form" onSubmit={handleSubmit}>
+            <div className="calendarMini__formRow calendarMini__formRow--split">
+              <div className="app-field calendarMini__fieldGrow">
                 <label className="app-label" htmlFor="calendar-event-type">
                   Tipo
                 </label>
@@ -210,7 +215,7 @@ function CreateEventModal({ open, dayKey, saving, onClose, onSubmit }) {
                 </select>
               </div>
 
-              <div className="app-field" style={{ width: 140 }}>
+              <div className="app-field calendarMini__fieldNarrow">
                 <label className="app-label" htmlFor="calendar-time">
                   Hora
                 </label>
@@ -239,8 +244,8 @@ function CreateEventModal({ open, dayKey, saving, onClose, onSubmit }) {
               />
             </div>
 
-            <div className="ui-row" style={{ alignItems: "flex-start" }}>
-              <div className="app-field" style={{ flex: 1 }}>
+            <div className="calendarMini__formRow calendarMini__formRow--split">
+              <div className="app-field calendarMini__fieldGrow">
                 <label className="app-label" htmlFor="calendar-level">
                   Nivel
                 </label>
@@ -258,7 +263,7 @@ function CreateEventModal({ open, dayKey, saving, onClose, onSubmit }) {
                 </select>
               </div>
 
-              <div className="app-field" style={{ width: 120 }}>
+              <div className="app-field calendarMini__fieldNarrow">
                 <label className="app-label" htmlFor="calendar-capacity">
                   Aforo
                 </label>
@@ -275,8 +280,8 @@ function CreateEventModal({ open, dayKey, saving, onClose, onSubmit }) {
               </div>
             </div>
 
-            <div className="ui-row" style={{ alignItems: "flex-start" }}>
-              <div className="app-field" style={{ flex: 1 }}>
+            <div className="calendarMini__formRow calendarMini__formRow--split">
+              <div className="app-field calendarMini__fieldGrow">
                 <label className="app-label" htmlFor="calendar-pace-min">
                   Ritmo mín. (seg/km)
                 </label>
@@ -292,7 +297,7 @@ function CreateEventModal({ open, dayKey, saving, onClose, onSubmit }) {
                 />
               </div>
 
-              <div className="app-field" style={{ flex: 1 }}>
+              <div className="app-field calendarMini__fieldGrow">
                 <label className="app-label" htmlFor="calendar-pace-max">
                   Ritmo máx. (seg/km)
                 </label>
@@ -324,7 +329,7 @@ function CreateEventModal({ open, dayKey, saving, onClose, onSubmit }) {
               />
             </div>
 
-            <div className="ui-row ui-row--end">
+            <div className="calendarMini__formActions">
               <button
                 type="button"
                 className="app-button app-button--secondary"
@@ -430,7 +435,7 @@ export default function MeetupCalendar({ meetups = [], me }) {
 
   return (
     <>
-      <section className="calendarMini" aria-label="Calendario de actividades" style={{ width: "100%" }}>
+      <section className="calendarMini" aria-label="Calendario de actividades">
         <div className="calendarMini__header">
           <div className="calendarMini__heading">
             <p className="app-kicker">Calendario</p>
@@ -532,7 +537,7 @@ export default function MeetupCalendar({ meetups = [], me }) {
             <div>
               <p className="app-kicker">Agenda</p>
               <h4 className="calendarMini__detailTitle">
-                {selectedDay ? selectedDay : "Selecciona un día"}
+                {selectedDay || "Selecciona un día"}
               </h4>
             </div>
 
@@ -573,7 +578,8 @@ export default function MeetupCalendar({ meetups = [], me }) {
                     {meetup.level_tag ? <span>{meetup.level_tag}</span> : null}
                     {meetup.pace_min || meetup.pace_max ? (
                       <span>
-                        ritmo {meetup.pace_min ? `${meetup.pace_min}s/km` : "?"}–{meetup.pace_max ? `${meetup.pace_max}s/km` : "?"}
+                        ritmo {meetup.pace_min ? `${meetup.pace_min}s/km` : "?"}–
+                        {meetup.pace_max ? `${meetup.pace_max}s/km` : "?"}
                       </span>
                     ) : null}
                     <span>inscritos {meetup.participants_count ?? 0}</span>
