@@ -11,7 +11,6 @@ import ChatThreadPage from "./pages/ChatThreadPage";
 import DeleteAccountPage from "./pages/DeleteAccountPage";
 import MessagesPage from "./pages/MessagesPage";
 import NotificationsPage from "./pages/NotificationsPage";
-import PlaceholderSettingsPage from "./pages/PlaceholderSettingsPage";
 import ProfileOnboardingPage from "./pages/ProfileOnboardingPage";
 import ProfilePage from "./pages/ProfilePage";
 import { isOnboardingComplete } from "./lib/userContract";
@@ -53,7 +52,7 @@ function AuthOnlyRoute({ children }) {
   }
 
   if (session && isOnboardingComplete(me)) {
-    return <Navigate to="/perfil" replace />;
+    return <Navigate to="/actividad" replace />;
   }
 
   if (session && !isOnboardingComplete(me)) {
@@ -78,13 +77,14 @@ function RootRedirect() {
     return <Navigate to="/onboarding" replace />;
   }
 
-  return <Navigate to="/perfil" replace />;
+  return <Navigate to="/actividad" replace />;
 }
 
 export default function App() {
   return (
     <>
       <SSEListener />
+
       <Routes>
         <Route
           path="/login"
@@ -94,6 +94,7 @@ export default function App() {
             </AuthOnlyRoute>
           }
         />
+
         <Route
           path="/register"
           element={
@@ -102,6 +103,7 @@ export default function App() {
             </AuthOnlyRoute>
           }
         />
+
         <Route path="/onboarding" element={<ProfileOnboardingPage />} />
         <Route path="/" element={<RootRedirect />} />
 
@@ -113,21 +115,22 @@ export default function App() {
             </ProtectedRoute>
           }
         >
+          <Route path="actividad" element={<ActivityPage />} />
+          <Route path="blablarun" element={<BlaBlaRunPage />} />
+
           <Route path="perfil" element={<ProfilePage />} />
           <Route path="perfil/:profileId" element={<ProfilePage />} />
           <Route path="perfil/handle/:handle" element={<ProfilePage />} />
 
-          <Route path="actividad" element={<ActivityPage />} />
-          <Route path="blablarun" element={<BlaBlaRunPage />} />
-
           <Route path="mensajes" element={<MessagesPage />} />
           <Route path="mensajes/:threadId" element={<ChatThreadPage />} />
+
           <Route path="notificaciones" element={<NotificationsPage />} />
 
-          <Route path="ajustes" element={<PlaceholderSettingsPage />} />
           <Route path="eliminar-cuenta" element={<DeleteAccountPage />} />
         </Route>
       </Routes>
+
       <Toasts />
     </>
   );
