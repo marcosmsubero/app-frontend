@@ -397,7 +397,7 @@ export default function ProfilePage() {
         past_meetups: publicProfile?.past_meetups || [],
       }
     : {
-        display_name: me?.full_name || me?.handle || "Tu perfil",
+        display_name: me?.display_name || me?.full_name || me?.handle || "Tu perfil",
         handle: me?.handle || "",
         bio: me?.bio || "",
         location: me?.location || "",
@@ -405,7 +405,7 @@ export default function ProfilePage() {
         followers_count: Number(me?.followers_count ?? 0),
         following_count: Number(me?.following_count ?? 0),
         links: me?.links || {},
-        profile_type: "individual",
+        profile_type: me?.profile_type || "individual",
         members: [],
         future_meetups: mySplit.future,
         past_meetups: mySplit.past,
