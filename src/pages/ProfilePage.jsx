@@ -52,62 +52,59 @@ function splitMeetupsByTime(meetups = []) {
   return { future, past };
 }
 
+function IconEdit() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+      <path d="M12 20h9" />
+      <path d="M16.5 3.5a2.1 2.1 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5Z" />
+    </svg>
+  );
+}
+
+function SectionIntro({ title, subtitle }) {
+  return (
+    <div className="profilePage__sectionIntro">
+      <h3 className="profilePage__sectionTitle">{title}</h3>
+      <p className="profilePage__sectionSubtitle">{subtitle}</p>
+    </div>
+  );
+}
+
 function MeetupList({ title, items = [] }) {
   return (
-    <article className="app-section" style={{ width: "100%" }}>
-      <div style={{ display: "grid", gap: 14 }}>
-        <div>
-          <h3 style={{ margin: 0 }}>{title}</h3>
-          <p style={{ margin: "6px 0 0", color: "var(--app-text-muted)" }}>
-            {items.length} {items.length === 1 ? "evento" : "eventos"}
-          </p>
-        </div>
+    <article className="app-section profilePage__panel">
+      <div className="profilePage__panelBody">
+        <SectionIntro
+          title={title}
+          subtitle={`${items.length} ${items.length === 1 ? "evento" : "eventos"}`}
+        />
 
         {items.length === 0 ? (
-          <div className="app-empty">
+          <div className="app-empty profilePage__emptyState">
             <div className="notificationsSimple__emptyBody">
               <strong>Sin eventos</strong>
               <p>No hay información para mostrar en esta sección.</p>
             </div>
           </div>
         ) : (
-          <div style={{ display: "grid", gap: 10 }}>
+          <div className="profilePage__list">
             {items.map((item) => (
-              <article key={item.id} className="app-card">
-                <div className="app-card__body" style={{ display: "grid", gap: 8 }}>
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      gap: 12,
-                      flexWrap: "wrap",
-                    }}
-                  >
+              <article key={item.id} className="app-card profilePage__listCard">
+                <div className="profilePage__listCardBody">
+                  <div className="profilePage__listCardTop">
                     <strong>{item.meeting_point || "Evento"}</strong>
-                    <span className="app-chip app-chip--soft">
-                      {new Date(item.starts_at).toLocaleString("es-ES")}
-                    </span>
+                    <span className="app-badge">{new Date(item.starts_at).toLocaleString("es-ES")}</span>
                   </div>
 
-                  <div
-                    style={{
-                      display: "flex",
-                      gap: 8,
-                      flexWrap: "wrap",
-                      color: "var(--app-text-muted)",
-                      fontSize: "var(--font-sm)",
-                    }}
-                  >
+                  <div className="profilePage__metaRow">
                     {item.level_tag ? <span>Nivel: {item.level_tag}</span> : null}
                     {typeof item.capacity === "number" && item.capacity > 0 ? (
-                      <span>• Aforo: {item.capacity}</span>
+                      <span>Aforo: {item.capacity}</span>
                     ) : null}
-                    {item.status ? <span>• Estado: {item.status}</span> : null}
+                    {item.status ? <span>Estado: {item.status}</span> : null}
                   </div>
 
-                  {item.notes ? (
-                    <p style={{ margin: 0, color: "var(--app-text-muted)" }}>{item.notes}</p>
-                  ) : null}
+                  {item.notes ? <p className="profilePage__listNote">{item.notes}</p> : null}
                 </div>
               </article>
             ))}
@@ -122,38 +119,30 @@ function LinksBlock({ links = {} }) {
   const entries = Object.entries(links || {}).filter(([, value]) => !!value);
 
   return (
-    <article className="app-section" style={{ width: "100%" }}>
-      <div style={{ display: "grid", gap: 14 }}>
-        <div>
-          <h3 style={{ margin: 0 }}>Enlaces</h3>
-          <p style={{ margin: "6px 0 0", color: "var(--app-text-muted)" }}>
-            Presencia externa del perfil.
-          </p>
-        </div>
+    <article className="app-section profilePage__panel">
+      <div className="profilePage__panelBody">
+        <SectionIntro title="Enlaces" subtitle="Presencia externa del perfil." />
 
         {entries.length === 0 ? (
-          <div className="app-empty">
+          <div className="app-empty profilePage__emptyState">
             <div className="notificationsSimple__emptyBody">
               <strong>Sin enlaces</strong>
               <p>Este perfil no ha añadido enlaces todavía.</p>
             </div>
           </div>
         ) : (
-          <div style={{ display: "grid", gap: 10 }}>
+          <div className="profilePage__list">
             {entries.map(([key, value]) => (
               <a
                 key={key}
                 href={value}
                 target="_blank"
                 rel="noreferrer"
-                className="app-card"
-                style={{ textDecoration: "none", color: "inherit" }}
+                className="app-card app-card--interactive profilePage__linkCard"
               >
-                <div className="app-card__body" style={{ display: "grid", gap: 4 }}>
+                <div className="profilePage__linkCardBody">
                   <strong>{key}</strong>
-                  <span style={{ color: "var(--app-text-muted)", wordBreak: "break-all" }}>
-                    {value}
-                  </span>
+                  <span className="profilePage__linkValue">{value}</span>
                 </div>
               </a>
             ))}
@@ -168,72 +157,41 @@ function MembersBlock({ members = [] }) {
   if (!members.length) return null;
 
   return (
-    <article className="app-section" style={{ width: "100%" }}>
-      <div style={{ display: "grid", gap: 14 }}>
-        <div>
-          <h3 style={{ margin: 0 }}>Miembros</h3>
-          <p style={{ margin: "6px 0 0", color: "var(--app-text-muted)" }}>
-            Usuarios vinculados a este perfil grupal.
-          </p>
-        </div>
+    <article className="app-section profilePage__panel">
+      <div className="profilePage__panelBody">
+        <SectionIntro
+          title="Miembros"
+          subtitle="Usuarios vinculados a este perfil grupal."
+        />
 
-        <div style={{ display: "grid", gap: 10 }}>
+        <div className="profilePage__list">
           {members.map((member) => (
             <Link
               key={`${member.user_id}-${member.profile_id || "na"}`}
               to={member.profile_id ? `/perfil/${member.profile_id}` : "/perfil"}
-              className="app-card"
-              style={{ textDecoration: "none", color: "inherit" }}
+              className="app-card app-card--interactive profilePage__memberCard"
             >
-              <div
-                className="app-card__body"
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 12,
-                  justifyContent: "space-between",
-                  flexWrap: "wrap",
-                }}
-              >
-                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <div className="profilePage__memberRow">
+                <div className="profilePage__memberIdentity">
                   {member.avatar_url ? (
                     <img
                       src={member.avatar_url}
                       alt={member.full_name || member.handle || "Miembro"}
-                      style={{
-                        width: 44,
-                        height: 44,
-                        borderRadius: "999px",
-                        objectFit: "cover",
-                        border: "1px solid var(--app-border)",
-                      }}
+                      className="profilePage__memberAvatar"
                     />
                   ) : (
-                    <div
-                      style={{
-                        width: 44,
-                        height: 44,
-                        borderRadius: "999px",
-                        display: "grid",
-                        placeItems: "center",
-                        border: "1px solid var(--app-border)",
-                        background: "var(--app-surface-muted)",
-                        fontWeight: 700,
-                      }}
-                    >
+                    <div className="profilePage__memberAvatar profilePage__memberAvatar--fallback">
                       {initialsFromName(member.full_name || member.handle || "U")}
                     </div>
                   )}
 
-                  <div style={{ display: "grid", gap: 2 }}>
+                  <div className="profilePage__memberCopy">
                     <strong>{member.full_name || member.handle || "Miembro"}</strong>
-                    <span style={{ color: "var(--app-text-muted)" }}>
-                      {formatHandle(member.handle)}
-                    </span>
+                    <span>{formatHandle(member.handle)}</span>
                   </div>
                 </div>
 
-                <span className="app-chip app-chip--soft">{member.role}</span>
+                <span className="app-badge">{member.role}</span>
               </div>
             </Link>
           ))}
@@ -406,7 +364,7 @@ export default function ProfilePage() {
         following_count: Number(me?.following_count ?? 0),
         links: me?.links || {},
         profile_type: me?.profile_type || "individual",
-        members: me?.members || [],
+        members: [],
         future_meetups: mySplit.future,
         past_meetups: mySplit.past,
       };
@@ -419,17 +377,15 @@ export default function ProfilePage() {
   const avatarUrl = profileData.avatar_url;
 
   return (
-    <section className="profilePage" style={{ width: "100%", display: "grid", gap: 18 }}>
+    <section className="profilePage">
       <article className="app-section profilePage__hero">
         <div className="profilePage__heroTop">
           <div className="profilePage__identity">
-            <div style={{ position: "relative", width: 104, height: 104 }}>
+            <div className="profilePage__avatarShell">
               {avatarUrl ? (
                 <img src={avatarUrl} alt={displayName} className="profilePage__avatarImage" />
               ) : (
-                <div className="profilePage__avatarFallback">
-                  {initialsFromName(displayName)}
-                </div>
+                <div className="profilePage__avatarFallback">{initialsFromName(displayName)}</div>
               )}
 
               {!isPublicProfile ? (
@@ -440,23 +396,9 @@ export default function ProfilePage() {
                     disabled={uploadingAvatar}
                     title="Cambiar foto de perfil"
                     aria-label="Cambiar foto de perfil"
-                    style={{
-                      position: "absolute",
-                      right: -2,
-                      bottom: -2,
-                      width: 34,
-                      height: 34,
-                      borderRadius: 999,
-                      border: "1px solid var(--app-border)",
-                      background: "#fff",
-                      display: "grid",
-                      placeItems: "center",
-                      boxShadow: "var(--shadow-sm)",
-                      color: "var(--app-text)",
-                      cursor: uploadingAvatar ? "default" : "pointer",
-                    }}
+                    className="profilePage__avatarEdit"
                   >
-                    ✎
+                    <IconEdit />
                   </button>
 
                   <input
@@ -464,7 +406,7 @@ export default function ProfilePage() {
                     type="file"
                     accept="image/*"
                     onChange={handleAvatarChange}
-                    style={{ display: "none" }}
+                    className="profilePage__fileInput"
                   />
                 </>
               ) : null}
@@ -478,21 +420,16 @@ export default function ProfilePage() {
                 </div>
 
                 <div className="profilePage__metaInline">
-                  <span className="app-chip app-chip--soft">
+                  <span className="app-badge">
                     {profileData.profile_type === "group" ? "Perfil grupal" : "Perfil individual"}
                   </span>
-                  <span className="app-chip app-chip--soft">
-                    {formatLocation(profileData.location)}
-                  </span>
+                  <span className="app-badge">{formatLocation(profileData.location)}</span>
                 </div>
               </div>
 
               <p className="profilePage__bio">{formatBio(profileData.bio)}</p>
 
-              <div
-                className="profilePage__actions"
-                style={{ justifyContent: "flex-start", alignItems: "center", gap: 8 }}
-              >
+              <div className="profilePage__actions">
                 {!isPublicProfile ? (
                   <>
                     <ActionLink to="/ajustes">Ajustes</ActionLink>
@@ -505,10 +442,7 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          <div
-            className="profilePage__stats"
-            style={{ gridTemplateColumns: "repeat(2, minmax(0, 1fr))" }}
-          >
+          <div className="profilePage__stats">
             <StatCard value={profileData.followers_count} label="Seguidores" />
             <StatCard value={profileData.following_count} label="Seguidos" />
           </div>
@@ -517,7 +451,7 @@ export default function ProfilePage() {
 
       <MembersBlock members={profileData.members} />
 
-      <article className="app-section profilePage__calendarCard" style={{ width: "100%" }}>
+      <article className="app-section profilePage__calendarCard">
         <MeetupCalendar meetups={calendarMeetups} me={me} />
       </article>
 
