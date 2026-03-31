@@ -49,6 +49,14 @@ function IconProfile() {
   );
 }
 
+function IconMessage() {
+  return (
+    <ShellIcon>
+      <path d="M21 12a8.5 8.5 0 0 1-8.5 8.5H4l2.6-3.2A8.5 8.5 0 1 1 21 12Z" />
+    </ShellIcon>
+  );
+}
+
 const NAV_ITEMS = [
   { to: "/perfil", icon: <IconProfile />, label: "Perfil" },
   { to: "/actividad", icon: <IconActivity />, label: "Actividad", withCounter: true },
@@ -72,7 +80,7 @@ function DesktopNavItem({ to, icon, label, badgeCount = 0 }) {
       }
     >
       <span className="app-sidebar__iconGlyph">{icon}</span>
-
+      <span className="sr-only">{label}</span>
       {badgeCount > 0 ? (
         <span className="app-sidebar__iconBadge">
           {badgeCount > 99 ? "99+" : badgeCount}
@@ -114,29 +122,58 @@ export default function AppChrome() {
   }, [token]);
 
   return (
-    <div className="app-shell">
-      {/* Sidebar (desktop only via CSS) */}
-      <aside className="app-sidebar">
-        <nav className="app-sidebar__nav">
-          {NAV_ITEMS.map((item) => (
-            <DesktopNavItem
-              key={item.to}
-              to={item.to}
-              icon={item.icon}
-              label={item.label}
-              badgeCount={item.withCounter ? unreadMessages : 0}
-            />
-          ))}
-        </nav>
+    <div className="app-shell app-shell--refined">
+      <aside className="app-sidebar app-sidebar--rail" aria-label="Navegación principal">
+        <div className="app-sidebar__panel app-sidebar__panel--rail">
+          <div className="app-sidebar__brand app-sidebar__brand--rail">
+            <div className="app-sidebar__brand-icon">BR</div>
+            <div className="app-sidebar__brand-copy">
+              <p className="app-sidebar__brand-overline">App</p>
+              <h1 className="app-sidebar__brand-title">BlaBlaRun</h1>
+            </div>
+          </div>
+
+          <nav className="app-sidebar__nav app-sidebar__nav--rail">
+            {NAV_ITEMS.map((item) => (
+              <DesktopNavItem
+                key={item.to}
+                to={item.to}
+                icon={item.icon}
+                label={item.label}
+                badgeCount={item.withCounter ? unreadMessages : 0}
+              />
+            ))}
+          </nav>
+
+          <div className="app-sidebar__footer">
+            <NavLink
+              to="/mensajes"
+              className={({ isActive }) =>
+                `app-sidebar__quickAction${isActive ? " app-sidebar__quickAction--active" : ""}`
+              }
+              aria-label="Mensajes"
+              title="Mensajes"
+            >
+              <span className="app-sidebar__iconGlyph">
+                <IconMessage />
+              </span>
+              {unreadMessages > 0 ? (
+                <span className="app-sidebar__iconBadge app-sidebar__iconBadge--footer">
+                  {unreadMessages > 99 ? "99+" : unreadMessages}
+                </span>
+              ) : null}
+            </NavLink>
+          </div>
+        </div>
       </aside>
 
-      {/* Main content */}
-      <main className="app-main">
-        <Outlet />
+      <main className="app-main app-main--refined">
+        <div className="app-main__inner">
+          <Outlet />
+        </div>
       </main>
 
-      {/* Bottom nav (mobile only via CSS) */}
-      <div className="app-bottom-nav">
+      <div className="app-bottom-nav-wrap">
         <BottomNav unreadMessages={unreadMessages} />
       </div>
     </div>
