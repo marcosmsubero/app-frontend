@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { useMeetupSearch } from "../hooks/useMeetupSearch";
 import {
   addMonths,
@@ -58,22 +59,115 @@ function formatDayTitle(dayKey) {
   });
 }
 
+function creatorLabel(event) {
+  return (
+    event?.creator_profile_name ||
+    event?.group_name ||
+    "Perfil"
+  );
+}
+
+function CreatorLink({ event }) {
+  const label = creatorLabel(event);
+
+  if (!event?.creator_profile_id) {
+    return <span>{label}</span>;
+  }
+
+  return (
+    <Link
+      to={`/perfil/${event.creator_profile_id}`}
+      style={{
+        color: "inherit",
+        fontWeight: 700,
+        textDecoration: "none",
+      }}
+    >
+      {label}
+    </Link>
+  );
+}
+
+function EventCard({ event }) {
+  return (
+    <article
+      className="app-card"
+      style={{ background: "rgba(255,255,255,0.62)" }}
+    >
+      <div className="app-card__body" style={{ display: "grid", gap: 12 }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            gap: 12,
+            flexWrap: "wrap",
+            alignItems: "center",
+          }}
+        >
+          <h4 style={{ margin: 0 }}>
+            {event.meeting_point || event.title || "Evento"}
+          </h4>
+
+          <span className="app-chip app-chip--soft">
+            {timeLabel(event.starts_at)}
+          </span>
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            gap: 8,
+            flexWrap: "wrap",
+            color: "var(--app-text-muted)",
+            fontSize: "var(--font-sm)",
+          }}
+        >
+          <span>
+            Creador: <CreatorLink event={event} />
+          </span>
+
+          {event.level_tag ? <span>• Nivel: {event.level_tag}</span> : null}
+
+          {typeof event.participants_count === "number" ? (
+            <span>• {event.participants_count} inscritos</span>
+          ) : null}
+
+          {typeof event.capacity === "number" && event.capacity > 0 ? (
+            <span>• Aforo: {event.capacity}</span>
+          ) : null}
+        </div>
+
+        {event.notes ? (
+          <p style={{ margin: 0, color: "var(--app-text-muted)" }}>{event.notes}</p>
+        ) : null}
+
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          {event?.creator_profile_id ? (
+            <Link
+              to={`/perfil/${event.creator_profile_id}`}
+              className="app-button app-button--secondary app-button--sm"
+            >
+              Ver perfil
+            </Link>
+          ) : null}
+        </div>
+      </div>
+    </article>
+  );
+}
+
 function DayModal({ open, dayKey, events, onClose }) {
   if (!open) return null;
 
   return (
-    <div
-      className="ui-modalBackdrop"
-      role="presentation"
-      onClick={onClose}
-    >
+    <div className="ui-modalBackdrop" role="presentation" onClick={onClose}>
       <div
         className="ui-modal"
         role="dialog"
         aria-modal="true"
         aria-labelledby="blablarun-day-title"
         onClick={(e) => e.stopPropagation()}
-        style={{ width: "min(640px, 100%)" }}
+        style={{ width: "min(720px, 100%)" }}
       >
         <div style={{ padding: 22, display: "grid", gap: 18 }}>
           <div
@@ -115,52 +209,7 @@ function DayModal({ open, dayKey, events, onClose }) {
           ) : (
             <div style={{ display: "grid", gap: 12 }}>
               {events.map((event) => (
-                <article
-                  key={event.id}
-                  className="app-card"
-                  style={{ background: "rgba(255,255,255,0.62)" }}
-                >
-                  <div className="app-card__body" style={{ display: "grid", gap: 8 }}>
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        gap: 12,
-                        flexWrap: "wrap",
-                        alignItems: "center",
-                      }}
-                    >
-                      <h4 style={{ margin: 0 }}>
-                        {event.meeting_point || event.title || "Evento"}
-                      </h4>
-                      <span className="app-chip app-chip--soft">
-                        {timeLabel(event.starts_at)}
-                      </span>
-                    </div>
-
-                    <div
-                      style={{
-                        display: "flex",
-                        gap: 8,
-                        flexWrap: "wrap",
-                        color: "var(--app-text-muted)",
-                        fontSize: "var(--font-sm)",
-                      }}
-                    >
-                      {event.group_name ? <span>{event.group_name}</span> : null}
-                      {event.level_tag ? <span>• {event.level_tag}</span> : null}
-                      {typeof event.participants_count === "number" ? (
-                        <span>• {event.participants_count} inscritos</span>
-                      ) : null}
-                    </div>
-
-                    {event.notes ? (
-                      <p style={{ margin: 0, color: "var(--app-text-muted)" }}>
-                        {event.notes}
-                      </p>
-                    ) : null}
-                  </div>
-                </article>
+                <EventCard key={event.id} event={event} />
               ))}
             </div>
           )}
@@ -187,9 +236,7 @@ export default function BlaBlaRunPage() {
     return byDay.get(selectedDay) || [];
   }, [byDay, selectedDay]);
 
-  const visibleDaysWithActivity = useMemo(() => {
-    return [...byDay.keys()].length;
-  }, [byDay]);
+  const visibleDaysWithActivity = useMemo(() => [...byDay.keys()].length, [byDay]);
 
   function goPrevMonth() {
     setMonth((prev) => addMonths(prev, -1));
@@ -217,7 +264,7 @@ export default function BlaBlaRunPage() {
               <span className="page__eyebrow">BlaBlaRun</span>
               <h1 className="page__title">Calendario de eventos</h1>
               <p className="page__subtitle">
-                Explora la actividad del mes y consulta los eventos de cualquier día.
+                Explora la actividad del mes y consulta el detalle de cada evento.
               </p>
             </div>
 
@@ -324,62 +371,77 @@ export default function BlaBlaRunPage() {
                         onClick={() => openDay(key)}
                         title={`${key} · ${daySummary(dayItems)}`}
                         style={{
-                          minHeight: 84,
+                          minHeight: 92,
                           borderRadius: 18,
-                          border: isToday
-                            ? "1px solid rgba(15,23,42,0.24)"
-                            : "1px solid rgba(148,163,184,0.18)",
-                          background: "rgba(255,255,255,0.62)",
+                          border: "1px solid var(--app-border)",
+                          background: inMonth ? "#fff" : "rgba(255,255,255,0.48)",
                           padding: 10,
-                          textAlign: "left",
                           display: "grid",
                           alignContent: "space-between",
-                          opacity: inMonth ? 1 : 0.48,
+                          gap: 8,
+                          textAlign: "left",
+                          boxShadow: "var(--shadow-xs)",
+                          opacity: inMonth ? 1 : 0.7,
+                          position: "relative",
                           cursor: "pointer",
                         }}
                       >
-                        <span
+                        <div
                           style={{
-                            fontWeight: 700,
-                            color: "var(--app-text)",
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            gap: 6,
                           }}
                         >
-                          {day.getDate()}
-                        </span>
-
-                        <div style={{ display: "grid", gap: 6 }}>
                           <span
                             style={{
-                              display: "flex",
-                              gap: 5,
-                              flexWrap: "wrap",
-                              minHeight: 10,
+                              width: 28,
+                              height: 28,
+                              borderRadius: 999,
+                              display: "grid",
+                              placeItems: "center",
+                              background: isToday ? "var(--app-accent)" : "transparent",
+                              color: isToday ? "#fff" : "var(--app-text)",
+                              fontWeight: 700,
                             }}
                           >
-                            {dayItems.slice(0, 3).map((event) => (
-                              <span
-                                key={event.id}
-                                title={event.meeting_point || "Evento"}
-                                style={{
-                                  width: 8,
-                                  height: 8,
-                                  borderRadius: "50%",
-                                  background: "var(--app-text-muted)",
-                                  display: "inline-block",
-                                }}
-                              />
-                            ))}
+                            {day.getDate()}
                           </span>
 
-                          <span
-                            style={{
-                              fontSize: "0.72rem",
-                              color: "var(--app-text-muted)",
-                              lineHeight: 1.2,
-                            }}
-                          >
-                            {dayItems.length ? `${dayItems.length} evento${dayItems.length > 1 ? "s" : ""}` : ""}
-                          </span>
+                          {dayItems.length > 0 ? (
+                            <span className="app-badge app-badge--primary">
+                              {dayItems.length}
+                            </span>
+                          ) : null}
+                        </div>
+
+                        <div style={{ display: "grid", gap: 4 }}>
+                          {dayItems.slice(0, 2).map((item) => (
+                            <div
+                              key={item.id}
+                              style={{
+                                fontSize: "12px",
+                                color: "var(--app-text-muted)",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                whiteSpace: "nowrap",
+                              }}
+                            >
+                              {timeLabel(item.starts_at)} · {creatorLabel(item)}
+                            </div>
+                          ))}
+
+                          {dayItems.length === 0 ? (
+                            <div
+                              style={{
+                                fontSize: "12px",
+                                color: "var(--app-text-soft)",
+                              }}
+                            >
+                              Sin eventos
+                            </div>
+                          ) : null}
                         </div>
                       </button>
                     );
