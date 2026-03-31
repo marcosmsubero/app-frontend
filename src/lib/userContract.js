@@ -1,13 +1,14 @@
 export const USER_CONTRACT_DEFAULTS = Object.freeze({
   id: null,
+  app_profile_id: null,
+  profile_type: "individual",
   supabase_user_id: null,
   email: null,
   handle: null,
   full_name: null,
+  display_name: null,
   bio: null,
-  role: null,
   location: null,
-  disciplines: [],
   links: {},
   avatar_url: null,
   is_deleted: false,
@@ -24,6 +25,16 @@ export const USER_CONTRACT_DEFAULTS = Object.freeze({
 export function normalizeUserContract(input = {}) {
   const data = { ...USER_CONTRACT_DEFAULTS, ...(input || {}) };
 
+  const fullName =
+    typeof data.full_name === "string" && data.full_name.trim()
+      ? data.full_name.trim()
+      : null;
+
+  const displayName =
+    typeof data.display_name === "string" && data.display_name.trim()
+      ? data.display_name.trim()
+      : fullName;
+
   return {
     ...data,
     id:
@@ -32,6 +43,15 @@ export function normalizeUserContract(input = {}) {
         : Number.isNaN(Number(data.id))
           ? data.id
           : Number(data.id),
+    app_profile_id:
+      data.app_profile_id === null ||
+      data.app_profile_id === undefined ||
+      data.app_profile_id === ""
+        ? null
+        : Number.isNaN(Number(data.app_profile_id))
+          ? null
+          : Number(data.app_profile_id),
+    profile_type: data.profile_type === "group" ? "group" : "individual",
     supabase_user_id:
       typeof data.supabase_user_id === "string" && data.supabase_user_id.trim()
         ? data.supabase_user_id.trim()
@@ -44,23 +64,16 @@ export function normalizeUserContract(input = {}) {
       typeof data.handle === "string" && data.handle.trim()
         ? data.handle.trim().replace(/^@+/, "")
         : null,
-    full_name:
-      typeof data.full_name === "string" && data.full_name.trim()
-        ? data.full_name.trim()
-        : null,
+    full_name: fullName,
+    display_name: displayName,
     bio:
       typeof data.bio === "string" && data.bio.trim()
         ? data.bio.trim()
-        : null,
-    role:
-      typeof data.role === "string" && data.role.trim()
-        ? data.role.trim()
         : null,
     location:
       typeof data.location === "string" && data.location.trim()
         ? data.location.trim()
         : null,
-    disciplines: Array.isArray(data.disciplines) ? data.disciplines : [],
     links:
       data.links && typeof data.links === "object" && !Array.isArray(data.links)
         ? data.links
