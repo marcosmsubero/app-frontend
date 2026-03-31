@@ -1,8 +1,8 @@
 import { Navigate, Route, Routes } from "react-router-dom";
-import AppChrome from "./components/AppChrome";
 import SSEListener from "./components/SSEListener";
 import Toasts from "./components/Toasts";
 import { useAuth } from "./hooks/useAuth";
+import MobileShell from "./layouts/MobileShell";
 
 import ActivityPage from "./pages/ActivityPage";
 import AuthPage from "./pages/AuthPage";
@@ -114,7 +114,7 @@ export default function App() {
           path="/"
           element={
             <ProtectedRoute>
-              <AppChrome />
+              <MobileShell />
             </ProtectedRoute>
           }
         >
