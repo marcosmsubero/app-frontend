@@ -6,6 +6,7 @@ import { ToastProvider } from "./hooks/useToast.jsx";
 import { AuthProvider } from "./hooks/useAuth";
 import "./styles/app.css";
 import "./styles/refactor.css";
+import "./styles/mobile-shell.css";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
