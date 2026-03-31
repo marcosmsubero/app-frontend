@@ -11,6 +11,7 @@ export const USER_CONTRACT_DEFAULTS = Object.freeze({
   location: null,
   links: {},
   avatar_url: null,
+  members: [],
   is_deleted: false,
   email_verified: false,
   location_verified: false,
@@ -21,6 +22,35 @@ export const USER_CONTRACT_DEFAULTS = Object.freeze({
   created_at: null,
   updated_at: null,
 });
+
+function normalizeMember(member = {}) {
+  return {
+    user_id:
+      member.user_id === null || member.user_id === undefined || member.user_id === ""
+        ? null
+        : Number(member.user_id),
+    profile_id:
+      member.profile_id === null || member.profile_id === undefined || member.profile_id === ""
+        ? null
+        : Number(member.profile_id),
+    handle:
+      typeof member.handle === "string" && member.handle.trim()
+        ? member.handle.trim().replace(/^@+/, "")
+        : null,
+    full_name:
+      typeof member.full_name === "string" && member.full_name.trim()
+        ? member.full_name.trim()
+        : null,
+    avatar_url:
+      typeof member.avatar_url === "string" && member.avatar_url.trim()
+        ? member.avatar_url.trim()
+        : null,
+    role:
+      typeof member.role === "string" && member.role.trim()
+        ? member.role.trim()
+        : "member",
+  };
+}
 
 export function normalizeUserContract(input = {}) {
   const data = { ...USER_CONTRACT_DEFAULTS, ...(input || {}) };
@@ -82,6 +112,7 @@ export function normalizeUserContract(input = {}) {
       typeof data.avatar_url === "string" && data.avatar_url.trim()
         ? data.avatar_url.trim()
         : null,
+    members: Array.isArray(data.members) ? data.members.map(normalizeMember) : [],
     is_deleted: Boolean(data.is_deleted),
     email_verified: Boolean(data.email_verified),
     location_verified: Boolean(data.location_verified),
