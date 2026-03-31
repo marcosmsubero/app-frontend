@@ -6564,3 +6564,49 @@ textarea.input:focus {
     display: none;
   }
 }
+
+/* =========================
+   Sidebar — floating minimal
+   ========================= */
+
+@media (min-width: 1024px) {
+  .app-sidebar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    background: transparent;
+    border-right: none;
+    padding: 0;
+  }
+
+  .app-sidebar__nav {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    align-items: center;
+  }
+}
+
+.app-sidebar__iconLink {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  color: var(--app-text);
+  transition: all 0.2s ease;
+}
+
+.app-sidebar__iconLink:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.app-sidebar__iconLink--active {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.app-main {
+  flex: 1;
+  padding: 24px 32px;
+}
