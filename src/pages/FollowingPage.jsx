@@ -1,28 +1,82 @@
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
 
-export default function FollowingPage() {
-  const navigate = useNavigate();
+function initials(name = "") {
+  const parts = String(name || "")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+
+  const a = parts[0]?.[0] || "U";
+  const b = parts[1]?.[0] || "";
+  return `${a}${b}`.toUpperCase();
+}
+
+function FollowingRow({ item }) {
+  const name = item?.display_name || item?.full_name || item?.handle || "Perfil";
+  const handle = item?.handle ? `@${String(item.handle).replace(/^@/, "")}` : "Sin usuario";
+  const location = item?.location || "Ubicación no indicada";
+  const avatar = item?.avatar_url || null;
+  const target = item?.profile_id ? `/perfil/${item.profile_id}` : "/perfil";
 
   return (
-    <div className="app-page">
-      <div className="app-page__header">
-        <button
-          onClick={() => navigate(-1)}
-          className="app-backButton"
-        >
-          ←
-        </button>
+    <Link to={target} className="app-card app-card--interactive followersPage__card">
+      <div className="followersPage__cardBody">
+        <div className="followersPage__identity">
+          {avatar ? (
+            <img src={avatar} alt={name} className="followersPage__avatar" />
+          ) : (
+            <div className="followersPage__avatar followersPage__avatar--fallback">
+              {initials(name)}
+            </div>
+          )}
 
-        <h1 className="app-page__title">Seguidos</h1>
+          <div className="followersPage__copy">
+            <strong>{name}</strong>
+            <span>{handle}</span>
+            <small>{location}</small>
+          </div>
+        </div>
+
+        <span className="app-badge">Ver perfil</span>
       </div>
+    </Link>
+  );
+}
 
-      <div className="app-emptyState">
-        <div className="app-emptyState__icon">🏃</div>
-        <p className="app-emptyState__title">No sigues a nadie aún</p>
-        <p className="app-emptyState__subtitle">
-          Explora corredores y empieza a conectar con la comunidad.
+export default function FollowingPage() {
+  const { me } = useAuth();
+  const following = Array.isArray(me?.following) ? me.following : [];
+
+  return (
+    <section className="page followersPage">
+      <div className="page__header">
+        <span className="page__eyebrow">Perfil</span>
+        <h1 className="page__title">Seguidos</h1>
+        <p className="page__subtitle">
+          {following.length === 0
+            ? "Todavía no sigues a ningún perfil visible en la app."
+            : `${following.length} ${following.length === 1 ? "perfil seguido" : "perfiles seguidos"}.`}
         </p>
       </div>
-    </div>
+
+      {following.length === 0 ? (
+        <div className="app-empty">
+          <div className="notificationsSimple__emptyBody">
+            <strong>No sigues a nadie todavía</strong>
+            <p>Cuando empieces a seguir otros perfiles, aparecerán aquí.</p>
+          </div>
+        </div>
+      ) : (
+        <div className="followersPage__list">
+          {following.map((item, index) => (
+            <FollowingRow
+              key={item?.profile_id || item?.user_id || item?.id || `following-${index}`}
+              item={item}
+            />
+          ))}
+        </div>
+      )}
+    </section>
   );
 }
