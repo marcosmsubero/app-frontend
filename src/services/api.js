@@ -15,32 +15,17 @@ async function getAccessToken() {
 async function normalizeApiResponse(path, data) {
   if (!data) return data;
 
-  if (path === "/me" || path === "/auth/me" || path === "/me/profile" || path === "/me/avatar") {
+  if (
+    path === "/me" ||
+    path === "/auth/me" ||
+    path === "/me/profile" ||
+    path === "/me/avatar"
+  ) {
     return normalizeUserContract(data);
   }
 
   if (
     [
-      "/me/send-verification-code",
-      "/me/verify-email",
-      "/me/verify-location",
-    ].includes(path) &&
-    data?.user &&
-    typeof data.user === "object" &&
-    !Array.isArray(data.user)
-  ) {
-    return {
-      ...data,
-      user: normalizeUserContract(data.user),
-    };
-  }
-
-  return data;
-}
-
-  if (
-    [
-      "/me/avatar",
       "/me/send-verification-code",
       "/me/verify-email",
       "/me/verify-location",
@@ -183,7 +168,6 @@ export const apiMyMeetups = (token, params = {}) => {
    DO NOT USE for navigation or new features
 ============================================================================ */
 
-// Still required internally by backend for some flows
 export const apiCreateMeetup = (groupId, payload, token) =>
   api(`/groups/${groupId}/meetups`, {
     method: "POST",
@@ -225,16 +209,16 @@ export const apiDMSend = (threadId, text, token) =>
 export const apiVerifyEmailStart = (token) =>
   api(`/me/send-verification-code`, { method: "POST", token });
 
-export const apiVerifyEmailConfirm = (code, token) =>
+export const apiVerifyEmailComplete = (code, token) =>
   api(`/me/verify-email`, {
     method: "POST",
     token,
     body: { code },
   });
 
-export const apiVerifyLocation = (lat, lng, accuracy_m, token) =>
+export const apiVerifyLocation = (payload, token) =>
   api(`/me/verify-location`, {
     method: "POST",
     token,
-    body: { lat, lng, accuracy_m },
+    body: payload,
   });
