@@ -901,3 +901,10 @@ label {
     scroll-behavior: auto !important;
   }
 }
+
+.bottomNav__icon svg {
+  width: 22px;
+  height: 22px;
+  stroke: currentColor;
+  fill: none;
+}
