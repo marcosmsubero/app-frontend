@@ -57,26 +57,24 @@ export default function BottomNav() {
 
   return (
     <nav className="bottomNav" aria-label="Navegación principal">
-      <div className="bottomNav__inner">
+      <div className="bottomNav__list">
         {NAV_ITEMS.map((item) => {
           const active = item.isActive(location.pathname);
 
           return (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.to === "/actividad"}
-              className={`bottomNav__item${active ? " bottomNav__item--active" : ""}`}
-              aria-current={active ? "page" : undefined}
-            >
-              <span className="bottomNav__iconWrap" aria-hidden="true">
-                <span className="bottomNav__icon">{item.icon}</span>
-              </span>
-
-              <span className="bottomNav__label">{item.label}</span>
-
-              {active ? <span className="bottomNav__activePill" aria-hidden="true" /> : null}
-            </NavLink>
+            <div key={item.to} className="bottomNav__item">
+              <NavLink
+                to={item.to}
+                end={item.to === "/actividad"}
+                className={`bottomNav__link${active ? " is-active" : ""}`}
+                aria-current={active ? "page" : undefined}
+              >
+                <span className="bottomNav__icon" aria-hidden="true">
+                  {item.icon}
+                </span>
+                <span className="bottomNav__label">{item.label}</span>
+              </NavLink>
+            </div>
           );
         })}
       </div>
