@@ -32,48 +32,6 @@ function initialsFromNameOrEmail(nameOrEmail) {
   return (a + b).toUpperCase();
 }
 
-function NotificationRow({ notification, onOpen }) {
-  return (
-    <button
-      type="button"
-      className={`notificationsSimple__row${
-        notification.unread ? " notificationsSimple__row--unread" : ""
-      }`}
-      onClick={() => onOpen?.(notification)}
-    >
-      <div className="notificationsSimple__avatar">
-        {notification.avatar_url ? (
-          <img src={notification.avatar_url} alt={notification.from || "Usuario"} />
-        ) : (
-          <span>{initialsFromNameOrEmail(notification.from)}</span>
-        )}
-      </div>
-
-      <div className="notificationsSimple__content">
-        <div className="notificationsSimple__text">
-          <strong>{notification.from || "Actividad"}</strong>{" "}
-          <span>{notification.text || "ha generado una notificación."}</span>
-        </div>
-
-        <div className="notificationsSimple__meta">
-          <span>{timeAgoLabel(notification.created_at)}</span>
-          {notification.badge ? <span className="app-badge">{notification.badge}</span> : null}
-        </div>
-      </div>
-
-      <div className="notificationsSimple__state">
-        {notification.unread ? (
-          <span className="notificationsSimple__dot" aria-label="No leída" />
-        ) : (
-          <span className="notificationsSimple__chevron" aria-hidden="true">
-            ›
-          </span>
-        )}
-      </div>
-    </button>
-  );
-}
-
 function routeFromNotif(notification) {
   if (notification?.type === "message") {
     if (notification.thread_id) return `/mensajes/${notification.thread_id}`;
@@ -91,15 +49,65 @@ function routeFromNotif(notification) {
     return "/blablarun";
   }
 
-  if (notification?.type === "meetup") {
-    return "/blablarun";
-  }
-
-  if (notification?.profile_id) {
-    return `/perfil/${notification.profile_id}`;
-  }
+  if (notification?.type === "meetup") return "/blablarun";
+  if (notification?.profile_id) return `/perfil/${notification.profile_id}`;
 
   return "/actividad";
+}
+
+function NotificationRow({ notification, onOpen }) {
+  return (
+    <button
+      type="button"
+      className={`notificationCard${
+        notification.unread ? " notificationCard--unread" : ""
+      }`}
+      onClick={() => onOpen?.(notification)}
+      style={{ width: "100%", textAlign: "left", border: "none", padding: 16 }}
+    >
+      <div className="notificationCard__head">
+        <div className="notificationCard__user">
+          {notification.avatar_url ? (
+            <img
+              src={notification.avatar_url}
+              alt={notification.from || "Usuario"}
+              className="notificationCard__avatar"
+            />
+          ) : (
+            <div
+              className="notificationCard__avatar"
+              style={{ display: "grid", placeItems: "center", fontWeight: 800 }}
+            >
+              {initialsFromNameOrEmail(notification.from)}
+            </div>
+          )}
+
+          <div style={{ minWidth: 0 }}>
+            <h3 className="notificationCard__name">
+              {notification.from || "Actividad"}
+            </h3>
+            <p className="notificationCard__meta">
+              {timeAgoLabel(notification.created_at)}
+            </p>
+          </div>
+        </div>
+
+        {notification.unread ? <span className="notificationDot" /> : null}
+      </div>
+
+      <div className="notificationCard__body">
+        <p className="notificationCard__text">
+          {notification.text || "Ha generado una notificación."}
+        </p>
+
+        {notification.badge ? (
+          <div>
+            <span className="badge">{notification.badge}</span>
+          </div>
+        ) : null}
+      </div>
+    </button>
+  );
 }
 
 export default function NotificationsPage() {
@@ -107,16 +115,14 @@ export default function NotificationsPage() {
   const toast = useToast();
   const { token } = useAuth();
 
-  const [tab, setTab] = useState("all");
+  const [filter, setFilter] = useState("all");
+  const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [data, setData] = useState([]);
 
-  const list = useMemo(() => data || [], [data]);
-
-  async function load(currentTab = tab) {
+  async function load(selectedFilter = filter) {
     if (!token) {
-      setData([]);
+      setNotifications([]);
       setError("");
       return;
     }
@@ -125,9 +131,9 @@ export default function NotificationsPage() {
     setError("");
 
     try {
-      const res = await apiNotifications(currentTab, token);
+      const res = await apiNotifications(selectedFilter, token);
       const items = Array.isArray(res) ? res : res?.items || [];
-      setData(items);
+      setNotifications(items);
     } catch (e) {
       setError(e?.message || "No se pudieron cargar las notificaciones");
     } finally {
@@ -136,14 +142,19 @@ export default function NotificationsPage() {
   }
 
   useEffect(() => {
-    load(tab);
+    load(filter);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tab, token]);
+  }, [filter, token]);
 
-  async function openNotif(notification) {
+  const unreadNotifications = useMemo(
+    () => notifications.filter((item) => item?.unread).length,
+    [notifications]
+  );
+
+  async function openNotification(notification) {
     if (!notification) return;
 
-    setData((prev) =>
+    setNotifications((prev) =>
       (prev || []).map((item) =>
         item.id === notification.id ? { ...item, unread: false } : item
       )
@@ -161,141 +172,90 @@ export default function NotificationsPage() {
   }
 
   return (
-    <section className="notificationsSimple">
-      <div className="notificationsSimple__hero app-section">
-        <div className="notificationsSimple__heroCopy">
-          <span className="app-kicker">Notificaciones</span>
-          <h1 className="notificationsSimple__title">Actividad reciente</h1>
-          <p className="notificationsSimple__subtitle">
-            Revisa mensajes, menciones y cambios relevantes relacionados con tu actividad.
-          </p>
+    <section className="page">
+      <section className="heroPanel">
+        <div className="heroPanel__top">
+          <div>
+            <span className="sectionEyebrow">Actividad</span>
+            <h1 className="heroPanel__title">Notificaciones</h1>
+          </div>
+
+          <span className="heroPanel__badge">
+            {unreadNotifications > 0 ? `${unreadNotifications} nuevas` : "Al día"}
+          </span>
         </div>
 
-        <div className="notificationsSimple__heroActions">
+        <p className="heroPanel__text">
+          Menciones, mensajes y actividad reciente en una vista clara y compacta.
+        </p>
+      </section>
+
+      <section className="sectionBlock">
+        <div className="tabBar">
           <button
             type="button"
-            className="app-button app-button--primary"
-            onClick={() => load(tab)}
-            disabled={loading || !token}
+            className={`tabBar__item${filter === "all" ? " tabBar__item--active" : ""}`}
+            onClick={() => setFilter("all")}
+            disabled={loading}
           >
-            {loading ? "Actualizando…" : "Recargar"}
+            Todo
+          </button>
+
+          <button
+            type="button"
+            className={`tabBar__item${
+              filter === "mentions" ? " tabBar__item--active" : ""
+            }`}
+            onClick={() => setFilter("mentions")}
+            disabled={loading}
+          >
+            Menciones
           </button>
         </div>
-      </div>
+      </section>
 
-      <div className="notificationsSimple__layout">
-        <div className="notificationsSimple__main">
-          <section className="notificationsSimple__panel app-section">
-            <div className="notificationsSimple__panelHead">
-              <div>
-                <p className="app-kicker">Centro de actividad</p>
-                <h2 className="app-title">Tus notificaciones</h2>
-                <p className="app-subtitle">
-                  Filtra entre el flujo completo o solo menciones.
-                </p>
-              </div>
-            </div>
-
-            <div className="notificationsSimple__tabs">
-              <button
-                type="button"
-                className={`notificationsSimple__tab${
-                  tab === "all" ? " notificationsSimple__tab--active" : ""
-                }`}
-                onClick={() => setTab("all")}
-                disabled={loading}
-              >
-                Todo
-              </button>
-
-              <button
-                type="button"
-                className={`notificationsSimple__tab${
-                  tab === "mentions" ? " notificationsSimple__tab--active" : ""
-                }`}
-                onClick={() => setTab("mentions")}
-                disabled={loading}
-              >
-                Menciones
-              </button>
-            </div>
-
-            {!token ? (
-              <div className="app-empty">
-                <div className="notificationsSimple__emptyBody">
-                  <strong>Necesitas iniciar sesión</strong>
-                  <p>Accede a tu cuenta para revisar actividad y avisos pendientes.</p>
-                  <Link to="/login" className="app-button app-button--primary">
-                    Iniciar sesión
-                  </Link>
-                </div>
-              </div>
-            ) : loading ? (
-              <div className="app-empty">
-                <div className="notificationsSimple__emptyBody">
-                  <strong>Cargando notificaciones</strong>
-                  <p>Estamos actualizando tu centro de actividad.</p>
-                </div>
-              </div>
-            ) : error ? (
-              <div className="app-empty">
-                <div className="notificationsSimple__emptyBody">
-                  <strong>No se pudieron cargar</strong>
-                  <p>{error}</p>
-                </div>
-              </div>
-            ) : list.length === 0 ? (
-              <div className="app-empty">
-                <div className="notificationsSimple__emptyBody">
-                  <strong>No hay notificaciones</strong>
-                  <p>Cuando ocurra algo relevante en tu red deportiva, aparecerá aquí.</p>
-                </div>
-              </div>
-            ) : (
-              <div className="notificationsSimple__list">
-                {list.map((notification) => (
-                  <NotificationRow
-                    key={notification.id}
-                    notification={notification}
-                    onOpen={openNotif}
-                  />
-                ))}
-              </div>
-            )}
-          </section>
-        </div>
-
-        <aside className="notificationsSimple__aside">
-          <section className="notificationsSimple__asideCard app-section">
-            <div className="notificationsSimple__panelHead">
-              <div>
-                <p className="app-kicker">Qué verás aquí</p>
-                <h2 className="app-title">Avisos importantes</h2>
-                <p className="app-subtitle">
-                  Un resumen rápido de la actividad a la que conviene reaccionar antes.
-                </p>
-              </div>
-            </div>
-
-            <div className="notificationsSimple__asideList">
-              <div className="notificationsSimple__asideItem">
-                <span className="app-badge app-badge--primary">Mensajes</span>
-                <p>Nuevos chats o respuestas en conversaciones activas.</p>
-              </div>
-
-              <div className="notificationsSimple__asideItem">
-                <span className="app-badge app-badge--success">Perfiles</span>
-                <p>Menciones y actividad relacionada con perfiles individuales o grupales.</p>
-              </div>
-
-              <div className="notificationsSimple__asideItem">
-                <span className="app-badge app-badge--warning">Quedadas</span>
-                <p>Confirmaciones, estados y novedades sobre tus planes.</p>
-              </div>
-            </div>
-          </section>
-        </aside>
-      </div>
+      <section className="sectionBlock">
+        {!token ? (
+          <div className="stateCard">
+            <h3 className="stateCard__title">Necesitas iniciar sesión</h3>
+            <p className="stateCard__text">
+              Accede a tu cuenta para revisar tu actividad.
+            </p>
+            <Link to="/login" className="feedCard__action feedCard__action--primary">
+              Iniciar sesión
+            </Link>
+          </div>
+        ) : loading ? (
+          <div className="stateCard">
+            <h3 className="stateCard__title">Cargando notificaciones</h3>
+            <p className="stateCard__text">
+              Estamos actualizando tu centro de actividad.
+            </p>
+          </div>
+        ) : error ? (
+          <div className="stateCard">
+            <h3 className="stateCard__title">No se pudieron cargar</h3>
+            <p className="stateCard__text">{error}</p>
+          </div>
+        ) : notifications.length === 0 ? (
+          <div className="stateCard">
+            <h3 className="stateCard__title">No hay notificaciones</h3>
+            <p className="stateCard__text">
+              Cuando ocurra algo importante, aparecerá aquí.
+            </p>
+          </div>
+        ) : (
+          <div className="notificationList">
+            {notifications.map((notification) => (
+              <NotificationRow
+                key={notification.id}
+                notification={notification}
+                onOpen={openNotification}
+              />
+            ))}
+          </div>
+        )}
+      </section>
     </section>
   );
 }
