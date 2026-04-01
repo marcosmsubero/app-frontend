@@ -1,16 +1,17 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 
-function SettingsRow({ title, description, action }) {
+function SettingsItem({ title, text, action }) {
   return (
-    <article className="app-card settingsPage__row">
-      <div className="settingsPage__rowBody">
-        <div className="settingsPage__rowCopy">
-          <h3 className="settingsPage__rowTitle">{title}</h3>
-          <p className="settingsPage__rowText">{description}</p>
+    <article className="settingsRow">
+      <div className="settingsRow__left">
+        <div className="settingsRow__copy">
+          <h3 className="settingsRow__title">{title}</h3>
+          <p className="settingsRow__text">{text}</p>
         </div>
-        <div className="settingsPage__rowAction">{action}</div>
       </div>
+
+      <div className="settingsRow__right">{action}</div>
     </article>
   );
 }
@@ -20,75 +21,81 @@ export default function PlaceholderSettingsPage() {
 
   return (
     <section className="page settingsPage">
-      <div className="page__header">
-        <span className="page__eyebrow">Cuenta</span>
-        <h1 className="page__title">Ajustes</h1>
-        <p className="page__subtitle">
-          Controla tu perfil, tu sesión y las acciones sensibles de la cuenta.
+      <section className="heroPanel">
+        <div className="heroPanel__top">
+          <div>
+            <span className="sectionEyebrow">Cuenta</span>
+            <h1 className="heroPanel__title">Ajustes</h1>
+          </div>
+
+          <span className="heroPanel__badge">Cuenta</span>
+        </div>
+
+        <p className="heroPanel__text">
+          Gestiona tu perfil, tu sesión y las acciones sensibles de la cuenta.
         </p>
-      </div>
+      </section>
 
-      <div className="settingsPage__list">
-        <SettingsRow
+      <section className="sectionBlock settingsList">
+        <SettingsItem
           title="Editar perfil"
-          description="Actualiza tu nombre visible, bio, ubicación y el resto de datos básicos del perfil."
+          text="Actualiza nombre visible, bio, ubicación y resto de datos básicos."
           action={
-            <Link to="/onboarding?mode=edit" className="app-button app-button--secondary">
-              Editar perfil
+            <Link to="/onboarding?mode=edit" className="feedCard__action">
+              Editar
             </Link>
           }
         />
 
-        <SettingsRow
-          title="Ver seguidores"
-          description="Consulta qué perfiles te siguen dentro de la comunidad."
+        <SettingsItem
+          title="Seguidores"
+          text="Consulta qué perfiles te siguen dentro de la comunidad."
           action={
-            <Link to="/perfil/seguidores" className="app-button app-button--secondary">
-              Seguidores
+            <Link to="/perfil/seguidores" className="feedCard__action">
+              Ver
             </Link>
           }
         />
 
-        <SettingsRow
-          title="Ver seguidos"
-          description="Consulta los perfiles que estás siguiendo."
+        <SettingsItem
+          title="Seguidos"
+          text="Consulta los perfiles que estás siguiendo."
           action={
-            <Link to="/perfil/seguidos" className="app-button app-button--secondary">
-              Seguidos
+            <Link to="/perfil/seguidos" className="feedCard__action">
+              Ver
             </Link>
           }
         />
 
-        <SettingsRow
+        <SettingsItem
           title="Estado de la cuenta"
-          description={`Sesión activa como ${me?.email || "usuario autenticado"}.`}
-          action={<span className="app-badge">Activa</span>}
+          text={`Sesión activa como ${me?.email || "usuario autenticado"}.`}
+          action={<span className="badge badge--success">Activa</span>}
         />
 
-        <SettingsRow
+        <SettingsItem
           title="Cerrar sesión"
-          description="Sal de la aplicación en este dispositivo."
+          text="Cierra tu sesión en este dispositivo."
           action={
-            <button
-              type="button"
-              className="app-button app-button--secondary"
-              onClick={signOut}
-            >
-              Cerrar sesión
+            <button type="button" className="feedCard__action" onClick={signOut}>
+              Salir
             </button>
           }
         />
 
-        <SettingsRow
+        <SettingsItem
           title="Eliminar cuenta"
-          description="Acción sensible. Desactivará tu cuenta y dejará de estar disponible para acceder."
+          text="Acción sensible e irreversible."
           action={
-            <Link to="/eliminar-cuenta" className="app-button app-button--primary">
-              Eliminar cuenta
+            <Link
+              to="/eliminar-cuenta"
+              className="feedCard__action feedCard__action--primary"
+            >
+              Eliminar
             </Link>
           }
         />
-      </div>
+      </section>
     </section>
   );
 }
