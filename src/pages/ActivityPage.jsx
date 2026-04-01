@@ -79,7 +79,14 @@ function ShellIcon({ children }) {
 
 function IconRefresh({ spinning = false }) {
   return (
-    <span className={`activityPage__iconShell${spinning ? " is-spinning" : ""}`}>
+    <span
+      style={{
+        display: "inline-flex",
+        width: 18,
+        height: 18,
+        animation: spinning ? "spin 0.9s linear infinite" : "none",
+      }}
+    >
       <ShellIcon>
         <polyline points="23 4 23 10 17 10" />
         <polyline points="1 20 1 14 7 14" />
@@ -118,14 +125,12 @@ function IconBell() {
 
 function EmptyLogin({ text }) {
   return (
-    <div className="app-empty">
-      <div className="notificationsSimple__emptyBody">
-        <strong>Necesitas iniciar sesión</strong>
-        <p>{text}</p>
-        <Link to="/login" className="app-button app-button--primary">
-          Iniciar sesión
-        </Link>
-      </div>
+    <div className="stateCard">
+      <h3 className="stateCard__title">Necesitas iniciar sesión</h3>
+      <p className="stateCard__text">{text}</p>
+      <Link to="/login" className="feedCard__action feedCard__action--primary">
+        Iniciar sesión
+      </Link>
     </div>
   );
 }
@@ -136,38 +141,48 @@ function MessageRow({ thread, onOpen }) {
   return (
     <button
       type="button"
-      className={`messagesSimple__row${
-        unreadCount > 0 ? " messagesSimple__row--unread" : ""
-      }`}
+      className={`messageCard${unreadCount > 0 ? " messageCard--unread" : ""}`}
       onClick={() => onOpen?.(thread)}
+      style={{
+        width: "100%",
+        textAlign: "left",
+        background: "",
+        border: "none",
+        padding: 16,
+      }}
     >
-      <div className="messagesSimple__avatar">
-        {thread?.avatar_url ? (
-          <img src={thread.avatar_url} alt={getThreadName(thread)} />
-        ) : (
-          <span>{initialsFromNameOrEmail(getThreadName(thread))}</span>
-        )}
-      </div>
+      <div className="messageCard__head">
+        <div className="messageCard__user">
+          {thread?.avatar_url ? (
+            <img
+              src={thread.avatar_url}
+              alt={getThreadName(thread)}
+              className="messageCard__avatar"
+            />
+          ) : (
+            <div
+              className="messageCard__avatar"
+              style={{ display: "grid", placeItems: "center", fontWeight: 800 }}
+            >
+              {initialsFromNameOrEmail(getThreadName(thread))}
+            </div>
+          )}
 
-      <div className="messagesSimple__content">
-        <div className="messagesSimple__text">
-          <strong>{getThreadName(thread)}</strong>{" "}
-          <span>{getThreadPreview(thread)}</span>
+          <div style={{ minWidth: 0 }}>
+            <h3 className="messageCard__name">{getThreadName(thread)}</h3>
+            <p className="messageCard__meta">{timeAgoLabel(thread?.updated_at)}</p>
+          </div>
         </div>
 
-        <div className="messagesSimple__meta">
-          <span>{timeAgoLabel(thread?.updated_at)}</span>
-        </div>
-      </div>
-
-      <div className="messagesSimple__state">
         {unreadCount > 0 ? (
-          <span className="messagesSimple__badge">
+          <span className="badge badge--primary">
             {unreadCount > 99 ? "99+" : unreadCount}
           </span>
-        ) : (
-          <span className="messagesSimple__chevron">›</span>
-        )}
+        ) : null}
+      </div>
+
+      <div className="messageCard__body">
+        <p className="messageCard__text">{getThreadPreview(thread)}</p>
       </div>
     </button>
   );
@@ -177,39 +192,58 @@ function NotificationRow({ notification, onOpen }) {
   return (
     <button
       type="button"
-      className={`notificationsSimple__row${
-        notification.unread ? " notificationsSimple__row--unread" : ""
+      className={`notificationCard${
+        notification.unread ? " notificationCard--unread" : ""
       }`}
       onClick={() => onOpen?.(notification)}
+      style={{
+        width: "100%",
+        textAlign: "left",
+        background: "",
+        border: "none",
+        padding: 16,
+      }}
     >
-      <div className="notificationsSimple__avatar">
-        {notification.avatar_url ? (
-          <img src={notification.avatar_url} alt={notification.from || "Usuario"} />
-        ) : (
-          <span>{initialsFromNameOrEmail(notification.from)}</span>
-        )}
-      </div>
+      <div className="notificationCard__head">
+        <div className="notificationCard__user">
+          {notification.avatar_url ? (
+            <img
+              src={notification.avatar_url}
+              alt={notification.from || "Usuario"}
+              className="notificationCard__avatar"
+            />
+          ) : (
+            <div
+              className="notificationCard__avatar"
+              style={{ display: "grid", placeItems: "center", fontWeight: 800 }}
+            >
+              {initialsFromNameOrEmail(notification.from)}
+            </div>
+          )}
 
-      <div className="notificationsSimple__content">
-        <div className="notificationsSimple__text">
-          <strong>{notification.from || "Actividad"}</strong>{" "}
-          <span>{notification.text || "ha generado una notificación."}</span>
+          <div style={{ minWidth: 0 }}>
+            <h3 className="notificationCard__name">
+              {notification.from || "Actividad"}
+            </h3>
+            <p className="notificationCard__meta">
+              {timeAgoLabel(notification.created_at)}
+            </p>
+          </div>
         </div>
 
-        <div className="notificationsSimple__meta">
-          <span>{timeAgoLabel(notification.created_at)}</span>
-          {notification.badge ? <span className="app-badge">{notification.badge}</span> : null}
-        </div>
+        {notification.unread ? <span className="notificationDot" /> : null}
       </div>
 
-      <div className="notificationsSimple__state">
-        {notification.unread ? (
-          <span className="notificationsSimple__dot" aria-label="No leída" />
-        ) : (
-          <span className="notificationsSimple__chevron" aria-hidden="true">
-            ›
-          </span>
-        )}
+      <div className="notificationCard__body">
+        <p className="notificationCard__text">
+          {notification.text || "Ha generado una notificación."}
+        </p>
+
+        {notification.badge ? (
+          <div>
+            <span className="badge">{notification.badge}</span>
+          </div>
+        ) : null}
       </div>
     </button>
   );
@@ -232,23 +266,10 @@ function routeFromNotif(notification) {
     return "/blablarun";
   }
 
-  if (notification?.type === "meetup") {
-    return "/blablarun";
-  }
-
-  if (notification?.profile_id) {
-    return `/perfil/${notification.profile_id}`;
-  }
+  if (notification?.type === "meetup") return "/blablarun";
+  if (notification?.profile_id) return `/perfil/${notification.profile_id}`;
 
   return "/actividad";
-}
-
-function SectionShell({ children }) {
-  return (
-    <article className="app-section activityPage__section">
-      <div className="activityPage__sectionBody">{children}</div>
-    </article>
-  );
 }
 
 export default function ActivityPage() {
@@ -343,13 +364,15 @@ export default function ActivityPage() {
   const messageList = useMemo(() => threads || [], [threads]);
   const notificationsList = useMemo(() => notifications || [], [notifications]);
 
-  const unreadThreads = useMemo(() => {
-    return messageList.filter((t) => getUnreadCount(t) > 0).length;
-  }, [messageList]);
+  const unreadThreads = useMemo(
+    () => messageList.filter((t) => getUnreadCount(t) > 0).length,
+    [messageList]
+  );
 
-  const unreadNotifications = useMemo(() => {
-    return notificationsList.filter((item) => item?.unread).length;
-  }, [notificationsList]);
+  const unreadNotifications = useMemo(
+    () => notificationsList.filter((item) => item?.unread).length,
+    [notificationsList]
+  );
 
   function switchTab(tab) {
     const next = new URLSearchParams(searchParams);
@@ -400,39 +423,35 @@ export default function ActivityPage() {
 
     if (messagesLoading) {
       return (
-        <div className="app-empty">
-          <div className="notificationsSimple__emptyBody">
-            <strong>Cargando mensajes</strong>
-            <p>Estamos actualizando tu bandeja.</p>
-          </div>
+        <div className="stateCard">
+          <h3 className="stateCard__title">Cargando mensajes</h3>
+          <p className="stateCard__text">Estamos actualizando tu bandeja.</p>
         </div>
       );
     }
 
     if (messagesError) {
       return (
-        <div className="app-empty">
-          <div className="notificationsSimple__emptyBody">
-            <strong>No se pudieron cargar</strong>
-            <p>{messagesError}</p>
-          </div>
+        <div className="stateCard">
+          <h3 className="stateCard__title">No se pudieron cargar</h3>
+          <p className="stateCard__text">{messagesError}</p>
         </div>
       );
     }
 
     if (messageList.length === 0) {
       return (
-        <div className="app-empty">
-          <div className="notificationsSimple__emptyBody">
-            <strong>No hay conversaciones</strong>
-            <p>Cuando inicies o recibas mensajes, aparecerán aquí.</p>
-          </div>
+        <div className="stateCard">
+          <h3 className="stateCard__title">No hay conversaciones</h3>
+          <p className="stateCard__text">
+            Cuando inicies o recibas mensajes, aparecerán aquí.
+          </p>
         </div>
       );
     }
 
     return (
-      <div className="messagesSimple__list">
+      <div className="messageList">
         {messageList.map((thread) => (
           <MessageRow key={thread.id} thread={thread} onOpen={openThread} />
         ))}
@@ -447,39 +466,37 @@ export default function ActivityPage() {
 
     if (notificationsLoading) {
       return (
-        <div className="app-empty">
-          <div className="notificationsSimple__emptyBody">
-            <strong>Cargando notificaciones</strong>
-            <p>Estamos actualizando tu centro de actividad.</p>
-          </div>
+        <div className="stateCard">
+          <h3 className="stateCard__title">Cargando notificaciones</h3>
+          <p className="stateCard__text">
+            Estamos actualizando tu centro de actividad.
+          </p>
         </div>
       );
     }
 
     if (notificationsError) {
       return (
-        <div className="app-empty">
-          <div className="notificationsSimple__emptyBody">
-            <strong>No se pudieron cargar</strong>
-            <p>{notificationsError}</p>
-          </div>
+        <div className="stateCard">
+          <h3 className="stateCard__title">No se pudieron cargar</h3>
+          <p className="stateCard__text">{notificationsError}</p>
         </div>
       );
     }
 
     if (notificationsList.length === 0) {
       return (
-        <div className="app-empty">
-          <div className="notificationsSimple__emptyBody">
-            <strong>No hay notificaciones</strong>
-            <p>Cuando ocurra algo relevante, aparecerá aquí.</p>
-          </div>
+        <div className="stateCard">
+          <h3 className="stateCard__title">No hay notificaciones</h3>
+          <p className="stateCard__text">
+            Cuando ocurra algo relevante, aparecerá aquí.
+          </p>
         </div>
       );
     }
 
     return (
-      <div className="notificationsSimple__list">
+      <div className="notificationList">
         {notificationsList.map((notification) => (
           <NotificationRow
             key={notification.id}
@@ -492,117 +509,140 @@ export default function ActivityPage() {
   }
 
   return (
-    <section className="activityPage">
-      <SectionShell>
-        <div className="activityPage__hero">
-          <div className="activityPage__heroCopy">
-            <span className="page__eyebrow">Actividad</span>
-            <h1 className="page__title">Mensajes y notificaciones</h1>
-            <p className="activityPage__subtitle">
-              Una vista más limpia para seguir conversaciones, menciones y avisos.
-            </p>
+    <section className="page">
+      <section className="heroPanel">
+        <div className="heroPanel__top">
+          <div>
+            <span className="sectionEyebrow">Actividad</span>
+            <h1 className="heroPanel__title">Mensajes y notificaciones</h1>
           </div>
 
-          <div className="activityPage__tabs" role="tablist" aria-label="Secciones de actividad">
-            <button
-              type="button"
-              className={`activityPage__tab${
-                currentTab === "messages" ? " activityPage__tab--active" : ""
-              }`}
-              onClick={() => switchTab("messages")}
-            >
-              <span className="activityPage__tabIcon">
-                <IconMessages />
-              </span>
-              <span>Mensajes</span>
-              {unreadThreads > 0 ? (
-                <span className="activityPage__tabBadge">
-                  {unreadThreads > 99 ? "99+" : unreadThreads}
-                </span>
-              ) : null}
-            </button>
+          <span className="heroPanel__badge">
+            {currentTab === "messages" ? "Inbox" : "Alertas"}
+          </span>
+        </div>
 
-            <button
-              type="button"
-              className={`activityPage__tab${
-                currentTab === "notifications" ? " activityPage__tab--active" : ""
-              }`}
-              onClick={() => switchTab("notifications")}
-            >
-              <span className="activityPage__tabIcon">
-                <IconBell />
-              </span>
-              <span>Notificaciones</span>
-              {unreadNotifications > 0 ? (
-                <span className="activityPage__tabBadge">
-                  {unreadNotifications > 99 ? "99+" : unreadNotifications}
-                </span>
-              ) : null}
-            </button>
+        <p className="heroPanel__text">
+          Sigue tus conversaciones, menciones y avisos recientes desde una sola
+          pantalla móvil.
+        </p>
+
+        <div className="inlineStats">
+          <div className="inlineStatCard">
+            <div className="inlineStatCard__label">Mensajes sin leer</div>
+            <div className="inlineStatCard__value">{unreadThreads}</div>
+            <div className="inlineStatCard__help">Conversaciones pendientes</div>
           </div>
 
-          {currentTab === "messages" ? (
-            <div className="activityPage__toolbar">
-              <label className="activityPage__search" htmlFor="activity-message-search">
-                <span className="activityPage__searchIcon">
-                  <IconSearch />
-                </span>
-                <input
-                  id="activity-message-search"
-                  className="activityPage__searchInput"
-                  placeholder="Buscar conversación"
-                  value={messageQuery}
-                  onChange={(e) => setMessageQuery(e.target.value)}
-                  disabled={!token}
-                />
-              </label>
-            </div>
-          ) : (
-            <div className="activityPage__toolbar activityPage__toolbar--split">
-              <div className="activityPage__subtabs">
-                <button
-                  type="button"
-                  className={`activityPage__subtab${
-                    notifFilter === "all" ? " activityPage__subtab--active" : ""
-                  }`}
-                  onClick={() => setNotificationFilter("all")}
-                  disabled={notificationsLoading}
-                >
-                  Todo
-                </button>
+          <div className="inlineStatCard">
+            <div className="inlineStatCard__label">Notificaciones nuevas</div>
+            <div className="inlineStatCard__value">{unreadNotifications}</div>
+            <div className="inlineStatCard__help">Menciones y actividad</div>
+          </div>
+        </div>
+      </section>
 
-                <button
-                  type="button"
-                  className={`activityPage__subtab${
-                    notifFilter === "mentions" ? " activityPage__subtab--active" : ""
-                  }`}
-                  onClick={() => setNotificationFilter("mentions")}
-                  disabled={notificationsLoading}
-                >
-                  Menciones
-                </button>
-              </div>
+      <section className="sectionBlock">
+        <div className="tabBar" role="tablist" aria-label="Secciones de actividad">
+          <button
+            type="button"
+            className={`tabBar__item${
+              currentTab === "messages" ? " tabBar__item--active" : ""
+            }`}
+            onClick={() => switchTab("messages")}
+          >
+            <span style={{ display: "inline-flex", width: 16, height: 16 }}>
+              <IconMessages />
+            </span>
+            <span>Mensajes</span>
+            {unreadThreads > 0 ? (
+              <span className="badge badge--primary">
+                {unreadThreads > 99 ? "99+" : unreadThreads}
+              </span>
+            ) : null}
+          </button>
+
+          <button
+            type="button"
+            className={`tabBar__item${
+              currentTab === "notifications" ? " tabBar__item--active" : ""
+            }`}
+            onClick={() => switchTab("notifications")}
+          >
+            <span style={{ display: "inline-flex", width: 16, height: 16 }}>
+              <IconBell />
+            </span>
+            <span>Notificaciones</span>
+            {unreadNotifications > 0 ? (
+              <span className="badge badge--primary">
+                {unreadNotifications > 99 ? "99+" : unreadNotifications}
+              </span>
+            ) : null}
+          </button>
+        </div>
+
+        {currentTab === "messages" ? (
+          <label className="searchBar" htmlFor="activity-message-search">
+            <span
+              className="searchBar__icon"
+              style={{ display: "inline-flex", width: 18, height: 18 }}
+            >
+              <IconSearch />
+            </span>
+            <input
+              id="activity-message-search"
+              placeholder="Buscar conversación"
+              value={messageQuery}
+              onChange={(e) => setMessageQuery(e.target.value)}
+              disabled={!token}
+            />
+          </label>
+        ) : (
+          <div className="rowBetween" style={{ gap: 10, flexWrap: "wrap" }}>
+            <div className="tabBar" style={{ flex: 1 }}>
+              <button
+                type="button"
+                className={`tabBar__item${
+                  notifFilter === "all" ? " tabBar__item--active" : ""
+                }`}
+                onClick={() => setNotificationFilter("all")}
+                disabled={notificationsLoading}
+              >
+                Todo
+              </button>
 
               <button
                 type="button"
-                className="activityPage__refresh"
-                onClick={() => loadNotifications(notifFilter)}
-                disabled={notificationsLoading || !token}
-                aria-label="Recargar"
-                title="Recargar"
+                className={`tabBar__item${
+                  notifFilter === "mentions" ? " tabBar__item--active" : ""
+                }`}
+                onClick={() => setNotificationFilter("mentions")}
+                disabled={notificationsLoading}
               >
-                <IconRefresh spinning={notificationsLoading} />
+                Menciones
               </button>
             </div>
-          )}
-        </div>
-      </SectionShell>
 
-      <SectionShell>
+            <button
+              type="button"
+              className="feedCard__action"
+              onClick={() => loadNotifications(notifFilter)}
+              disabled={notificationsLoading || !token}
+              aria-label="Recargar"
+              title="Recargar"
+              style={{ minHeight: 38 }}
+            >
+              <IconRefresh spinning={notificationsLoading} />
+            </button>
+          </div>
+        )}
+      </section>
+
+      <section className="sectionBlock">
         {currentTab === "messages"
           ? renderMessagesContent()
           : renderNotificationsContent()}
-      </SectionShell>
+      </section>
     </section>
   );
 }
