@@ -24,16 +24,11 @@ export default function PlaceholderSettingsPage() {
       <section className="heroPanel">
         <div className="heroPanel__top">
           <div>
-            <span className="sectionEyebrow">Cuenta</span>
-            <h1 className="heroPanel__title">Ajustes</h1>
+            <span className="sectionEyebrow">Ajustes</span>
           </div>
 
           <span className="heroPanel__badge">Cuenta</span>
         </div>
-
-        <p className="heroPanel__text">
-          Gestiona tu perfil, tu sesión y las acciones sensibles de la cuenta.
-        </p>
       </section>
 
       <section className="sectionBlock settingsList">
