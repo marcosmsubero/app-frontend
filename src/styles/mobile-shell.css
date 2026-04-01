@@ -53,6 +53,7 @@ body {
   font-family: var(--font-sans);
   color: var(--text);
   background: transparent;
+  overflow-x: hidden;
 }
 
 #root {
@@ -81,6 +82,7 @@ img {
 }
 
 .mobileShellViewport {
+  width: 100%;
   min-height: 100vh;
   display: flex;
   justify-content: center;
@@ -97,7 +99,7 @@ img {
     linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.01)),
     linear-gradient(180deg, rgba(8, 16, 29, 0.98), rgba(7, 17, 31, 0.98));
   box-shadow: var(--shadow-lg);
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 .appChrome::before {
@@ -125,10 +127,7 @@ img {
   z-index: 1;
   display: grid;
   gap: var(--header-gap);
-  padding:
-    var(--top-safe)
-    var(--content-padding)
-    16px;
+  padding: var(--top-safe) var(--content-padding) 16px;
 }
 
 .appChrome__topRow {
@@ -160,8 +159,7 @@ img {
   font-weight: 800;
   letter-spacing: 0.06em;
   color: #fff;
-  background:
-    linear-gradient(135deg, var(--primary), var(--primary-strong));
+  background: linear-gradient(135deg, var(--primary), var(--primary-strong));
   box-shadow: 0 10px 24px rgba(255, 81, 57, 0.28);
 }
 
@@ -360,33 +358,13 @@ img {
 .appChrome__main {
   position: relative;
   z-index: 1;
-  padding:
-    18px
-    var(--content-padding)
-    calc(var(--bottom-nav-height) + var(--bottom-safe) + 18px);
+  padding: 18px var(--content-padding) calc(var(--bottom-nav-height) + var(--bottom-safe) + 18px);
 }
 
 .appChrome__content {
   display: grid;
   gap: 16px;
-}
-
-.mobileSection,
-.surfaceCard,
-.panel,
-.card,
-.feedCard,
-.messageCard,
-.profileCard,
-.settingsCard,
-.eventCard,
-.emptyCard,
-.glassCard {
-  background: var(--surface);
-  border: 1px solid var(--surface-border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  backdrop-filter: blur(18px);
+  min-width: 0;
 }
 
 .mobileSection,
@@ -401,6 +379,12 @@ img {
 .emptyCard,
 .glassCard {
   padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(18px);
+  min-width: 0;
 }
 
 .sectionTitle,
@@ -750,7 +734,8 @@ label {
   left: 50%;
   bottom: max(10px, env(safe-area-inset-bottom, 0px));
   z-index: 40;
-  width: min(calc(100% - 20px), calc(var(--content-max) - 16px));
+  width: calc(100vw - 24px);
+  max-width: calc(var(--content-max) - 24px);
   transform: translateX(-50%);
   padding: 10px;
   border-radius: 26px;
@@ -878,6 +863,17 @@ label {
   }
 }
 
+@media (max-width: 359px) {
+  .appChrome__heroCard {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .bottomNav__label {
+    font-size: 0.66rem;
+  }
+}
+
 @media (min-width: 640px) {
   .mobileShellViewport {
     padding: 18px;
@@ -896,18 +892,12 @@ label {
   }
 }
 
-.bottomNav {
-  position: fixed;
-  left: 50%;
-  bottom: max(10px, env(safe-area-inset-bottom, 0px));
-  z-index: 40;
-  width: calc(100vw - 24px);
-  max-width: calc(var(--content-max) - 24px);
-  transform: translateX(-50%);
-  padding: 10px;
-  border-radius: 26px;
-  background: rgba(11, 21, 36, 0.88);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: var(--shadow-lg);
-  backdrop-filter: blur(18px);
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
 }
