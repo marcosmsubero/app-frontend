@@ -43,26 +43,6 @@ export default function PlaceholderSettingsPage() {
         />
 
         <SettingsItem
-          title="Seguidores"
-          text="Consulta qué perfiles te siguen dentro de la comunidad."
-          action={
-            <Link to="/perfil/seguidores" className="feedCard__action">
-              Ver
-            </Link>
-          }
-        />
-
-        <SettingsItem
-          title="Seguidos"
-          text="Consulta los perfiles que estás siguiendo."
-          action={
-            <Link to="/perfil/seguidos" className="feedCard__action">
-              Ver
-            </Link>
-          }
-        />
-
-        <SettingsItem
           title="Estado de la cuenta"
           text={`Sesión activa como ${me?.email || "usuario autenticado"}.`}
           action={<span className="badge badge--success">Activa</span>}
