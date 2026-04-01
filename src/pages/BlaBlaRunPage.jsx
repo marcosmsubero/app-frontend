@@ -81,7 +81,7 @@ function CreatorLink({ event }) {
   }
 
   return (
-    <Link to={`/perfil/${event.creator_profile_id}`} className="blablarunPage__creatorLink">
+    <Link to={`/perfil/${event.creator_profile_id}`}>
       {label}
     </Link>
   );
@@ -161,48 +161,58 @@ function buildNotes(eventType, notes) {
 
 function EventCard({ event }) {
   return (
-    <article className="app-card blablarunPage__eventCard">
-      <div className="app-card__body blablarunPage__eventCardBody">
-        <div className="blablarunPage__eventTop">
-          <h4 className="blablarunPage__eventTitle">
-            {event.meeting_point || "Evento"}
-          </h4>
-
-          <span className="app-chip app-chip--soft">{timeLabel(event.starts_at)}</span>
+    <article className="eventCard">
+      <div className="eventCard__head">
+        <div className="eventCard__meta">
+          <div>
+            <h3 className="eventCard__title">{event.meeting_point || "Evento"}</h3>
+            <p className="eventCard__subtitle">
+              {timeLabel(event.starts_at)} · <CreatorLink event={event} />
+            </p>
+          </div>
         </div>
 
-        <div className="blablarunPage__eventMeta">
-          <span>
-            Host: <CreatorLink event={event} />
-          </span>
+        <span className="badge">
+          {event.visibility === "private" ? "Privado" : "Público"}
+        </span>
+      </div>
 
-          {event.level_tag ? <span>• Nivel: {event.level_tag}</span> : null}
+      <div className="eventCard__body">
+        <div className="eventMetaGrid">
+          {event.level_tag ? (
+            <div className="eventMetaItem">
+              <div className="eventMetaItem__label">Nivel</div>
+              <div className="eventMetaItem__value">{event.level_tag}</div>
+            </div>
+          ) : null}
 
           {typeof event.participants_count === "number" ? (
-            <span>• {event.participants_count} inscritos</span>
+            <div className="eventMetaItem">
+              <div className="eventMetaItem__label">Inscritos</div>
+              <div className="eventMetaItem__value">{event.participants_count}</div>
+            </div>
           ) : null}
 
           {typeof event.capacity === "number" && event.capacity > 0 ? (
-            <span>• Aforo: {event.capacity}</span>
-          ) : null}
-
-          {event.visibility ? (
-            <span>• {event.visibility === "private" ? "Privado" : "Público"}</span>
+            <div className="eventMetaItem">
+              <div className="eventMetaItem__label">Aforo</div>
+              <div className="eventMetaItem__value">{event.capacity}</div>
+            </div>
           ) : null}
         </div>
 
-        {event.notes ? <p className="blablarunPage__eventNotes">{event.notes}</p> : null}
+        {event.notes ? <p className="eventCard__text">{event.notes}</p> : null}
 
-        <div className="blablarunPage__eventActions">
-          {event?.creator_profile_id ? (
+        {event?.creator_profile_id ? (
+          <div className="eventCard__actions">
             <Link
               to={`/perfil/${event.creator_profile_id}`}
-              className="app-button app-button--secondary app-button--sm"
+              className="feedCard__action"
             >
               Ver perfil
             </Link>
-          ) : null}
-        </div>
+          </div>
+        ) : null}
       </div>
     </article>
   );
@@ -222,33 +232,10 @@ function CreateMeetupModal({ open, initialDayKey, saving, onClose, onSubmit }) {
     notes: "",
   }));
 
-  useMemo(() => {
-    if (!open) return null;
-    return null;
-  }, [open]);
-
   if (!open) return null;
 
   function updateField(field, value) {
     setForm((prev) => ({ ...prev, [field]: value }));
-  }
-
-  function resetForDay(nextDayKey) {
-    setForm({
-      dayKey: nextDayKey || todayKey,
-      time: defaultTimeForDay(nextDayKey || todayKey),
-      meeting_point: "",
-      event_type: "entrenamiento",
-      level_tag: "",
-      pace_min: "",
-      pace_max: "",
-      capacity: "",
-      notes: "",
-    });
-  }
-
-  if (form.dayKey !== (initialDayKey || todayKey) && !form.meeting_point && !form.notes) {
-    // no-op deliberado; evita reset continuo si el usuario ya está escribiendo
   }
 
   async function handleSubmit(e) {
@@ -273,8 +260,6 @@ function CreateMeetupModal({ open, initialDayKey, saving, onClose, onSubmit }) {
       pace_max: paceMax,
       capacity,
     });
-
-    resetForDay(initialDayKey || todayKey);
   }
 
   const startsAtPreview = buildStartsAt(form.dayKey, form.time);
@@ -285,45 +270,20 @@ function CreateMeetupModal({ open, initialDayKey, saving, onClose, onSubmit }) {
     Number(form.pace_min) > Number(form.pace_max);
 
   return (
-    <div className="ui-modalBackdrop" role="presentation" onClick={onClose}>
-      <div
-        className="ui-modal blablarunPage__modal"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="blablarun-create-title"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="blablarunPage__modalBody">
-          <div className="blablarunPage__modalHead">
-            <div className="blablarunPage__modalCopy">
-              <p className="page__eyebrow blablarunPage__modalEyebrow">Crear quedada</p>
-              <h2 id="blablarun-create-title" className="blablarunPage__modalTitle">
-                Publica tu evento de running
-              </h2>
-              <p className="blablarunPage__modalSubtitle">
-                Hazlo simple: fecha, hora, punto de encuentro y nivel.
-              </p>
-            </div>
+    <div className="modalBackdrop" onClick={onClose}>
+      <div className="modalSheet" onClick={(e) => e.stopPropagation()}>
+        <div className="formCard">
+          <h2 className="cardTitle">Crear quedada</h2>
+          <p className="cardSubtitle">
+            Publica un evento simple, claro y listo para móvil.
+          </p>
 
-            <button
-              type="button"
-              className="app-button app-button--secondary"
-              onClick={onClose}
-              disabled={saving}
-            >
-              Cerrar
-            </button>
-          </div>
-
-          <form onSubmit={handleSubmit} className="calendarMini__form">
-            <div className="calendarMini__formRow calendarMini__formRow--split">
-              <div className="app-field calendarMini__fieldGrow">
-                <label className="app-label" htmlFor="create-meetup-date">
-                  Día
-                </label>
+          <form className="formStack" onSubmit={handleSubmit}>
+            <div className="formSplit">
+              <div className="formRow">
+                <label htmlFor="create-meetup-date">Día</label>
                 <input
                   id="create-meetup-date"
-                  className="app-input"
                   type="date"
                   value={form.dayKey}
                   min={todayKey}
@@ -333,13 +293,10 @@ function CreateMeetupModal({ open, initialDayKey, saving, onClose, onSubmit }) {
                 />
               </div>
 
-              <div className="app-field calendarMini__fieldNarrow">
-                <label className="app-label" htmlFor="create-meetup-time">
-                  Hora
-                </label>
+              <div className="formRow">
+                <label htmlFor="create-meetup-time">Hora</label>
                 <input
                   id="create-meetup-time"
-                  className="app-input"
                   type="time"
                   value={form.time}
                   onChange={(e) => updateField("time", e.target.value)}
@@ -349,29 +306,23 @@ function CreateMeetupModal({ open, initialDayKey, saving, onClose, onSubmit }) {
               </div>
             </div>
 
-            <div className="app-field">
-              <label className="app-label" htmlFor="create-meetup-point">
-                Punto de encuentro
-              </label>
+            <div className="formRow">
+              <label htmlFor="create-meetup-point">Punto de encuentro</label>
               <input
                 id="create-meetup-point"
-                className="app-input"
                 value={form.meeting_point}
                 onChange={(e) => updateField("meeting_point", e.target.value)}
-                placeholder="Ej. Estadio, parque, pista, salida de carrera..."
+                placeholder="Ej. parque, pista, salida de carrera..."
                 disabled={saving}
                 required
               />
             </div>
 
-            <div className="calendarMini__formRow calendarMini__formRow--split">
-              <div className="app-field calendarMini__fieldGrow">
-                <label className="app-label" htmlFor="create-meetup-type">
-                  Tipo de salida
-                </label>
+            <div className="formSplit">
+              <div className="formRow">
+                <label htmlFor="create-meetup-type">Tipo</label>
                 <select
                   id="create-meetup-type"
-                  className="app-select"
                   value={form.event_type}
                   onChange={(e) => updateField("event_type", e.target.value)}
                   disabled={saving}
@@ -385,13 +336,10 @@ function CreateMeetupModal({ open, initialDayKey, saving, onClose, onSubmit }) {
                 </select>
               </div>
 
-              <div className="app-field calendarMini__fieldGrow">
-                <label className="app-label" htmlFor="create-meetup-level">
-                  Nivel
-                </label>
+              <div className="formRow">
+                <label htmlFor="create-meetup-level">Nivel</label>
                 <select
                   id="create-meetup-level"
-                  className="app-select"
                   value={form.level_tag}
                   onChange={(e) => updateField("level_tag", e.target.value)}
                   disabled={saving}
@@ -404,14 +352,11 @@ function CreateMeetupModal({ open, initialDayKey, saving, onClose, onSubmit }) {
               </div>
             </div>
 
-            <div className="calendarMini__formRow calendarMini__formRow--split">
-              <div className="app-field calendarMini__fieldGrow">
-                <label className="app-label" htmlFor="create-meetup-pace-min">
-                  Ritmo mín. (seg/km)
-                </label>
+            <div className="formSplit">
+              <div className="formRow">
+                <label htmlFor="create-meetup-pace-min">Ritmo mín.</label>
                 <input
                   id="create-meetup-pace-min"
-                  className="app-input"
                   type="number"
                   min="1"
                   value={form.pace_min}
@@ -421,13 +366,10 @@ function CreateMeetupModal({ open, initialDayKey, saving, onClose, onSubmit }) {
                 />
               </div>
 
-              <div className="app-field calendarMini__fieldGrow">
-                <label className="app-label" htmlFor="create-meetup-pace-max">
-                  Ritmo máx. (seg/km)
-                </label>
+              <div className="formRow">
+                <label htmlFor="create-meetup-pace-max">Ritmo máx.</label>
                 <input
                   id="create-meetup-pace-max"
-                  className="app-input"
                   type="number"
                   min="1"
                   value={form.pace_max}
@@ -438,13 +380,10 @@ function CreateMeetupModal({ open, initialDayKey, saving, onClose, onSubmit }) {
               </div>
             </div>
 
-            <div className="app-field">
-              <label className="app-label" htmlFor="create-meetup-capacity">
-                Aforo
-              </label>
+            <div className="formRow">
+              <label htmlFor="create-meetup-capacity">Aforo</label>
               <input
                 id="create-meetup-capacity"
-                className="app-input"
                 type="number"
                 min="1"
                 value={form.capacity}
@@ -454,52 +393,34 @@ function CreateMeetupModal({ open, initialDayKey, saving, onClose, onSubmit }) {
               />
             </div>
 
-            <div className="app-field">
-              <label className="app-label" htmlFor="create-meetup-notes">
-                Notas
-              </label>
+            <div className="formRow">
+              <label htmlFor="create-meetup-notes">Notas</label>
               <textarea
                 id="create-meetup-notes"
-                className="app-textarea"
                 rows="4"
                 value={form.notes}
                 onChange={(e) => updateField("notes", e.target.value)}
-                placeholder="Añade contexto útil: distancia, objetivo, material recomendado..."
+                placeholder="Distancia, objetivo, material recomendado..."
                 disabled={saving}
               />
             </div>
 
             {isPast ? (
-              <div className="app-empty" style={{ marginTop: 8 }}>
-                <div className="notificationsSimple__emptyBody">
-                  <strong>La fecha debe ser futura</strong>
-                  <p>Elige una hora posterior al momento actual.</p>
-                </div>
-              </div>
+              <p className="formHint">La fecha debe ser futura.</p>
             ) : null}
 
             {invalidPace ? (
-              <div className="app-empty" style={{ marginTop: 8 }}>
-                <div className="notificationsSimple__emptyBody">
-                  <strong>Rango de ritmo no válido</strong>
-                  <p>El ritmo mínimo no puede ser mayor que el máximo.</p>
-                </div>
-              </div>
+              <p className="formHint">El ritmo mínimo no puede ser mayor que el máximo.</p>
             ) : null}
 
-            <div className="calendarMini__formActions">
-              <button
-                type="button"
-                className="app-button app-button--secondary"
-                onClick={onClose}
-                disabled={saving}
-              >
+            <div className="formActions">
+              <button type="button" className="btn btn--ghost" onClick={onClose} disabled={saving}>
                 Cancelar
               </button>
 
               <button
                 type="submit"
-                className="app-button app-button--primary"
+                className="btn btn--primary"
                 disabled={saving || isPast || invalidPace || !form.meeting_point.trim()}
               >
                 {saving ? "Publicando..." : "Publicar quedada"}
@@ -516,52 +437,40 @@ function DayModal({ open, dayKey, events, onClose, onCreateForDay }) {
   if (!open) return null;
 
   return (
-    <div className="ui-modalBackdrop" role="presentation" onClick={onClose}>
-      <div
-        className="ui-modal blablarunPage__modal"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="blablarun-day-title"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="blablarunPage__modalBody">
-          <div className="blablarunPage__modalHead">
-            <div className="blablarunPage__modalCopy">
-              <p className="page__eyebrow blablarunPage__modalEyebrow">BlaBlaRun</p>
-              <h2 id="blablarun-day-title" className="blablarunPage__modalTitle">
-                {formatDayTitle(dayKey)}
-              </h2>
-              <p className="blablarunPage__modalSubtitle">{daySummary(events)}</p>
-            </div>
-
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              <button
-                type="button"
-                className="app-button app-button--primary"
-                onClick={() => onCreateForDay?.(dayKey)}
-              >
-                Crear aquí
-              </button>
-
-              <button
-                type="button"
-                className="app-button app-button--secondary"
-                onClick={onClose}
-              >
-                Cerrar
-              </button>
+    <div className="modalBackdrop" onClick={onClose}>
+      <div className="modalSheet" onClick={(e) => e.stopPropagation()}>
+        <div className="sectionBlock">
+          <div className="sectionHead">
+            <div className="sectionHead__copy">
+              <span className="sectionEyebrow">BlaBlaRun</span>
+              <h2 className="sectionTitle">{formatDayTitle(dayKey)}</h2>
+              <p className="sectionLead">{daySummary(events)}</p>
             </div>
           </div>
 
+          <div className="feedCard__actions">
+            <button
+              type="button"
+              className="feedCard__action feedCard__action--primary"
+              onClick={() => onCreateForDay?.(dayKey)}
+            >
+              Crear aquí
+            </button>
+
+            <button type="button" className="feedCard__action" onClick={onClose}>
+              Cerrar
+            </button>
+          </div>
+
           {events.length === 0 ? (
-            <div className="app-empty">
-              <div className="notificationsSimple__emptyBody">
-                <strong>No hay eventos este día</strong>
-                <p>Publica una quedada y aparecerá aquí en cuanto se cree.</p>
-              </div>
+            <div className="stateCard">
+              <h3 className="stateCard__title">No hay eventos</h3>
+              <p className="stateCard__text">
+                Publica una quedada y aparecerá aquí.
+              </p>
             </div>
           ) : (
-            <div className="blablarunPage__modalList">
+            <div className="eventList">
               {events.map((event) => (
                 <EventCard key={event.id} event={event} />
               ))}
@@ -655,137 +564,157 @@ export default function BlaBlaRunPage() {
 
   return (
     <>
-      <section className="page blablarunPage">
-        <div className="app-card blablarunPage__shell">
-          <div className="app-card__body blablarunPage__shellBody">
-            <div className="page__header blablarunPage__hero">
-              <span className="page__eyebrow">BlaBlaRun</span>
-              <h1 className="page__title">Calendario de eventos</h1>
-              <p className="page__subtitle">
-                Explora quedadas del mes y publica la tuya en pocos segundos.
-              </p>
+      <section className="page">
+        <section className="heroPanel">
+          <div className="heroPanel__top">
+            <div>
+              <span className="sectionEyebrow">BlaBlaRun</span>
+              <h1 className="heroPanel__title">Calendario de eventos</h1>
             </div>
 
-            <div className="blablarunPage__toolbar">
-              <div className="blablarunPage__toolbarCopy">
-                <h2 className="blablarunPage__monthTitle">{monthLabel(month)}</h2>
-                <p className="blablarunPage__monthMeta">
-                  {visibleDaysWithActivity} días con actividad visible
-                </p>
+            <span className="heroPanel__badge">
+              {visibleDaysWithActivity} días activos
+            </span>
+          </div>
+
+          <p className="heroPanel__text">
+            Explora quedadas del mes y publica la tuya en pocos segundos.
+          </p>
+
+          <div className="feedCard__actions">
+            <button
+              type="button"
+              className="feedCard__action feedCard__action--primary"
+              onClick={() => openCreateModal()}
+            >
+              Crear quedada
+            </button>
+
+            <button type="button" className="feedCard__action" onClick={goPrevMonth}>
+              ←
+            </button>
+
+            <button type="button" className="feedCard__action" onClick={goToday}>
+              Hoy
+            </button>
+
+            <button type="button" className="feedCard__action" onClick={goNextMonth}>
+              →
+            </button>
+          </div>
+        </section>
+
+        <section className="sectionBlock">
+          <div className="sectionHead">
+            <div className="sectionHead__copy">
+              <h2 className="sectionTitle">{monthLabel(month)}</h2>
+              <p className="sectionLead">
+                Pulsa un día para ver detalle o crear una quedada ahí.
+              </p>
+            </div>
+          </div>
+
+          {error ? (
+            <div className="stateCard">
+              <h3 className="stateCard__title">No se pudo cargar el calendario</h3>
+              <p className="stateCard__text">{error}</p>
+            </div>
+          ) : loading ? (
+            <div className="stateCard">
+              <h3 className="stateCard__title">Cargando eventos</h3>
+              <p className="stateCard__text">Estamos preparando el calendario.</p>
+            </div>
+          ) : (
+            <div className="card">
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(7, minmax(0, 1fr))",
+                  gap: 8,
+                  marginBottom: 12,
+                }}
+                aria-hidden="true"
+              >
+                {WEEKDAYS.map((weekday) => (
+                  <div
+                    key={weekday}
+                    style={{
+                      textAlign: "center",
+                      fontSize: 12,
+                      fontWeight: 800,
+                      color: "var(--text-muted)",
+                    }}
+                  >
+                    {weekday}
+                  </div>
+                ))}
               </div>
 
               <div
-                className="blablarunPage__toolbarActions"
-                style={{ display: "flex", gap: 8, flexWrap: "wrap" }}
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(7, minmax(0, 1fr))",
+                  gap: 8,
+                }}
               >
-                <button
-                  type="button"
-                  className="app-button app-button--primary"
-                  onClick={() => openCreateModal()}
-                >
-                  Crear quedada
-                </button>
+                {days.map((day) => {
+                  const inMonth = day.getMonth() === monthIndex;
+                  const key = localDayKey(day);
+                  const dayItems = byDay.get(key) || [];
+                  const isToday = key === todayKey;
 
-                <button
-                  type="button"
-                  className="app-button app-button--secondary"
-                  onClick={goPrevMonth}
-                >
-                  ←
-                </button>
+                  return (
+                    <button
+                      key={`${key}-${inMonth ? "in" : "out"}`}
+                      type="button"
+                      onClick={() => openDay(key)}
+                      title={`${key} · ${daySummary(dayItems)}`}
+                      style={{
+                        minHeight: 84,
+                        borderRadius: 18,
+                        border: isToday
+                          ? "1px solid rgba(255, 107, 87, 0.28)"
+                          : "1px solid var(--surface-border)",
+                        background:
+                          dayItems.length > 0
+                            ? "rgba(255,255,255,0.06)"
+                            : "rgba(255,255,255,0.03)",
+                        color: inMonth ? "var(--text)" : "var(--text-muted)",
+                        padding: 10,
+                        textAlign: "left",
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          gap: 8,
+                          marginBottom: 8,
+                        }}
+                      >
+                        <strong>{day.getDate()}</strong>
+                        {dayItems.length > 0 ? (
+                          <span className="badge badge--primary">{dayItems.length}</span>
+                        ) : null}
+                      </div>
 
-                <button
-                  type="button"
-                  className="app-button app-button--secondary"
-                  onClick={goToday}
-                >
-                  Hoy
-                </button>
+                      <div style={{ fontSize: 11, lineHeight: 1.35, color: "var(--text-soft)" }}>
+                        {dayItems.slice(0, 2).map((item) => (
+                          <div key={item.id}>
+                            {timeLabel(item.starts_at)} · {creatorLabel(item)}
+                          </div>
+                        ))}
 
-                <button
-                  type="button"
-                  className="app-button app-button--secondary"
-                  onClick={goNextMonth}
-                >
-                  →
-                </button>
+                        {dayItems.length === 0 ? <div>Sin eventos</div> : null}
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
             </div>
-
-            {error ? (
-              <div className="app-empty">
-                <div className="notificationsSimple__emptyBody">
-                  <strong>No se pudo cargar el calendario</strong>
-                  <p>{error}</p>
-                </div>
-              </div>
-            ) : null}
-
-            {loading ? (
-              <div className="app-empty">
-                <div className="notificationsSimple__emptyBody">
-                  <strong>Cargando eventos</strong>
-                  <p>Estamos preparando el calendario.</p>
-                </div>
-              </div>
-            ) : (
-              <>
-                <div className="blablarunPage__week" aria-hidden="true">
-                  {WEEKDAYS.map((weekday) => (
-                    <div key={weekday} className="blablarunPage__weekday">
-                      {weekday}
-                    </div>
-                  ))}
-                </div>
-
-                <div className="blablarunPage__grid">
-                  {days.map((day) => {
-                    const inMonth = day.getMonth() === monthIndex;
-                    const key = localDayKey(day);
-                    const dayItems = byDay.get(key) || [];
-                    const isToday = key === todayKey;
-
-                    return (
-                      <button
-                        key={`${key}-${inMonth ? "in" : "out"}`}
-                        type="button"
-                        onClick={() => openDay(key)}
-                        title={`${key} · ${daySummary(dayItems)}`}
-                        className={[
-                          "blablarunPage__day",
-                          !inMonth ? "blablarunPage__day--muted" : "",
-                          isToday ? "blablarunPage__day--today" : "",
-                        ]
-                          .filter(Boolean)
-                          .join(" ")}
-                      >
-                        <div className="blablarunPage__dayTop">
-                          <span className="blablarunPage__dayNumber">{day.getDate()}</span>
-
-                          {dayItems.length > 0 ? (
-                            <span className="app-badge app-badge--primary">{dayItems.length}</span>
-                          ) : null}
-                        </div>
-
-                        <div className="blablarunPage__dayBody">
-                          {dayItems.slice(0, 2).map((item) => (
-                            <div key={item.id} className="blablarunPage__dayItem">
-                              {timeLabel(item.starts_at)} · {creatorLabel(item)}
-                            </div>
-                          ))}
-
-                          {dayItems.length === 0 ? (
-                            <div className="blablarunPage__dayEmpty">Sin eventos</div>
-                          ) : null}
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </>
-            )}
-          </div>
-        </div>
+          )}
+        </section>
       </section>
 
       <DayModal
