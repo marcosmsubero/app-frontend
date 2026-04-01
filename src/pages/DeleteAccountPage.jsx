@@ -8,18 +8,22 @@ export default function DeleteAccountPage() {
   const toast = useToast();
   const nav = useNavigate();
 
-  const [step, setStep] = useState(1); // 1 info, 2 confirm, 3 final
+  const [step, setStep] = useState(1);
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const canContinue = useMemo(() => text.trim().toUpperCase() === "ELIMINAR", [text]);
+  const canContinue = useMemo(
+    () => text.trim().toUpperCase() === "ELIMINAR",
+    [text]
+  );
 
   async function handleDelete() {
     if (loading) return;
+
     setLoading(true);
+
     try {
-      await deleteAccount(); // backend: DELETE /me (o lo que implementemos)
-      // higiene local por si acaso
+      await deleteAccount();
       logout?.();
       toast?.success?.("Cuenta eliminada");
       nav("/", { replace: true });
@@ -31,119 +35,134 @@ export default function DeleteAccountPage() {
   }
 
   return (
-    <div className="settings-page">
-      <div className="settings-wrap">
-        {/* Hero */}
-        <div className="st-hero">
-          <div className="st-hero__left">
-            <div className="st-hero__txt">
-              <div className="st-title">Eliminar cuenta</div>
-              <div className="st-sub">{me?.email || "Centro de cuentas"}</div>
-            </div>
+    <section className="page">
+      <section className="heroPanel">
+        <div className="heroPanel__top">
+          <div>
+            <span className="sectionEyebrow">Seguridad</span>
+            <h1 className="heroPanel__title">Eliminar cuenta</h1>
           </div>
+
+          <span className="heroPanel__badge">Irreversible</span>
         </div>
 
-        <div className="st-section">
-          <div className="st-sectionHead">
-            <div>
-              <div className="st-sectionTitle">
-                {step === 1 ? "Antes de continuar" : step === 2 ? "Confirmación" : "Eliminar definitivamente"}
+        <p className="heroPanel__text">
+          {me?.email || "Tu cuenta"} dejará de estar disponible y no podrás
+          recuperarla después de confirmar la eliminación.
+        </p>
+      </section>
+
+      {step === 1 ? (
+        <section className="sectionBlock">
+          <div className="stateCard">
+            <h3 className="stateCard__title">Antes de continuar</h3>
+            <p className="stateCard__text">
+              Se eliminarán tu perfil, tu configuración y tu acceso a la app.
+            </p>
+          </div>
+
+          <div className="compactList card">
+            <div className="compactListItem">
+              <div className="compactListItem__copy">
+                <h3 className="compactListItem__title">Perfil</h3>
+                <p className="compactListItem__text">
+                  Nombre, bio, avatar y datos visibles.
+                </p>
               </div>
-              <div className="st-sectionHint">
-                {step === 1
-                  ? "Revisa el impacto"
-                  : step === 2
-                  ? "Escribe la palabra exacta"
-                  : "Este paso es irreversible"}
+            </div>
+
+            <div className="compactListItem">
+              <div className="compactListItem__copy">
+                <h3 className="compactListItem__title">Participación</h3>
+                <p className="compactListItem__text">
+                  Saldrás de grupos y quedadas vinculadas a tu cuenta.
+                </p>
+              </div>
+            </div>
+
+            <div className="compactListItem">
+              <div className="compactListItem__copy">
+                <h3 className="compactListItem__title">Acceso</h3>
+                <p className="compactListItem__text">
+                  No podrás volver a entrar con esta cuenta.
+                </p>
               </div>
             </div>
           </div>
 
-          <div className="st-list">
-            {step === 1 ? (
-              <>
-                <button type="button" className="st-row" disabled>
-                  <div className="st-row__left">
-                    <div className="st-row__title">Se borrará tu perfil</div>
-                    <div className="st-row__sub">Nombre, bio, links, avatar…</div>
-                  </div>
-                </button>
-
-                <button type="button" className="st-row" disabled>
-                  <div className="st-row__left">
-                    <div className="st-row__title">Saldrás de grupos y quedadas</div>
-                    <div className="st-row__sub">Tus participaciones se eliminarán</div>
-                  </div>
-                </button>
-
-                <button type="button" className="st-row" disabled>
-                  <div className="st-row__left">
-                    <div className="st-row__title">Quedadas creadas</div>
-                    <div className="st-row__sub">
-                      Si tiene participantes, ellos la seguirán viendo; se eliminará al finalizar
-                    </div>
-                  </div>
-                </button>
-
-                <div className="st-actions">
-                  <button className="st-btn" type="button" onClick={() => nav(-1)} disabled={loading}>
-                    Volver
-                  </button>
-                  <button className="st-btn btn-danger" type="button" onClick={() => setStep(2)} disabled={loading}>
-                    Continuar
-                  </button>
-                </div>
-              </>
-            ) : step === 2 ? (
-              <>
-                <label className="auth-label">
-                  Escribe <b>ELIMINAR</b> para continuar
-                  <input
-                    className="auth-input"
-                    value={text}
-                    onChange={(e) => setText(e.target.value)}
-                    placeholder="ELIMINAR"
-                    autoComplete="off"
-                    disabled={loading}
-                  />
-                </label>
-
-                <div className="st-actions">
-                  <button className="st-btn" type="button" onClick={() => setStep(1)} disabled={loading}>
-                    Atrás
-                  </button>
-                  <button
-                    className="st-btn btn-danger"
-                    type="button"
-                    onClick={() => setStep(3)}
-                    disabled={!canContinue || loading}
-                  >
-                    Continuar
-                  </button>
-                </div>
-              </>
-            ) : (
-              <>
-                <button type="button" className="st-row" disabled>
-                  <div className="st-row__left">
-                    <div className="st-row__title">Último aviso</div>
-                    <div className="st-row__sub">No podrás recuperar la cuenta</div>
-                  </div>
-                </button>
-
-                <div className="st-actions">
-                  <button className="st-btn" type="button" onClick={() => setStep(2)} disabled={loading}>
-                    Atrás
-                  </button>
-                  <button className="st-btn btn-danger" type="button" onClick={handleDelete} disabled={loading}>
-                    {loading ? "Eliminando…" : "Eliminar cuenta"}
-                  </button>
-                </div>
-              </>
-            )}
+          <div className="formActions">
+            <button type="button" className="btn btn--ghost" onClick={() => nav(-1)}>
+              Volver
+            </button>
+            <button
+              type="button"
+              className="btn btn--primary"
+              onClick={() => setStep(2)}
+            >
+              Continuar
+            </button>
           </div>
-        </div>
-      </div>
-    </div>
+        </section>
+      ) : step === 2 ? (
+        <section className="sectionBlock">
+          <div className="formCard">
+            <h3 className="cardTitle">Confirmación</h3>
+            <p className="cardSubtitle">
+              Escribe <strong>ELIMINAR</strong> para continuar.
+            </p>
+
+            <div className="formRow">
+              <label htmlFor="delete-account-confirm">Texto de confirmación</label>
+              <input
+                id="delete-account-confirm"
+                type="text"
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                placeholder="ELIMINAR"
+                autoComplete="off"
+                disabled={loading}
+              />
+            </div>
+          </div>
+
+          <div className="formActions">
+            <button type="button" className="btn btn--ghost" onClick={() => setStep(1)}>
+              Atrás
+            </button>
+            <button
+              type="button"
+              className="btn btn--primary"
+              onClick={() => setStep(3)}
+              disabled={!canContinue || loading}
+            >
+              Continuar
+            </button>
+          </div>
+        </section>
+      ) : (
+        <section className="sectionBlock">
+          <div className="stateCard">
+            <h3 className="stateCard__title">Último aviso</h3>
+            <p className="stateCard__text">
+              Esta acción es definitiva. No podrás recuperar la cuenta.
+            </p>
+          </div>
+
+          <div className="formActions">
+            <button type="button" className="btn btn--ghost" onClick={() => setStep(2)}>
+              Atrás
+            </button>
+            <button
+              type="button"
+              className="btn btn--primary"
+              onClick={handleDelete}
+              disabled={loading}
+            >
+              {loading ? "Eliminando..." : "Eliminar cuenta"}
+            </button>
+          </div>
+        </section>
+      )}
+    </section>
   );
 }
