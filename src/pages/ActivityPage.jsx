@@ -510,38 +510,6 @@ export default function ActivityPage() {
 
   return (
     <section className="page">
-      <section className="heroPanel">
-        <div className="heroPanel__top">
-          <div>
-            <span className="sectionEyebrow">Actividad</span>
-            <h1 className="heroPanel__title">Mensajes y notificaciones</h1>
-          </div>
-
-          <span className="heroPanel__badge">
-            {currentTab === "messages" ? "Inbox" : "Alertas"}
-          </span>
-        </div>
-
-        <p className="heroPanel__text">
-          Sigue tus conversaciones, menciones y avisos recientes desde una sola
-          pantalla móvil.
-        </p>
-
-        <div className="inlineStats">
-          <div className="inlineStatCard">
-            <div className="inlineStatCard__label">Mensajes sin leer</div>
-            <div className="inlineStatCard__value">{unreadThreads}</div>
-            <div className="inlineStatCard__help">Conversaciones pendientes</div>
-          </div>
-
-          <div className="inlineStatCard">
-            <div className="inlineStatCard__label">Notificaciones nuevas</div>
-            <div className="inlineStatCard__value">{unreadNotifications}</div>
-            <div className="inlineStatCard__help">Menciones y actividad</div>
-          </div>
-        </div>
-      </section>
-
       <section className="sectionBlock">
         <div className="tabBar" role="tablist" aria-label="Secciones de actividad">
           <button
