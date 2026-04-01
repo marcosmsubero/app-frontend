@@ -198,9 +198,7 @@ export default function ChatThreadPage() {
       await apiDMSend(threadId, value, token);
 
       setMessages((prev) =>
-        prev.map((m) =>
-          m.id === tempId ? { ...m, status: "delivered" } : m
-        )
+        prev.map((m) => (m.id === tempId ? { ...m, status: "delivered" } : m))
       );
 
       await loadMessages({ silent: true });
@@ -271,103 +269,81 @@ export default function ChatThreadPage() {
   }
 
   return (
-    <div
-      className="page chat-page"
-      style={{ paddingBottom: 96 }}
+    <section
+      className="page"
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
+      style={{ paddingBottom: 120 }}
     >
-      <div className="chat-hero quartz-surface">
-        <div className="chat-heroTop">
-          <button
-            type="button"
-            className="chat-back"
-            onClick={() => nav(-1)}
-            aria-label="Volver"
-            title="Volver"
-          >
-            ‹
-          </button>
+      <section className="heroPanel">
+        <div className="profileHero">
+          <div className="profileHero__top">
+            {avatarUrl ? (
+              <img src={avatarUrl} alt={displayName} className="profileHero__avatar" />
+            ) : (
+              <div
+                className="profileHero__avatar"
+                style={{ display: "grid", placeItems: "center", fontWeight: 800 }}
+              >
+                {initials(displayName)}
+              </div>
+            )}
 
-          <div className="chat-titleWrap">
-            <div className="chat-title">
-              {loadingThread ? "Cargando…" : displayName}
-            </div>
-            <div className="chat-sub">
-              {loadingMessages
-                ? "Cargando mensajes…"
-                : error
-                ? "Error de carga"
-                : "Conversación privada"}
+            <div className="profileHero__identity">
+              <h1 className="profileHero__name">
+                {loadingThread ? "Cargando..." : displayName}
+              </h1>
+              <div className="profileHero__handle">
+                {loadingMessages
+                  ? "Cargando mensajes..."
+                  : error
+                  ? "Error de carga"
+                  : "Conversación privada"}
+              </div>
             </div>
           </div>
 
-          <div className="chat-ava" aria-label="Avatar chat">
-            {avatarUrl ? (
-              <img src={avatarUrl} alt={displayName} />
-            ) : (
-              <span>{initials(displayName)}</span>
-            )}
+          <div className="feedCard__actions">
+            <button type="button" className="feedCard__action" onClick={() => nav(-1)}>
+              Volver
+            </button>
           </div>
         </div>
-      </div>
+      </section>
 
-      <div className="chat-list">
+      <section className="chatLayout">
         {loadingMessages ? (
-          <div className="app-empty">
-            <div className="messagesSimple__emptyBody">
-              <strong>Cargando conversación</strong>
-              <p>Estamos recuperando los mensajes del chat.</p>
-            </div>
+          <div className="stateCard">
+            <h3 className="stateCard__title">Cargando conversación</h3>
+            <p className="stateCard__text">Estamos recuperando los mensajes.</p>
           </div>
         ) : error ? (
-          <div className="app-empty">
-            <div className="messagesSimple__emptyBody">
-              <strong>No se pudo abrir el chat</strong>
-              <p>{error}</p>
-              <button
-                type="button"
-                className="app-button app-button--primary"
-                onClick={() => loadMessages()}
-              >
+          <div className="stateCard">
+            <h3 className="stateCard__title">No se pudo abrir el chat</h3>
+            <p className="stateCard__text">{error}</p>
+            <div className="feedCard__actions">
+              <button type="button" className="feedCard__action feedCard__action--primary" onClick={() => loadMessages()}>
                 Reintentar
               </button>
             </div>
           </div>
         ) : messages.length === 0 ? (
-          <div className="app-empty">
-            <div className="messagesSimple__emptyBody">
-              <strong>Aún no hay mensajes</strong>
-              <p>Envía el primero para iniciar la conversación.</p>
-            </div>
+          <div className="stateCard">
+            <h3 className="stateCard__title">Aún no hay mensajes</h3>
+            <p className="stateCard__text">Envía el primero para iniciar la conversación.</p>
           </div>
         ) : (
           messages.map((m) => {
             const mine = m.from === "me";
 
             return (
-              <div key={m.id} className={`chat-row ${mine ? "mine" : "theirs"}`}>
-                {!mine && (
-                  <div className="chat-miniAva" aria-hidden="true">
-                    {initials(displayName)}
-                  </div>
-                )}
-
-                <div className={`chat-bubble ${mine ? "mine" : "theirs"}`}>
-                  <div className="chat-text">{m.text}</div>
-
-                  <div className="chat-metaRow">
-                    <div className="chat-time">{timeTiny(m.created_at)}</div>
-                    {mine && m.status ? (
-                      <div
-                        className={`chat-status ${
-                          m.status === "read" ? "read" : ""
-                        }`}
-                      >
-                        {statusGlyph(m.status)}
-                      </div>
-                    ) : null}
-                  </div>
+              <div
+                key={m.id}
+                className={`chatMessage ${mine ? "chatMessage--outgoing" : "chatMessage--incoming"}`}
+              >
+                <div>{m.text}</div>
+                <div className="chatMessage__time">
+                  {timeTiny(m.created_at)} {mine && m.status ? `· ${statusGlyph(m.status)}` : ""}
                 </div>
               </div>
             );
@@ -375,33 +351,30 @@ export default function ChatThreadPage() {
         )}
 
         <div ref={endRef} />
-      </div>
+      </section>
 
-      <div className="chat-composer">
-        <div className="chat-composerInner">
-          <textarea
-            ref={composerRef}
-            className="chat-input"
-            rows={1}
-            placeholder="Escribe un mensaje…"
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            onKeyDown={onKeyDown}
-            disabled={!!error || sending}
-          />
+      <div className="chatComposer">
+        <textarea
+          ref={composerRef}
+          rows={1}
+          placeholder="Escribe un mensaje…"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          onKeyDown={onKeyDown}
+          disabled={!!error || sending}
+        />
 
-          <button
-            type="button"
-            className="chat-send"
-            onClick={send}
-            disabled={sending || !text.trim() || !!error}
-            aria-label="Enviar"
-            title="Enviar"
-          >
-            {sending ? "…" : "➤"}
-          </button>
-        </div>
+        <button
+          type="button"
+          className="chatComposer__send"
+          onClick={send}
+          disabled={sending || !text.trim() || !!error}
+          aria-label="Enviar"
+          title="Enviar"
+        >
+          {sending ? "…" : "➤"}
+        </button>
       </div>
-    </div>
+    </section>
   );
 }
