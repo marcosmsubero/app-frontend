@@ -39,17 +39,12 @@ export default function DeleteAccountPage() {
       <section className="heroPanel">
         <div className="heroPanel__top">
           <div>
-            <span className="sectionEyebrow">Seguridad</span>
-            <h1 className="heroPanel__title">Eliminar cuenta</h1>
+            <span className="sectionEyebrow">Eliminar Cuenta</span>
           </div>
 
           <span className="heroPanel__badge">Irreversible</span>
         </div>
 
-        <p className="heroPanel__text">
-          {me?.email || "Tu cuenta"} dejará de estar disponible y no podrás
-          recuperarla después de confirmar la eliminación.
-        </p>
       </section>
 
       {step === 1 ? (
