@@ -4,7 +4,11 @@ import MeetupCalendar from "../components/MeetupCalendar";
 import { useAuth } from "../hooks/useAuth";
 import { useMyMeetups } from "../hooks/useMyMeetups";
 import { useToast } from "../hooks/useToast";
-import { apiPublicProfile, apiPublicProfileByHandle, apiUpdateProfile } from "../services/api";
+import {
+  apiPublicProfile,
+  apiPublicProfileByHandle,
+  apiUpdateProfile,
+} from "../services/api";
 import { uploadAvatarToSupabase } from "../services/storage";
 
 function initialsFromName(name = "") {
@@ -18,7 +22,7 @@ function initialsFromName(name = "") {
 }
 
 function formatHandle(handle) {
-  if (!handle) return "Sin usuario";
+  if (!handle) return "@sin-usuario";
   return handle.startsWith("@") ? handle : `@${handle}`;
 }
 
@@ -54,64 +58,100 @@ function splitMeetupsByTime(meetups = []) {
 
 function IconEdit() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.9"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      style={{ width: 18, height: 18 }}
+    >
       <path d="M12 20h9" />
       <path d="M16.5 3.5a2.1 2.1 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5Z" />
     </svg>
   );
 }
 
-function SectionIntro({ title, subtitle }) {
+function ActionLink({ to, children, primary = false }) {
   return (
-    <div className="profilePage__sectionIntro">
-      <h3 className="profilePage__sectionTitle">{title}</h3>
-      <p className="profilePage__sectionSubtitle">{subtitle}</p>
-    </div>
+    <Link
+      to={to}
+      className={`feedCard__action${primary ? " feedCard__action--primary" : ""}`}
+    >
+      {children}
+    </Link>
   );
 }
 
-function MeetupList({ title, items = [] }) {
+function EventList({ title, items = [] }) {
   return (
-    <article className="app-section profilePage__panel">
-      <div className="profilePage__panelBody">
-        <SectionIntro
-          title={title}
-          subtitle={`${items.length} ${items.length === 1 ? "evento" : "eventos"}`}
-        />
-
-        {items.length === 0 ? (
-          <div className="app-empty profilePage__emptyState">
-            <div className="notificationsSimple__emptyBody">
-              <strong>Sin eventos</strong>
-              <p>No hay información para mostrar en esta sección.</p>
-            </div>
-          </div>
-        ) : (
-          <div className="profilePage__list">
-            {items.map((item) => (
-              <article key={item.id} className="app-card profilePage__listCard">
-                <div className="profilePage__listCardBody">
-                  <div className="profilePage__listCardTop">
-                    <strong>{item.meeting_point || "Evento"}</strong>
-                    <span className="app-badge">{new Date(item.starts_at).toLocaleString("es-ES")}</span>
-                  </div>
-
-                  <div className="profilePage__metaRow">
-                    {item.level_tag ? <span>Nivel: {item.level_tag}</span> : null}
-                    {typeof item.capacity === "number" && item.capacity > 0 ? (
-                      <span>Aforo: {item.capacity}</span>
-                    ) : null}
-                    {item.status ? <span>Estado: {item.status}</span> : null}
-                  </div>
-
-                  {item.notes ? <p className="profilePage__listNote">{item.notes}</p> : null}
-                </div>
-              </article>
-            ))}
-          </div>
-        )}
+    <section className="sectionBlock">
+      <div className="sectionHead">
+        <div className="sectionHead__copy">
+          <span className="sectionEyebrow">Calendario</span>
+          <h2 className="sectionTitle">{title}</h2>
+          <p className="sectionLead">
+            {items.length === 0
+              ? "No hay eventos en esta sección."
+              : `${items.length} ${items.length === 1 ? "evento" : "eventos"}.`}
+          </p>
+        </div>
       </div>
-    </article>
+
+      {items.length === 0 ? (
+        <div className="stateCard">
+          <h3 className="stateCard__title">Sin eventos</h3>
+          <p className="stateCard__text">
+            Cuando haya actividad asociada al perfil, aparecerá aquí.
+          </p>
+        </div>
+      ) : (
+        <div className="eventList">
+          {items.map((item) => (
+            <article key={item.id} className="eventCard">
+              <div className="eventCard__head">
+                <div className="eventCard__meta">
+                  <div>
+                    <h3 className="eventCard__title">
+                      {item.meeting_point || "Evento"}
+                    </h3>
+                    <p className="eventCard__subtitle">
+                      {new Date(item.starts_at).toLocaleString("es-ES")}
+                    </p>
+                  </div>
+                </div>
+
+                {item.status ? <span className="badge">{item.status}</span> : null}
+              </div>
+
+              <div className="eventCard__body">
+                <div className="eventMetaGrid">
+                  {item.level_tag ? (
+                    <div className="eventMetaItem">
+                      <div className="eventMetaItem__label">Nivel</div>
+                      <div className="eventMetaItem__value">{item.level_tag}</div>
+                    </div>
+                  ) : null}
+
+                  {typeof item.capacity === "number" && item.capacity > 0 ? (
+                    <div className="eventMetaItem">
+                      <div className="eventMetaItem__label">Aforo</div>
+                      <div className="eventMetaItem__value">{item.capacity}</div>
+                    </div>
+                  ) : null}
+                </div>
+
+                {item.notes ? (
+                  <p className="eventCard__text">{item.notes}</p>
+                ) : null}
+              </div>
+            </article>
+          ))}
+        </div>
+      )}
+    </section>
   );
 }
 
@@ -119,37 +159,41 @@ function LinksBlock({ links = {} }) {
   const entries = Object.entries(links || {}).filter(([, value]) => !!value);
 
   return (
-    <article className="app-section profilePage__panel">
-      <div className="profilePage__panelBody">
-        <SectionIntro title="Enlaces" subtitle="Presencia externa del perfil." />
-
-        {entries.length === 0 ? (
-          <div className="app-empty profilePage__emptyState">
-            <div className="notificationsSimple__emptyBody">
-              <strong>Sin enlaces</strong>
-              <p>Este perfil no ha añadido enlaces todavía.</p>
-            </div>
-          </div>
-        ) : (
-          <div className="profilePage__list">
-            {entries.map(([key, value]) => (
-              <a
-                key={key}
-                href={value}
-                target="_blank"
-                rel="noreferrer"
-                className="app-card app-card--interactive profilePage__linkCard"
-              >
-                <div className="profilePage__linkCardBody">
-                  <strong>{key}</strong>
-                  <span className="profilePage__linkValue">{value}</span>
-                </div>
-              </a>
-            ))}
-          </div>
-        )}
+    <section className="sectionBlock">
+      <div className="sectionHead">
+        <div className="sectionHead__copy">
+          <span className="sectionEyebrow">Presencia</span>
+          <h2 className="sectionTitle">Enlaces</h2>
+          <p className="sectionLead">Perfiles y referencias externas.</p>
+        </div>
       </div>
-    </article>
+
+      {entries.length === 0 ? (
+        <div className="stateCard">
+          <h3 className="stateCard__title">Sin enlaces</h3>
+          <p className="stateCard__text">
+            Este perfil no ha añadido enlaces todavía.
+          </p>
+        </div>
+      ) : (
+        <div className="compactList card">
+          {entries.map(([key, value]) => (
+            <a
+              key={key}
+              href={value}
+              target="_blank"
+              rel="noreferrer"
+              className="compactListItem"
+            >
+              <div className="compactListItem__copy">
+                <h3 className="compactListItem__title">{key}</h3>
+                <p className="compactListItem__text">{value}</p>
+              </div>
+            </a>
+          ))}
+        </div>
+      )}
+    </section>
   );
 }
 
@@ -157,64 +201,46 @@ function MembersBlock({ members = [] }) {
   if (!members.length) return null;
 
   return (
-    <article className="app-section profilePage__panel">
-      <div className="profilePage__panelBody">
-        <SectionIntro
-          title="Miembros"
-          subtitle="Usuarios vinculados a este perfil grupal."
-        />
-
-        <div className="profilePage__list">
-          {members.map((member) => (
-            <Link
-              key={`${member.user_id}-${member.profile_id || "na"}`}
-              to={member.profile_id ? `/perfil/${member.profile_id}` : "/perfil"}
-              className="app-card app-card--interactive profilePage__memberCard"
-            >
-              <div className="profilePage__memberRow">
-                <div className="profilePage__memberIdentity">
-                  {member.avatar_url ? (
-                    <img
-                      src={member.avatar_url}
-                      alt={member.full_name || member.handle || "Miembro"}
-                      className="profilePage__memberAvatar"
-                    />
-                  ) : (
-                    <div className="profilePage__memberAvatar profilePage__memberAvatar--fallback">
-                      {initialsFromName(member.full_name || member.handle || "U")}
-                    </div>
-                  )}
-
-                  <div className="profilePage__memberCopy">
-                    <strong>{member.full_name || member.handle || "Miembro"}</strong>
-                    <span>{formatHandle(member.handle)}</span>
-                  </div>
-                </div>
-
-                <span className="app-badge">{member.role}</span>
-              </div>
-            </Link>
-          ))}
+    <section className="sectionBlock">
+      <div className="sectionHead">
+        <div className="sectionHead__copy">
+          <span className="sectionEyebrow">Perfil grupal</span>
+          <h2 className="sectionTitle">Miembros</h2>
+          <p className="sectionLead">Usuarios vinculados a este grupo.</p>
         </div>
       </div>
-    </article>
-  );
-}
 
-function StatLinkCard({ to, value, label }) {
-  return (
-    <Link to={to} className="profilePage__statCard profilePage__statCard--link">
-      <strong className="profilePage__statValue">{value}</strong>
-      <span className="profilePage__statLabel">{label}</span>
-    </Link>
-  );
-}
+      <div className="compactList card">
+        {members.map((member) => (
+          <Link
+            key={`${member.user_id}-${member.profile_id || "na"}`}
+            to={member.profile_id ? `/perfil/${member.profile_id}` : "/perfil"}
+            className="compactListItem"
+          >
+            <div className="compactListItem__icon">
+              {member.avatar_url ? (
+                <img
+                  src={member.avatar_url}
+                  alt={member.full_name || member.handle || "Miembro"}
+                  style={{ width: 40, height: 40, borderRadius: 14, objectFit: "cover" }}
+                />
+              ) : (
+                <span>{initialsFromName(member.full_name || member.handle || "U")}</span>
+              )}
+            </div>
 
-function ActionLink({ to, children, variant = "secondary" }) {
-  return (
-    <Link to={to} className={`app-button app-button--${variant}`}>
-      {children}
-    </Link>
+            <div className="compactListItem__copy">
+              <h3 className="compactListItem__title">
+                {member.full_name || member.handle || "Miembro"}
+              </h3>
+              <p className="compactListItem__text">{formatHandle(member.handle)}</p>
+            </div>
+
+            <div className="compactListItem__aside">{member.role}</div>
+          </Link>
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -304,34 +330,32 @@ export default function ProfilePage() {
 
   if (!meReady) {
     return (
-      <div className="app-loader-screen">
-        <div className="app-loader-screen__inner">
-          <div className="app-loader-screen__spinner" />
-          <div className="app-loader-screen__label">Cargando perfil…</div>
+      <section className="page">
+        <div className="stateCard">
+          <h3 className="stateCard__title">Cargando perfil</h3>
+          <p className="stateCard__text">Estamos preparando la información del perfil.</p>
         </div>
-      </div>
+      </section>
     );
   }
 
   if (isPublicProfile && publicLoading) {
     return (
-      <div className="app-loader-screen">
-        <div className="app-loader-screen__inner">
-          <div className="app-loader-screen__spinner" />
-          <div className="app-loader-screen__label">Cargando perfil público…</div>
+      <section className="page">
+        <div className="stateCard">
+          <h3 className="stateCard__title">Cargando perfil público</h3>
+          <p className="stateCard__text">Espera un momento.</p>
         </div>
-      </div>
+      </section>
     );
   }
 
   if (isPublicProfile && publicError) {
     return (
       <section className="page">
-        <div className="app-empty">
-          <div className="notificationsSimple__emptyBody">
-            <strong>No se pudo cargar el perfil</strong>
-            <p>{publicError}</p>
-          </div>
+        <div className="stateCard">
+          <h3 className="stateCard__title">No se pudo cargar el perfil</h3>
+          <p className="stateCard__text">{publicError}</p>
         </div>
       </section>
     );
@@ -369,94 +393,125 @@ export default function ProfilePage() {
         past_meetups: mySplit.past,
       };
 
-  const calendarMeetups = useMemo(() => {
-    return [...(profileData.future_meetups || []), ...(profileData.past_meetups || [])];
-  }, [profileData.future_meetups, profileData.past_meetups]);
+  const calendarMeetups = useMemo(
+    () => [...(profileData.future_meetups || []), ...(profileData.past_meetups || [])],
+    [profileData.future_meetups, profileData.past_meetups]
+  );
 
   const displayName = profileData.display_name;
   const avatarUrl = profileData.avatar_url;
 
   return (
-    <section className="profilePage">
-      <article className="app-section profilePage__hero">
-        <div className="profilePage__heroTop">
-          <div className="profilePage__identity">
-            <div className="profilePage__avatarShell">
-              {avatarUrl ? (
-                <img src={avatarUrl} alt={displayName} className="profilePage__avatarImage" />
-              ) : (
-                <div className="profilePage__avatarFallback">{initialsFromName(displayName)}</div>
-              )}
-
-              {!isPublicProfile ? (
-                <>
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={uploadingAvatar}
-                    title="Cambiar foto de perfil"
-                    aria-label="Cambiar foto de perfil"
-                    className="profilePage__avatarEdit"
-                  >
-                    <IconEdit />
-                  </button>
-
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={handleAvatarChange}
-                    className="profilePage__fileInput"
-                  />
-                </>
-              ) : null}
-            </div>
-
-            <div className="profilePage__identityCopy">
-              <div className="profilePage__identityHead">
-                <div className="profilePage__nameBlock">
-                  <h1 className="profilePage__name">{displayName}</h1>
-                  <p className="profilePage__handle">{formatHandle(profileData.handle)}</p>
-                </div>
-
-                <div className="profilePage__metaInline">
-                  <span className="app-badge">
-                    {profileData.profile_type === "group" ? "Perfil grupal" : "Perfil individual"}
-                  </span>
-                  <span className="app-badge">{formatLocation(profileData.location)}</span>
-                </div>
+    <section className="page">
+      <section className="heroPanel">
+        <div className="profileHero">
+          <div className="profileHero__top">
+            {avatarUrl ? (
+              <img
+                src={avatarUrl}
+                alt={displayName}
+                className="profileHero__avatar"
+              />
+            ) : (
+              <div
+                className="profileHero__avatar"
+                style={{ display: "grid", placeItems: "center", fontWeight: 800 }}
+              >
+                {initialsFromName(displayName)}
               </div>
+            )}
 
-              <p className="profilePage__bio">{formatBio(profileData.bio)}</p>
-
-              <div className="profilePage__actions">
-                {!isPublicProfile ? (
-                  <>
-                    <ActionLink to="/onboarding?mode=edit">Editar perfil</ActionLink>
-                    <ActionLink to="/ajustes" variant="secondary">Ajustes</ActionLink>
-                  </>
-                ) : (
-                  <ActionLink to="/mensajes">Enviar mensaje</ActionLink>
-                )}
-              </div>
+            <div className="profileHero__identity">
+              <h1 className="profileHero__name">{displayName}</h1>
+              <div className="profileHero__handle">{formatHandle(profileData.handle)}</div>
+              <p className="profileHero__bio">{formatBio(profileData.bio)}</p>
             </div>
           </div>
 
-          <div className="profilePage__stats">
-            <StatLinkCard to="/perfil/seguidores" value={profileData.followers_count} label="Seguidores" />
-            <StatLinkCard to="/perfil/seguidos" value={profileData.following_count} label="Seguidos" />
+          <div className="profileHero__chips">
+            <span className="badge">
+              {profileData.profile_type === "group" ? "Perfil grupal" : "Perfil individual"}
+            </span>
+            <span className="badge">{formatLocation(profileData.location)}</span>
+          </div>
+
+          <div className="profileStats">
+            <Link to="/perfil/seguidores" className="profileStats__item">
+              <div className="profileStats__value">{profileData.followers_count}</div>
+              <div className="profileStats__label">Seguidores</div>
+            </Link>
+
+            <Link to="/perfil/seguidos" className="profileStats__item">
+              <div className="profileStats__value">{profileData.following_count}</div>
+              <div className="profileStats__label">Seguidos</div>
+            </Link>
+
+            <div className="profileStats__item">
+              <div className="profileStats__value">
+                {(profileData.future_meetups?.length || 0) + (profileData.past_meetups?.length || 0)}
+              </div>
+              <div className="profileStats__label">Eventos</div>
+            </div>
+          </div>
+
+          <div className="feedCard__actions">
+            {!isPublicProfile ? (
+              <>
+                <ActionLink to="/onboarding?mode=edit" primary>
+                  Editar perfil
+                </ActionLink>
+
+                <ActionLink to="/ajustes">Ajustes</ActionLink>
+
+                <button
+                  type="button"
+                  className="feedCard__action"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploadingAvatar}
+                >
+                  <span style={{ display: "inline-flex" }}>
+                    <IconEdit />
+                  </span>
+                  <span>{uploadingAvatar ? "Subiendo..." : "Cambiar foto"}</span>
+                </button>
+
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleAvatarChange}
+                  style={{ display: "none" }}
+                />
+              </>
+            ) : (
+              <ActionLink to="/mensajes" primary>
+                Enviar mensaje
+              </ActionLink>
+            )}
           </div>
         </div>
-      </article>
+      </section>
 
       <MembersBlock members={profileData.members} />
 
-      <article className="app-section profilePage__calendarCard">
-        <MeetupCalendar meetups={calendarMeetups} me={me} />
-      </article>
+      <section className="sectionBlock">
+        <div className="sectionHead">
+          <div className="sectionHead__copy">
+            <span className="sectionEyebrow">Agenda</span>
+            <h2 className="sectionTitle">Calendario</h2>
+            <p className="sectionLead">
+              Vista compacta de eventos futuros y pasados.
+            </p>
+          </div>
+        </div>
 
-      <MeetupList title="Eventos futuros" items={profileData.future_meetups} />
-      <MeetupList title="Eventos pasados" items={profileData.past_meetups} />
+        <div className="card">
+          <MeetupCalendar meetups={calendarMeetups} me={me} />
+        </div>
+      </section>
+
+      <EventList title="Próximos eventos" items={profileData.future_meetups} />
+      <EventList title="Eventos pasados" items={profileData.past_meetups} />
       <LinksBlock links={profileData.links} />
     </section>
   );
