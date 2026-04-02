@@ -1,14 +1,12 @@
-import { Outlet } from "react-router-dom";
+import "../styles/mobile-shell.css";
 import BottomNav from "../components/BottomNav";
 
-export default function MobileShell() {
+export default function MobileShell({ children }) {
   return (
-    <div className="appChrome">
-      <main className="appChrome__main appChrome__main--bare">
-        <div className="appChrome__content">
-          <Outlet />
-        </div>
-      </main>
+    <div className="mobile-shell">
+      <div className="mobile-content">
+        {children}
+      </div>
 
       <BottomNav />
     </div>
