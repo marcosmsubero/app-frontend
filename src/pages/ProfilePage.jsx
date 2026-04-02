@@ -85,12 +85,12 @@ function ActionLink({ to, children, primary = false }) {
   );
 }
 
-function EventList({ title, items = [] }) {
+function EventList({ title, items = [], eyebrow = "Agenda" }) {
   return (
-    <section className="sectionBlock">
+    <section className="sectionBlock profileEventSection">
       <div className="sectionHead">
         <div className="sectionHead__copy">
-          <span className="sectionEyebrow">Calendario</span>
+          <span className="sectionEyebrow">{eyebrow}</span>
           <h2 className="sectionTitle">{title}</h2>
           <p className="sectionLead">
             {items.length === 0
@@ -395,123 +395,170 @@ export default function ProfilePage() {
 
   const calendarMeetups = useMemo(
     () => [...(profileData.future_meetups || []), ...(profileData.past_meetups || [])],
-    [profileData.future_meetups, profileData.past_meetups]
+    [profileData.future_meetups, profileData.past_meetups],
   );
 
   const displayName = profileData.display_name;
   const avatarUrl = profileData.avatar_url;
+  const totalEvents =
+    (profileData.future_meetups?.length || 0) + (profileData.past_meetups?.length || 0);
 
   return (
-    <section className="page">
-      <section className="heroPanel">
-        <div className="profileHero">
-          <div className="profileHero__top">
-            {avatarUrl ? (
-              <img
-                src={avatarUrl}
-                alt={displayName}
-                className="profileHero__avatar"
-              />
-            ) : (
-              <div
-                className="profileHero__avatar"
-                style={{ display: "grid", placeItems: "center", fontWeight: 800 }}
-              >
-                {initialsFromName(displayName)}
-              </div>
-            )}
-
-            <div className="profileHero__identity">
-              <h1 className="profileHero__name">{displayName}</h1>
-              <div className="profileHero__handle">{formatHandle(profileData.handle)}</div>
-              <p className="profileHero__bio">{formatBio(profileData.bio)}</p>
-            </div>
-          </div>
-
-          <div className="profileHero__chips">
-            <span className="badge">
-              {profileData.profile_type === "group" ? "Perfil grupal" : "Perfil individual"}
-            </span>
-            <span className="badge">{formatLocation(profileData.location)}</span>
-          </div>
-
-          <div className="profileStats">
-            <Link to="/perfil/seguidores" className="profileStats__item">
-              <div className="profileStats__value">{profileData.followers_count}</div>
-              <div className="profileStats__label">Seguidores</div>
-            </Link>
-
-            <Link to="/perfil/seguidos" className="profileStats__item">
-              <div className="profileStats__value">{profileData.following_count}</div>
-              <div className="profileStats__label">Seguidos</div>
-            </Link>
-
-            <div className="profileStats__item">
-              <div className="profileStats__value">
-                {(profileData.future_meetups?.length || 0) + (profileData.past_meetups?.length || 0)}
-              </div>
-              <div className="profileStats__label">Eventos</div>
-            </div>
-          </div>
-
-          <div className="feedCard__actions">
-            {!isPublicProfile ? (
-              <>
-                <ActionLink to="/onboarding?mode=edit" primary>
-                  Editar perfil
-                </ActionLink>
-
-                <ActionLink to="/ajustes">Ajustes</ActionLink>
-
-                <button
-                  type="button"
-                  className="feedCard__action"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={uploadingAvatar}
-                >
-                  <span style={{ display: "inline-flex" }}>
-                    <IconEdit />
-                  </span>
-                  <span>{uploadingAvatar ? "Subiendo..." : "Cambiar foto"}</span>
-                </button>
-
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleAvatarChange}
-                  style={{ display: "none" }}
+    <section className="page profilePage">
+      <section className="profileOverview">
+        <div className="heroPanel profileHeroCard">
+          <div className="profileHero">
+            <div className="profileHero__top">
+              {avatarUrl ? (
+                <img
+                  src={avatarUrl}
+                  alt={displayName}
+                  className="profileHero__avatar"
                 />
-              </>
-            ) : (
-              <ActionLink to="/mensajes" primary>
-                Enviar mensaje
-              </ActionLink>
-            )}
+              ) : (
+                <div
+                  className="profileHero__avatar"
+                  style={{ display: "grid", placeItems: "center", fontWeight: 800 }}
+                >
+                  {initialsFromName(displayName)}
+                </div>
+              )}
+
+              <div className="profileHero__identity">
+                <span className="sectionEyebrow">
+                  {isPublicProfile ? "Perfil público" : "Tu perfil"}
+                </span>
+                <h1 className="profileHero__name">{displayName}</h1>
+                <div className="profileHero__handle">{formatHandle(profileData.handle)}</div>
+                <p className="profileHero__bio">{formatBio(profileData.bio)}</p>
+              </div>
+            </div>
+
+            <div className="profileHero__chips">
+              <span className="badge">
+                {profileData.profile_type === "group" ? "Perfil grupal" : "Perfil individual"}
+              </span>
+              <span className="badge">{formatLocation(profileData.location)}</span>
+            </div>
+
+            <div className="profileStats">
+              <Link to="/perfil/seguidores" className="profileStats__item">
+                <div className="profileStats__value">{profileData.followers_count}</div>
+                <div className="profileStats__label">Seguidores</div>
+              </Link>
+
+              <Link to="/perfil/seguidos" className="profileStats__item">
+                <div className="profileStats__value">{profileData.following_count}</div>
+                <div className="profileStats__label">Seguidos</div>
+              </Link>
+
+              <div className="profileStats__item">
+                <div className="profileStats__value">{totalEvents}</div>
+                <div className="profileStats__label">Eventos</div>
+              </div>
+            </div>
+
+            <div className="feedCard__actions profileActionRow">
+              {!isPublicProfile ? (
+                <>
+                  <ActionLink to="/onboarding?mode=edit" primary>
+                    Editar perfil
+                  </ActionLink>
+
+                  <ActionLink to="/ajustes">Ajustes</ActionLink>
+
+                  <button
+                    type="button"
+                    className="feedCard__action"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploadingAvatar}
+                  >
+                    <span style={{ display: "inline-flex" }}>
+                      <IconEdit />
+                    </span>
+                    <span>{uploadingAvatar ? "Subiendo..." : "Cambiar foto"}</span>
+                  </button>
+
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleAvatarChange}
+                    style={{ display: "none" }}
+                  />
+                </>
+              ) : (
+                <ActionLink to="/mensajes" primary>
+                  Enviar mensaje
+                </ActionLink>
+              )}
+            </div>
           </div>
+        </div>
+
+        <div className="profileMiniSummary">
+          <article className="profileMiniSummary__card">
+            <span className="profileMiniSummary__label">Próximos</span>
+            <strong className="profileMiniSummary__value">
+              {profileData.future_meetups?.length || 0}
+            </strong>
+          </article>
+
+          <article className="profileMiniSummary__card">
+            <span className="profileMiniSummary__label">Pasados</span>
+            <strong className="profileMiniSummary__value">
+              {profileData.past_meetups?.length || 0}
+            </strong>
+          </article>
+
+          <article className="profileMiniSummary__card">
+            <span className="profileMiniSummary__label">Tipo</span>
+            <strong className="profileMiniSummary__value profileMiniSummary__value--text">
+              {profileData.profile_type === "group" ? "Grupo" : "Runner"}
+            </strong>
+          </article>
         </div>
       </section>
 
       <MembersBlock members={profileData.members} />
 
-      <section className="sectionBlock">
+      <section className="sectionBlock profileCalendarShell">
         <div className="sectionHead">
           <div className="sectionHead__copy">
             <span className="sectionEyebrow">Agenda</span>
-            <h2 className="sectionTitle">Calendario</h2>
+            <h2 className="sectionTitle">Calendario del perfil</h2>
             <p className="sectionLead">
-              Vista compacta de eventos futuros y pasados.
+              Misma lógica visual del calendario de Eventos, adaptada a la identidad y actividad del perfil.
             </p>
           </div>
         </div>
 
-        <div className="card">
-          <MeetupCalendar meetups={calendarMeetups} me={me} />
-        </div>
+        <MeetupCalendar
+          meetups={calendarMeetups}
+          me={me}
+          canCreate={!isPublicProfile}
+          eyebrow="Calendario"
+          title={isPublicProfile ? "Agenda del perfil" : "Tu agenda runner"}
+          description={
+            isPublicProfile
+              ? "Consulta la actividad futura y pasada asociada a este perfil."
+              : "Consulta tu actividad mensual y crea nuevas quedadas desde aquí."
+          }
+        />
       </section>
 
-      <EventList title="Próximos eventos" items={profileData.future_meetups} />
-      <EventList title="Eventos pasados" items={profileData.past_meetups} />
+      <EventList
+        eyebrow="Próximamente"
+        title="Próximos eventos"
+        items={profileData.future_meetups}
+      />
+
+      <EventList
+        eyebrow="Histórico"
+        title="Eventos pasados"
+        items={profileData.past_meetups}
+      />
+
       <LinksBlock links={profileData.links} />
     </section>
   );
