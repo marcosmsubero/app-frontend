@@ -19,26 +19,19 @@ function IconBell() {
 }
 
 function getShellMeta(pathname) {
-  if (
-    pathname === "/eventos" ||
-    pathname === "/blablarun" ||
-    pathname.startsWith("/eventos/")
-  ) {
+  if (pathname === "/eventos" || pathname === "/blablarun" || pathname.startsWith("/eventos/")) {
     return {
-      eyebrow: "Home",
+      eyebrow: "Explorar",
       title: "Eventos",
-      subtitle: "Descubre quedadas, planes y entrenamientos cerca de ti.",
+      subtitle: "Quedadas, entrenos y planes cercanos en un flujo claro y rápido.",
     };
   }
 
-  if (
-    pathname === "/perfil" ||
-    pathname.startsWith("/perfil/")
-  ) {
+  if (pathname === "/perfil" || pathname.startsWith("/perfil/")) {
     return {
-      eyebrow: "Runner",
+      eyebrow: "Identidad",
       title: "Perfil",
-      subtitle: "Tu identidad, calendario y presencia dentro de la comunidad.",
+      subtitle: "Tu presencia en la comunidad, agenda y conexiones en una sola vista.",
     };
   }
 
@@ -51,7 +44,7 @@ function getShellMeta(pathname) {
     return {
       eyebrow: "Comunidad",
       title: "Actividad",
-      subtitle: "Mensajes, movimiento y señales en tiempo real de tu red.",
+      subtitle: "Mensajes, avisos y movimiento reciente sin saturación visual.",
     };
   }
 
@@ -59,7 +52,7 @@ function getShellMeta(pathname) {
     return {
       eyebrow: "Cuenta",
       title: "Ajustes",
-      subtitle: "Preferencias, privacidad y configuración del producto.",
+      subtitle: "Preferencias esenciales y acciones de perfil en formato compacto.",
     };
   }
 
@@ -67,60 +60,58 @@ function getShellMeta(pathname) {
     return {
       eyebrow: "Cuenta",
       title: "Eliminar cuenta",
-      subtitle: "Gestiona de forma segura el cierre definitivo de tu perfil.",
+      subtitle: "Proceso claro, seguro y sin pasos ambiguos.",
     };
   }
 
   return {
-    eyebrow: "App",
-    title: "BlaBlaRun",
-    subtitle: "Una experiencia social de running pensada para móvil.",
+    eyebrow: "BlaBlaRun",
+    title: "Inicio",
+    subtitle: "Producto mobile-first con una base visual unificada.",
   };
 }
 
 export default function MobileShell() {
   const location = useLocation();
   const shellMeta = getShellMeta(location.pathname);
+  const inMessages = location.pathname === "/mensajes" || location.pathname.startsWith("/mensajes/");
+  const inNotifications = location.pathname === "/notificaciones";
 
   return (
     <div className="appChrome">
-      <header className="appTopbar">
-        <div className="appTopbar__copy">
-          <span className="appTopbar__eyebrow">{shellMeta.eyebrow}</span>
-          <h1 className="appTopbar__title">{shellMeta.title}</h1>
-          <p className="appTopbar__subtitle">{shellMeta.subtitle}</p>
-        </div>
+      <div className="appChrome__frame">
+        <header className="appTopbar">
+          <div className="appTopbar__copy">
+            <span className="appTopbar__eyebrow">{shellMeta.eyebrow}</span>
+            <h1 className="appTopbar__title">{shellMeta.title}</h1>
+            <p className="appTopbar__subtitle">{shellMeta.subtitle}</p>
+          </div>
 
-        <div className="appTopbar__actions" aria-label="Accesos rápidos">
-          <Link
-            to="/mensajes"
-            className={`appTopbar__iconButton${
-              location.pathname === "/mensajes" || location.pathname.startsWith("/mensajes/")
-                ? " is-active"
-                : ""
-            }`}
-            aria-label="Mensajes"
-          >
-            <IconMessages />
-          </Link>
+          <div className="appTopbar__actions" aria-label="Accesos rápidos">
+            <Link
+              to="/mensajes"
+              className={`appTopbar__iconButton${inMessages ? " is-active" : ""}`}
+              aria-label="Mensajes"
+            >
+              <IconMessages />
+            </Link>
 
-          <Link
-            to="/notificaciones"
-            className={`appTopbar__iconButton${
-              location.pathname === "/notificaciones" ? " is-active" : ""
-            }`}
-            aria-label="Notificaciones"
-          >
-            <IconBell />
-          </Link>
-        </div>
-      </header>
+            <Link
+              to="/notificaciones"
+              className={`appTopbar__iconButton${inNotifications ? " is-active" : ""}`}
+              aria-label="Notificaciones"
+            >
+              <IconBell />
+            </Link>
+          </div>
+        </header>
 
-      <main className="appChrome__main appChrome__main--bare">
-        <div className="appChrome__content">
-          <Outlet />
-        </div>
-      </main>
+        <main className="appChrome__main">
+          <div className="appChrome__content">
+            <Outlet />
+          </div>
+        </main>
+      </div>
 
       <BottomNav />
     </div>
