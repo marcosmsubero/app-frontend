@@ -5,6 +5,8 @@ function joinClasses(...values) {
 export function Card({
   as: Component = "article",
   interactive = false,
+  tone = "default",
+  padding = "md",
   className = "",
   children,
   ...props
@@ -13,8 +15,10 @@ export function Card({
     <Component
       className={joinClasses(
         "ui-card",
+        `ui-card--${tone}`,
+        `ui-card--pad-${padding}`,
         interactive ? "ui-card--interactive" : "",
-        className
+        className,
       )}
       {...props}
     >
@@ -23,11 +27,31 @@ export function Card({
   );
 }
 
-export function CardHeader({ className = "", children, ...props }) {
+export function CardHeader({
+  className = "",
+  stacked = false,
+  children,
+  ...props
+}) {
   return (
-    <div className={joinClasses("ui-card__header", className)} {...props}>
+    <div
+      className={joinClasses(
+        "ui-card__header",
+        stacked ? "ui-card__header--stacked" : "",
+        className,
+      )}
+      {...props}
+    >
       {children}
     </div>
+  );
+}
+
+export function CardEyebrow({ className = "", children, ...props }) {
+  return (
+    <p className={joinClasses("ui-card__eyebrow", className)} {...props}>
+      {children}
+    </p>
   );
 }
 
@@ -68,9 +92,17 @@ export function CardBody({ className = "", children, ...props }) {
   );
 }
 
-export function CardFooter({ className = "", children, ...props }) {
+export function CardFooter({
+  className = "",
+  align = "start",
+  children,
+  ...props
+}) {
   return (
-    <div className={joinClasses("ui-card__footer", className)} {...props}>
+    <div
+      className={joinClasses("ui-card__footer", `ui-card__footer--${align}`, className)}
+      {...props}
+    >
       {children}
     </div>
   );
