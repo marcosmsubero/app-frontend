@@ -85,18 +85,18 @@ function ActionLink({ to, children, primary = false }) {
   );
 }
 
-function EventList({ title, items = [], eyebrow = "Agenda" }) {
+function EventList({ title, items = [], description }) {
   return (
-    <section className="sectionBlock profileEventSection">
-      <div className="sectionHead">
-        <div className="sectionHead__copy">
-          <span className="sectionEyebrow">{eyebrow}</span>
-          <h2 className="sectionTitle">{title}</h2>
-          <p className="sectionLead">
-            {items.length === 0
-              ? "No hay eventos en esta sección."
-              : `${items.length} ${items.length === 1 ? "evento" : "eventos"}.`}
-          </p>
+    <section className="sectionBlock profileSectionStack">
+      <div className="app-section-header">
+        <div>
+          <div className="app-section-header__title">{title}</div>
+          <div className="app-section-header__subtitle">
+            {description ||
+              (items.length === 0
+                ? "No hay actividad en esta sección."
+                : `${items.length} ${items.length === 1 ? "evento" : "eventos"}.`)}
+          </div>
         </div>
       </div>
 
@@ -104,7 +104,7 @@ function EventList({ title, items = [], eyebrow = "Agenda" }) {
         <div className="stateCard">
           <h3 className="stateCard__title">Sin eventos</h3>
           <p className="stateCard__text">
-            Cuando haya actividad asociada al perfil, aparecerá aquí.
+            Cuando haya actividad asociada a este perfil, aparecerá aquí.
           </p>
         </div>
       ) : (
@@ -143,9 +143,7 @@ function EventList({ title, items = [], eyebrow = "Agenda" }) {
                   ) : null}
                 </div>
 
-                {item.notes ? (
-                  <p className="eventCard__text">{item.notes}</p>
-                ) : null}
+                {item.notes ? <p className="eventCard__text">{item.notes}</p> : null}
               </div>
             </article>
           ))}
@@ -159,12 +157,13 @@ function LinksBlock({ links = {} }) {
   const entries = Object.entries(links || {}).filter(([, value]) => !!value);
 
   return (
-    <section className="sectionBlock">
-      <div className="sectionHead">
-        <div className="sectionHead__copy">
-          <span className="sectionEyebrow">Presencia</span>
-          <h2 className="sectionTitle">Enlaces</h2>
-          <p className="sectionLead">Perfiles y referencias externas.</p>
+    <section className="sectionBlock profileSectionStack">
+      <div className="app-section-header">
+        <div>
+          <div className="app-section-header__title">Enlaces</div>
+          <div className="app-section-header__subtitle">
+            Presencia externa y referencias del perfil.
+          </div>
         </div>
       </div>
 
@@ -201,12 +200,13 @@ function MembersBlock({ members = [] }) {
   if (!members.length) return null;
 
   return (
-    <section className="sectionBlock">
-      <div className="sectionHead">
-        <div className="sectionHead__copy">
-          <span className="sectionEyebrow">Perfil grupal</span>
-          <h2 className="sectionTitle">Miembros</h2>
-          <p className="sectionLead">Usuarios vinculados a este grupo.</p>
+    <section className="sectionBlock profileSectionStack">
+      <div className="app-section-header">
+        <div>
+          <div className="app-section-header__title">Miembros</div>
+          <div className="app-section-header__subtitle">
+            Usuarios vinculados a este perfil grupal.
+          </div>
         </div>
       </div>
 
@@ -395,7 +395,7 @@ export default function ProfilePage() {
 
   const calendarMeetups = useMemo(
     () => [...(profileData.future_meetups || []), ...(profileData.past_meetups || [])],
-    [profileData.future_meetups, profileData.past_meetups],
+    [profileData.future_meetups, profileData.past_meetups]
   );
 
   const displayName = profileData.display_name;
@@ -405,131 +405,115 @@ export default function ProfilePage() {
 
   return (
     <section className="page profilePage">
-      <section className="profileOverview">
-        <div className="heroPanel profileHeroCard">
-          <div className="profileHero">
-            <div className="profileHero__top">
-              {avatarUrl ? (
-                <img
-                  src={avatarUrl}
-                  alt={displayName}
-                  className="profileHero__avatar"
-                />
-              ) : (
-                <div
-                  className="profileHero__avatar"
-                  style={{ display: "grid", placeItems: "center", fontWeight: 800 }}
-                >
-                  {initialsFromName(displayName)}
-                </div>
-              )}
+      <section className="sectionBlock profileIdentityCard">
+        <div className="profileIdentityTop">
+          <div className="profileIdentityMain">
+            {avatarUrl ? (
+              <img src={avatarUrl} alt={displayName} className="profileHero__avatar" />
+            ) : (
+              <div
+                className="profileHero__avatar"
+                style={{ display: "grid", placeItems: "center", fontWeight: 800 }}
+              >
+                {initialsFromName(displayName)}
+              </div>
+            )}
 
-              <div className="profileHero__identity">
-                <span className="sectionEyebrow">
-                  {isPublicProfile ? "Perfil público" : "Tu perfil"}
+            <div className="profileIdentityCopy">
+              <div className="profileIdentityMeta">
+                <span className="badge">
+                  {profileData.profile_type === "group"
+                    ? "Perfil grupal"
+                    : "Perfil individual"}
                 </span>
-                <h1 className="profileHero__name">{displayName}</h1>
-                <div className="profileHero__handle">{formatHandle(profileData.handle)}</div>
-                <p className="profileHero__bio">{formatBio(profileData.bio)}</p>
+                <span className="badge">{formatLocation(profileData.location)}</span>
               </div>
+
+              <h1 className="profileHero__name">{displayName}</h1>
+              <div className="profileHero__handle">{formatHandle(profileData.handle)}</div>
+              <p className="profileHero__bio">{formatBio(profileData.bio)}</p>
             </div>
+          </div>
 
-            <div className="profileHero__chips">
-              <span className="badge">
-                {profileData.profile_type === "group" ? "Perfil grupal" : "Perfil individual"}
-              </span>
-              <span className="badge">{formatLocation(profileData.location)}</span>
-            </div>
-
-            <div className="profileStats">
-              <Link to="/perfil/seguidores" className="profileStats__item">
-                <div className="profileStats__value">{profileData.followers_count}</div>
-                <div className="profileStats__label">Seguidores</div>
-              </Link>
-
-              <Link to="/perfil/seguidos" className="profileStats__item">
-                <div className="profileStats__value">{profileData.following_count}</div>
-                <div className="profileStats__label">Seguidos</div>
-              </Link>
-
-              <div className="profileStats__item">
-                <div className="profileStats__value">{totalEvents}</div>
-                <div className="profileStats__label">Eventos</div>
-              </div>
-            </div>
-
-            <div className="feedCard__actions profileActionRow">
-              {!isPublicProfile ? (
-                <>
-                  <ActionLink to="/onboarding?mode=edit" primary>
-                    Editar perfil
-                  </ActionLink>
-
-                  <ActionLink to="/ajustes">Ajustes</ActionLink>
-
-                  <button
-                    type="button"
-                    className="feedCard__action"
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={uploadingAvatar}
-                  >
-                    <span style={{ display: "inline-flex" }}>
-                      <IconEdit />
-                    </span>
-                    <span>{uploadingAvatar ? "Subiendo..." : "Cambiar foto"}</span>
-                  </button>
-
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={handleAvatarChange}
-                    style={{ display: "none" }}
-                  />
-                </>
-              ) : (
-                <ActionLink to="/mensajes" primary>
-                  Enviar mensaje
+          <div className="profileIdentityActions">
+            {!isPublicProfile ? (
+              <>
+                <ActionLink to="/onboarding?mode=edit" primary>
+                  Editar perfil
                 </ActionLink>
-              )}
-            </div>
+
+                <ActionLink to="/ajustes">Ajustes</ActionLink>
+
+                <button
+                  type="button"
+                  className="feedCard__action"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploadingAvatar}
+                >
+                  <span style={{ display: "inline-flex" }}>
+                    <IconEdit />
+                  </span>
+                  <span>{uploadingAvatar ? "Subiendo..." : "Cambiar foto"}</span>
+                </button>
+
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleAvatarChange}
+                  style={{ display: "none" }}
+                />
+              </>
+            ) : (
+              <ActionLink to="/mensajes" primary>
+                Enviar mensaje
+              </ActionLink>
+            )}
           </div>
         </div>
 
         <div className="profileMiniSummary">
           <article className="profileMiniSummary__card">
-            <span className="profileMiniSummary__label">Próximos</span>
+            <span className="profileMiniSummary__label">Seguidores</span>
             <strong className="profileMiniSummary__value">
-              {profileData.future_meetups?.length || 0}
+              {profileData.followers_count}
             </strong>
+            <Link to="/perfil/seguidores" className="profileMiniSummary__link">
+              Ver lista
+            </Link>
           </article>
 
           <article className="profileMiniSummary__card">
-            <span className="profileMiniSummary__label">Pasados</span>
+            <span className="profileMiniSummary__label">Seguidos</span>
             <strong className="profileMiniSummary__value">
-              {profileData.past_meetups?.length || 0}
+              {profileData.following_count}
             </strong>
+            <Link to="/perfil/seguidos" className="profileMiniSummary__link">
+              Ver lista
+            </Link>
           </article>
 
           <article className="profileMiniSummary__card">
-            <span className="profileMiniSummary__label">Tipo</span>
-            <strong className="profileMiniSummary__value profileMiniSummary__value--text">
-              {profileData.profile_type === "group" ? "Grupo" : "Runner"}
-            </strong>
+            <span className="profileMiniSummary__label">Eventos</span>
+            <strong className="profileMiniSummary__value">{totalEvents}</strong>
+            <span className="profileMiniSummary__link profileMiniSummary__link--muted">
+              {profileData.future_meetups?.length || 0} próximos
+            </span>
           </article>
         </div>
       </section>
 
       <MembersBlock members={profileData.members} />
 
-      <section className="sectionBlock profileCalendarShell">
-        <div className="sectionHead">
-          <div className="sectionHead__copy">
-            <span className="sectionEyebrow">Agenda</span>
-            <h2 className="sectionTitle">Calendario del perfil</h2>
-            <p className="sectionLead">
-              Misma lógica visual del calendario de Eventos, adaptada a la identidad y actividad del perfil.
-            </p>
+      <section className="sectionBlock profileSectionStack">
+        <div className="app-section-header">
+          <div>
+            <div className="app-section-header__title">Calendario</div>
+            <div className="app-section-header__subtitle">
+              {isPublicProfile
+                ? "Consulta la actividad futura y pasada asociada a este perfil."
+                : "Consulta tu actividad mensual y crea nuevas quedadas desde aquí."}
+            </div>
           </div>
         </div>
 
@@ -548,14 +532,14 @@ export default function ProfilePage() {
       </section>
 
       <EventList
-        eyebrow="Próximamente"
         title="Próximos eventos"
+        description="Actividad programada y visible a corto plazo."
         items={profileData.future_meetups}
       />
 
       <EventList
-        eyebrow="Histórico"
         title="Eventos pasados"
+        description="Histórico de quedadas y actividad previa."
         items={profileData.past_meetups}
       />
 
