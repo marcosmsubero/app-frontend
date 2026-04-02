@@ -5,6 +5,7 @@ import App from "./App.jsx";
 import { ToastProvider } from "./hooks/useToast.jsx";
 import { AuthProvider } from "./hooks/useAuth";
 import "./styles/app.css";
+import "./styles/ui-kit.css";
 import "./styles/mobile-shell.css";
 import "./styles/profile-calendar.css";
 import "./styles/activity.css";
