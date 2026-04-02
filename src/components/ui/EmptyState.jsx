@@ -15,13 +15,16 @@ export default function EmptyState({
   const resolvedDescription =
     description || text || "Todavía no hay contenido disponible para mostrar.";
 
+  const iconNode =
+    typeof icon === "string" ? <span>{icon}</span> : icon;
+
   return (
-    <div className={`ui-empty-state ${className}`.trim()}>
+    <section className={`ui-empty-state ${className}`.trim()}>
       <div className="ui-empty-state__icon" aria-hidden="true">
-        <span>{icon}</span>
+        {iconNode}
       </div>
 
-      <div className="ui-stack-xs">
+      <div className="ui-empty-state__copy">
         <h3 className="ui-empty-state__title">{title}</h3>
         <p className="ui-empty-state__description">{resolvedDescription}</p>
       </div>
@@ -43,6 +46,6 @@ export default function EmptyState({
           {children}
         </div>
       )}
-    </div>
+    </section>
   );
 }
