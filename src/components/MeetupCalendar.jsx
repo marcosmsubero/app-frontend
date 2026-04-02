@@ -80,6 +80,18 @@ function ownerLabel(meetup) {
   return meetup?.creator_profile_name || meetup?.group_name || "Perfil";
 }
 
+function formatSelectedDay(dayKey) {
+  if (!dayKey) return "Selecciona un día";
+
+  const date = new Date(`${dayKey}T12:00:00`);
+  return date.toLocaleDateString("es-ES", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+}
+
 function ModalCloseIcon() {
   return (
     <svg
@@ -96,6 +108,25 @@ function ModalCloseIcon() {
       <path d="M18 6 6 18" />
       <path d="m6 6 12 12" />
     </svg>
+  );
+}
+
+function CalendarLegend() {
+  return (
+    <div className="calendarMini__legend" aria-label="Leyenda del calendario">
+      <span className="calendarMini__legendItem">
+        <span className="calendarMini__legendDot calendarMini__legendDot--own" />
+        Creados por ti
+      </span>
+      <span className="calendarMini__legendItem">
+        <span className="calendarMini__legendDot calendarMini__legendDot--joined" />
+        Te has unido
+      </span>
+      <span className="calendarMini__legendItem">
+        <span className="calendarMini__legendDot calendarMini__legendDot--other" />
+        Otros eventos
+      </span>
+    </div>
   );
 }
 
@@ -174,9 +205,9 @@ function CreateEventModal({ open, dayKey, saving, onClose, onSubmit }) {
       >
         <div className="ui-modal__header">
           <div>
-            <p className="app-kicker">Nuevo evento</p>
+            <p className="app-kicker">Crear evento</p>
             <h3 id="calendar-create-title" className="ui-modal__title">
-              Crear actividad para {dayKey}
+              Nueva actividad para {dayKey}
             </h3>
           </div>
 
@@ -354,7 +385,14 @@ function CreateEventModal({ open, dayKey, saving, onClose, onSubmit }) {
   );
 }
 
-export default function MeetupCalendar({ meetups = [], me }) {
+export default function MeetupCalendar({
+  meetups = [],
+  me,
+  canCreate = true,
+  eyebrow = "Agenda",
+  title = "Calendario",
+  description = "Vista mensual de la actividad asociada al perfil.",
+}) {
   const toast = useToast();
   const { token } = useAuth();
 
@@ -375,6 +413,8 @@ export default function MeetupCalendar({ meetups = [], me }) {
   const monthIndex = month.getMonth();
   const todayKey = localDayKey(today);
   const selectedItems = selectedDay ? byDay.get(selectedDay) || [] : [];
+  const activeDaysCount = byDay.size;
+  const myUserId = me?.id ?? null;
 
   function goPrevMonth() {
     setMonth((prev) => addMonths(prev, -1));
@@ -436,10 +476,30 @@ export default function MeetupCalendar({ meetups = [], me }) {
   return (
     <>
       <section className="calendarMini" aria-label="Calendario de actividades">
+        <div className="calendarMini__hero">
+          <div className="calendarMini__heroCopy">
+            <p className="app-kicker">{eyebrow}</p>
+            <h3 className="calendarMini__title">{title}</h3>
+            <p className="calendarMini__description">{description}</p>
+          </div>
+
+          <div className="calendarMini__stats">
+            <div className="calendarMini__stat">
+              <span className="calendarMini__statLabel">Eventos</span>
+              <strong className="calendarMini__statValue">{allMeetups.length}</strong>
+            </div>
+
+            <div className="calendarMini__stat">
+              <span className="calendarMini__statLabel">Días activos</span>
+              <strong className="calendarMini__statValue">{activeDaysCount}</strong>
+            </div>
+          </div>
+        </div>
+
         <div className="calendarMini__header">
           <div className="calendarMini__heading">
-            <p className="app-kicker">Calendario</p>
-            <h3 className="calendarMini__title">{monthLabel(month)}</h3>
+            <p className="app-kicker">Mes</p>
+            <h4 className="calendarMini__monthLabel">{monthLabel(month)}</h4>
           </div>
 
           <div className="calendarMini__actions">
@@ -475,6 +535,8 @@ export default function MeetupCalendar({ meetups = [], me }) {
           </div>
         </div>
 
+        <CalendarLegend />
+
         <div className="calendarMini__week" aria-hidden="true">
           {WEEKDAYS.map((weekday) => (
             <div key={weekday} className="calendarMini__weekday">
@@ -498,6 +560,7 @@ export default function MeetupCalendar({ meetups = [], me }) {
                 className={[
                   "calendarMini__day",
                   !inMonth ? "calendarMini__day--muted" : "",
+                  items.length > 0 ? "calendarMini__day--active" : "",
                   isSelected ? "calendarMini__day--selected" : "",
                   isToday ? "calendarMini__day--today" : "",
                 ]
@@ -513,7 +576,7 @@ export default function MeetupCalendar({ meetups = [], me }) {
                   {items.slice(0, 3).map((meetup) => (
                     <span
                       key={meetup.id}
-                      className={`calendarMini__dot calendarMini__dot--${dotKind(meetup, me?.id)}`}
+                      className={`calendarMini__dot calendarMini__dot--${dotKind(meetup, myUserId)}`}
                       title={`${timeLabel(meetup.starts_at)} · ${
                         meetup.meeting_point || meetup.title || "Quedada"
                       }`}
@@ -535,16 +598,17 @@ export default function MeetupCalendar({ meetups = [], me }) {
         <div className="calendarMini__detail">
           <div className="calendarMini__detailHead">
             <div>
-              <p className="app-kicker">Agenda</p>
+              <p className="app-kicker">Detalle del día</p>
               <h4 className="calendarMini__detailTitle">
-                {selectedDay || "Selecciona un día"}
+                {formatSelectedDay(selectedDay)}
               </h4>
+              <p className="calendarMini__detailText">{daySummary(selectedItems)}</p>
             </div>
 
-            {selectedDay ? (
+            {selectedDay && canCreate ? (
               <button
                 type="button"
-                className="calendarMini__textBtn"
+                className="calendarMini__textBtn calendarMini__textBtn--accent"
                 onClick={() => setShowCreateModal(true)}
               >
                 Crear evento
@@ -558,7 +622,7 @@ export default function MeetupCalendar({ meetups = [], me }) {
             </div>
           ) : selectedItems.length === 0 ? (
             <div className="calendarMini__empty">
-              No hay actividades ese día. Puedes crear una nueva.
+              No hay actividad ese día{canCreate ? ". Puedes crear una nueva." : "."}
             </div>
           ) : (
             <div className="calendarMini__list">
@@ -591,13 +655,15 @@ export default function MeetupCalendar({ meetups = [], me }) {
         </div>
       </section>
 
-      <CreateEventModal
-        open={showCreateModal}
-        dayKey={selectedDay}
-        onClose={() => setShowCreateModal(false)}
-        onSubmit={handleCreateEvent}
-        saving={savingEvent}
-      />
+      {canCreate ? (
+        <CreateEventModal
+          open={showCreateModal}
+          dayKey={selectedDay}
+          onClose={() => setShowCreateModal(false)}
+          onSubmit={handleCreateEvent}
+          saving={savingEvent}
+        />
+      ) : null}
     </>
   );
 }
