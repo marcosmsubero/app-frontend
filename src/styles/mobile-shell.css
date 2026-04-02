@@ -9,93 +9,54 @@
   width: min(100%, 520px);
   margin: 0 auto;
   min-height: 100dvh;
-  padding: calc(var(--safe-top) + 4px) 14px calc(108px + var(--safe-bottom));
+  padding:
+    calc(var(--safe-top) + 4px)
+    14px
+    calc(96px + var(--safe-bottom));
 }
 
 .appTopbar {
   position: sticky;
   top: 0;
   z-index: 40;
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 14px;
-  padding: 8px 0 18px;
-  margin-bottom: 6px;
-  backdrop-filter: blur(14px);
 }
 
-.appTopbar::after {
+.appTopbar.minimal {
+  padding: 6px 0 14px;
+  margin-bottom: 4px;
+  backdrop-filter: blur(12px);
+}
+
+.appTopbar.minimal::after {
   content: "";
   position: absolute;
-  inset: 0 -14px;
+  inset: -6px -14px 0;
   z-index: -1;
-  background: linear-gradient(180deg, rgba(7, 17, 31, 0.92), rgba(7, 17, 31, 0.54), transparent);
+  background: linear-gradient(
+    180deg,
+    rgba(7, 17, 31, 0.9),
+    rgba(7, 17, 31, 0.5),
+    transparent
+  );
 }
 
-.appTopbar__copy {
-  min-width: 0;
-  display: grid;
-  gap: 8px;
-}
-
-.appTopbar__subtitle {
-  margin: 0;
-  max-width: 32ch;
-  color: var(--text-soft);
-  font-size: 0.92rem;
-  line-height: 1.52;
-}
-
-.appTopbar__actions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.appTopbar__iconButton {
-  width: 42px;
-  height: 42px;
+.appTopbar__eyebrow {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  border-radius: 16px;
-  border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.04);
-  color: var(--text-soft);
-  transition:
-    transform 160ms ease,
-    background-color 160ms ease,
-    border-color 160ms ease,
-    color 160ms ease;
-}
-
-.appTopbar__iconButton:hover {
-  transform: translateY(-1px);
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.appTopbar__iconButton.is-active {
-  color: #fff;
-  border-color: rgba(255, 107, 87, 0.2);
-  background: var(--primary-soft);
-}
-
-.appTopbar__iconButton svg,
-.bottomNav__icon svg {
-  width: 20px;
-  height: 20px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.8;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+  min-height: 28px;
+  padding: 0 2px;
+  color: var(--text-muted);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  line-height: 1;
+  text-transform: uppercase;
 }
 
 .appChrome__main,
 .appChrome__content {
   display: grid;
-  gap: 16px;
+  gap: 14px;
 }
 
 .bottomNav {
@@ -104,7 +65,7 @@
   right: 0;
   bottom: 0;
   z-index: 50;
-  padding: 12px 16px calc(12px + var(--safe-bottom));
+  padding: 10px 16px calc(12px + var(--safe-bottom));
   pointer-events: none;
 }
 
@@ -114,7 +75,7 @@
   margin: 0 auto;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
+  gap: 8px;
   padding: 10px;
   border-radius: 24px;
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -124,11 +85,11 @@
 }
 
 .bottomNav__link {
-  min-height: 58px;
+  min-height: 54px;
   display: grid;
   justify-items: center;
   align-content: center;
-  gap: 6px;
+  gap: 5px;
   padding: 8px 10px;
   border-radius: 18px;
   color: var(--text-muted);
@@ -144,48 +105,26 @@
 }
 
 .bottomNav__link.is-active {
-  background: linear-gradient(180deg, rgba(255, 107, 87, 0.16), rgba(255, 107, 87, 0.08));
+  background: linear-gradient(
+    180deg,
+    rgba(255, 107, 87, 0.16),
+    rgba(255, 107, 87, 0.08)
+  );
   color: #fff;
 }
 
+.bottomNav__icon svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 .bottomNav__label {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 800;
   letter-spacing: 0.02em;
-}
-
-.appTopbar.minimal {
-  position: sticky;
-  top: 0;
-  z-index: 40;
-  padding: 6px 0 12px;
-  margin-bottom: 6px;
-  backdrop-filter: blur(10px);
-}
-
-.appTopbar.minimal::after {
-  content: "";
-  position: absolute;
-  inset: 0 -14px;
-  z-index: -1;
-  background: linear-gradient(
-    180deg,
-    rgba(7, 17, 31, 0.85),
-    rgba(7, 17, 31, 0.4),
-    transparent
-  );
-}
-
-.appTopbar__eyebrow {
-  font-size: 0.78rem;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-}
-
-/* Ajuste spacing global */
-.appChrome__content {
-  display: grid;
-  gap: 14px;
 }
