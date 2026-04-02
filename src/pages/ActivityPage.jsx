@@ -497,17 +497,42 @@ export default function ActivityPage() {
   }
 
   return (
-    <section className="page">
-      <section className="heroPanel">
-        <div className="heroPanel__top">
+    <section className="page activityPage">
+      <section className="sectionBlock">
+        <div className="app-section-header">
           <div>
-            <span className="sectionEyebrow">Actividad</span>
+            <div className="app-section-header__title">Centro de actividad</div>
+            <div className="app-section-header__subtitle">
+              Reúne mensajes y avisos recientes en una única superficie limpia.
+            </div>
           </div>
 
-          <span className="heroPanel__badge">
+          <span className="app-badge app-badge--primary">
             {currentTab === "messages" ? "Inbox" : "Alertas"}
           </span>
-        </div>        
+        </div>
+
+        <div className="activitySummaryGrid">
+          <article className="activitySummaryCard">
+            <div className="activitySummaryCard__label">Mensajes</div>
+            <div className="activitySummaryCard__value">{messageList.length}</div>
+            <div className="activitySummaryCard__meta">
+              {unreadThreads > 0
+                ? `${unreadThreads} sin leer`
+                : "Sin pendientes"}
+            </div>
+          </article>
+
+          <article className="activitySummaryCard">
+            <div className="activitySummaryCard__label">Notificaciones</div>
+            <div className="activitySummaryCard__value">{notificationsList.length}</div>
+            <div className="activitySummaryCard__meta">
+              {unreadNotifications > 0
+                ? `${unreadNotifications} nuevas`
+                : "Todo al día"}
+            </div>
+          </article>
+        </div>
       </section>
 
       <section className="sectionBlock">
@@ -550,9 +575,9 @@ export default function ActivityPage() {
         </div>
 
         {currentTab === "messages" ? (
-          <label className="searchBar" htmlFor="activity-message-search">
+          <label className="activitySearch" htmlFor="activity-message-search">
             <span
-              className="searchBar__icon"
+              className="activitySearch__icon"
               style={{ display: "inline-flex", width: 18, height: 18 }}
             >
               <IconSearch />
@@ -566,7 +591,7 @@ export default function ActivityPage() {
             />
           </label>
         ) : (
-          <div className="rowBetween" style={{ gap: 10, flexWrap: "wrap" }}>
+          <div className="activityFilterRow">
             <div className="tabBar" style={{ flex: 1 }}>
               <button
                 type="button"
