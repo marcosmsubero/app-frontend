@@ -270,48 +270,43 @@ export default function ChatThreadPage() {
 
   return (
     <section
-      className="page"
+      className="page chatThreadPage"
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
       style={{ paddingBottom: 120 }}
     >
-      <section className="heroPanel">
-        <div className="profileHero">
-          <div className="profileHero__top">
-            {avatarUrl ? (
-              <img src={avatarUrl} alt={displayName} className="profileHero__avatar" />
-            ) : (
-              <div
-                className="profileHero__avatar"
-                style={{ display: "grid", placeItems: "center", fontWeight: 800 }}
-              >
-                {initials(displayName)}
-              </div>
-            )}
-
-            <div className="profileHero__identity">
-              <h1 className="profileHero__name">
-                {loadingThread ? "Cargando..." : displayName}
-              </h1>
-              <div className="profileHero__handle">
-                {loadingMessages
-                  ? "Cargando mensajes..."
-                  : error
-                  ? "Error de carga"
-                  : "Conversación privada"}
-              </div>
+      <section className="sectionBlock chatThreadHeader">
+        <div className="chatThreadHeader__main">
+          {avatarUrl ? (
+            <img src={avatarUrl} alt={displayName} className="chatThreadHeader__avatar" />
+          ) : (
+            <div className="chatThreadHeader__avatar chatThreadHeader__avatar--fallback">
+              {initials(displayName)}
             </div>
-          </div>
+          )}
 
-          <div className="feedCard__actions">
-            <button type="button" className="feedCard__action" onClick={() => nav(-1)}>
-              Volver
-            </button>
+          <div className="chatThreadHeader__copy">
+            <h2 className="chatThreadHeader__title">
+              {loadingThread ? "Cargando..." : displayName}
+            </h2>
+            <p className="chatThreadHeader__subtitle">
+              {loadingMessages
+                ? "Cargando mensajes..."
+                : error
+                ? "Error de carga"
+                : "Conversación privada"}
+            </p>
           </div>
+        </div>
+
+        <div className="chatThreadHeader__actions">
+          <button type="button" className="feedCard__action" onClick={() => nav(-1)}>
+            Volver
+          </button>
         </div>
       </section>
 
-      <section className="chatLayout">
+      <section className="sectionBlock chatThreadSurface">
         {loadingMessages ? (
           <div className="stateCard">
             <h3 className="stateCard__title">Cargando conversación</h3>
@@ -322,7 +317,11 @@ export default function ChatThreadPage() {
             <h3 className="stateCard__title">No se pudo abrir el chat</h3>
             <p className="stateCard__text">{error}</p>
             <div className="feedCard__actions">
-              <button type="button" className="feedCard__action feedCard__action--primary" onClick={() => loadMessages()}>
+              <button
+                type="button"
+                className="feedCard__action feedCard__action--primary"
+                onClick={() => loadMessages()}
+              >
                 Reintentar
               </button>
             </div>
@@ -333,21 +332,26 @@ export default function ChatThreadPage() {
             <p className="stateCard__text">Envía el primero para iniciar la conversación.</p>
           </div>
         ) : (
-          messages.map((m) => {
-            const mine = m.from === "me";
+          <div className="chatMessageList">
+            {messages.map((m) => {
+              const mine = m.from === "me";
 
-            return (
-              <div
-                key={m.id}
-                className={`chatMessage ${mine ? "chatMessage--outgoing" : "chatMessage--incoming"}`}
-              >
-                <div>{m.text}</div>
-                <div className="chatMessage__time">
-                  {timeTiny(m.created_at)} {mine && m.status ? `· ${statusGlyph(m.status)}` : ""}
+              return (
+                <div
+                  key={m.id}
+                  className={`chatMessage ${
+                    mine ? "chatMessage--outgoing" : "chatMessage--incoming"
+                  }`}
+                >
+                  <div className="chatMessage__bubble">{m.text}</div>
+                  <div className="chatMessage__time">
+                    {timeTiny(m.created_at)}
+                    {mine && m.status ? ` · ${statusGlyph(m.status)}` : ""}
+                  </div>
                 </div>
-              </div>
-            );
-          })
+              );
+            })}
+          </div>
         )}
 
         <div ref={endRef} />
