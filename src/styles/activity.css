@@ -38,7 +38,11 @@
 .chatMessageList,
 .chatThreadHeader__main,
 .chatThreadHeader__actions,
-.chatThreadHeader__copy {
+.chatThreadHeader__copy,
+.discoverIntroCard,
+.discoverIntroCard__copy,
+.discoverIntroCard__actions,
+.discoverCalendarHead {
   display: grid;
   gap: 12px;
 }
@@ -174,11 +178,19 @@
   line-height: 1.5;
 }
 
-.activitySummaryGrid {
+.activitySummaryGrid,
+.discoverStatsGrid {
+  display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
 }
 
-.activitySummaryCard {
+.discoverStatsGrid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.activitySummaryCard,
+.discoverStatCard {
   min-width: 0;
   display: grid;
   gap: 8px;
@@ -188,7 +200,8 @@
   background: rgba(255, 255, 255, 0.04);
 }
 
-.activitySummaryCard__label {
+.activitySummaryCard__label,
+.discoverStatCard__label {
   color: var(--text-muted);
   font-size: 0.72rem;
   font-weight: 800;
@@ -196,7 +209,8 @@
   letter-spacing: 0.1em;
 }
 
-.activitySummaryCard__value {
+.activitySummaryCard__value,
+.discoverStatCard__value {
   font-size: 1.18rem;
   line-height: 1;
   letter-spacing: -0.04em;
@@ -204,10 +218,20 @@
   color: var(--text);
 }
 
-.activitySummaryCard__meta {
+.activitySummaryCard__meta,
+.discoverStatCard__helper {
   color: var(--text-soft);
   font-size: 0.82rem;
   line-height: 1.4;
+}
+
+.discoverStatCard--accent {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 107, 87, 0.1),
+    rgba(255, 107, 87, 0.03)
+  );
+  border-color: rgba(255, 107, 87, 0.16);
 }
 
 .activitySearch {
@@ -470,7 +494,16 @@
   font-size: 0.84rem;
 }
 
-.discoverHero,
+.discoverIntroCard {
+  gap: 14px;
+}
+
+.discoverIntroCard__actions {
+  display: grid;
+  gap: 10px;
+}
+
+.discoverSection,
 .discoverCalendarCard,
 .discoverStatCard,
 .discoverEventCard,
@@ -482,69 +515,35 @@
   box-shadow: var(--shadow-sm);
 }
 
-.discoverHero,
 .discoverCalendarCard,
 .discoverModalCard {
   padding: 16px;
   border-radius: 22px;
 }
 
-.discoverHero {
-  background:
-    radial-gradient(circle at top right, rgba(255, 107, 87, 0.14), transparent 34%),
-    linear-gradient(145deg, rgba(255, 107, 87, 0.08), rgba(125, 211, 252, 0.03)),
-    rgba(12, 23, 38, 0.95);
-}
-
-.discoverHero__title {
-  margin: 0;
-  font-size: 1.18rem;
-  line-height: 1.1;
-  letter-spacing: -0.03em;
-  font-weight: 800;
-}
-
-.discoverHero__text,
-.discoverEventCard__text,
-.discoverMetaText {
-  margin: 0;
-  color: var(--text-soft);
-  font-size: 0.9rem;
-  line-height: 1.55;
-}
-
-.discoverStatsGrid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-}
-
-.discoverStatCard {
-  padding: 14px;
-  border-radius: 18px;
-}
-
-.discoverStatCard--accent {
-  background: linear-gradient(
-    180deg,
-    rgba(255, 107, 87, 0.1),
-    rgba(255, 107, 87, 0.03)
-  );
-  border-color: rgba(255, 107, 87, 0.16);
-}
-
-.discoverSection__header,
-.discoverEventCard__head,
-.discoverEventCard__footer,
-.discoverMetaRow {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
+.discoverCalendarHead {
   gap: 12px;
 }
 
-.discoverSection__header {
+.discoverMonthControls {
+  display: flex;
+  gap: 8px;
   flex-wrap: wrap;
+}
+
+.discoverMonthBtn {
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text);
+  font: inherit;
+  font-weight: 800;
+}
+
+.discoverMonthBtn--wide {
+  min-width: 82px;
 }
 
 .discoverFiltersSection {
@@ -563,6 +562,32 @@
   gap: 10px;
 }
 
+.discoverEventCard__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.discoverEventCard__date,
+.discoverEventCard__body,
+.discoverEventCard__main,
+.discoverEventList {
+  display: grid;
+  gap: 8px;
+}
+
+.discoverEventCard__time {
+  color: var(--text);
+  font-size: 0.84rem;
+  font-weight: 800;
+}
+
+.discoverEventCard__host {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
 .discoverEventCard__title {
   margin: 0;
   font-size: 0.98rem;
@@ -571,7 +596,7 @@
   font-weight: 800;
 }
 
-.discoverEventCard__subtitle {
+.discoverEventCard__text {
   margin: 0;
   color: var(--text-soft);
   font-size: 0.86rem;
@@ -579,7 +604,11 @@
 }
 
 .discoverMetaRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
   flex-wrap: wrap;
+  gap: 8px;
 }
 
 .discoverMetaPill {
@@ -594,102 +623,222 @@
   font-weight: 700;
 }
 
-.messagesSimple__toolbar {
-  align-items: end;
-}
-
-.messagesSimple__row {
-  width: 100%;
-  text-align: left;
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.04);
-  display: flex;
+.discoverTag {
+  display: inline-flex;
   align-items: center;
-  gap: 12px;
-  padding: 14px;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-soft);
+  font-size: 0.74rem;
+  font-weight: 800;
 }
 
-.messagesSimple__row--unread {
+.discoverTag--accent {
+  color: #fff;
   border-color: rgba(255, 107, 87, 0.18);
+  background: var(--primary-soft);
+}
+
+.discoverInlineLink {
+  color: var(--text);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.discoverCalendarCard--loading {
+  display: grid;
+  place-items: center;
+  min-height: 220px;
+}
+
+.discoverLoading {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.92rem;
+}
+
+.calendarLegend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.calendarLegend__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.calendarLegend__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.calendarLegend__dot--active {
+  background: var(--primary);
+}
+
+.calendarLegend__dot--today {
+  background: var(--accent);
+}
+
+.discoverWeekdays {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.discoverWeekdays__item {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.discoverCalendarGrid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.discoverDayCell {
+  min-height: 92px;
+  display: grid;
+  align-content: space-between;
+  gap: 8px;
+  padding: 10px 8px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text);
+  text-align: left;
+}
+
+.discoverDayCell.is-outside {
+  opacity: 0.35;
+}
+
+.discoverDayCell.is-today {
+  box-shadow: inset 0 0 0 1px rgba(125, 211, 252, 0.18);
+}
+
+.discoverDayCell.is-selected {
+  border-color: rgba(255, 107, 87, 0.2);
   background: linear-gradient(
     180deg,
-    rgba(255, 107, 87, 0.08),
-    rgba(255, 107, 87, 0.02)
+    rgba(255, 107, 87, 0.1),
+    rgba(255, 107, 87, 0.04)
   );
 }
 
-.messagesSimple__content {
-  min-width: 0;
-  flex: 1 1 auto;
+.discoverDayCell.has-events .discoverDayCell__count {
+  display: inline-flex;
 }
 
-.messagesSimple__text {
+.discoverDayCell__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.discoverDayCell__date {
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.discoverDayCell__count {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--primary-soft);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.discoverDayCell__preview {
   display: grid;
   gap: 4px;
+}
+
+.discoverDayCell__line,
+.discoverDayCell__empty {
+  font-size: 0.7rem;
+  line-height: 1.25;
   color: var(--text-soft);
-  font-size: 0.9rem;
-  line-height: 1.42;
 }
 
-.messagesSimple__text strong {
-  color: var(--text);
-  font-size: 0.93rem;
-}
-
-.messagesSimple__meta {
+.discoverDayCell__empty {
   color: var(--text-muted);
-  font-size: 0.8rem;
 }
 
-.messagesSimple__state {
-  display: grid;
-  place-items: center;
+.discoverModalCard__head,
+.discoverModalCard__head--spaced {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
 }
 
-.messagesSimple__chevron {
-  color: var(--text-faint);
+.discoverModalClose {
+  width: 38px;
+  height: 38px;
+  border: 0;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text);
   font-size: 1.3rem;
   line-height: 1;
 }
 
-.messagesSimple__emptyBody {
-  align-items: start;
-}
-
-.messagesSimple__emptyBody p {
-  margin: 0;
-}
-
-.notificationCard,
-.messageCard {
-  width: 100%;
-  text-align: left;
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.04);
-}
-
-.notificationCard--unread,
-.messageCard--unread {
-  border-color: rgba(255, 107, 87, 0.18);
-  background: linear-gradient(
-    180deg,
-    rgba(255, 107, 87, 0.08),
-    rgba(255, 107, 87, 0.02)
-  );
-}
-
-.notificationCard__body,
-.messageCard__body {
+.discoverModalActions {
   display: grid;
-  gap: 8px;
+  gap: 10px;
 }
 
-.authPage .heroPanel,
-.authPage .sectionBlock,
-.deleteAccountPage .sectionBlock {
-  border-radius: 22px;
+.discoverModalActions--top {
+  margin-top: 2px;
+}
+
+.formStack,
+.formSplit {
+  display: grid;
+  gap: 12px;
+}
+
+@media (max-width: 560px) {
+  .discoverStatsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 460px) {
+  .discoverCalendarGrid,
+  .discoverWeekdays {
+    gap: 6px;
+  }
+
+  .discoverDayCell {
+    min-height: 84px;
+    padding: 8px 6px;
+  }
+
+  .discoverDayCell__line {
+    font-size: 0.66rem;
+  }
 }
 
 @media (max-width: 380px) {
@@ -708,5 +857,10 @@
   .chatThreadHeader__avatar {
     width: 48px;
     height: 48px;
+  }
+
+  .discoverMonthControls {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
