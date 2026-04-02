@@ -1,0 +1,629 @@
+:root {
+  --ui-card-bg: rgba(17, 29, 48, 0.84);
+  --ui-card-border: rgba(255, 255, 255, 0.08);
+  --ui-card-border-strong: rgba(255, 255, 255, 0.12);
+  --ui-text: var(--text, #f3f7fb);
+  --ui-text-soft: var(--text-soft, rgba(243, 247, 251, 0.72));
+  --ui-text-muted: var(--text-muted, rgba(243, 247, 251, 0.5));
+  --ui-brand: var(--primary, #ff6b57);
+  --ui-brand-soft: rgba(255, 107, 87, 0.14);
+  --ui-shadow-soft: 0 14px 34px rgba(0, 0, 0, 0.22);
+  --ui-shadow-hover: 0 18px 42px rgba(0, 0, 0, 0.28);
+}
+
+/* BUTTONS */
+
+.app-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 0 16px;
+  border: 1px solid transparent;
+  border-radius: 16px;
+  outline: none;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  user-select: none;
+  font-family: inherit;
+  font-size: 0.92rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  transition:
+    transform 160ms ease,
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    box-shadow 160ms ease,
+    opacity 160ms ease;
+}
+
+.app-button:hover {
+  transform: translateY(-1px);
+}
+
+.app-button:active {
+  transform: translateY(0);
+}
+
+.app-button:disabled,
+.app-button[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.56;
+  transform: none;
+}
+
+.app-button--block {
+  width: 100%;
+}
+
+.app-button--primary {
+  color: #fff;
+  background: linear-gradient(180deg, #ff7d6c 0%, #ff6b57 100%);
+  box-shadow: 0 10px 24px rgba(255, 107, 87, 0.22);
+}
+
+.app-button--secondary {
+  color: var(--ui-text);
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.app-button--ghost {
+  color: var(--ui-text-soft);
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+/* EMPTY STATE */
+
+.ui-empty-state {
+  display: grid;
+  gap: 14px;
+  padding: 20px 18px;
+  border-radius: 22px;
+  border: 1px dashed rgba(255, 255, 255, 0.12);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0)),
+    rgba(255, 255, 255, 0.03);
+}
+
+.ui-empty-state__icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ui-brand);
+  background: var(--ui-brand-soft);
+  border: 1px solid rgba(255, 107, 87, 0.18);
+  font-size: 1.1rem;
+}
+
+.ui-empty-state__title {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.2;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--ui-text);
+}
+
+.ui-empty-state__description {
+  margin: 6px 0 0;
+  font-size: 0.92rem;
+  line-height: 1.58;
+  color: var(--ui-text-soft);
+  max-width: 42ch;
+}
+
+.ui-empty-state__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.ui-stack-xs {
+  display: grid;
+  gap: 8px;
+}
+
+/* EVENTS HOME */
+
+.page--eventsHome {
+  display: grid;
+  gap: 18px;
+}
+
+.discoverHero,
+.discoverCalendarCard,
+.discoverStatCard,
+.discoverEventCard,
+.discoverModalCard {
+  border: 1px solid var(--ui-card-border);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0)),
+    var(--ui-card-bg);
+  box-shadow: var(--ui-shadow-soft);
+  backdrop-filter: blur(12px);
+}
+
+.discoverHero {
+  display: grid;
+  gap: 18px;
+  padding: 20px;
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at top right, rgba(255, 107, 87, 0.18), transparent 34%),
+    linear-gradient(135deg, rgba(255, 107, 87, 0.14), rgba(80, 141, 255, 0.06)),
+    rgba(17, 29, 48, 0.92);
+}
+
+.discoverHero__copy {
+  display: grid;
+  gap: 10px;
+}
+
+.discoverHero__title {
+  margin: 0;
+  font-size: 1.48rem;
+  line-height: 1.08;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: var(--text);
+}
+
+.discoverHero__text {
+  margin: 0;
+  font-size: 0.96rem;
+  line-height: 1.62;
+  color: var(--text-soft);
+}
+
+.discoverHero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.discoverStatsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.discoverStatCard {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border-radius: 20px;
+}
+
+.discoverStatCard--accent {
+  border-color: rgba(255, 107, 87, 0.2);
+  background:
+    linear-gradient(180deg, rgba(255, 107, 87, 0.12), rgba(255, 107, 87, 0.02)),
+    rgba(17, 29, 48, 0.9);
+}
+
+.discoverStatCard__label {
+  font-size: 0.76rem;
+  line-height: 1.3;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.discoverStatCard__value {
+  font-size: 1.4rem;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: var(--text);
+}
+
+.discoverFiltersSection,
+.discoverSection {
+  display: grid;
+  gap: 12px;
+}
+
+.discoverFilterRow {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.discoverFilterChip {
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-soft);
+  font: inherit;
+  font-size: 0.84rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+.discoverFilterChip:hover {
+  transform: translateY(-1px);
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.discoverFilterChip.is-active {
+  color: #fff;
+  background: rgba(255, 107, 87, 0.16);
+  border-color: rgba(255, 107, 87, 0.24);
+}
+
+.discoverMonthControls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.discoverMonthBtn {
+  min-width: 42px;
+  height: 42px;
+  padding: 0 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text);
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.discoverMonthBtn--wide {
+  min-width: 68px;
+}
+
+.discoverCalendarCard {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  border-radius: 26px;
+}
+
+.discoverCalendarCard--loading {
+  min-height: 180px;
+  place-items: center;
+}
+
+.discoverLoading {
+  margin: 0;
+  font-size: 0.94rem;
+  color: var(--text-soft);
+}
+
+.calendarLegend {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.calendarLegend__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.calendarLegend__dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.calendarLegend__dot--active {
+  background: rgba(255, 107, 87, 0.7);
+}
+
+.calendarLegend__dot--today {
+  background: #fff;
+  box-shadow: 0 0 0 2px rgba(255, 107, 87, 0.3);
+}
+
+.discoverWeekdays {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.discoverWeekdays__item {
+  text-align: center;
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+.discoverCalendarGrid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.discoverDayCell {
+  min-height: 92px;
+  padding: 10px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform 160ms ease,
+    background-color 160ms ease,
+    border-color 160ms ease;
+}
+
+.discoverDayCell:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.discoverDayCell.is-outside {
+  color: var(--text-muted);
+  opacity: 0.72;
+}
+
+.discoverDayCell.has-events {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.discoverDayCell.is-today {
+  border-color: rgba(255, 107, 87, 0.28);
+}
+
+.discoverDayCell.is-selected {
+  border-color: rgba(255, 107, 87, 0.32);
+  box-shadow: inset 0 0 0 1px rgba(255, 107, 87, 0.16);
+}
+
+.discoverDayCell__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.discoverDayCell__date {
+  font-size: 0.92rem;
+  font-weight: 800;
+}
+
+.discoverDayCell__count {
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 107, 87, 0.14);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.discoverDayCell__preview {
+  display: grid;
+  gap: 4px;
+}
+
+.discoverDayCell__line,
+.discoverDayCell__empty {
+  display: block;
+  font-size: 0.66rem;
+  line-height: 1.35;
+  color: var(--text-soft);
+}
+
+.discoverEventList {
+  display: grid;
+  gap: 12px;
+}
+
+.discoverEventCard {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 24px;
+}
+
+.discoverEventCard__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.discoverEventCard__date {
+  display: grid;
+  gap: 4px;
+}
+
+.discoverEventCard__time {
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.discoverEventCard__host,
+.discoverEventCard__host a {
+  font-size: 0.84rem;
+  color: var(--text-soft);
+  text-decoration: none;
+}
+
+.discoverEventCard__body {
+  display: grid;
+  gap: 12px;
+}
+
+.discoverEventCard__title {
+  margin: 0;
+  font-size: 1.04rem;
+  line-height: 1.14;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+.discoverEventCard__text {
+  margin: 8px 0 0;
+  font-size: 0.92rem;
+  line-height: 1.58;
+  color: var(--text-soft);
+}
+
+.discoverMetaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.discoverMetaPill,
+.discoverTag {
+  min-height: 30px;
+  padding: 0 10px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.74rem;
+  font-weight: 800;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-soft);
+}
+
+.discoverTag--accent {
+  color: #fff;
+  background: rgba(255, 107, 87, 0.14);
+  border-color: rgba(255, 107, 87, 0.18);
+}
+
+.discoverEventCard__actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.discoverInlineLink {
+  color: #fff;
+  text-decoration: none;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.modalSheet--discover {
+  max-width: 460px;
+}
+
+.discoverModalCard {
+  display: grid;
+  gap: 16px;
+  padding: 18px;
+  border-radius: 24px;
+}
+
+.discoverModalCard__head {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.discoverModalCard__head--spaced {
+  justify-content: space-between;
+}
+
+.discoverModalClose {
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text);
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+
+.discoverModalActions {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.discoverModalActions--top {
+  grid-template-columns: 1fr;
+}
+
+@media (max-width: 520px) {
+  .discoverStatsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .discoverCalendarGrid {
+    gap: 6px;
+  }
+
+  .discoverDayCell {
+    min-height: 84px;
+    padding: 8px;
+  }
+
+  .discoverModalActions {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 420px) {
+  .discoverHero {
+    padding: 18px;
+  }
+
+  .discoverHero__title {
+    font-size: 1.3rem;
+  }
+
+  .discoverWeekdays__item {
+    font-size: 0.68rem;
+  }
+
+  .discoverDayCell__line,
+  .discoverDayCell__empty {
+    font-size: 0.62rem;
+  }
+
+  .discoverMonthControls {
+    width: 100%;
+  }
+
+  .discoverMonthBtn {
+    flex: 1 1 0;
+  }
+}
