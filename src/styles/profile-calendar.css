@@ -4,6 +4,45 @@
   gap: 14px;
 }
 
+.profileSectionStack {
+  gap: 12px;
+}
+
+.profileIdentityCard {
+  display: grid;
+  gap: 14px;
+}
+
+.profileIdentityTop {
+  display: grid;
+  gap: 14px;
+}
+
+.profileIdentityMain {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: start;
+  gap: 14px;
+}
+
+.profileIdentityCopy {
+  min-width: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.profileIdentityMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.profileIdentityActions,
+.profileActionRow {
+  display: grid;
+  gap: 10px;
+}
+
 .profileHeroCard {
   padding: 16px;
 }
@@ -87,7 +126,8 @@
   letter-spacing: -0.03em;
 }
 
-.profileStats__label {
+.profileStats__label,
+.profileMiniSummary__label {
   color: var(--text-muted);
   font-size: 0.72rem;
   font-weight: 800;
@@ -97,6 +137,23 @@
 
 .profileMiniSummary {
   grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.profileMiniSummary__value {
+  font-size: 1.12rem;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  font-weight: 800;
+}
+
+.profileMiniSummary__link {
+  color: var(--text-soft);
+  font-size: 0.8rem;
+  line-height: 1.35;
+}
+
+.profileMiniSummary__link--muted {
+  color: var(--text-muted);
 }
 
 .profileEventSection .eventCard,
@@ -351,5 +408,20 @@
   .calendarMini__hero {
     flex-direction: row;
     justify-content: space-between;
+  }
+}
+
+@media (max-width: 420px) {
+  .profileIdentityMain {
+    grid-template-columns: 1fr;
+  }
+
+  .profileMiniSummary {
+    grid-template-columns: 1fr;
+  }
+
+  .profileHero__avatar {
+    width: 72px;
+    height: 72px;
   }
 }
