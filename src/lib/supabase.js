@@ -1,9 +1,16 @@
 import { createClient } from "@supabase/supabase-js";
+import {
+  SUPABASE_ANON_KEY,
+  SUPABASE_AVATARS_BUCKET,
+  SUPABASE_URL,
+  hasSupabasePublicConfig,
+} from "../config/supabase";
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+export const supabaseUrl = SUPABASE_URL;
+export const supabaseAnonKey = SUPABASE_ANON_KEY;
+export const supabaseAvatarsBucket = SUPABASE_AVATARS_BUCKET;
 
-export const hasSupabaseEnv = Boolean(supabaseUrl && supabaseAnonKey);
+export const hasSupabaseEnv = hasSupabasePublicConfig;
 
 export const supabaseConfigError = hasSupabaseEnv
   ? ""
