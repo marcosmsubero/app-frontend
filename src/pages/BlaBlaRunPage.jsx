@@ -56,7 +56,7 @@ function mergeMeetups(remoteItems = [], localItems = []) {
   });
 
   return Array.from(seen.values()).sort(
-    (a, b) => new Date(a.starts_at) - new Date(b.starts_at),
+    (a, b) => new Date(a.starts_at) - new Date(b.starts_at)
   );
 }
 
@@ -109,7 +109,7 @@ function buildStartsAt(dayKey, timeValue) {
     hours || 0,
     minutes || 0,
     0,
-    0,
+    0
   );
 
   return date.toISOString();
@@ -195,9 +195,9 @@ function matchesDiscoveryFilter(event, filterId, me) {
   if (!event?.starts_at) return false;
 
   const myIds = new Set(
-    [me?.id, me?.app_profile_id].filter(
-      (value) => value !== null && value !== undefined && value !== "",
-    ).map(String),
+    [me?.id, me?.app_profile_id]
+      .filter((value) => value !== null && value !== undefined && value !== "")
+      .map(String)
   );
 
   const creatorId = event?.creator_profile_id ?? event?.host_profile_id ?? event?.created_by;
@@ -234,7 +234,11 @@ function EventCard({ event }) {
           </span>
         </div>
 
-        <span className={`discoverTag ${event.visibility === "private" ? "" : "discoverTag--accent"}`}>
+        <span
+          className={`discoverTag ${
+            event.visibility === "private" ? "" : "discoverTag--accent"
+          }`}
+        >
           {event.visibility === "private" ? "Privado" : "Público"}
         </span>
       </div>
@@ -266,9 +270,7 @@ function EventCard({ event }) {
           ) : null}
 
           {typeof event.capacity === "number" && event.capacity > 0 ? (
-            <span className="discoverMetaPill">
-              Aforo {event.capacity}
-            </span>
+            <span className="discoverMetaPill">Aforo {event.capacity}</span>
           ) : null}
         </div>
 
@@ -287,11 +289,12 @@ function EventCard({ event }) {
   );
 }
 
-function StatCard({ label, value, accent = false }) {
+function StatCard({ label, value, accent = false, helper }) {
   return (
     <article className={`discoverStatCard${accent ? " discoverStatCard--accent" : ""}`}>
       <span className="discoverStatCard__label">{label}</span>
       <strong className="discoverStatCard__value">{value}</strong>
+      {helper ? <span className="discoverStatCard__helper">{helper}</span> : null}
     </article>
   );
 }
@@ -635,7 +638,7 @@ export default function BlaBlaRunPage() {
 
   const upcomingItems = useMemo(
     () => allItems.filter((item) => item?.starts_at && isSameOrAfterToday(item.starts_at)),
-    [allItems],
+    [allItems]
   );
 
   const filteredItems = useMemo(() => {
@@ -654,12 +657,12 @@ export default function BlaBlaRunPage() {
 
   const visibleDaysWithActivity = useMemo(
     () => days.filter((day) => byDay.has(localDayKey(day))).length,
-    [byDay, days],
+    [byDay, days]
   );
 
   const todayEventsCount = useMemo(
     () => upcomingItems.filter((item) => localDayKey(item.starts_at) === todayKey).length,
-    [todayKey, upcomingItems],
+    [todayKey, upcomingItems]
   );
 
   const nextEvents = useMemo(() => filteredItems.slice(0, 6), [filteredItems]);
@@ -720,18 +723,38 @@ export default function BlaBlaRunPage() {
   return (
     <>
       <section className="page page--eventsHome">
-        <section className="discoverHero">
-          <div className="discoverHero__copy">
-            <span className="sectionEyebrow">Home de eventos</span>
-            <h1 className="discoverHero__title">
-              Descubre planes, entrenamientos y quedadas para correr con otros runners.
-            </h1>
-            <p className="discoverHero__text">
-              Entra, explora rápido el calendario y crea tu próxima quedada desde una interfaz ligera y clara.
-            </p>
+        <section className="sectionBlock discoverIntroCard">
+          <div className="discoverIntroCard__copy">
+            <div className="app-section-header">
+              <div>
+                <div className="app-section-header__title">Explora quedadas</div>
+                <div className="app-section-header__subtitle">
+                  Calendario primero, filtros rápidos y creación directa desde el día que elijas.
+                </div>
+              </div>
+            </div>
+
+            <div className="discoverStatsGrid">
+              <StatCard
+                label="Próximos"
+                value={upcomingItems.length}
+                accent
+                helper="Eventos abiertos a futuro"
+              />
+              <StatCard
+                label="Hoy"
+                value={todayEventsCount}
+                helper="Actividad para el día actual"
+              />
+              <StatCard
+                label="Días activos"
+                value={visibleDaysWithActivity}
+                helper="Días con movimiento este mes"
+              />
+            </div>
           </div>
 
-          <div className="discoverHero__actions">
+          <div className="discoverIntroCard__actions">
             <Button variant="primary" onClick={() => openCreateModal()}>
               Crear quedada
             </Button>
@@ -740,22 +763,15 @@ export default function BlaBlaRunPage() {
               Ir a hoy
             </Button>
           </div>
-
-          <div className="discoverStatsGrid">
-            <StatCard label="Próximos eventos" value={upcomingItems.length} accent />
-            <StatCard label="Eventos hoy" value={todayEventsCount} />
-            <StatCard label="Días activos este mes" value={visibleDaysWithActivity} />
-          </div>
         </section>
 
-        <section className="discoverFiltersSection">
-          <div className="sectionHead">
-            <div className="sectionHead__copy">
-              <span className="sectionEyebrow">Exploración rápida</span>
-              <h2 className="sectionTitle">Filtra lo importante</h2>
-              <p className="sectionLead">
-                Reduce ruido y encuentra antes lo que te interesa hacer ahora.
-              </p>
+        <section className="sectionBlock discoverSection">
+          <div className="app-section-header">
+            <div>
+              <div className="app-section-header__title">Filtros</div>
+              <div className="app-section-header__subtitle">
+                Reduce ruido y encuentra antes lo que quieres hacer.
+              </div>
             </div>
           </div>
 
@@ -773,24 +789,39 @@ export default function BlaBlaRunPage() {
           </div>
         </section>
 
-        <section className="discoverSection">
-          <div className="sectionHead">
-            <div className="sectionHead__copy">
-              <span className="sectionEyebrow">Calendario</span>
-              <h2 className="sectionTitle">{monthLabel(month)}</h2>
-              <p className="sectionLead">
-                Pulsa un día para ver detalle o crear una quedada exactamente ahí.
-              </p>
+        <section className="sectionBlock discoverSection">
+          <div className="discoverCalendarHead">
+            <div className="app-section-header">
+              <div>
+                <div className="app-section-header__title">{monthLabel(month)}</div>
+                <div className="app-section-header__subtitle">
+                  Pulsa un día para ver el detalle o crear una quedada exactamente ahí.
+                </div>
+              </div>
             </div>
 
             <div className="discoverMonthControls">
-              <button type="button" className="discoverMonthBtn" onClick={goPrevMonth} aria-label="Mes anterior">
+              <button
+                type="button"
+                className="discoverMonthBtn"
+                onClick={goPrevMonth}
+                aria-label="Mes anterior"
+              >
                 ←
               </button>
-              <button type="button" className="discoverMonthBtn discoverMonthBtn--wide" onClick={goToday}>
+              <button
+                type="button"
+                className="discoverMonthBtn discoverMonthBtn--wide"
+                onClick={goToday}
+              >
                 Hoy
               </button>
-              <button type="button" className="discoverMonthBtn" onClick={goNextMonth} aria-label="Mes siguiente">
+              <button
+                type="button"
+                className="discoverMonthBtn"
+                onClick={goNextMonth}
+                aria-label="Mes siguiente"
+              >
                 →
               </button>
             </div>
@@ -833,7 +864,9 @@ export default function BlaBlaRunPage() {
                       key={`${key}-${inMonth ? "in" : "out"}`}
                       type="button"
                       onClick={() => openDay(key)}
-                      className={`discoverDayCell${!inMonth ? " is-outside" : ""}${dayItems.length > 0 ? " has-events" : ""}${isToday ? " is-today" : ""}${isSelected ? " is-selected" : ""}`}
+                      className={`discoverDayCell${!inMonth ? " is-outside" : ""}${
+                        dayItems.length > 0 ? " has-events" : ""
+                      }${isToday ? " is-today" : ""}${isSelected ? " is-selected" : ""}`}
                       title={`${key} · ${daySummary(dayItems)}`}
                     >
                       <div className="discoverDayCell__top">
@@ -864,14 +897,13 @@ export default function BlaBlaRunPage() {
           )}
         </section>
 
-        <section className="discoverSection">
-          <div className="sectionHead">
-            <div className="sectionHead__copy">
-              <span className="sectionEyebrow">Próximos planes</span>
-              <h2 className="sectionTitle">Qué puedes hacer ahora</h2>
-              <p className="sectionLead">
+        <section className="sectionBlock discoverSection">
+          <div className="app-section-header">
+            <div>
+              <div className="app-section-header__title">Próximos planes</div>
+              <div className="app-section-header__subtitle">
                 Una lista rápida para descubrir actividad sin depender solo del calendario.
-              </p>
+              </div>
             </div>
           </div>
 
