@@ -28,6 +28,19 @@ function stringifyMemberHandles(members = []) {
     .join("\n");
 }
 
+function LoaderScreen({ isEditMode }) {
+  return (
+    <section className="page">
+      <div className="stateCard">
+        <h3 className="stateCard__title">
+          {isEditMode ? "Cargando perfil" : "Cargando onboarding"}
+        </h3>
+        <p className="stateCard__text">Espera un momento.</p>
+      </div>
+    </section>
+  );
+}
+
 export default function ProfileOnboardingPage() {
   const { token, me, meReady, refreshMe } = useAuth();
   const nav = useNavigate();
@@ -91,9 +104,8 @@ export default function ProfileOnboardingPage() {
     const handle = normalizeHandle(form.handle);
     const bio = form.bio.trim();
     const locationValue = form.location.trim();
-    const member_handles = profile_type === "group"
-      ? parseMemberHandles(form.member_handles_text)
-      : [];
+    const member_handles =
+      profile_type === "group" ? parseMemberHandles(form.member_handles_text) : [];
 
     if (!full_name) {
       return setError(
@@ -170,16 +182,7 @@ export default function ProfileOnboardingPage() {
   }
 
   if (!meReady) {
-    return (
-      <div className="app-loader-screen">
-        <div className="app-loader-screen__inner">
-          <div className="app-loader-screen__spinner" />
-          <div className="app-loader-screen__label">
-            {isEditMode ? "Cargando perfil…" : "Cargando onboarding…"}
-          </div>
-        </div>
-      </div>
-    );
+    return <LoaderScreen isEditMode={isEditMode} />;
   }
 
   if (isOnboardingComplete(me) && !isEditMode) {
@@ -189,42 +192,54 @@ export default function ProfileOnboardingPage() {
   const isGroup = form.profile_type === "group";
 
   return (
-    <section className="app-shell app-shell--narrow">
-      <div className="app-section">
-        <div className="app-section__header">
+    <section className="page">
+      <section className="heroPanel">
+        <div className="heroPanel__top">
           <div>
-            <span className="app-eyebrow">{isEditMode ? "Perfil" : "Onboarding"}</span>
-            <h1 className="app-title">
+            <span className="sectionEyebrow">{isEditMode ? "Perfil" : "Onboarding"}</span>
+            <h1 className="heroPanel__title">
               {isEditMode ? "Editar perfil" : "Completa tu perfil"}
             </h1>
-            <p className="app-subtitle">
-              Elige si tu presencia en la app será individual o grupal.
-            </p>
           </div>
+
+          <span className="heroPanel__badge">
+            {isGroup ? "Grupo" : "Individual"}
+          </span>
         </div>
 
-        <form className="app-form" onSubmit={handleSubmit}>
+        <p className="heroPanel__text">
+          Define tu identidad en la app con un flujo simple, compacto y móvil.
+        </p>
+      </section>
+
+      <section className="sectionBlock">
+        <form className="formCard" onSubmit={handleSubmit}>
           {initialEmail ? (
-            <div className="app-field">
-              <label className="app-label">Email</label>
-              <input className="app-input" type="email" value={initialEmail} disabled readOnly />
+            <div className="formRow">
+              <label>Email</label>
+              <input type="email" value={initialEmail} disabled readOnly />
             </div>
           ) : null}
 
-          <div className="app-field">
-            <label className="app-label">Tipo de perfil</label>
-            <div className="authTabs" style={{ gridTemplateColumns: "repeat(2, minmax(0, 1fr))" }}>
+          <div className="formRow">
+            <label>Tipo de perfil</label>
+            <div className="tabBar">
               <button
                 type="button"
-                className={form.profile_type === "individual" ? "authTab is-active" : "authTab"}
+                className={`tabBar__item${
+                  form.profile_type === "individual" ? " tabBar__item--active" : ""
+                }`}
                 onClick={() => updateField("profile_type", "individual")}
                 disabled={saving}
               >
                 Individual
               </button>
+
               <button
                 type="button"
-                className={form.profile_type === "group" ? "authTab is-active" : "authTab"}
+                className={`tabBar__item${
+                  form.profile_type === "group" ? " tabBar__item--active" : ""
+                }`}
                 onClick={() => updateField("profile_type", "group")}
                 disabled={saving}
               >
@@ -233,13 +248,12 @@ export default function ProfileOnboardingPage() {
             </div>
           </div>
 
-          <div className="app-field">
-            <label className="app-label" htmlFor="onboarding-full-name">
+          <div className="formRow">
+            <label htmlFor="onboarding-full-name">
               {isGroup ? "Nombre del grupo" : "Nombre"}
             </label>
             <input
               id="onboarding-full-name"
-              className="app-input"
               type="text"
               value={form.full_name}
               onChange={(e) => updateField("full_name", e.target.value)}
@@ -249,13 +263,10 @@ export default function ProfileOnboardingPage() {
             />
           </div>
 
-          <div className="app-field">
-            <label className="app-label" htmlFor="onboarding-handle">
-              Nombre de usuario
-            </label>
+          <div className="formRow">
+            <label htmlFor="onboarding-handle">Nombre de usuario</label>
             <input
               id="onboarding-handle"
-              className="app-input"
               type="text"
               value={form.handle}
               onChange={(e) => updateField("handle", normalizeHandle(e.target.value))}
@@ -265,16 +276,13 @@ export default function ProfileOnboardingPage() {
               autoCorrect="off"
               autoComplete="username"
             />
-            <small className="app-help">Será tu identificador visible dentro de la app.</small>
+            <p className="formHint">Será tu identificador visible dentro de la app.</p>
           </div>
 
-          <div className="app-field">
-            <label className="app-label" htmlFor="onboarding-location">
-              Ubicación
-            </label>
+          <div className="formRow">
+            <label htmlFor="onboarding-location">Ubicación</label>
             <input
               id="onboarding-location"
-              className="app-input"
               type="text"
               value={form.location}
               onChange={(e) => updateField("location", e.target.value)}
@@ -284,13 +292,10 @@ export default function ProfileOnboardingPage() {
             />
           </div>
 
-          <div className="app-field">
-            <label className="app-label" htmlFor="onboarding-bio">
-              Bio
-            </label>
+          <div className="formRow">
+            <label htmlFor="onboarding-bio">Bio</label>
             <textarea
               id="onboarding-bio"
-              className="app-textarea"
               rows={4}
               value={form.bio}
               onChange={(e) => updateField("bio", e.target.value)}
@@ -301,47 +306,41 @@ export default function ProfileOnboardingPage() {
                   : "Cuéntanos algo sobre ti como runner"
               }
             />
-            <small className="app-help">{form.bio.length}/280</small>
+            <p className="formHint">{form.bio.length}/280</p>
           </div>
 
           {isGroup ? (
-            <div className="app-field">
-              <label className="app-label" htmlFor="onboarding-members">
-                Miembros del grupo
-              </label>
+            <div className="formRow">
+              <label htmlFor="onboarding-members">Miembros del grupo</label>
               <textarea
                 id="onboarding-members"
-                className="app-textarea"
                 rows={5}
                 value={form.member_handles_text}
                 onChange={(e) => updateField("member_handles_text", e.target.value)}
                 disabled={saving}
                 placeholder={"@marcos\n@ana\n@carlos"}
               />
-              <small className="app-help">
+              <p className="formHint">
                 Añade un usuario por línea o separados por comas. Solo se pueden añadir usuarios
                 que ya tengan perfil individual.
-              </small>
+              </p>
             </div>
           ) : null}
 
           {msg.text ? (
-            <div
-              className={`authSimple__message ${
-                msg.type === "error"
-                  ? "authSimple__message--error"
-                  : "authSimple__message--success"
-              }`}
-            >
-              {msg.text}
+            <div className="stateCard" style={{ padding: 14 }}>
+              <h3 className="stateCard__title">
+                {msg.type === "error" ? "Revisa el formulario" : "Todo correcto"}
+              </h3>
+              <p className="stateCard__text">{msg.text}</p>
             </div>
           ) : null}
 
-          <div className="app-actions">
+          <div className="formActions">
             {isEditMode ? (
               <button
                 type="button"
-                className="app-button app-button--secondary"
+                className="btn btn--ghost"
                 onClick={goBackAfterEdit}
                 disabled={saving}
               >
@@ -349,12 +348,12 @@ export default function ProfileOnboardingPage() {
               </button>
             ) : null}
 
-            <button type="submit" className="app-button app-button--primary" disabled={saving}>
-              {saving ? "Guardando…" : isEditMode ? "Guardar cambios" : "Completar perfil"}
+            <button type="submit" className="btn btn--primary" disabled={saving}>
+              {saving ? "Guardando..." : isEditMode ? "Guardar cambios" : "Completar perfil"}
             </button>
           </div>
         </form>
-      </div>
+      </section>
     </section>
   );
 }
