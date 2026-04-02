@@ -1,9 +1,17 @@
-import { supabase } from "../lib/supabase";
+import { supabase, supabaseAvatarsBucket, hasSupabaseEnv } from "../lib/supabase";
 
-const DEFAULT_BUCKET = import.meta.env.VITE_SUPABASE_AVATARS_BUCKET || "avatar";
+const DEFAULT_BUCKET = supabaseAvatarsBucket || "avatar";
 
 const MAX_AVATAR_MB = 6;
 const MAX_AVATAR_BYTES = MAX_AVATAR_MB * 1024 * 1024;
+
+function ensureSupabaseStorage() {
+  if (!hasSupabaseEnv || !supabase) {
+    throw new Error("La configuración pública de Supabase no está disponible.");
+  }
+
+  return supabase;
+}
 
 function getAvatarBucket() {
   const bucket = String(DEFAULT_BUCKET || "").trim();
@@ -104,10 +112,11 @@ async function compressImage(file, { maxSize = 1200, quality = 0.84 } = {}) {
 }
 
 async function removeExistingAvatars(userId, bucket) {
+  const client = ensureSupabaseStorage();
   const folder = String(userId || "").trim();
   if (!folder) return;
 
-  const { data, error } = await supabase.storage.from(bucket).list(folder, {
+  const { data, error } = await client.storage.from(bucket).list(folder, {
     limit: 100,
     offset: 0,
   });
@@ -128,7 +137,7 @@ async function removeExistingAvatars(userId, bucket) {
 
   if (!paths.length) return;
 
-  const { error: removeError } = await supabase.storage.from(bucket).remove(paths);
+  const { error: removeError } = await client.storage.from(bucket).remove(paths);
 
   if (removeError) {
     throw new Error(removeError.message || "No se pudo reemplazar el avatar anterior.");
@@ -136,6 +145,7 @@ async function removeExistingAvatars(userId, bucket) {
 }
 
 export async function uploadAvatarToSupabase(file, userId) {
+  const client = ensureSupabaseStorage();
   const bucket = getAvatarBucket();
   const cleanUserId = String(userId || "").trim();
 
@@ -149,7 +159,7 @@ export async function uploadAvatarToSupabase(file, userId) {
 
   const path = `${cleanUserId}/avatar-${Date.now()}.${ext}`;
 
-  const { error: uploadError } = await supabase.storage
+  const { error: uploadError } = await client.storage
     .from(bucket)
     .upload(path, blob, {
       contentType,
@@ -165,7 +175,7 @@ export async function uploadAvatarToSupabase(file, userId) {
     throw new Error(uploadError.message || "No se pudo subir la imagen a Storage.");
   }
 
-  const { data: publicData } = supabase.storage.from(bucket).getPublicUrl(path);
+  const { data: publicData } = client.storage.from(bucket).getPublicUrl(path);
   const publicUrl = publicData?.publicUrl
     ? `${publicData.publicUrl}${publicData.publicUrl.includes("?") ? "&" : "?"}t=${Date.now()}`
     : null;
