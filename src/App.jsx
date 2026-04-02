@@ -55,7 +55,7 @@ function AuthOnlyRoute({ children }) {
   }
 
   if (session && isOnboardingComplete(me)) {
-    return <Navigate to="/actividad" replace />;
+    return <Navigate to="/eventos" replace />;
   }
 
   if (session && !isOnboardingComplete(me)) {
@@ -80,7 +80,7 @@ function RootRedirect() {
     return <Navigate to="/onboarding" replace />;
   }
 
-  return <Navigate to="/actividad" replace />;
+  return <Navigate to="/eventos" replace />;
 }
 
 export default function App() {
@@ -118,15 +118,16 @@ export default function App() {
             </ProtectedRoute>
           }
         >
-          <Route path="actividad" element={<ActivityPage />} />
-          <Route path="blablarun" element={<BlaBlaRunPage />} />
+          <Route path="eventos" element={<BlaBlaRunPage />} />
+          <Route path="blablarun" element={<Navigate to="/eventos" replace />} />
 
           <Route path="perfil" element={<ProfilePage />} />
           <Route path="perfil/:profileId" element={<ProfilePage />} />
           <Route path="perfil/handle/:handle" element={<ProfilePage />} />
-
           <Route path="perfil/seguidores" element={<FollowersPage />} />
           <Route path="perfil/seguidos" element={<FollowingPage />} />
+
+          <Route path="actividad" element={<ActivityPage />} />
 
           <Route path="mensajes" element={<MessagesPage />} />
           <Route path="mensajes/:threadId" element={<ChatThreadPage />} />
