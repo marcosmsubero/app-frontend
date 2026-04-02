@@ -17,17 +17,20 @@ function SettingsItem({ title, text, action }) {
 }
 
 export default function PlaceholderSettingsPage() {
-  const { signOut, me } = useAuth();
+  const { logout, me } = useAuth();
 
   return (
     <section className="page settingsPage">
-      <section className="heroPanel">
-        <div className="heroPanel__top">
+      <section className="sectionBlock">
+        <div className="app-section-header">
           <div>
-            <span className="sectionEyebrow">Ajustes</span>
+            <div className="app-section-header__title">Cuenta y perfil</div>
+            <div className="app-section-header__subtitle">
+              Preferencias esenciales y acciones sensibles de la cuenta.
+            </div>
           </div>
 
-          <span className="heroPanel__badge">Cuenta</span>
+          <span className="app-badge">Cuenta</span>
         </div>
       </section>
 
@@ -52,7 +55,7 @@ export default function PlaceholderSettingsPage() {
           title="Cerrar sesión"
           text="Cierra tu sesión en este dispositivo."
           action={
-            <button type="button" className="feedCard__action" onClick={signOut}>
+            <button type="button" className="feedCard__action" onClick={logout}>
               Salir
             </button>
           }
