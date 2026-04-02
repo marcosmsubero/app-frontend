@@ -173,21 +173,19 @@ export default function NotificationsPage() {
 
   return (
     <section className="page">
-      <section className="heroPanel">
-        <div className="heroPanel__top">
+      <section className="sectionBlock">
+        <div className="app-section-header">
           <div>
-            <span className="sectionEyebrow">Actividad</span>
-            <h1 className="heroPanel__title">Notificaciones</h1>
+            <div className="app-section-header__title">Centro de actividad</div>
+            <div className="app-section-header__subtitle">
+              Menciones, mensajes y movimientos recientes en una sola vista.
+            </div>
           </div>
 
-          <span className="heroPanel__badge">
+          <span className="app-badge app-badge--primary">
             {unreadNotifications > 0 ? `${unreadNotifications} nuevas` : "Al día"}
           </span>
         </div>
-
-        <p className="heroPanel__text">
-          Menciones, mensajes y actividad reciente en una vista clara y compacta.
-        </p>
       </section>
 
       <section className="sectionBlock">
