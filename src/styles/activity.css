@@ -1,491 +1,288 @@
-.activityPage {
-  gap: 18px;
+.formCard,
+.formRow,
+.formActions,
+.settingsPage,
+.settingsRow,
+.settingsRow__left,
+.settingsRow__copy,
+.chatThreadPage,
+.chatThreadPage__body,
+.chatThreadPage__messages,
+.chatThreadPage__composer,
+.chatBubble__meta,
+.chatComposer,
+.chatComposer__row,
+.deleteAccountPage,
+.followList,
+.followCard,
+.activityOverview,
+.activitySection,
+.activityGrid,
+.activityPanel,
+.discoverHero,
+.discoverSection,
+.discoverFiltersSection,
+.discoverCalendarCard,
+.discoverModalCard,
+.discoverEventsList,
+.discoverEventCard,
+.discoverHero__copy,
+.discoverHero__actions,
+.discoverMetaRow,
+.discoverEventCard__footer,
+.authPage,
+.messagesSimple__emptyBody {
+  display: grid;
+  gap: 12px;
 }
 
-.activityHero {
-  display: grid;
+.formCard {
   gap: 16px;
-  padding: 20px;
-  border-radius: 28px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background:
-    radial-gradient(circle at top right, rgba(255, 107, 87, 0.16), transparent 30%),
-    linear-gradient(135deg, rgba(255, 107, 87, 0.14), rgba(80, 141, 255, 0.06)),
-    rgba(17, 29, 48, 0.92);
-  box-shadow: var(--shadow-md);
 }
 
-.activityHero__copy {
-  display: grid;
-  gap: 10px;
-}
-
-.activityHero__title {
-  margin: 0;
-  font-size: 1.38rem;
-  line-height: 1.08;
-  font-weight: 800;
-  letter-spacing: -0.04em;
-  color: var(--text);
-}
-
-.activityHero__text {
-  margin: 0;
-  font-size: 0.95rem;
-  line-height: 1.6;
+.formRow label {
   color: var(--text-soft);
-  max-width: 58ch;
-}
-
-.activityHero__status {
-  display: flex;
-  justify-content: flex-start;
-}
-
-.activityHero__pill {
-  min-height: 32px;
-  padding: 0 12px;
-  border-radius: 999px;
-  display: inline-flex;
-  align-items: center;
-  font-size: 0.76rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #fff;
-  background: rgba(255, 107, 87, 0.16);
-  border: 1px solid rgba(255, 107, 87, 0.22);
-}
-
-.activityMetrics {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-}
-
-.activityMetricCard {
-  display: grid;
-  gap: 8px;
-  padding: 14px;
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.activityMetricCard--accent {
-  background:
-    linear-gradient(180deg, rgba(255, 107, 87, 0.12), rgba(255, 107, 87, 0.03)),
-    rgba(255, 255, 255, 0.04);
-  border-color: rgba(255, 107, 87, 0.18);
-}
-
-.activityMetricCard__label {
-  font-size: 0.72rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--text-muted);
-}
-
-.activityMetricCard__value {
-  font-size: 1.26rem;
-  line-height: 1;
-  font-weight: 800;
-  letter-spacing: -0.04em;
-  color: var(--text);
-}
-
-.activityMetricCard__help {
   font-size: 0.82rem;
-  line-height: 1.4;
-  color: var(--text-soft);
+  font-weight: 800;
 }
 
-.activityPanel {
-  display: grid;
-  gap: 14px;
-  padding: 16px;
-  border-radius: 26px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0)),
-    rgba(17, 29, 48, 0.88);
-  box-shadow: var(--shadow-md);
+.formHint {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  line-height: 1.45;
 }
 
-.activityPanel__top {
-  display: grid;
-  gap: 12px;
+.formActions {
+  grid-auto-flow: column;
+  justify-content: stretch;
+  grid-auto-columns: minmax(0, 1fr);
 }
 
-.activityPanel__body {
-  display: grid;
-  gap: 12px;
+.btn {
+  min-height: 48px;
+  border-radius: 16px;
+  border: 1px solid transparent;
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 800;
 }
 
-.activityTabs {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
+.btn--primary {
+  color: #fff;
+  background: linear-gradient(180deg, var(--primary-strong), var(--primary));
 }
 
-.activityTabs__item {
-  min-height: 52px;
-  padding: 0 14px;
+.btn--ghost {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--border);
+}
+
+.settingsRow {
+  align-items: center;
+  padding: 14px;
   border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border);
   background: rgba(255, 255, 255, 0.04);
-  color: var(--text-soft);
-  font: inherit;
-  font-size: 0.88rem;
-  font-weight: 800;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  cursor: pointer;
-  transition:
-    transform 160ms ease,
-    background-color 160ms ease,
-    border-color 160ms ease,
-    color 160ms ease;
 }
 
-.activityTabs__item:hover {
-  transform: translateY(-1px);
-  color: var(--text);
-  background: rgba(255, 255, 255, 0.07);
-}
-
-.activityTabs__item.is-active {
-  color: #fff;
-  background: rgba(255, 107, 87, 0.16);
-  border-color: rgba(255, 107, 87, 0.22);
-}
-
-.activityTabs__icon {
-  display: inline-flex;
-  width: 18px;
-  height: 18px;
-}
-
-.activityTabs__icon svg {
-  width: 18px;
-  height: 18px;
-}
-
-.activityTabs__count {
-  min-width: 22px;
-  height: 22px;
-  padding: 0 6px;
-  border-radius: 999px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255, 255, 255, 0.14);
-  color: #fff;
-  font-size: 0.72rem;
-  font-weight: 800;
-}
-
-.activitySearch {
-  min-height: 50px;
-  padding: 0 14px;
-  border-radius: 18px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.activitySearch__icon {
-  display: inline-flex;
-  width: 18px;
-  height: 18px;
-  color: var(--text-muted);
-}
-
-.activitySearch input {
-  flex: 1 1 auto;
+.settingsRow__left {
   min-width: 0;
-  background: transparent;
-  border: none;
-  outline: none;
-  color: var(--text);
-  font: inherit;
+  flex: 1 1 auto;
 }
 
-.activitySearch input::placeholder {
-  color: var(--text-muted);
-}
-
-.activityToolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.activitySubfilters {
-  display: inline-flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.activitySubfilters__item {
-  min-height: 38px;
-  padding: 0 12px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--text-soft);
-  font: inherit;
-  font-size: 0.8rem;
+.settingsRow__title {
+  margin: 0;
+  font-size: 0.96rem;
   font-weight: 800;
-  cursor: pointer;
 }
 
-.activitySubfilters__item.is-active {
-  color: #fff;
-  background: rgba(255, 107, 87, 0.16);
-  border-color: rgba(255, 107, 87, 0.22);
+.settingsRow__text {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.88rem;
+  line-height: 1.5;
 }
 
-.activityRefreshBtn {
-  width: 42px;
-  height: 42px;
-  border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+.chatThreadPage__messages {
+  gap: 10px;
+}
+
+.chatBubble {
+  max-width: 88%;
+  padding: 12px 14px;
+  border-radius: 18px;
   background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border);
+}
+
+.chatBubble--me {
+  margin-left: auto;
+  background: linear-gradient(180deg, rgba(255, 107, 87, 0.15), rgba(255, 107, 87, 0.06));
+  border-color: rgba(255, 107, 87, 0.18);
+}
+
+.chatBubble__text {
+  margin: 0;
   color: var(--text);
-  display: inline-flex;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.chatBubble__meta {
+  margin-top: 8px;
+  grid-auto-flow: column;
+  justify-content: end;
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 0.74rem;
+}
+
+.chatComposer {
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  padding: 14px;
+  border-radius: 22px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.chatComposer textarea {
+  min-height: 52px;
+  max-height: 140px;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  box-shadow: none;
+}
+
+.followList {
+  gap: 10px;
+}
+
+.followCard {
+  grid-template-columns: auto 1fr auto;
   align-items: center;
-  justify-content: center;
-  cursor: pointer;
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
 }
 
-.activityFeedList {
-  display: grid;
-  gap: 12px;
+.followCard__avatar {
+  width: 46px;
+  height: 46px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.08);
 }
 
-.activityItemCard {
-  width: 100%;
-  text-align: left;
-  display: grid;
-  gap: 12px;
-  padding: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 24px;
+.followCard__name {
+  margin: 0;
+  font-size: 0.94rem;
+  font-weight: 800;
+}
+
+.followCard__handle {
+  margin: 4px 0 0;
+  color: var(--text-muted);
+  font-size: 0.84rem;
+}
+
+.discoverHero,
+.discoverCalendarCard,
+.discoverStatCard,
+.discoverEventCard,
+.discoverModalCard {
+  border: 1px solid var(--border);
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0)),
-    rgba(17, 29, 48, 0.84);
-  color: inherit;
-  cursor: pointer;
+    var(--surface);
   box-shadow: var(--shadow-sm);
-  transition:
-    transform 160ms ease,
-    border-color 160ms ease,
-    background-color 160ms ease;
 }
 
-.activityItemCard:hover {
-  transform: translateY(-1px);
-  background: rgba(17, 29, 48, 0.96);
+.discoverHero,
+.discoverCalendarCard,
+.discoverModalCard {
+  padding: 18px;
+  border-radius: 26px;
 }
 
-.activityItemCard--unread {
-  border-color: rgba(255, 107, 87, 0.18);
+.discoverHero {
   background:
-    linear-gradient(135deg, rgba(255, 107, 87, 0.08), rgba(255, 255, 255, 0.03)),
-    rgba(17, 29, 48, 0.86);
+    radial-gradient(circle at top right, rgba(255, 107, 87, 0.18), transparent 34%),
+    linear-gradient(145deg, rgba(255, 107, 87, 0.12), rgba(125, 211, 252, 0.04)),
+    rgba(12, 23, 38, 0.95);
 }
 
-.activityItemCard__top {
+.discoverHero__title {
+  margin: 0;
+  font-size: 1.5rem;
+  line-height: 1.06;
+  letter-spacing: -0.04em;
+  font-weight: 800;
+}
+
+.discoverHero__text,
+.discoverEventCard__text,
+.discoverMetaText {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.94rem;
+  line-height: 1.58;
+}
+
+.discoverStatsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.discoverStatCard {
+  padding: 14px;
+  border-radius: 18px;
+}
+
+.discoverStatCard--accent {
+  background: linear-gradient(180deg, rgba(255, 107, 87, 0.12), rgba(255, 107, 87, 0.03));
+  border-color: rgba(255, 107, 87, 0.18);
+}
+
+.discoverSection__header,
+.discoverEventCard__head,
+.discoverEventCard__footer,
+.discoverMetaRow {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
 }
 
-.activityIdentity {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-width: 0;
+.discoverEventCard {
+  padding: 16px;
+  border-radius: 22px;
 }
 
-.activityIdentity__copy {
-  min-width: 0;
-}
-
-.activityAvatar {
-  width: 48px;
-  height: 48px;
-  border-radius: 16px;
-  object-fit: cover;
-  flex: 0 0 auto;
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.activityAvatar--fallback {
-  display: grid;
-  place-items: center;
-  font-size: 0.9rem;
-  font-weight: 800;
-  color: #fff;
-}
-
-.activityItemCard__title {
+.discoverEventCard__title {
   margin: 0;
-  font-size: 0.98rem;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  color: var(--text);
-}
-
-.activityItemCard__meta {
-  margin: 4px 0 0;
-  font-size: 0.8rem;
-  line-height: 1.4;
-  color: var(--text-muted);
-}
-
-.activityItemCard__aside {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex: 0 0 auto;
-}
-
-.activityChevron {
-  width: 18px;
-  height: 18px;
-  display: inline-flex;
-  color: var(--text-muted);
-}
-
-.activityCountBadge {
-  min-width: 24px;
-  height: 24px;
-  padding: 0 7px;
-  border-radius: 999px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255, 107, 87, 0.16);
-  color: #fff;
-  font-size: 0.72rem;
+  font-size: 1rem;
   font-weight: 800;
 }
 
-.activityUnreadDot {
-  width: 10px;
-  height: 10px;
-  border-radius: 999px;
-  background: var(--primary);
-  box-shadow: 0 0 0 6px rgba(255, 107, 87, 0.12);
-}
-
-.activityItemCard__body {
-  display: grid;
-  gap: 10px;
-}
-
-.activityItemCard__text {
-  margin: 0;
-  font-size: 0.92rem;
-  line-height: 1.58;
-  color: var(--text-soft);
-}
-
-.activityMetaRow {
-  display: flex;
-  gap: 8px;
+.discoverMetaRow {
   flex-wrap: wrap;
 }
 
-.activityTag {
+.discoverMetaPill {
+  display: inline-flex;
+  align-items: center;
   min-height: 30px;
   padding: 0 10px;
   border-radius: 999px;
-  display: inline-flex;
-  align-items: center;
-  font-size: 0.74rem;
-  font-weight: 800;
-  color: var(--text-soft);
   background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.activityStateCard {
-  display: grid;
-  gap: 10px;
-  padding: 18px;
-  border-radius: 22px;
-  border: 1px dashed rgba(255, 255, 255, 0.12);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0)),
-    rgba(255, 255, 255, 0.03);
-}
-
-.activityStateCard__title {
-  margin: 0;
-  font-size: 1rem;
-  line-height: 1.2;
-  font-weight: 800;
-  color: var(--text);
-}
-
-.activityStateCard__text {
-  margin: 0;
-  font-size: 0.92rem;
-  line-height: 1.58;
   color: var(--text-soft);
-}
-
-.activityInlineAction {
-  min-height: 40px;
-  padding: 0 14px;
-  border-radius: 999px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: fit-content;
-  text-decoration: none;
-  font-size: 0.82rem;
-  font-weight: 800;
-  color: var(--text-soft);
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.activityInlineAction--primary {
-  color: #fff;
-  background: rgba(255, 107, 87, 0.16);
-  border-color: rgba(255, 107, 87, 0.22);
-}
-
-@media (max-width: 520px) {
-  .activityHero {
-    padding: 18px;
-  }
-
-  .activityHero__title {
-    font-size: 1.24rem;
-  }
-
-  .activityMetrics {
-    grid-template-columns: 1fr;
-  }
-
-  .activityTabs {
-    grid-template-columns: 1fr;
-  }
-
-  .activityToolbar {
-    align-items: stretch;
-  }
+  font-size: 0.76rem;
+  font-weight: 700;
 }
