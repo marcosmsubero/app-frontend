@@ -51,21 +51,21 @@ export default function FollowersPage() {
 
   return (
     <section className="page">
-      <section className="heroPanel">
-        <div className="heroPanel__top">
+      <section className="sectionBlock">
+        <div className="app-section-header">
           <div>
-            <span className="sectionEyebrow">Perfil</span>
-            <h1 className="heroPanel__title">Seguidores</h1>
+            <div className="app-section-header__title">Seguidores</div>
+            <div className="app-section-header__subtitle">
+              {followers.length === 0
+                ? "Todavía no tienes seguidores visibles en la app."
+                : `${followers.length} ${
+                    followers.length === 1 ? "perfil te sigue" : "perfiles te siguen"
+                  }.`}
+            </div>
           </div>
 
-          <span className="heroPanel__badge">{followers.length}</span>
+          <span className="app-badge app-badge--primary">{followers.length}</span>
         </div>
-
-        <p className="heroPanel__text">
-          {followers.length === 0
-            ? "Todavía no tienes seguidores visibles en la app."
-            : `${followers.length} ${followers.length === 1 ? "perfil te sigue" : "perfiles te siguen"}.`}
-        </p>
       </section>
 
       {followers.length === 0 ? (
