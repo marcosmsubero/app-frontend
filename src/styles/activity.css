@@ -37,13 +37,54 @@
 }
 
 .formCard {
-  gap: 16px;
+  gap: 14px;
+}
+
+.formRow {
+  gap: 8px;
 }
 
 .formRow label {
-  color: var(--text-soft);
-  font-size: 0.82rem;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  line-height: 1.2;
   font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.formRow input,
+.formRow textarea,
+.formRow select {
+  width: 100%;
+  min-height: 48px;
+  padding: 13px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  outline: none;
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.formRow textarea {
+  min-height: 112px;
+  resize: vertical;
+}
+
+.formRow input:focus,
+.formRow textarea:focus,
+.formRow select:focus {
+  border-color: rgba(255, 107, 87, 0.28);
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 0 0 4px rgba(255, 107, 87, 0.1);
+}
+
+.formRow input::placeholder,
+.formRow textarea::placeholder {
+  color: var(--text-muted);
 }
 
 .formHint {
@@ -57,26 +98,45 @@
   grid-auto-flow: column;
   justify-content: stretch;
   grid-auto-columns: minmax(0, 1fr);
+  gap: 10px;
 }
 
 .btn {
-  min-height: 48px;
+  min-height: 46px;
   border-radius: 16px;
   border: 1px solid transparent;
   font: inherit;
-  font-size: 0.92rem;
+  font-size: 0.9rem;
   font-weight: 800;
+  letter-spacing: -0.01em;
+  transition:
+    transform 160ms ease,
+    background-color 160ms ease,
+    border-color 160ms ease,
+    opacity 160ms ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
 }
 
 .btn--primary {
   color: #fff;
   background: linear-gradient(180deg, var(--primary-strong), var(--primary));
+  box-shadow: 0 14px 28px rgba(255, 107, 87, 0.2);
 }
 
 .btn--ghost {
   color: var(--text);
   background: rgba(255, 255, 255, 0.05);
   border-color: var(--border);
+}
+
+.settingsPage,
+.deleteAccountPage,
+.activityOverview,
+.authPage {
+  gap: 14px;
 }
 
 .settingsRow {
@@ -94,15 +154,24 @@
 
 .settingsRow__title {
   margin: 0;
-  font-size: 0.96rem;
+  font-size: 0.95rem;
   font-weight: 800;
+  letter-spacing: -0.02em;
 }
 
 .settingsRow__text {
-  margin: 0;
+  margin: 4px 0 0;
   color: var(--text-soft);
-  font-size: 0.88rem;
+  font-size: 0.86rem;
   line-height: 1.5;
+}
+
+.chatThreadPage {
+  gap: 14px;
+}
+
+.chatThreadPage__body {
+  gap: 12px;
 }
 
 .chatThreadPage__messages {
@@ -119,14 +188,18 @@
 
 .chatBubble--me {
   margin-left: auto;
-  background: linear-gradient(180deg, rgba(255, 107, 87, 0.15), rgba(255, 107, 87, 0.06));
+  background: linear-gradient(
+    180deg,
+    rgba(255, 107, 87, 0.14),
+    rgba(255, 107, 87, 0.06)
+  );
   border-color: rgba(255, 107, 87, 0.18);
 }
 
 .chatBubble__text {
   margin: 0;
   color: var(--text);
-  font-size: 0.92rem;
+  font-size: 0.9rem;
   line-height: 1.5;
   white-space: pre-wrap;
 }
@@ -137,7 +210,7 @@
   justify-content: end;
   gap: 8px;
   color: var(--text-muted);
-  font-size: 0.74rem;
+  font-size: 0.73rem;
 }
 
 .chatComposer {
@@ -150,12 +223,13 @@
 }
 
 .chatComposer textarea {
-  min-height: 52px;
+  min-height: 50px;
   max-height: 140px;
   background: transparent;
   border: 0;
   padding: 0;
   box-shadow: none;
+  resize: none;
 }
 
 .followList {
@@ -191,6 +265,17 @@
   font-size: 0.84rem;
 }
 
+.activityGrid {
+  gap: 12px;
+}
+
+.activityPanel {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
 .discoverHero,
 .discoverCalendarCard,
 .discoverStatCard,
@@ -198,7 +283,7 @@
 .discoverModalCard {
   border: 1px solid var(--border);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.015), rgba(255, 255, 255, 0)),
     var(--surface);
   box-shadow: var(--shadow-sm);
 }
@@ -206,22 +291,22 @@
 .discoverHero,
 .discoverCalendarCard,
 .discoverModalCard {
-  padding: 18px;
-  border-radius: 26px;
+  padding: 16px;
+  border-radius: 22px;
 }
 
 .discoverHero {
   background:
-    radial-gradient(circle at top right, rgba(255, 107, 87, 0.18), transparent 34%),
-    linear-gradient(145deg, rgba(255, 107, 87, 0.12), rgba(125, 211, 252, 0.04)),
+    radial-gradient(circle at top right, rgba(255, 107, 87, 0.14), transparent 34%),
+    linear-gradient(145deg, rgba(255, 107, 87, 0.08), rgba(125, 211, 252, 0.03)),
     rgba(12, 23, 38, 0.95);
 }
 
 .discoverHero__title {
   margin: 0;
-  font-size: 1.5rem;
-  line-height: 1.06;
-  letter-spacing: -0.04em;
+  font-size: 1.18rem;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
   font-weight: 800;
 }
 
@@ -230,8 +315,8 @@
 .discoverMetaText {
   margin: 0;
   color: var(--text-soft);
-  font-size: 0.94rem;
-  line-height: 1.58;
+  font-size: 0.9rem;
+  line-height: 1.55;
 }
 
 .discoverStatsGrid {
@@ -246,8 +331,12 @@
 }
 
 .discoverStatCard--accent {
-  background: linear-gradient(180deg, rgba(255, 107, 87, 0.12), rgba(255, 107, 87, 0.03));
-  border-color: rgba(255, 107, 87, 0.18);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 107, 87, 0.1),
+    rgba(255, 107, 87, 0.03)
+  );
+  border-color: rgba(255, 107, 87, 0.16);
 }
 
 .discoverSection__header,
@@ -260,15 +349,39 @@
   gap: 12px;
 }
 
+.discoverSection__header {
+  flex-wrap: wrap;
+}
+
+.discoverFiltersSection {
+  gap: 10px;
+}
+
+.discoverFilterRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 .discoverEventCard {
-  padding: 16px;
-  border-radius: 22px;
+  padding: 15px;
+  border-radius: 20px;
+  gap: 10px;
 }
 
 .discoverEventCard__title {
   margin: 0;
-  font-size: 1rem;
+  font-size: 0.98rem;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
   font-weight: 800;
+}
+
+.discoverEventCard__subtitle {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.86rem;
+  line-height: 1.45;
 }
 
 .discoverMetaRow {
@@ -278,11 +391,109 @@
 .discoverMetaPill {
   display: inline-flex;
   align-items: center;
-  min-height: 30px;
+  min-height: 28px;
   padding: 0 10px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.05);
   color: var(--text-soft);
-  font-size: 0.76rem;
+  font-size: 0.75rem;
   font-weight: 700;
+}
+
+.messagesSimple__toolbar {
+  align-items: end;
+}
+
+.messagesSimple__row {
+  width: 100%;
+  text-align: left;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+}
+
+.messagesSimple__row--unread {
+  border-color: rgba(255, 107, 87, 0.18);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 107, 87, 0.08),
+    rgba(255, 107, 87, 0.02)
+  );
+}
+
+.messagesSimple__content {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.messagesSimple__text {
+  display: grid;
+  gap: 4px;
+  color: var(--text-soft);
+  font-size: 0.9rem;
+  line-height: 1.42;
+}
+
+.messagesSimple__text strong {
+  color: var(--text);
+  font-size: 0.93rem;
+}
+
+.messagesSimple__meta {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.messagesSimple__state {
+  display: grid;
+  place-items: center;
+}
+
+.messagesSimple__chevron {
+  color: var(--text-faint);
+  font-size: 1.3rem;
+  line-height: 1;
+}
+
+.messagesSimple__emptyBody {
+  align-items: start;
+}
+
+.messagesSimple__emptyBody p {
+  margin: 0;
+}
+
+.notificationCard,
+.messageCard {
+  width: 100%;
+  text-align: left;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.notificationCard--unread,
+.messageCard--unread {
+  border-color: rgba(255, 107, 87, 0.18);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 107, 87, 0.08),
+    rgba(255, 107, 87, 0.02)
+  );
+}
+
+.notificationCard__body,
+.messageCard__body {
+  display: grid;
+  gap: 8px;
+}
+
+.authPage .heroPanel,
+.authPage .sectionBlock,
+.deleteAccountPage .sectionBlock {
+  border-radius: 22px;
 }
