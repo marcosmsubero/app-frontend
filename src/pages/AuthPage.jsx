@@ -7,14 +7,14 @@ function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || "").trim());
 }
 
-function AuthPageLoader() {
+function LoaderScreen() {
   return (
-    <div className="app-loader-screen">
-      <div className="app-loader-screen__inner">
-        <div className="app-loader-screen__spinner" />
-        <div className="app-loader-screen__label">Cargando…</div>
+    <section className="page">
+      <div className="stateCard">
+        <h3 className="stateCard__title">Cargando</h3>
+        <p className="stateCard__text">Estamos preparando tu sesión.</p>
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -159,7 +159,7 @@ export default function AuthPage({ defaultTab = "login" }) {
   }
 
   if (isAuthed && !meReady) {
-    return <AuthPageLoader />;
+    return <LoaderScreen />;
   }
 
   if (isAuthed && meReady) {
@@ -169,136 +169,119 @@ export default function AuthPage({ defaultTab = "login" }) {
   const isLogin = tab === "login";
 
   return (
-    <section className="authSimple">
-      <div className="authSimple__shell">
-        <div className="authSimple__layout">
-          <div className="authSimple__intro">
-            <h1 className="authSimple__title">
-              {isLogin
-                ? "Accede a tu comunidad runner"
-                : "Crea tu cuenta y accede a nuestra comunidad runner"}
+    <section className="page">
+      <section className="heroPanel">
+        <div className="heroPanel__top">
+          <div>
+            <span className="sectionEyebrow">{isLogin ? "Acceso" : "Registro"}</span>
+            <h1 className="heroPanel__title">
+              {isLogin ? "Entra en tu cuenta" : "Crea tu cuenta"}
             </h1>
-            <p className="authSimple__subtitle">
-              Grupos, quedadas y viajes en una interfaz rápida y consistente.
-            </p>
           </div>
 
-          <div className="authSimple__panel app-section">
-            <div className="authSimple__tabs" role="tablist" aria-label="Autenticación">
-              <button
-                type="button"
-                role="tab"
-                aria-selected={isLogin}
-                className={`authSimple__tab${isLogin ? " authSimple__tab--active" : ""}`}
-                onClick={() => {
-                  resetMsg();
-                  setTab("login");
-                  nav("/login", { replace: true });
-                }}
-                disabled={loading}
-              >
-                Login
-              </button>
-
-              <button
-                type="button"
-                role="tab"
-                aria-selected={!isLogin}
-                className={`authSimple__tab${!isLogin ? " authSimple__tab--active" : ""}`}
-                onClick={() => {
-                  resetMsg();
-                  setTab("register");
-                  nav("/register", { replace: true });
-                }}
-                disabled={loading}
-              >
-                Registro
-              </button>
-            </div>
-
-            <div className="authSimple__head">
-              <h2 className="authSimple__panelTitle">
-                {isLogin ? "Bienvenid@" : "Nueva cuenta"}
-              </h2>
-              <p className="authSimple__panelText">
-                {isLogin
-                  ? "Accede a tu perfil, tus grupos y tus planes de running."
-                  : "Tu cuenta quedará preparada para completar el onboarding runner."}
-              </p>
-            </div>
-
-            <form className="authSimple__form" onSubmit={handleSubmit}>
-              <div className="app-field">
-                <label className="app-label" htmlFor="auth-identifier">
-                  {isLogin ? "Email o usuario" : "Email"}
-                </label>
-                <input
-                  id="auth-identifier"
-                  className="app-input"
-                  type={isLogin ? "text" : "email"}
-                  autoComplete={isLogin ? "username" : "email"}
-                  value={identifier}
-                  onChange={(e) => setIdentifier(e.target.value)}
-                  disabled={loading}
-                  placeholder={isLogin ? "email o @usuario" : "tu@email.com"}
-                />
-              </div>
-
-              <div className="app-field">
-                <label className="app-label" htmlFor="auth-password">
-                  Contraseña
-                </label>
-                <input
-                  id="auth-password"
-                  className="app-input"
-                  type="password"
-                  autoComplete={isLogin ? "current-password" : "new-password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  disabled={loading}
-                />
-              </div>
-
-              {!isLogin ? (
-                <div className="app-field">
-                  <label className="app-label" htmlFor="auth-password-repeat">
-                    Repite contraseña
-                  </label>
-                  <input
-                    id="auth-password-repeat"
-                    className="app-input"
-                    type="password"
-                    autoComplete="new-password"
-                    value={password2}
-                    onChange={(e) => setPassword2(e.target.value)}
-                    disabled={loading}
-                  />
-                </div>
-              ) : null}
-
-              {msg.text ? (
-                <div
-                  className={`authSimple__message ${
-                    msg.type === "error"
-                      ? "authSimple__message--error"
-                      : "authSimple__message--success"
-                  }`}
-                >
-                  {msg.text}
-                </div>
-              ) : null}
-
-              <button
-                type="submit"
-                className="app-button app-button--primary app-button--lg app-button--block"
-                disabled={loading}
-              >
-                {loading ? "Procesando…" : isLogin ? "Entrar" : "Crear cuenta"}
-              </button>
-            </form>
-          </div>
+          <span className="heroPanel__badge">{isLogin ? "Login" : "Nueva cuenta"}</span>
         </div>
-      </div>
+
+        <p className="heroPanel__text">
+          {isLogin
+            ? "Accede a tu comunidad runner con una interfaz limpia y directa."
+            : "Regístrate y prepara tu perfil para empezar a usar la app."}
+        </p>
+      </section>
+
+      <section className="sectionBlock">
+        <div className="tabBar" role="tablist" aria-label="Autenticación">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={isLogin}
+            className={`tabBar__item${isLogin ? " tabBar__item--active" : ""}`}
+            onClick={() => {
+              resetMsg();
+              setTab("login");
+              nav("/login", { replace: true });
+            }}
+            disabled={loading}
+          >
+            Login
+          </button>
+
+          <button
+            type="button"
+            role="tab"
+            aria-selected={!isLogin}
+            className={`tabBar__item${!isLogin ? " tabBar__item--active" : ""}`}
+            onClick={() => {
+              resetMsg();
+              setTab("register");
+              nav("/register", { replace: true });
+            }}
+            disabled={loading}
+          >
+            Registro
+          </button>
+        </div>
+      </section>
+
+      <section className="sectionBlock">
+        <form className="formCard" onSubmit={handleSubmit}>
+          <div className="formRow">
+            <label htmlFor="auth-identifier">
+              {isLogin ? "Email o usuario" : "Email"}
+            </label>
+            <input
+              id="auth-identifier"
+              type={isLogin ? "text" : "email"}
+              autoComplete={isLogin ? "username" : "email"}
+              value={identifier}
+              onChange={(e) => setIdentifier(e.target.value)}
+              disabled={loading}
+              placeholder={isLogin ? "email o @usuario" : "tu@email.com"}
+            />
+          </div>
+
+          <div className="formRow">
+            <label htmlFor="auth-password">Contraseña</label>
+            <input
+              id="auth-password"
+              type="password"
+              autoComplete={isLogin ? "current-password" : "new-password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              disabled={loading}
+            />
+          </div>
+
+          {!isLogin ? (
+            <div className="formRow">
+              <label htmlFor="auth-password-repeat">Repite contraseña</label>
+              <input
+                id="auth-password-repeat"
+                type="password"
+                autoComplete="new-password"
+                value={password2}
+                onChange={(e) => setPassword2(e.target.value)}
+                disabled={loading}
+              />
+            </div>
+          ) : null}
+
+          {msg.text ? (
+            <div className="stateCard" style={{ padding: 14 }}>
+              <h3 className="stateCard__title">
+                {msg.type === "error" ? "Revisa los datos" : "Todo correcto"}
+              </h3>
+              <p className="stateCard__text">{msg.text}</p>
+            </div>
+          ) : null}
+
+          <div className="formActions">
+            <button type="submit" className="btn btn--primary" disabled={loading}>
+              {loading ? "Procesando..." : isLogin ? "Entrar" : "Crear cuenta"}
+            </button>
+          </div>
+        </form>
+      </section>
     </section>
   );
 }
