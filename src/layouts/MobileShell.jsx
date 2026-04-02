@@ -27,6 +27,23 @@ function getShellMeta(pathname) {
     return { eyebrow: "Eliminar cuenta" };
   }
 
+  if (
+    pathname === "/perfil" ||
+    pathname.startsWith("/perfil/") ||
+    pathname.startsWith("/seguidores") ||
+    pathname.startsWith("/siguiendo")
+  ) {
+    return { eyebrow: "Perfil" };
+  }
+
+  if (pathname === "/login" || pathname === "/register") {
+    return { eyebrow: "Acceso" };
+  }
+
+  if (pathname === "/onboarding") {
+    return { eyebrow: "Perfil" };
+  }
+
   return { eyebrow: "BlaBlaRun" };
 }
 
@@ -37,22 +54,17 @@ export default function MobileShell() {
   return (
     <div className="appChrome">
       <div className="appChrome__frame">
-        
-        {/* Top minimal */}
         <header className="appTopbar minimal">
           <span className="appTopbar__eyebrow">{eyebrow}</span>
         </header>
 
-        {/* CONTENT */}
         <main className="appChrome__main">
           <div className="appChrome__content">
             <Outlet />
           </div>
         </main>
-
       </div>
 
-      {/* Bottom nav siempre visible */}
       <BottomNav />
     </div>
   );
