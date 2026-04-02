@@ -70,7 +70,9 @@ export default function AuthPage({ defaultTab = "login" }) {
     const cleanIdentifier = identifier.trim();
 
     if (!cleanIdentifier) {
-      return setError(tab === "login" ? "Introduce tu email o usuario." : "Introduce un email válido.");
+      return setError(
+        tab === "login" ? "Introduce tu email o usuario." : "Introduce un email válido."
+      );
     }
 
     if (tab === "login") {
@@ -169,24 +171,20 @@ export default function AuthPage({ defaultTab = "login" }) {
   const isLogin = tab === "login";
 
   return (
-    <section className="page">
-      <section className="heroPanel">
-        <div className="heroPanel__top">
+    <section className="page authPage">
+      <section className="sectionBlock">
+        <div className="app-section-header">
           <div>
-            <span className="sectionEyebrow">{isLogin ? "Acceso" : "Registro"}</span>
-            <h1 className="heroPanel__title">
-              {isLogin ? "Entra en tu cuenta" : "Crea tu cuenta"}
-            </h1>
+            <div className="app-section-header__title">
+              {isLogin ? "Accede a tu cuenta" : "Crea tu cuenta"}
+            </div>
+            <div className="app-section-header__subtitle">
+              {isLogin
+                ? "Entra con tu email o usuario para continuar."
+                : "Regístrate y completa tu perfil después."}
+            </div>
           </div>
-
-          <span className="heroPanel__badge">{isLogin ? "Login" : "Nueva cuenta"}</span>
         </div>
-
-        <p className="heroPanel__text">
-          {isLogin
-            ? "Accede a tu comunidad runner con una interfaz limpia y directa."
-            : "Regístrate y prepara tu perfil para empezar a usar la app."}
-        </p>
       </section>
 
       <section className="sectionBlock">
