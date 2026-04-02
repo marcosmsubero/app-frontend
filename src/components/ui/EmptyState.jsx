@@ -15,11 +15,10 @@ export default function EmptyState({
   const resolvedDescription =
     description || text || "Todavía no hay contenido disponible para mostrar.";
 
-  const iconNode =
-    typeof icon === "string" ? <span>{icon}</span> : icon;
+  const iconNode = typeof icon === "string" ? <span>{icon}</span> : icon;
 
   return (
-    <section className={`ui-empty-state ${className}`.trim()}>
+    <section className={["ui-empty-state", className].filter(Boolean).join(" ")}>
       <div className="ui-empty-state__icon" aria-hidden="true">
         {iconNode}
       </div>
