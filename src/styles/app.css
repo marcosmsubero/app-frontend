@@ -6,7 +6,7 @@
   --bg-elevated: rgba(12, 24, 40, 0.84);
   --bg-soft: rgba(255, 255, 255, 0.04);
   --surface: rgba(11, 22, 37, 0.94);
-  --surface-2: rgba(18, 31, 48, 0.98);
+  --surface-2: rgba(14, 27, 43, 0.98);
   --surface-3: rgba(255, 255, 255, 0.055);
   --border: rgba(255, 255, 255, 0.08);
   --border-strong: rgba(255, 255, 255, 0.14);
@@ -14,7 +14,7 @@
   --text: #f5f7fb;
   --text-soft: rgba(245, 247, 251, 0.76);
   --text-muted: rgba(245, 247, 251, 0.48);
-  --text-faint: rgba(245, 247, 251, 0.32);
+  --text-faint: rgba(245, 247, 251, 0.3);
 
   --primary: #ff6b57;
   --primary-strong: #ff7f6e;
@@ -53,9 +53,9 @@ body,
 
 html {
   background:
-    radial-gradient(circle at top center, rgba(125, 211, 252, 0.12), transparent 28%),
-    radial-gradient(circle at top right, rgba(255, 107, 87, 0.14), transparent 34%),
-    linear-gradient(180deg, #09121d 0%, #07111f 44%, #050c16 100%);
+    radial-gradient(circle at top center, rgba(125, 211, 252, 0.1), transparent 26%),
+    radial-gradient(circle at top right, rgba(255, 107, 87, 0.12), transparent 34%),
+    linear-gradient(180deg, #09121d 0%, #07111f 42%, #050c16 100%);
 }
 
 body {
@@ -73,8 +73,8 @@ body::before {
   inset: 0;
   pointer-events: none;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 22%),
-    radial-gradient(circle at bottom left, rgba(125, 211, 252, 0.06), transparent 24%);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.015), transparent 20%),
+    radial-gradient(circle at bottom left, rgba(125, 211, 252, 0.05), transparent 22%);
 }
 
 a {
@@ -103,7 +103,7 @@ svg {
 }
 
 ::selection {
-  background: rgba(255, 107, 87, 0.26);
+  background: rgba(255, 107, 87, 0.24);
   color: #fff;
 }
 
@@ -121,22 +121,25 @@ svg {
   width: 100%;
 }
 
-.page {
+.page,
+.page__columns,
+.page__header,
+.page__sidebar,
+.app-stack,
+.app-list,
+.eventList,
+.settingsList,
+.feedList,
+.notificationsList {
   display: grid;
-  gap: 16px;
+  gap: 14px;
   width: 100%;
-}
-
-.page__columns {
-  display: grid;
-  gap: 16px;
 }
 
 .page__sidebar {
   display: none;
 }
 
-.page__header,
 .heroPanel,
 .sectionBlock,
 .stateCard,
@@ -152,10 +155,10 @@ svg {
 .authCard {
   border: 1px solid var(--border);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.015), rgba(255, 255, 255, 0)),
     var(--surface);
   box-shadow: var(--shadow-sm);
-  backdrop-filter: blur(16px);
+  backdrop-filter: blur(14px);
 }
 
 .heroPanel,
@@ -166,49 +169,62 @@ svg {
 .feedCard,
 .profileHeroCard,
 .authCard {
-  border-radius: var(--radius-lg);
+  border-radius: 22px;
 }
 
+.heroPanel,
 .sectionBlock,
+.stateCard,
 .app-card,
 .settingsCard,
 .feedCard,
+.profileHeroCard,
 .authCard {
   padding: 16px;
 }
 
 .heroPanel {
-  position: relative;
-  display: grid;
-  gap: 12px;
+  gap: 10px;
   overflow: hidden;
-  padding: 18px;
   background:
-    radial-gradient(circle at top right, rgba(255, 107, 87, 0.18), transparent 38%),
-    linear-gradient(140deg, rgba(255, 107, 87, 0.12), rgba(125, 211, 252, 0.04)),
+    radial-gradient(circle at top right, rgba(255, 107, 87, 0.12), transparent 34%),
+    linear-gradient(140deg, rgba(255, 107, 87, 0.08), rgba(125, 211, 252, 0.03)),
     var(--surface-2);
 }
 
 .heroPanel__top,
-.page__header,
 .sectionHead,
+.page__header,
+.profileHeroCard__top,
 .app-section-header,
-.profileHeroCard__top {
+.notificationCard__head,
+.messageCard__head,
+.notificationCard__user,
+.messageCard__user {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
 }
 
+.sectionHead,
+.page__header,
+.app-section-header {
+  margin-bottom: 2px;
+}
+
+.sectionHead__copy {
+  min-width: 0;
+}
+
 .heroPanel__title,
 .page__title,
 .sectionTitle,
-.profileHeroName,
-.appTopbar__title {
+.profileHeroName {
   margin: 0;
-  font-size: 1.45rem;
-  line-height: 1.06;
-  letter-spacing: -0.04em;
+  font-size: 1.16rem;
+  line-height: 1.12;
+  letter-spacing: -0.03em;
   font-weight: 800;
 }
 
@@ -222,8 +238,8 @@ svg {
 .chatThreadPage__subtitle {
   margin: 0;
   color: var(--text-soft);
-  font-size: 0.95rem;
-  line-height: 1.58;
+  font-size: 0.91rem;
+  line-height: 1.55;
 }
 
 .page__eyebrow,
@@ -234,10 +250,10 @@ svg {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 800;
   line-height: 1;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.13em;
   text-transform: uppercase;
 }
 
@@ -251,34 +267,24 @@ svg {
 .heroPanel__badge,
 .app-badge,
 .badge,
-.messagesSimple__badge,
-.notificationDot,
-.heroBadge,
-.profileStat__badge {
-  flex: 0 0 auto;
-}
-
-.heroPanel__badge,
-.app-badge,
-.badge,
 .messagesSimple__badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 30px;
-  padding: 0 11px;
+  min-height: 28px;
+  padding: 0 10px;
   border-radius: var(--radius-pill);
-  border: 1px solid rgba(255, 107, 87, 0.18);
+  border: 1px solid rgba(255, 107, 87, 0.16);
   background: var(--primary-soft);
   color: #fff;
-  font-size: 0.75rem;
+  font-size: 0.74rem;
   font-weight: 800;
 }
 
 .badge,
 .app-badge {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.07);
   color: var(--text-soft);
 }
 
@@ -291,32 +297,24 @@ svg {
 
 .app-badge--success {
   background: rgba(55, 201, 154, 0.16);
-  border-color: rgba(55, 201, 154, 0.22);
-  color: #d9fff2;
+  border-color: rgba(55, 201, 154, 0.2);
+  color: #dcfff5;
 }
 
 .app-badge--warning {
   background: rgba(247, 185, 85, 0.16);
   border-color: rgba(247, 185, 85, 0.2);
-  color: #fff1d6;
+  color: #fff1d5;
 }
 
-.sectionHead,
-.app-section-header {
-  margin-bottom: 2px;
-}
-
-.stateCard,
-.app-empty {
+.stateCard {
   display: grid;
   gap: 10px;
-  padding: 18px;
-  border-radius: var(--radius-lg);
 }
 
 .stateCard__title {
   margin: 0;
-  font-size: 1rem;
+  font-size: 0.98rem;
   line-height: 1.2;
   letter-spacing: -0.02em;
   font-weight: 800;
@@ -327,13 +325,13 @@ svg {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 44px;
-  padding: 0 15px;
+  min-height: 42px;
+  padding: 0 14px;
   border-radius: 15px;
   border: 1px solid var(--border);
   background: rgba(255, 255, 255, 0.05);
   color: var(--text);
-  font-size: 0.92rem;
+  font-size: 0.9rem;
   font-weight: 800;
   transition:
     transform 160ms ease,
@@ -352,30 +350,49 @@ svg {
   color: #fff;
   background: linear-gradient(180deg, var(--primary-strong), var(--primary));
   border-color: transparent;
-  box-shadow: 0 14px 28px rgba(255, 107, 87, 0.22);
+  box-shadow: 0 14px 28px rgba(255, 107, 87, 0.2);
 }
 
 .feedCard__actions,
-.profileActionRow,
-.app-stack,
-.eventList,
-.app-list,
-.settingsList,
-.messageGroup,
-.chatThreadPage__stack,
-.messagesSimple__list,
-.notificationsList {
+.profileActionRow {
+  display: grid;
+  gap: 10px;
+}
+
+.app-card__header,
+.app-card__body,
+.app-card__footer {
   display: grid;
   gap: 12px;
 }
 
-.app-stack--lg,
-.profileCalendarShell,
-.profileSectionStack {
-  gap: 16px;
+.app-card__header {
+  padding-bottom: 2px;
 }
 
-.app-list-item,
+.app-section-header__title {
+  margin: 0;
+  color: var(--text);
+  font-size: 0.98rem;
+  line-height: 1.2;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.app-section-header__subtitle {
+  margin-top: 4px;
+  color: var(--text-muted);
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
+.compactList,
+.card {
+  display: grid;
+  gap: 10px;
+}
+
+.compactListItem,
 .userRow,
 .messageCard,
 .notificationCard,
@@ -383,14 +400,68 @@ svg {
   display: flex;
   align-items: center;
   gap: 12px;
-}
-
-.userRow,
-.notificationCard,
-.messageCard,
-.settingsCard {
   padding: 14px;
   border-radius: 18px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.compactListItem {
+  justify-content: space-between;
+}
+
+.compactListItem__icon {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text);
+  font-weight: 800;
+}
+
+.compactListItem__copy,
+.userRow__meta,
+.messageCard__body,
+.notificationCard__body,
+.settingsCard__content {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.compactListItem__title,
+.userRow__name,
+.messageCard__name,
+.notificationCard__name,
+.settingsCard__title,
+.cardTitle {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.compactListItem__text,
+.userRow__handle,
+.messageCard__meta,
+.notificationCard__meta,
+.settingsCard__description,
+.cardSubtitle,
+.messageCard__text,
+.notificationCard__text {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
+.compactListItem__aside {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
 }
 
 .userRow__avatar,
@@ -414,113 +485,47 @@ svg {
   font-weight: 800;
 }
 
-.userRow__meta,
-.messageCard__body,
-.notificationCard__body,
-.messagesSimple__content,
-.settingsCard__content {
-  min-width: 0;
-  flex: 1 1 auto;
-}
-
-.userRow__name,
-.messageCard__name,
-.notificationCard__name,
-.settingsCard__title {
-  margin: 0;
-  font-size: 0.96rem;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-}
-
-.userRow__handle,
-.messageCard__meta,
-.notificationCard__meta,
-.settingsCard__description,
-.messagesSimple__meta,
-.messagesSimple__text span {
-  color: var(--text-muted);
-  font-size: 0.83rem;
-}
-
-.messagesSimple__row,
-.notificationCard,
-.messageCard {
-  width: 100%;
-  text-align: left;
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.04);
-}
-
-.messagesSimple__row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 14px;
-}
-
-.messagesSimple__row--unread,
-.notificationCard--unread,
-.messageCard--unread {
-  border-color: rgba(255, 107, 87, 0.2);
-  background: linear-gradient(180deg, rgba(255, 107, 87, 0.08), rgba(255, 107, 87, 0.02));
-}
-
-.messagesSimple__text {
-  display: grid;
-  gap: 4px;
-  color: var(--text-soft);
-  font-size: 0.92rem;
-  line-height: 1.4;
-}
-
-.messagesSimple__text strong {
-  color: var(--text);
-  font-size: 0.94rem;
-}
-
-.messagesSimple__state {
-  display: grid;
-  place-items: center;
-}
-
-.messagesSimple__chevron {
-  color: var(--text-faint);
-  font-size: 1.35rem;
-  line-height: 1;
-}
-
-.messagesSimple__toolbar,
-.tabBar,
-.profileMiniSummary,
-.discoverFilterRow {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
+.notificationDot {
+  flex: 0 0 auto;
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: var(--primary);
+  box-shadow: 0 0 0 6px rgba(255, 107, 87, 0.12);
 }
 
 .tabBar {
-  padding: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 4px;
   border-radius: var(--radius-pill);
   border: 1px solid var(--border);
   background: rgba(255, 255, 255, 0.04);
 }
 
 .tabBar__item {
-  min-height: 38px;
-  padding: 0 14px;
+  min-height: 36px;
+  padding: 0 13px;
   border: 0;
   border-radius: var(--radius-pill);
   background: transparent;
   color: var(--text-muted);
-  font-size: 0.84rem;
+  font-size: 0.82rem;
   font-weight: 800;
 }
 
 .tabBar__item--active {
   background: rgba(255, 255, 255, 0.08);
   color: var(--text);
+}
+
+.profileMiniSummary,
+.discoverFilterRow,
+.messagesSimple__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .profileMiniSummary__item,
@@ -543,9 +548,9 @@ svg {
 .eventMetaItem__label,
 .profileStat__label {
   color: var(--text-muted);
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 800;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.11em;
   text-transform: uppercase;
 }
 
@@ -555,7 +560,7 @@ svg {
 .eventMetaItem__value,
 .profileStat__value {
   color: var(--text);
-  font-size: 1.12rem;
+  font-size: 1.08rem;
   line-height: 1;
   letter-spacing: -0.03em;
   font-weight: 800;
@@ -565,9 +570,9 @@ svg {
 .profileEventCard,
 .discoverEventCard {
   display: grid;
-  gap: 14px;
-  padding: 16px;
-  border-radius: 22px;
+  gap: 12px;
+  padding: 15px;
+  border-radius: 20px;
   border: 1px solid var(--border);
   background: rgba(255, 255, 255, 0.04);
   box-shadow: var(--shadow-sm);
@@ -590,43 +595,43 @@ svg {
 .discoverEventCard__title,
 .calendarMini__itemTitle {
   margin: 0;
-  font-size: 1rem;
+  font-size: 0.98rem;
   font-weight: 800;
   letter-spacing: -0.02em;
 }
 
 .eventCard__subtitle,
 .discoverEventCard__subtitle,
-.calendarMini__itemMeta,
-.notificationCard__text,
-.messageCard__text {
+.calendarMini__itemMeta {
   margin: 0;
   color: var(--text-soft);
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   line-height: 1.5;
 }
 
-.notificationCard__head,
-.messageCard__head,
-.notificationCard__user,
-.messageCard__user {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
+.app-empty,
+.messagesSimple__emptyBody {
+  display: grid;
   gap: 10px;
 }
 
-.notificationCard__user,
-.messageCard__user {
-  justify-content: flex-start;
+.app-empty {
+  padding: 16px;
+  border-radius: 20px;
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
 }
 
-.notificationDot {
-  width: 10px;
-  height: 10px;
-  border-radius: 999px;
-  background: var(--primary);
-  box-shadow: 0 0 0 6px rgba(255, 107, 87, 0.14);
+.messagesSimple__emptyBody strong {
+  font-size: 0.96rem;
+  letter-spacing: -0.02em;
+}
+
+.messagesSimple__emptyBody p {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.88rem;
+  line-height: 1.5;
 }
 
 .app-loader-screen {
