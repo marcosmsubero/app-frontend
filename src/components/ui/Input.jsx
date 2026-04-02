@@ -1,3 +1,5 @@
+import { useId } from "react";
+
 function joinClasses(...values) {
   return values.filter(Boolean).join(" ");
 }
@@ -11,8 +13,8 @@ export default function Input({
   id,
   ...props
 }) {
-  const generatedId =
-    id || props.name || `input-${Math.random().toString(36).slice(2, 10)}`;
+  const reactId = useId();
+  const generatedId = id || props.name || `input-${reactId.replace(/:/g, "")}`;
 
   return (
     <div className={joinClasses("ui-field", error && "ui-field--error", className)}>
