@@ -153,3 +153,39 @@
   font-weight: 800;
   letter-spacing: 0.02em;
 }
+
+.appTopbar.minimal {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  padding: 6px 0 12px;
+  margin-bottom: 6px;
+  backdrop-filter: blur(10px);
+}
+
+.appTopbar.minimal::after {
+  content: "";
+  position: absolute;
+  inset: 0 -14px;
+  z-index: -1;
+  background: linear-gradient(
+    180deg,
+    rgba(7, 17, 31, 0.85),
+    rgba(7, 17, 31, 0.4),
+    transparent
+  );
+}
+
+.appTopbar__eyebrow {
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* Ajuste spacing global */
+.appChrome__content {
+  display: grid;
+  gap: 14px;
+}
