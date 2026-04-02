@@ -1,7 +1,20 @@
-import { supabase } from "../lib/supabase";
+import { hasSupabaseEnv, supabase, supabaseConfigError } from "../lib/supabase";
+
+function ensureSupabase() {
+  if (!hasSupabaseEnv || !supabase) {
+    throw new Error(
+      supabaseConfigError ||
+        "La configuración pública de Supabase no está disponible."
+    );
+  }
+
+  return supabase;
+}
 
 export async function signUpWithSupabase(email, password) {
-  const { data, error } = await supabase.auth.signUp({
+  const client = ensureSupabase();
+
+  const { data, error } = await client.auth.signUp({
     email,
     password,
   });
@@ -11,7 +24,9 @@ export async function signUpWithSupabase(email, password) {
 }
 
 export async function signInWithSupabase(email, password) {
-  const { data, error } = await supabase.auth.signInWithPassword({
+  const client = ensureSupabase();
+
+  const { data, error } = await client.auth.signInWithPassword({
     email,
     password,
   });
@@ -21,17 +36,25 @@ export async function signInWithSupabase(email, password) {
 }
 
 export async function signOutWithSupabase() {
-  const { error } = await supabase.auth.signOut();
+  const client = ensureSupabase();
+
+  const { error } = await client.auth.signOut();
   if (error) throw new Error(error.message);
 }
 
 export async function getSupabaseSession() {
-  const { data, error } = await supabase.auth.getSession();
+  const client = ensureSupabase();
+
+  const { data, error } = await client.auth.getSession();
   if (error) throw new Error(error.message);
   return data.session ?? null;
 }
 
 export function onSupabaseAuthStateChange(callback) {
+  if (!hasSupabaseEnv || !supabase) {
+    return () => {};
+  }
+
   const { data } = supabase.auth.onAuthStateChange((_event, session) => {
     callback(session ?? null);
   });
@@ -42,6 +65,8 @@ export function onSupabaseAuthStateChange(callback) {
 }
 
 export async function upsertSupabaseProfile(user, extra = {}) {
+  const client = ensureSupabase();
+
   if (!user?.id) return null;
 
   const payload = {
@@ -50,7 +75,7 @@ export async function upsertSupabaseProfile(user, extra = {}) {
     ...extra,
   };
 
-  const { data, error } = await supabase
+  const { data, error } = await client
     .from("profiles")
     .upsert(payload, { onConflict: "id" })
     .select("*")
@@ -61,9 +86,11 @@ export async function upsertSupabaseProfile(user, extra = {}) {
 }
 
 export async function getSupabaseProfile(userId) {
+  const client = ensureSupabase();
+
   if (!userId) return null;
 
-  const { data, error } = await supabase
+  const { data, error } = await client
     .from("profiles")
     .select("*")
     .eq("id", userId)
