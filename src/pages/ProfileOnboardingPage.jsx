@@ -193,23 +193,23 @@ export default function ProfileOnboardingPage() {
 
   return (
     <section className="page">
-      <section className="heroPanel">
-        <div className="heroPanel__top">
+      <section className="sectionBlock">
+        <div className="app-section-header">
           <div>
-            <span className="sectionEyebrow">{isEditMode ? "Perfil" : "Onboarding"}</span>
-            <h1 className="heroPanel__title">
+            <div className="app-section-header__title">
               {isEditMode ? "Editar perfil" : "Completa tu perfil"}
-            </h1>
+            </div>
+            <div className="app-section-header__subtitle">
+              {isGroup
+                ? "Configura la identidad del grupo y sus miembros."
+                : "Define tu perfil con un flujo compacto y directo."}
+            </div>
           </div>
 
-          <span className="heroPanel__badge">
+          <span className="app-badge app-badge--primary">
             {isGroup ? "Grupo" : "Individual"}
           </span>
         </div>
-
-        <p className="heroPanel__text">
-          Define tu identidad en la app con un flujo simple, compacto y móvil.
-        </p>
       </section>
 
       <section className="sectionBlock">
