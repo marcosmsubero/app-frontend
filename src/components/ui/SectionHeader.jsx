@@ -9,9 +9,18 @@ export default function SectionHeader({
   action,
   className = "",
   contentClassName = "",
+  compact = false,
+  centered = false,
 }) {
   return (
-    <div className={joinClasses("ui-section-header", className)}>
+    <div
+      className={joinClasses(
+        "ui-section-header",
+        compact ? "ui-section-header--compact" : "",
+        centered ? "ui-section-header--centered" : "",
+        className,
+      )}
+    >
       <div className={joinClasses("ui-section-header__content", contentClassName)}>
         {eyebrow ? <p className="ui-section-header__eyebrow">{eyebrow}</p> : null}
         {title ? <h2 className="ui-section-header__title">{title}</h2> : null}
