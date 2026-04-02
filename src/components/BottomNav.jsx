@@ -39,15 +39,6 @@ const NAV_ITEMS = [
       pathname.startsWith("/eventos/"),
   },
   {
-    to: "/perfil",
-    label: "Perfil",
-    icon: <IconProfile />,
-    isActive: (pathname) =>
-      pathname === "/perfil" ||
-      pathname.startsWith("/perfil/") ||
-      pathname.startsWith("/mi-perfil"),
-  },
-  {
     to: "/actividad",
     label: "Actividad",
     icon: <IconActivity />,
@@ -58,6 +49,15 @@ const NAV_ITEMS = [
       pathname.startsWith("/mensajes/") ||
       pathname === "/notificaciones" ||
       pathname.startsWith("/notificaciones/"),
+  },
+  {
+    to: "/perfil",
+    label: "Perfil",
+    icon: <IconProfile />,
+    isActive: (pathname) =>
+      pathname === "/perfil" ||
+      pathname.startsWith("/perfil/") ||
+      pathname.startsWith("/mi-perfil"),
   },
 ];
 
