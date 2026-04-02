@@ -4,7 +4,7 @@ import { useAuth } from "../hooks/useAuth";
 import { useToast } from "../hooks/useToast";
 
 export default function DeleteAccountPage() {
-  const { me, deleteAccount, logout } = useAuth();
+  const { deleteAccount, logout } = useAuth();
   const toast = useToast();
   const nav = useNavigate();
 
@@ -36,15 +36,17 @@ export default function DeleteAccountPage() {
 
   return (
     <section className="page">
-      <section className="heroPanel">
-        <div className="heroPanel__top">
+      <section className="sectionBlock">
+        <div className="app-section-header">
           <div>
-            <span className="sectionEyebrow">Eliminar Cuenta</span>
+            <div className="app-section-header__title">Eliminar cuenta</div>
+            <div className="app-section-header__subtitle">
+              Proceso irreversible. Revisa cada paso antes de continuar.
+            </div>
           </div>
 
-          <span className="heroPanel__badge">Irreversible</span>
+          <span className="app-badge app-badge--primary">Irreversible</span>
         </div>
-
       </section>
 
       {step === 1 ? (
