@@ -51,21 +51,21 @@ export default function FollowingPage() {
 
   return (
     <section className="page">
-      <section className="heroPanel">
-        <div className="heroPanel__top">
+      <section className="sectionBlock">
+        <div className="app-section-header">
           <div>
-            <span className="sectionEyebrow">Perfil</span>
-            <h1 className="heroPanel__title">Seguidos</h1>
+            <div className="app-section-header__title">Seguidos</div>
+            <div className="app-section-header__subtitle">
+              {following.length === 0
+                ? "Todavía no sigues a ningún perfil visible en la app."
+                : `${following.length} ${
+                    following.length === 1 ? "perfil seguido" : "perfiles seguidos"
+                  }.`}
+            </div>
           </div>
 
-          <span className="heroPanel__badge">{following.length}</span>
+          <span className="app-badge app-badge--primary">{following.length}</span>
         </div>
-
-        <p className="heroPanel__text">
-          {following.length === 0
-            ? "Todavía no sigues a ningún perfil visible en la app."
-            : `${following.length} ${following.length === 1 ? "perfil seguido" : "perfiles seguidos"}.`}
-        </p>
       </section>
 
       {following.length === 0 ? (
