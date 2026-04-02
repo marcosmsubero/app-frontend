@@ -1,20 +1,7 @@
-function joinClasses(...values) {
-  return values.filter(Boolean).join(" ");
-}
-
-export default function Badge({
-  children,
-  variant = "neutral",
-  className = "",
-  as: Component = "span",
-  ...props
-}) {
+export default function Badge({ children, variant = "default" }) {
   return (
-    <Component
-      className={joinClasses("ui-badge", `ui-badge--${variant}`, className)}
-      {...props}
-    >
+    <span className={`ui-badge ui-badge--${variant}`}>
       {children}
-    </Component>
+    </span>
   );
 }
