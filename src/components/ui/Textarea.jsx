@@ -1,3 +1,5 @@
+import { useId } from "react";
+
 function joinClasses(...values) {
   return values.filter(Boolean).join(" ");
 }
@@ -12,8 +14,8 @@ export default function Textarea({
   rows = 5,
   ...props
 }) {
-  const generatedId =
-    id || props.name || `textarea-${Math.random().toString(36).slice(2, 10)}`;
+  const reactId = useId();
+  const generatedId = id || props.name || `textarea-${reactId.replace(/:/g, "")}`;
 
   return (
     <div className={joinClasses("ui-field", error && "ui-field--error", className)}>
