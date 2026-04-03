@@ -20,7 +20,7 @@ function LoaderScreen() {
   );
 }
 
-export default function AuthPage({ defaultTab = "login" }) {
+export default function AuthPage({ mode = "login" }) {
   const { login, register, isAuthed, me, meReady } = useAuth();
   const location = useLocation();
   const nav = useNavigate();
@@ -28,8 +28,8 @@ export default function AuthPage({ defaultTab = "login" }) {
   const initialTab = useMemo(() => {
     if (location.pathname === "/register") return "register";
     if (location.pathname === "/login") return "login";
-    return defaultTab;
-  }, [defaultTab, location.pathname]);
+    return mode;
+  }, [mode, location.pathname]);
 
   const [tab, setTab] = useState(initialTab);
   const [identifier, setIdentifier] = useState(location.state?.registeredEmail || "");
@@ -173,122 +173,134 @@ export default function AuthPage({ defaultTab = "login" }) {
   const isLogin = tab === "login";
 
   return (
-    <section className="page authPage">
-      <section className="sectionBlock authBrandCard">
-        <div className="authBrandCard__row">
-          <img src={appIcon} alt="RunVibe" className="authBrandCard__icon" />
-          <img src={appLogo} alt="RunVibe" className="authBrandCard__logo" />
+    <div className="appChrome authChrome">
+      <header className="appTopbar">
+        <div className="appTopbar__inner">
+          <img src={appLogo} alt="RunVibe" className="appTopbar__logo" />
         </div>
-      </section>
+      </header>
 
-      <section className="sectionBlock">
-        <div className="app-section-header">
-          <div>
-            <div className="app-section-header__title">
-              {isLogin ? "Accede a tu cuenta" : "Crea tu cuenta"}
-            </div>
-            <div className="app-section-header__subtitle">
-              {isLogin
-                ? "Entra con tu email o usuario para continuar."
-                : "Regístrate y completa tu perfil después."}
-            </div>
+      <div className="appChrome__frame authChrome__frame">
+        <main className="appChrome__main">
+          <div className="appChrome__content">
+            <section className="page authPage">
+              <section className="sectionBlock authBrandCard authBrandCard--hero">
+                <div className="authBrandCard__row">
+                  <img src={appIcon} alt="RunVibe" className="authBrandCard__icon" />
+                  <img src={appLogo} alt="RunVibe" className="authBrandCard__logo" />
+                </div>
+              </section>
+
+              <section className="authIntro">
+                <div className="authIntro__title">
+                  {isLogin ? "Accede a tu cuenta" : "Crea tu cuenta"}
+                </div>
+                <div className="authIntro__subtitle">
+                  {isLogin
+                    ? "Entra con tu email o usuario para continuar."
+                    : "Regístrate y completa tu perfil después."}
+                </div>
+              </section>
+
+              <section className="authSwitchSection">
+                <div className="authSwitch" role="tablist" aria-label="Autenticación">
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={isLogin}
+                    className={`authSwitch__item${isLogin ? " authSwitch__item--active" : ""}`}
+                    onClick={() => {
+                      resetMsg();
+                      setTab("login");
+                      nav("/login", { replace: true });
+                    }}
+                    disabled={loading}
+                  >
+                    Login
+                  </button>
+
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={!isLogin}
+                    className={`authSwitch__item${!isLogin ? " authSwitch__item--active" : ""}`}
+                    onClick={() => {
+                      resetMsg();
+                      setTab("register");
+                      nav("/register", { replace: true });
+                    }}
+                    disabled={loading}
+                  >
+                    Registro
+                  </button>
+                </div>
+              </section>
+
+              <section className="sectionBlock authFormShell">
+                <form className="formCard authFormCard" onSubmit={handleSubmit}>
+                  <div className="formRow authFormRow">
+                    <label htmlFor="auth-identifier">
+                      {isLogin ? "Email o usuario" : "Email"}
+                    </label>
+                    <input
+                      id="auth-identifier"
+                      type={isLogin ? "text" : "email"}
+                      autoComplete={isLogin ? "username" : "email"}
+                      value={identifier}
+                      onChange={(e) => setIdentifier(e.target.value)}
+                      disabled={loading}
+                      placeholder=""
+                    />
+                  </div>
+
+                  <div className="formRow authFormRow">
+                    <label htmlFor="auth-password">Contraseña</label>
+                    <input
+                      id="auth-password"
+                      type="password"
+                      autoComplete={isLogin ? "current-password" : "new-password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      disabled={loading}
+                      placeholder=""
+                    />
+                  </div>
+
+                  {!isLogin ? (
+                    <div className="formRow authFormRow">
+                      <label htmlFor="auth-password-repeat">Repite contraseña</label>
+                      <input
+                        id="auth-password-repeat"
+                        type="password"
+                        autoComplete="new-password"
+                        value={password2}
+                        onChange={(e) => setPassword2(e.target.value)}
+                        disabled={loading}
+                        placeholder=""
+                      />
+                    </div>
+                  ) : null}
+
+                  {msg.text ? (
+                    <div className={`stateCard authStateCard authStateCard--${msg.type || "info"}`}>
+                      <h3 className="stateCard__title">
+                        {msg.type === "error" ? "Revisa los datos" : "Todo correcto"}
+                      </h3>
+                      <p className="stateCard__text">{msg.text}</p>
+                    </div>
+                  ) : null}
+
+                  <div className="formActions authFormActions">
+                    <button type="submit" className="btn btn--primary authSubmitBtn" disabled={loading}>
+                      {loading ? "Procesando..." : isLogin ? "Entrar" : "Crear cuenta"}
+                    </button>
+                  </div>
+                </form>
+              </section>
+            </section>
           </div>
-        </div>
-      </section>
-
-      <section className="sectionBlock">
-        <div className="tabBar" role="tablist" aria-label="Autenticación">
-          <button
-            type="button"
-            role="tab"
-            aria-selected={isLogin}
-            className={`tabBar__item${isLogin ? " tabBar__item--active" : ""}`}
-            onClick={() => {
-              resetMsg();
-              setTab("login");
-              nav("/login", { replace: true });
-            }}
-            disabled={loading}
-          >
-            Login
-          </button>
-
-          <button
-            type="button"
-            role="tab"
-            aria-selected={!isLogin}
-            className={`tabBar__item${!isLogin ? " tabBar__item--active" : ""}`}
-            onClick={() => {
-              resetMsg();
-              setTab("register");
-              nav("/register", { replace: true });
-            }}
-            disabled={loading}
-          >
-            Registro
-          </button>
-        </div>
-      </section>
-
-      <section className="sectionBlock">
-        <form className="formCard" onSubmit={handleSubmit}>
-          <div className="formRow">
-            <label htmlFor="auth-identifier">
-              {isLogin ? "Email o usuario" : "Email"}
-            </label>
-            <input
-              id="auth-identifier"
-              type={isLogin ? "text" : "email"}
-              autoComplete={isLogin ? "username" : "email"}
-              value={identifier}
-              onChange={(e) => setIdentifier(e.target.value)}
-              disabled={loading}
-              placeholder={isLogin ? "email o @usuario" : "tu@email.com"}
-            />
-          </div>
-
-          <div className="formRow">
-            <label htmlFor="auth-password">Contraseña</label>
-            <input
-              id="auth-password"
-              type="password"
-              autoComplete={isLogin ? "current-password" : "new-password"}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              disabled={loading}
-            />
-          </div>
-
-          {!isLogin ? (
-            <div className="formRow">
-              <label htmlFor="auth-password-repeat">Repite contraseña</label>
-              <input
-                id="auth-password-repeat"
-                type="password"
-                autoComplete="new-password"
-                value={password2}
-                onChange={(e) => setPassword2(e.target.value)}
-                disabled={loading}
-              />
-            </div>
-          ) : null}
-
-          {msg.text ? (
-            <div className="stateCard" style={{ padding: 14 }}>
-              <h3 className="stateCard__title">
-                {msg.type === "error" ? "Revisa los datos" : "Todo correcto"}
-              </h3>
-              <p className="stateCard__text">{msg.text}</p>
-            </div>
-          ) : null}
-
-          <div className="formActions">
-            <button type="submit" className="btn btn--primary" disabled={loading}>
-              {loading ? "Procesando..." : isLogin ? "Entrar" : "Crear cuenta"}
-            </button>
-          </div>
-        </form>
-      </section>
-    </section>
+        </main>
+      </div>
+    </div>
   );
 }
