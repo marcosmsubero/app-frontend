@@ -203,3 +203,217 @@
   color: var(--primary);
   font-weight: 700;
 }
+
+.blablaRunPage .discoverSelectedDay,
+.blablaRunPage .discoverSelectedDay__head,
+.blablaRunPage .discoverEventList--day,
+.blablaRunPage .discoverEventFlipCard,
+.blablaRunPage .discoverEventFlipCard__face,
+.blablaRunPage .discoverEventFlipCard__frontBody,
+.blablaRunPage .discoverEventFlipCard__details {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.blablaRunPage .discoverSelectedDay {
+  overflow-x: hidden;
+}
+
+.blablaRunPage .discoverEventList--day {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  width: 100%;
+}
+
+.blablaRunPage .discoverEventList--dayGrid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.blablaRunPage .discoverEventFlipCard {
+  width: 100%;
+  min-width: 0;
+  perspective: 1200px;
+}
+
+.blablaRunPage .discoverEventFlipCard__inner {
+  position: relative;
+  width: 100%;
+  height: 224px;
+  transform-style: preserve-3d;
+  transition: transform 0.55s ease;
+}
+
+.blablaRunPage .discoverEventFlipCard.is-flipped .discoverEventFlipCard__inner {
+  transform: rotateY(180deg);
+}
+
+.blablaRunPage .discoverEventFlipCard__face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  overflow: hidden;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.blablaRunPage .discoverEventFlipCard__face--back {
+  transform: rotateY(180deg);
+  padding: 12px;
+  gap: 12px;
+}
+
+.blablaRunPage .discoverEventFlipCard__mediaWrap {
+  position: relative;
+  height: 138px;
+  overflow: hidden;
+  flex: 0 0 auto;
+}
+
+.blablaRunPage .discoverEventFlipCard__mediaButton {
+  width: 100%;
+  height: 100%;
+  display: block;
+  border: 0;
+  padding: 0;
+  background: transparent;
+}
+
+.blablaRunPage .discoverEventFlipCard__mediaButton--placeholder {
+  display: grid;
+  place-items: end start;
+  padding: 14px;
+  background:
+    linear-gradient(160deg, rgba(255, 107, 87, 0.3), rgba(255, 255, 255, 0.06)),
+    rgba(255, 255, 255, 0.04);
+}
+
+.blablaRunPage .discoverEventFlipCard__placeholderTitle {
+  color: var(--text);
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  text-align: left;
+}
+
+.blablaRunPage .discoverEventFlipCard__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.blablaRunPage .discoverEventFlipCard__tag {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+.blablaRunPage .discoverEventFlipCard__frontBody {
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+}
+
+.blablaRunPage .discoverEventFlipCard__title {
+  margin: 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.blablaRunPage .discoverEventFlipCard__meta,
+.blablaRunPage .discoverEventFlipCard__detailLine {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.blablaRunPage .discoverEventFlipCard__backHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.blablaRunPage .discoverEventFlipCard__close {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.blablaRunPage .discoverEventFlipCard__details {
+  display: grid;
+  gap: 8px;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.blablaRunPage .discoverEventFlipCard__detailText {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.82rem;
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.blablaRunPage .discoverEventFlipCard__footer {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 0.8rem;
+}
+
+.blablaRunPage .discoverEventFlipCard__host {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 420px) {
+  .blablaRunPage .discoverEventList--dayGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .blablaRunPage .discoverEventFlipCard__inner {
+    height: 208px;
+  }
+
+  .blablaRunPage .discoverEventFlipCard__mediaWrap {
+    height: 124px;
+  }
+
+  .blablaRunPage .discoverEventFlipCard__title {
+    font-size: 0.88rem;
+  }
+
+  .blablaRunPage .discoverEventFlipCard__meta,
+  .blablaRunPage .discoverEventFlipCard__detailLine,
+  .blablaRunPage .discoverEventFlipCard__detailText,
+  .blablaRunPage .discoverEventFlipCard__footer {
+    font-size: 0.75rem;
+  }
+}
