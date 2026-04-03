@@ -331,7 +331,7 @@ export default function ProfilePage() {
 
   if (!meReady) {
     return (
-      <section className="page">
+      <section className="page profilePage">
         <div className="stateCard">
           <h3 className="stateCard__title">Cargando perfil</h3>
           <p className="stateCard__text">Estamos preparando la información del perfil.</p>
@@ -342,7 +342,7 @@ export default function ProfilePage() {
 
   if (isPublicProfile && publicLoading) {
     return (
-      <section className="page">
+      <section className="page profilePage">
         <div className="stateCard">
           <h3 className="stateCard__title">Cargando perfil público</h3>
           <p className="stateCard__text">Espera un momento.</p>
@@ -353,7 +353,7 @@ export default function ProfilePage() {
 
   if (isPublicProfile && publicError) {
     return (
-      <section className="page">
+      <section className="page profilePage">
         <div className="stateCard">
           <h3 className="stateCard__title">No se pudo cargar el perfil</h3>
           <p className="stateCard__text">{publicError}</p>
@@ -406,13 +406,13 @@ export default function ProfilePage() {
 
   return (
     <section className="page profilePage">
-      <section className="sectionBlock profileIdentityCard">
-        {!isPublicProfile ? (
-          <Link to="/ajustes" className="profileSettingsShortcut" aria-label="Ir a ajustes">
-            <img src={settingsIcon} alt="" className="profileSettingsShortcut__icon" />
-          </Link>
-        ) : null}
+      {!isPublicProfile ? (
+        <Link to="/ajustes" className="profileSettingsFloating" aria-label="Ir a ajustes">
+          <img src={settingsIcon} alt="" className="profileSettingsFloating__icon" />
+        </Link>
+      ) : null}
 
+      <section className="sectionBlock profileIdentityCard">
         <div className="profileIdentityTop">
           <div className="profileIdentityMain">
             {avatarUrl ? (
