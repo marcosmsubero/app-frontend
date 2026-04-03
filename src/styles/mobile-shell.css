@@ -37,9 +37,9 @@
 
 .appTopbar__inner {
   width: min(100%, 520px);
-  height: 32px;              /* marco superior realmente estrecho */
+  height: 32px;
   margin: 0 auto;
-  padding: 0 14px;
+  padding: 0 10px;
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -47,11 +47,11 @@
 }
 
 .appTopbar__logo {
-  height: 64px;              /* logo grande */
+  height: 70px;
   width: auto;
   object-fit: contain;
   display: block;
-  transform: translateY(2px); /* ajusta visualmente dentro del marco */
+  transform: translateY(0);
   filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.25));
 }
 
@@ -71,7 +71,7 @@
 
 .bottomNav__inner {
   width: min(100%, 520px);
-  height: 44px;              /* marco inferior realmente estrecho */
+  height: 44px;
   margin: 0 auto;
   padding: 0 8px;
   display: grid;
@@ -100,7 +100,7 @@
   height: 64px;
   object-fit: contain;
   display: block;
-  transform: translateY(-4px); /* sobresalen del marco */
+  transform: translateY(0);
   transition: transform 0.2s ease, filter 0.2s ease;
 }
 
@@ -110,7 +110,7 @@
 }
 
 .bottomNav__link.is-active .bottomNav__iconImage {
-  transform: translateY(-4px) scale(1.08);
+  transform: scale(1.08);
   filter:
     drop-shadow(0 0 8px rgba(124, 233, 155, 0.6))
     drop-shadow(0 0 16px rgba(124, 233, 155, 0.4));
@@ -122,8 +122,8 @@
 }
 
 @keyframes bounce {
-  0% { transform: translateY(-4px) scale(1); }
-  30% { transform: translateY(-4px) scale(0.85); }
-  60% { transform: translateY(-4px) scale(1.15); }
-  100% { transform: translateY(-4px) scale(1); }
+  0% { transform: scale(1); }
+  30% { transform: scale(0.85); }
+  60% { transform: scale(1.15); }
+  100% { transform: scale(1); }
 }
