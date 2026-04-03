@@ -11,9 +11,9 @@
   margin: 0 auto;
   min-height: 100dvh;
   padding:
-    calc(var(--safe-top, 0px) + 52px)
+    calc(var(--safe-top, 0px) + 44px)
     14px
-    calc(95px + var(--safe-bottom, 0px));
+    calc(72px + var(--safe-bottom, 0px));
 }
 
 .appChrome__content {
@@ -32,23 +32,27 @@
   background: rgba(8, 17, 29, 0.96);
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(12px);
+  overflow: visible;
 }
 
 .appTopbar__inner {
   width: min(100%, 520px);
+  height: 32px;              /* marco superior realmente estrecho */
   margin: 0 auto;
-  min-height: 34px;       /* ↓ MUY estrecho */
+  padding: 0 14px;
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  padding: 2px 14px;      /* ↓ compacto */
+  overflow: visible;
 }
 
 .appTopbar__logo {
-  height: 64px;           /* ↑ grande */
+  height: 64px;              /* logo grande */
   width: auto;
   object-fit: contain;
   display: block;
+  transform: translateY(2px); /* ajusta visualmente dentro del marco */
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.25));
 }
 
 /* BOTTOM NAV */
@@ -62,16 +66,18 @@
   background: rgba(8, 17, 29, 0.96);
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(12px);
+  overflow: visible;
 }
 
 .bottomNav__inner {
   width: min(100%, 520px);
+  height: 44px;              /* marco inferior realmente estrecho */
   margin: 0 auto;
-  min-height: 58px;      /* ↓ más bajo */
+  padding: 0 8px;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   align-items: center;
-  padding: 0px 8px;
+  overflow: visible;
 }
 
 .bottomNav__link {
@@ -82,15 +88,19 @@
   justify-content: center;
   cursor: pointer;
   opacity: 0.75;
-  transition: all 0.2s ease;
-  min-height: 48px;
+  transition: opacity 0.2s ease;
+  height: 44px;
+  padding: 0;
+  overflow: visible;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .bottomNav__iconImage {
-  width: 64px;           /* se mantiene */
+  width: 64px;
   height: 64px;
   object-fit: contain;
   display: block;
+  transform: translateY(-4px); /* sobresalen del marco */
   transition: transform 0.2s ease, filter 0.2s ease;
 }
 
@@ -100,7 +110,7 @@
 }
 
 .bottomNav__link.is-active .bottomNav__iconImage {
-  transform: scale(1.1);
+  transform: translateY(-4px) scale(1.08);
   filter:
     drop-shadow(0 0 8px rgba(124, 233, 155, 0.6))
     drop-shadow(0 0 16px rgba(124, 233, 155, 0.4));
@@ -112,8 +122,8 @@
 }
 
 @keyframes bounce {
-  0% { transform: scale(1); }
-  30% { transform: scale(0.85); }
-  60% { transform: scale(1.15); }
-  100% { transform: scale(1); }
+  0% { transform: translateY(-4px) scale(1); }
+  30% { transform: translateY(-4px) scale(0.85); }
+  60% { transform: translateY(-4px) scale(1.15); }
+  100% { transform: translateY(-4px) scale(1); }
 }
