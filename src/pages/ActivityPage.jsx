@@ -1,14 +1,64 @@
-import { useState } from "react";
+// ...imports y helpers SIN CAMBIOS
 
-export default function ActivityPage({
-  messageList = [],
-  notificationsList = [],
-}) {
+export default function ActivityPage() {
+  const nav = useNavigate();
+  const toast = useToast();
+  const { token } = useAuth();
+
+  const [messageQuery, setMessageQuery] = useState("");
+  const [threads, setThreads] = useState([]);
+  const [messagesLoading, setMessagesLoading] = useState(false);
+
+  const [notifications, setNotifications] = useState([]);
+  const [notificationsLoading, setNotificationsLoading] = useState(false);
+
   const [activeView, setActiveView] = useState("split"); // split | messages | notifications
+
+  const timerRef = useRef(null);
+
+  async function loadMessages(query = messageQuery) {
+    if (!token) return;
+    setMessagesLoading(true);
+    try {
+      const res = await apiDMThreads(query || "", token);
+      setThreads(Array.isArray(res) ? res : res?.items || []);
+    } finally {
+      setMessagesLoading(false);
+    }
+  }
+
+  async function loadNotifications() {
+    if (!token) return;
+    setNotificationsLoading(true);
+    try {
+      const res = await apiNotifications("all", token);
+      setNotifications(Array.isArray(res) ? res : res?.items || []);
+    } finally {
+      setNotificationsLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    loadMessages("");
+    loadNotifications();
+  }, [token]);
+
+  const messageList = useMemo(() => threads || [], [threads]);
+  const notificationsList = useMemo(() => notifications || [], [notifications]);
+
+  function openThread(thread) {
+    if (!thread?.id) return;
+    nav(`/mensajes/${thread.id}`);
+  }
+
+  function openNotif(notification) {
+    if (!notification) return;
+    nav(routeFromNotif(notification));
+  }
 
   return (
     <section className="page activityPage">
-      {/* HEADER SIMPLE */}
+      {/* HEADER SIMPLE SOLO CONTADORES */}
       <section className="sectionBlock">
         <div className="app-section-header">
           <div className="activityPage__counters">
@@ -27,43 +77,51 @@ export default function ActivityPage({
 
       {/* SPLIT VIEW */}
       <section className="activityPage__split">
-        {/* MESSAGES */}
+        {/* MENSAJES */}
         <div
           className={`activityPage__column ${
             activeView === "messages" ? "isActive" : ""
           } ${activeView === "notifications" ? "isHidden" : ""}`}
           onClick={() => setActiveView("messages")}
         >
-          {messageList.map((msg) => (
-            <div key={msg.id} className="activityPage__item">
+          {messageList.map((thread) => (
+            <div
+              key={thread.id}
+              className="activityPage__item"
+              onClick={() => openThread(thread)}
+            >
               <img
-                src={msg.avatar || "/default-avatar.png"}
+                src={thread.avatar_url}
                 alt=""
                 className="activityPage__avatar"
               />
               <span className="activityPage__name">
-                {msg.name || "Usuario"}
+                {getThreadName(thread)}
               </span>
             </div>
           ))}
         </div>
 
-        {/* NOTIFICATIONS */}
+        {/* NOTIFICACIONES */}
         <div
           className={`activityPage__column ${
             activeView === "notifications" ? "isActive" : ""
           } ${activeView === "messages" ? "isHidden" : ""}`}
           onClick={() => setActiveView("notifications")}
         >
-          {notificationsList.map((notif) => (
-            <div key={notif.id} className="activityPage__item">
+          {notificationsList.map((n) => (
+            <div
+              key={n.id}
+              className="activityPage__item"
+              onClick={() => openNotif(n)}
+            >
               <img
-                src={notif.avatar || "/default-avatar.png"}
+                src={n.avatar_url}
                 alt=""
                 className="activityPage__avatar"
               />
               <span className="activityPage__name">
-                {notif.name || "Usuario"}
+                {n.from || "Usuario"}
               </span>
             </div>
           ))}
