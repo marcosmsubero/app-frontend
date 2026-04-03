@@ -3,24 +3,24 @@
   padding-top: 8px;
 }
 
-.profileSettingsFloating {
+.profileIdentityCard {
+  position: relative;
+}
+
+.profileSettingsShortcut {
   position: absolute;
-  top: 2px;
-  right: 4px;
-  z-index: 20;
+  top: 14px;
+  right: 14px;
+  z-index: 10;
   display: block;
   line-height: 0;
   text-decoration: none;
 }
 
-.profileSettingsFloating__icon {
-  width: 28px;
-  height: 28px;
+.profileSettingsShortcut__icon {
+  width: 24px;
+  height: 24px;
   object-fit: contain;
   display: block;
-  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.35));
-}
-
-.profileContent {
-  padding: 16px;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.35));
 }
