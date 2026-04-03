@@ -83,7 +83,7 @@
   height: 100%;
   object-fit: contain;
 
-  transform: scale(3) translateY(-3px);
+  transform: scale(3) translateY(-2px);
 
   display: block;
   opacity: 0.9;
