@@ -1,4 +1,4 @@
-import { useNavigate, useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import "../styles/mobile-shell.css";
 import iconEventos from "../assets/Eventos.png";
 import iconPerfil from "../assets/Perfil.png";
@@ -11,7 +11,7 @@ export default function BottomNav() {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <nav className="bottomNav">
+    <nav className="bottomNav" aria-label="Navegación inferior">
       <div className="bottomNav__inner">
         <button
           type="button"
