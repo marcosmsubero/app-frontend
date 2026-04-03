@@ -426,24 +426,3 @@
     height: 72px;
   }
 }
-
-
-.profileSettingsShortcut {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  width: 42px;
-  height: 42px;
-  display: grid;
-  place-items: center;
-  border-radius: 14px;
-  border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.05);
-  box-shadow: var(--shadow-sm);
-}
-
-.profileSettingsShortcut__icon {
-  width: 18px;
-  height: 18px;
-  object-fit: contain;
-}
