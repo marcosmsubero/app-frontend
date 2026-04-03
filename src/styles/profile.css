@@ -1,26 +1,6 @@
 .profilePage {
   position: relative;
-}
-
-/* ICONO AJUSTES FLOATING */
-.settingsIcon {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  width: 26px;
-  height: 26px;
-  object-fit: contain;
-  z-index: 10;
-  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.6));
-}
-
-/* CONTENIDO PERFIL */
-.profileContent {
-  padding: 16px;
-}
-
-.profilePage {
-  position: relative;
+  padding-top: 8px;
 }
 
 .profileSettingsFloating {
@@ -30,6 +10,7 @@
   z-index: 20;
   display: block;
   line-height: 0;
+  text-decoration: none;
 }
 
 .profileSettingsFloating__icon {
@@ -38,4 +19,8 @@
   object-fit: contain;
   display: block;
   filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.35));
+}
+
+.profileContent {
+  padding: 16px;
 }
