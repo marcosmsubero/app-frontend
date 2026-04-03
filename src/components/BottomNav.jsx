@@ -1,5 +1,8 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import "../styles/mobile-shell.css";
+import iconEventos from "../assets/Eventos.png";
+import iconPerfil from "../assets/Perfil.png";
+import iconActividad from "../assets/Actividad.png";
 
 export default function BottomNav() {
   const navigate = useNavigate();
@@ -9,25 +12,30 @@ export default function BottomNav() {
 
   return (
     <nav className="bottomNav">
+      <div className="bottomNav__list">
 
-      <img
-        src="/src/assets/Eventos.png"
-        className={isActive("/eventos") ? "active" : ""}
-        onClick={() => navigate("/eventos")}
-      />
+        <button
+          className={`bottomNav__link ${isActive("/eventos") ? "is-active" : ""}`}
+          onClick={() => navigate("/eventos")}
+        >
+          <img src={iconEventos} alt="Eventos" className="bottomNav__iconImage" />
+        </button>
 
-      <img
-        src="/src/assets/Perfil.png"
-        className={isActive("/perfil") ? "active" : ""}
-        onClick={() => navigate("/perfil")}
-      />
+        <button
+          className={`bottomNav__link ${isActive("/perfil") ? "is-active" : ""}`}
+          onClick={() => navigate("/perfil")}
+        >
+          <img src={iconPerfil} alt="Perfil" className="bottomNav__iconImage" />
+        </button>
 
-      <img
-        src="/src/assets/Actividad.png"
-        className={isActive("/actividad") ? "active" : ""}
-        onClick={() => navigate("/actividad")}
-      />
+        <button
+          className={`bottomNav__link ${isActive("/actividad") ? "is-active" : ""}`}
+          onClick={() => navigate("/actividad")}
+        >
+          <img src={iconActividad} alt="Actividad" className="bottomNav__iconImage" />
+        </button>
 
+      </div>
     </nav>
   );
 }
