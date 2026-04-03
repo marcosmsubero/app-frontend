@@ -845,8 +845,8 @@
 .activityPageSplit__counters {
   display: flex;
   align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
+  gap: 14px;
+  flex-wrap: nowrap;
 }
 
 .activityPageSplit__counter {
@@ -865,6 +865,14 @@
   color: var(--text);
 }
 
+.activityPageSplit__counterDivider {
+  width: 1px;
+  height: 20px;
+  background: var(--border);
+  opacity: 0.9;
+  flex: 0 0 auto;
+}
+
 .activityPageSplit {
   display: flex;
   gap: 0;
@@ -876,6 +884,7 @@
     linear-gradient(180deg, rgba(255, 255, 255, 0.015), rgba(255, 255, 255, 0)),
     var(--surface);
   box-shadow: var(--shadow-sm);
+  touch-action: pan-y;
 }
 
 .activityPageSplit__pane {
@@ -891,7 +900,9 @@
     flex-grow 220ms ease,
     flex-shrink 220ms ease,
     opacity 180ms ease,
-    background-color 180ms ease;
+    background-color 180ms ease,
+    padding 180ms ease,
+    border-color 180ms ease;
 }
 
 .activityPageSplit__pane + .activityPageSplit__pane {
@@ -922,7 +933,7 @@
 .activityPageSplit__paneHead {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 8px;
   padding: 0 2px;
 }
@@ -933,20 +944,6 @@
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--text-muted);
-}
-
-.activityPageSplit__paneCount {
-  min-width: 24px;
-  height: 24px;
-  padding: 0 8px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.07);
-  color: var(--text);
-  font-size: 0.78rem;
-  font-weight: 800;
 }
 
 .activityPageSplit__list {
