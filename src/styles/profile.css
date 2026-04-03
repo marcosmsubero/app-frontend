@@ -32,7 +32,7 @@
   border: 1px solid var(--border);
   background: rgba(255, 255, 255, 0.04);
   box-shadow: var(--shadow-sm);
-  transform: translateY(-4px);
+  transform: translateY(-6px);
 }
 
 .profilePage .profileHero__avatar--fallback {
