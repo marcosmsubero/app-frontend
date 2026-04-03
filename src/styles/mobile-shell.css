@@ -5,14 +5,15 @@
   color: #ffffff;
 }
 
+/* CONTENIDO */
 .appChrome__frame {
   width: min(100%, 520px);
   margin: 0 auto;
   min-height: 100dvh;
   padding:
-    calc(var(--safe-top, 0px) + 64px)
+    calc(var(--safe-top, 0px) + 60px)
     14px
-    calc(128px + var(--safe-bottom, 0px));
+    calc(110px + var(--safe-bottom, 0px));
 }
 
 .appChrome__content {
@@ -20,7 +21,7 @@
   gap: 14px;
 }
 
-/* TOP BAR */
+/* HEADER */
 .appTopbar {
   position: fixed;
   top: 0;
@@ -30,21 +31,21 @@
   padding-top: var(--safe-top, 0px);
   background: rgba(8, 17, 29, 0.96);
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(14px);
+  backdrop-filter: blur(12px);
 }
 
 .appTopbar__inner {
   width: min(100%, 520px);
   margin: 0 auto;
-  min-height: 52px;
+  min-height: 42px;
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  padding: 6px 14px;
+  padding: 4px 14px;
 }
 
 .appTopbar__logo {
-  height: 36px;
+  height: 56px;
   width: auto;
   object-fit: contain;
   display: block;
@@ -60,39 +61,27 @@
   padding-bottom: var(--safe-bottom, 0px);
   background: rgba(8, 17, 29, 0.96);
   border-top: 1px solid rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(14px);
+  backdrop-filter: blur(12px);
 }
 
 .bottomNav__inner {
   width: min(100%, 520px);
   margin: 0 auto;
-  min-height: 92px;
+  min-height: 72px;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   align-items: center;
-  padding: 6px 10px 8px;
+  padding: 2px 8px;
 }
 
 .bottomNav__link {
-  appearance: none;
-  border: 0;
+  border: none;
   background: transparent;
-  min-height: 72px;
   display: grid;
   place-items: center;
-  padding: 4px;
   cursor: pointer;
-  opacity: 0.76;
-  transition: transform 180ms ease, opacity 180ms ease, filter 180ms ease;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.bottomNav__link:hover {
-  opacity: 0.92;
-}
-
-.bottomNav__link:focus-visible {
-  outline: none;
+  opacity: 0.75;
+  transition: all 0.2s ease;
 }
 
 .bottomNav__iconImage {
@@ -100,57 +89,29 @@
   height: 64px;
   object-fit: contain;
   display: block;
-  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.35));
-  transition:
-    transform 180ms ease,
-    filter 180ms ease,
-    opacity 180ms ease;
+  transition: transform 0.2s ease, filter 0.2s ease;
 }
 
-/* ESTADO ACTIVO */
+/* ACTIVO */
 .bottomNav__link.is-active {
   opacity: 1;
 }
 
 .bottomNav__link.is-active .bottomNav__iconImage {
-  transform: scale(1.08);
+  transform: scale(1.1);
   filter:
-    drop-shadow(0 0 8px rgba(124, 233, 155, 0.55))
-    drop-shadow(0 0 16px rgba(124, 233, 155, 0.35))
-    drop-shadow(0 6px 12px rgba(0, 0, 0, 0.4));
+    drop-shadow(0 0 8px rgba(124, 233, 155, 0.6))
+    drop-shadow(0 0 16px rgba(124, 233, 155, 0.4));
 }
 
-/* BOUNCE TIPO IOS AL PULSAR */
+/* BOUNCE */
 .bottomNav__link:active .bottomNav__iconImage {
-  animation: navBounce 320ms cubic-bezier(0.2, 0.9, 0.2, 1);
+  animation: bounce 0.3s ease;
 }
 
-@keyframes navBounce {
-  0% {
-    transform: scale(1);
-  }
-  30% {
-    transform: scale(0.84);
-  }
-  60% {
-    transform: scale(1.12);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
-@media (min-width: 480px) {
-  .appTopbar__logo {
-    height: 40px;
-  }
-
-  .bottomNav__inner {
-    min-height: 96px;
-  }
-
-  .bottomNav__iconImage {
-    width: 68px;
-    height: 68px;
-  }
+@keyframes bounce {
+  0% { transform: scale(1); }
+  30% { transform: scale(0.85); }
+  60% { transform: scale(1.15); }
+  100% { transform: scale(1); }
 }
