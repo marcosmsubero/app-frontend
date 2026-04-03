@@ -175,182 +175,203 @@ export default function CreateEventPage() {
         <div className="createEventHero__eyebrow">Nuevo evento</div>
         <h1 className="createEventHero__title">Nuevo evento</h1>
         <p className="createEventHero__subtitle">
-          Crea una propuesta clara para entrenar, correr o compartir plan con tu comunidad.
+          Diseña una propuesta clara, atractiva y fácil de compartir con tu comunidad.
         </p>
         <div className="createEventHero__date">{formatDayLabel(selectedDay)}</div>
       </section>
 
       <section className="sectionBlock createEventFormCard">
+        <div className="createEventFormCard__head">
+          <div>
+            <h2 className="createEventFormCard__title">Detalles del evento</h2>
+            <p className="createEventFormCard__subtitle">
+              Completa lo esencial y añade extras si quieres dar más contexto.
+            </p>
+          </div>
+        </div>
+
         <form className="createEventForm" onSubmit={handleSubmit}>
-          <div className="createEventForm__group">
-            <label className="app-label" htmlFor="create-event-type">
-              Tipo de evento
-            </label>
-            <select
-              id="create-event-type"
-              className="app-select createEventForm__control"
-              value={form.event_type}
-              onChange={(event) => updateField("event_type", event.target.value)}
-              disabled={saving}
-            >
-              {EVENT_TYPES.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="createEventForm__group">
-            <label className="app-label" htmlFor="create-event-meeting-point">
-              Punto de encuentro
-            </label>
-            <input
-              id="create-event-meeting-point"
-              className="app-input createEventForm__control"
-              value={form.meeting_point}
-              onChange={(event) => updateField("meeting_point", event.target.value)}
-              placeholder="Ej. Salida desde el paseo marítimo"
-              disabled={saving}
-            />
-          </div>
-
-          <div className="createEventForm__grid">
-            <div className="createEventForm__group">
-              <label className="app-label" htmlFor="create-event-time">
-                Hora
-              </label>
-              <input
-                id="create-event-time"
-                className="app-input createEventForm__control"
-                type="time"
-                value={form.time}
-                onChange={(event) => updateField("time", event.target.value)}
-                disabled={saving}
-              />
-            </div>
+          <div className="createEventSection">
+            <div className="createEventSection__title">Información principal</div>
 
             <div className="createEventForm__group">
-              <label className="app-label" htmlFor="create-event-visibility">
-                Visibilidad
+              <label className="app-label" htmlFor="create-event-type">
+                Tipo de evento
               </label>
               <select
-                id="create-event-visibility"
+                id="create-event-type"
                 className="app-select createEventForm__control"
-                value={form.visibility}
-                onChange={(event) => updateField("visibility", event.target.value)}
+                value={form.event_type}
+                onChange={(event) => updateField("event_type", event.target.value)}
                 disabled={saving}
               >
-                {VISIBILITY_OPTIONS.map((option) => (
+                {EVENT_TYPES.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
                   </option>
                 ))}
               </select>
             </div>
-          </div>
 
-          <div className="createEventForm__group">
-            <label className="app-label" htmlFor="create-event-notes">
-              Notas
-            </label>
-            <textarea
-              id="create-event-notes"
-              className="app-textarea createEventForm__control createEventForm__textarea"
-              rows={5}
-              value={form.notes}
-              onChange={(event) => updateField("notes", event.target.value)}
-              placeholder="Describe el plan, recorrido, ambiente o cualquier detalle útil."
-              disabled={saving}
-            />
-          </div>
-
-          <div className="createEventForm__group">
-            <div className="createEventForm__groupHead">
-              <label className="app-label">Imagen opcional</label>
-              <button
-                type="button"
-                className="createEventSecondaryBtn"
-                onClick={() => fileInputRef.current?.click()}
+            <div className="createEventForm__group">
+              <label className="app-label" htmlFor="create-event-meeting-point">
+                Punto de encuentro
+              </label>
+              <input
+                id="create-event-meeting-point"
+                className="app-input createEventForm__control"
+                value={form.meeting_point}
+                onChange={(event) => updateField("meeting_point", event.target.value)}
+                placeholder="Ej. Salida desde el paseo marítimo"
                 disabled={saving}
-              >
-                Subir foto
-              </button>
+              />
             </div>
 
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              onChange={handlePosterChange}
-              style={{ display: "none" }}
-            />
+            <div className="createEventForm__grid">
+              <div className="createEventForm__group">
+                <label className="app-label" htmlFor="create-event-time">
+                  Hora
+                </label>
+                <input
+                  id="create-event-time"
+                  className="app-input createEventForm__control"
+                  type="time"
+                  value={form.time}
+                  onChange={(event) => updateField("time", event.target.value)}
+                  disabled={saving}
+                />
+              </div>
 
-            <div className="createEventUploadBox">
-              {posterPreview ? (
-                <div className="createEventUploadPreview">
-                  <img src={posterPreview} alt="Vista previa" className="createEventUploadPreview__image" />
-                  <div className="createEventUploadPreview__meta">
-                    <span className="createEventUploadPreview__name">
-                      {posterFile?.name || "Imagen seleccionada"}
-                    </span>
-                    <button
-                      type="button"
-                      className="createEventInlineRemove"
-                      onClick={() => {
-                        setPosterFile(null);
-                        setPosterPreview("");
-                        if (fileInputRef.current) fileInputRef.current.value = "";
-                      }}
-                    >
-                      Eliminar
-                    </button>
+              <div className="createEventForm__group">
+                <label className="app-label" htmlFor="create-event-visibility">
+                  Visibilidad
+                </label>
+                <select
+                  id="create-event-visibility"
+                  className="app-select createEventForm__control"
+                  value={form.visibility}
+                  onChange={(event) => updateField("visibility", event.target.value)}
+                  disabled={saving}
+                >
+                  {VISIBILITY_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div className="createEventSection">
+            <div className="createEventSection__title">Contenido adicional</div>
+
+            <div className="createEventForm__group">
+              <label className="app-label" htmlFor="create-event-notes">
+                Notas
+              </label>
+              <textarea
+                id="create-event-notes"
+                className="app-textarea createEventForm__control createEventForm__textarea"
+                rows={5}
+                value={form.notes}
+                onChange={(event) => updateField("notes", event.target.value)}
+                placeholder="Describe el plan, recorrido, ambiente o cualquier detalle útil."
+                disabled={saving}
+              />
+            </div>
+
+            <div className="createEventForm__group">
+              <div className="createEventForm__groupHead">
+                <label className="app-label">Imagen opcional</label>
+                <button
+                  type="button"
+                  className="createEventSecondaryBtn"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={saving}
+                >
+                  Subir foto
+                </button>
+              </div>
+
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handlePosterChange}
+                style={{ display: "none" }}
+              />
+
+              <div className="createEventUploadBox">
+                {posterPreview ? (
+                  <div className="createEventUploadPreview">
+                    <img
+                      src={posterPreview}
+                      alt="Vista previa"
+                      className="createEventUploadPreview__image"
+                    />
+                    <div className="createEventUploadPreview__meta">
+                      <span className="createEventUploadPreview__name">
+                        {posterFile?.name || "Imagen seleccionada"}
+                      </span>
+                      <button
+                        type="button"
+                        className="createEventInlineRemove"
+                        onClick={() => {
+                          setPosterFile(null);
+                          setPosterPreview("");
+                          if (fileInputRef.current) fileInputRef.current.value = "";
+                        }}
+                      >
+                        Eliminar
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <div className="createEventUploadEmpty">
-                  Sube opcionalmente el cartel de una carrera o una imagen del evento.
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="createEventForm__group">
-            <div className="createEventForm__groupHead">
-              <label className="app-label">Enlaces</label>
-              <button
-                type="button"
-                className="createEventSecondaryBtn"
-                onClick={addLinkField}
-                disabled={saving}
-              >
-                Añadir enlace
-              </button>
+                ) : (
+                  <div className="createEventUploadEmpty">
+                    Sube opcionalmente el cartel de una carrera o una imagen del evento.
+                  </div>
+                )}
+              </div>
             </div>
 
-            <div className="createEventLinksList">
-              {form.external_links.map((link, index) => (
-                <div key={index} className="createEventLinkRow">
-                  <input
-                    className="app-input createEventForm__control"
-                    value={link}
-                    onChange={(event) => updateLink(index, event.target.value)}
-                    placeholder="https://..."
-                    disabled={saving}
-                  />
+            <div className="createEventForm__group">
+              <div className="createEventForm__groupHead">
+                <label className="app-label">Enlaces</label>
+                <button
+                  type="button"
+                  className="createEventSecondaryBtn"
+                  onClick={addLinkField}
+                  disabled={saving}
+                >
+                  Añadir enlace
+                </button>
+              </div>
 
-                  {form.external_links.length > 1 ? (
-                    <button
-                      type="button"
-                      className="createEventInlineRemove"
-                      onClick={() => removeLinkField(index)}
+              <div className="createEventLinksList">
+                {form.external_links.map((link, index) => (
+                  <div key={index} className="createEventLinkRow">
+                    <input
+                      className="app-input createEventForm__control"
+                      value={link}
+                      onChange={(event) => updateLink(index, event.target.value)}
+                      placeholder="https://..."
                       disabled={saving}
-                    >
-                      Quitar
-                    </button>
-                  ) : null}
-                </div>
-              ))}
+                    />
+
+                    {form.external_links.length > 1 ? (
+                      <button
+                        type="button"
+                        className="createEventInlineRemove"
+                        onClick={() => removeLinkField(index)}
+                        disabled={saving}
+                      >
+                        Quitar
+                      </button>
+                    ) : null}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
