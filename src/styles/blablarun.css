@@ -3,26 +3,28 @@
 }
 
 .blablaRunPage .discoverSection--calendarOnly {
-  gap: 16px;
+  gap: 12px;
   padding: 0;
   background: transparent;
   border: 0;
   box-shadow: none;
 }
 
+/* HEADER */
+
 .blablaRunPage .discoverCalendarHeader {
   display: grid;
-  gap: 14px;
+  gap: 10px;
 }
 
 .blablaRunPage .discoverCalendarHeader__copy {
   display: grid;
-  gap: 6px;
+  gap: 4px;
 }
 
 .blablaRunPage .discoverCalendarHeader__eyebrow {
   color: var(--text-muted);
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 800;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -31,335 +33,173 @@
 .blablaRunPage .discoverCalendarHeader__title {
   margin: 0;
   color: var(--text);
-  font-size: 1.32rem;
-  line-height: 1.05;
-  letter-spacing: -0.05em;
+  font-size: 1.15rem;
+  letter-spacing: -0.04em;
   font-weight: 800;
 }
+
+/* CONTROLES MES */
 
 .blablaRunPage .discoverMonthControls {
   display: grid;
-  grid-template-columns: 44px minmax(0, 1fr) 44px;
+  grid-template-columns: 38px 1fr 38px;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .blablaRunPage .discoverMonthBtn {
-  width: 44px;
-  height: 44px;
+  width: 38px;
+  height: 38px;
   border: 1px solid var(--border);
-  border-radius: 14px;
+  border-radius: 12px;
   background: rgba(255, 255, 255, 0.04);
   color: var(--text);
-  font: inherit;
-  font-size: 1.05rem;
-  font-weight: 800;
-  box-shadow: var(--shadow-sm);
-  transition:
-    transform 160ms ease,
-    border-color 160ms ease,
-    background-color 160ms ease;
-}
-
-.blablaRunPage .discoverMonthBtn:hover {
-  transform: translateY(-1px);
+  font-size: 0.95rem;
 }
 
 .blablaRunPage .discoverMonthLabel {
-  min-height: 44px;
+  min-height: 38px;
   display: grid;
   place-items: center;
-  padding: 0 14px;
-  border-radius: 14px;
+  padding: 0 10px;
+  border-radius: 12px;
   border: 1px solid var(--border);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0)),
-    var(--surface);
-  color: var(--text);
-  font-size: 0.95rem;
+  background: var(--surface);
+  font-size: 0.88rem;
   font-weight: 800;
-  letter-spacing: -0.02em;
-  text-align: center;
-  box-shadow: var(--shadow-sm);
 }
+
+/* CARD CALENDARIO */
 
 .blablaRunPage .discoverCalendarCard--premium {
-  gap: 14px;
-  padding: 16px;
-  border-radius: 24px;
-  border: 1px solid var(--border);
-  background:
-    radial-gradient(circle at top right, rgba(255, 107, 87, 0.08), transparent 30%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0)),
-    var(--surface);
-  box-shadow: var(--shadow-md);
-}
-
-.blablaRunPage .discoverCalendarCard--loading {
-  display: grid;
-  place-items: center;
-  min-height: 220px;
-  padding: 18px;
-  border-radius: 24px;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 20px;
   border: 1px solid var(--border);
   background: var(--surface);
 }
 
-.blablaRunPage .discoverLoading {
-  margin: 0;
-  color: var(--text-soft);
-  font-size: 0.92rem;
-}
+/* WEEKDAYS */
 
 .blablaRunPage .discoverWeekdays {
   display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
 }
 
 .blablaRunPage .discoverWeekdays__item {
   display: grid;
   place-items: center;
-  min-height: 28px;
+  min-height: 24px;
+  font-size: 0.68rem;
   color: var(--text-muted);
-  font-size: 0.72rem;
   font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
 }
+
+/* GRID */
 
 .blablaRunPage .discoverCalendarGrid--compact {
   display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
 }
 
+/* DAY CELL */
+
 .blablaRunPage .discoverDayCell--compact {
-  min-height: 56px;
+  min-height: 48px;
   display: grid;
   justify-items: center;
   align-content: center;
-  gap: 6px;
-  padding: 8px 4px;
-  border: 1px solid transparent;
-  border-radius: 18px;
+  gap: 4px;
+  padding: 6px 2px;
+  border-radius: 14px;
   background: rgba(255, 255, 255, 0.03);
-  color: var(--text);
-  font: inherit;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
-  transition:
-    transform 160ms ease,
-    border-color 160ms ease,
-    background-color 160ms ease,
-    box-shadow 160ms ease;
-}
-
-.blablaRunPage .discoverDayCell--compact:hover {
-  transform: translateY(-1px);
 }
 
 .blablaRunPage .discoverDayCell--compact.is-outside {
-  color: var(--text-faint);
-  opacity: 0.42;
+  opacity: 0.35;
 }
 
 .blablaRunPage .discoverDayCell__date {
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   font-weight: 700;
-  line-height: 1;
-  letter-spacing: -0.02em;
 }
 
 .blablaRunPage .discoverDayCell__marker {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
   border-radius: 999px;
   background: transparent;
 }
 
 .blablaRunPage .discoverDayCell--compact.has-events .discoverDayCell__marker {
   background: var(--primary);
-  box-shadow: 0 0 0 4px rgba(255, 107, 87, 0.12);
 }
 
 .blablaRunPage .discoverDayCell--compact.is-today {
-  border-color: rgba(255, 107, 87, 0.3);
-  background: rgba(255, 107, 87, 0.08);
+  border: 1px solid rgba(255, 107, 87, 0.3);
 }
 
 .blablaRunPage .discoverDayCell--compact.is-selected {
-  border-color: rgba(255, 107, 87, 0.34);
-  background: linear-gradient(180deg, rgba(255, 107, 87, 0.18), rgba(255, 107, 87, 0.09));
-  box-shadow:
-    0 10px 24px rgba(0, 0, 0, 0.14),
-    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  background: rgba(255, 107, 87, 0.18);
 }
 
-.blablaRunPage .discoverDayCell--compact.is-selected .discoverDayCell__date {
-  color: #fff;
-}
+/* DAY DETAIL */
 
 .blablaRunPage .discoverSelectedDay {
-  display: grid;
-  gap: 14px;
-  padding: 16px;
-  border-radius: 24px;
-  border: 1px solid var(--border);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.018), rgba(255, 255, 255, 0)),
-    var(--surface);
-  box-shadow: var(--shadow-sm);
-}
-
-.blablaRunPage .discoverSelectedDay__head {
-  display: grid;
-  gap: 4px;
-}
-
-.blablaRunPage .discoverSelectedDay__title {
-  margin: 0;
-  color: var(--text);
-  font-size: 1.02rem;
-  line-height: 1.15;
-  letter-spacing: -0.03em;
-  font-weight: 800;
-  text-transform: capitalize;
-}
-
-.blablaRunPage .discoverSelectedDay__subtitle {
-  margin: 0;
-  color: var(--text-soft);
-  font-size: 0.85rem;
-  line-height: 1.5;
-}
-
-.blablaRunPage .discoverEventList--day {
-  display: grid;
-  gap: 12px;
-}
-
-.blablaRunPage .discoverEventCard--agenda {
   display: grid;
   gap: 12px;
   padding: 14px;
   border-radius: 20px;
   border: 1px solid var(--border);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.018), rgba(255, 255, 255, 0)),
-    rgba(255, 255, 255, 0.04);
-  box-shadow: var(--shadow-sm);
+  background: var(--surface);
 }
 
-.blablaRunPage .discoverEventCard__top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.blablaRunPage .discoverEventCard__date {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-}
-
-.blablaRunPage .discoverEventCard__time {
-  color: var(--text-muted);
-  font-size: 0.74rem;
+.blablaRunPage .discoverSelectedDay__title {
+  margin: 0;
+  font-size: 0.95rem;
   font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
 }
 
-.blablaRunPage .discoverEventCard__body {
+/* LISTA EVENTOS */
+
+.blablaRunPage .discoverEventList--day {
   display: grid;
-  gap: 12px;
+  gap: 10px;
 }
 
-.blablaRunPage .discoverEventCard__main {
-  display: grid;
-  gap: 6px;
+/* EVENT CARD */
+
+.blablaRunPage .discoverEventCard--agenda {
+  padding: 12px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .blablaRunPage .discoverEventCard__title {
-  margin: 0;
-  color: var(--text);
-  font-size: 1rem;
-  line-height: 1.2;
-  letter-spacing: -0.03em;
+  font-size: 0.95rem;
   font-weight: 800;
 }
 
 .blablaRunPage .discoverEventCard__metaLine {
-  margin: 0;
+  font-size: 0.8rem;
   color: var(--text-muted);
-  font-size: 0.82rem;
-  line-height: 1.45;
 }
 
 .blablaRunPage .discoverEventCard__text {
-  margin: 0;
+  font-size: 0.85rem;
   color: var(--text-soft);
-  font-size: 0.88rem;
-  line-height: 1.55;
 }
 
 .blablaRunPage .discoverEventCard__footerRow {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  gap: 12px;
-}
-
-.blablaRunPage .discoverEventCard__hostInline,
-.blablaRunPage .discoverEventCard__hostInline a {
-  color: var(--text);
-  font-size: 0.84rem;
-  font-weight: 700;
-  text-decoration: none;
+  font-size: 0.8rem;
 }
 
 .blablaRunPage .discoverInlineLink {
   color: var(--primary);
-  font-size: 0.82rem;
-  font-weight: 800;
-  text-decoration: none;
-}
-
-.blablaRunPage .discoverTag {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 28px;
-  padding: 0 10px;
-  border-radius: 999px;
-  border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.04);
-  color: var(--text-soft);
-  font-size: 0.74rem;
-  font-weight: 800;
-  letter-spacing: 0.02em;
-  white-space: nowrap;
-}
-
-.blablaRunPage .discoverTag--accent {
-  color: #0b0b0b;
-  background: var(--primary);
-  border-color: transparent;
-}
-
-@media (min-width: 768px) {
-  .blablaRunPage .discoverCalendarHeader {
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: center;
-  }
-
-  .blablaRunPage .discoverSelectedDay {
-    padding: 18px;
-  }
-
-  .blablaRunPage .discoverEventList--day {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+  font-weight: 700;
 }
