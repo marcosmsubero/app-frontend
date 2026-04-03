@@ -1,17 +1,11 @@
-import { useMemo, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useMemo, useRef, useState } from "react";
 import "../styles/blablarun.css";
 import "../styles/create-event.css";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { useToast } from "../hooks/useToast";
 import { apiCreateMyMeetup } from "../services/api";
 import { localDayKey } from "../utils/dates";
-
-function numberOrNull(value) {
-  if (value === "" || value === null || value === undefined) return null;
-  const n = Number(value);
-  return Number.isFinite(n) ? n : null;
-}
 
 function buildStartsAt(dayKey, timeValue) {
   const [year, month, day] = String(dayKey).split("-").map(Number);
@@ -24,49 +18,106 @@ function buildStartsAt(dayKey, timeValue) {
     hours || 0,
     minutes || 0,
     0,
-    0,
+    0
   );
 
   return date.toISOString();
 }
 
+function numberOrNull(value) {
+  if (value === "" || value === null || value === undefined) return null;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
+}
+
 function formatDayLabel(dayKey) {
   const date = new Date(`${dayKey}T12:00:00`);
-  return date.toLocaleDateString("es-ES", {
-    weekday: "long",
+  const weekday = date.toLocaleDateString("es-ES", { weekday: "long" });
+  const formatted = date.toLocaleDateString("es-ES", {
     day: "numeric",
     month: "long",
     year: "numeric",
   });
+
+  return `${weekday.charAt(0).toUpperCase() + weekday.slice(1)} ${formatted}`;
 }
+
+const EVENT_TYPES = [
+  { value: "entrenamiento", label: "Entrenamiento" },
+  { value: "carrera", label: "Carrera" },
+  { value: "quedada", label: "Quedada" },
+  { value: "vibe", label: "Vibe" },
+];
+
+const VISIBILITY_OPTIONS = [
+  { value: "public", label: "Público" },
+  { value: "private", label: "Privado" },
+];
 
 export default function CreateEventPage() {
   const navigate = useNavigate();
   const toast = useToast();
   const { token } = useAuth();
   const [searchParams] = useSearchParams();
+  const fileInputRef = useRef(null);
 
   const selectedDay = useMemo(() => {
     const raw = searchParams.get("day");
-    if (!raw) return localDayKey(new Date());
-    return raw;
+    return raw || localDayKey(new Date());
   }, [searchParams]);
 
   const [saving, setSaving] = useState(false);
+  const [posterFile, setPosterFile] = useState(null);
+  const [posterPreview, setPosterPreview] = useState("");
   const [form, setForm] = useState({
     event_type: "entrenamiento",
-    time: "19:00",
     meeting_point: "",
-    notes: "",
-    level_tag: "",
-    pace_min: "",
-    pace_max: "",
-    capacity: "",
+    time: "19:00",
     visibility: "public",
+    notes: "",
+    external_links: [""],
   });
 
   function updateField(field, value) {
     setForm((prev) => ({ ...prev, [field]: value }));
+  }
+
+  function updateLink(index, value) {
+    setForm((prev) => {
+      const nextLinks = [...prev.external_links];
+      nextLinks[index] = value;
+      return { ...prev, external_links: nextLinks };
+    });
+  }
+
+  function addLinkField() {
+    setForm((prev) => ({
+      ...prev,
+      external_links: [...prev.external_links, ""],
+    }));
+  }
+
+  function removeLinkField(index) {
+    setForm((prev) => {
+      const nextLinks = prev.external_links.filter((_, i) => i !== index);
+      return {
+        ...prev,
+        external_links: nextLinks.length ? nextLinks : [""],
+      };
+    });
+  }
+
+  function handlePosterChange(event) {
+    const file = event.target.files?.[0] || null;
+    if (!file) return;
+
+    setPosterFile(file);
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setPosterPreview(String(reader.result || ""));
+    };
+    reader.readAsDataURL(file);
   }
 
   async function handleSubmit(event) {
@@ -80,9 +131,21 @@ export default function CreateEventPage() {
     setSaving(true);
 
     try {
+      const cleanLinks = form.external_links
+        .map((item) => item.trim())
+        .filter(Boolean);
+
       const notesParts = [];
-      if (form.event_type) notesParts.push(`Tipo: ${form.event_type}`);
       if (form.notes.trim()) notesParts.push(form.notes.trim());
+      if (cleanLinks.length) {
+        notesParts.push("");
+        notesParts.push("Enlaces:");
+        cleanLinks.forEach((link) => notesParts.push(link));
+      }
+      if (posterFile?.name) {
+        notesParts.push("");
+        notesParts.push(`Imagen adjunta: ${posterFile.name}`);
+      }
 
       await apiCreateMyMeetup(
         {
@@ -90,11 +153,9 @@ export default function CreateEventPage() {
           title: form.meeting_point.trim(),
           meeting_point: form.meeting_point.trim(),
           notes: notesParts.join("\n"),
-          level_tag: form.level_tag || null,
-          pace_min: numberOrNull(form.pace_min),
-          pace_max: numberOrNull(form.pace_max),
-          capacity: numberOrNull(form.capacity),
           visibility: form.visibility,
+          event_type: form.event_type,
+          capacity: numberOrNull(null),
         },
         token
       );
@@ -110,186 +171,196 @@ export default function CreateEventPage() {
 
   return (
     <section className="page page--eventsHome blablaRunPage createEventPage">
-      <div className="createEventPage__topbar">
-        <Link to="/perfil" className="createEventPage__back">
-          ← Volver
-        </Link>
-      </div>
-
-      <section className="sectionBlock activityHero createEventHero">
-        <div className="activityHero__copy">
-          <p className="activityHero__eyebrow">Nuevo evento</p>
-          <h1 className="activityHero__title">Crear actividad</h1>
-          <p className="activityHero__subtitle">
-            Programa una nueva quedada para el {formatDayLabel(selectedDay)}.
-          </p>
-        </div>
+      <section className="sectionBlock createEventHero">
+        <div className="createEventHero__eyebrow">Nuevo evento</div>
+        <h1 className="createEventHero__title">Nuevo evento</h1>
+        <p className="createEventHero__subtitle">
+          Crea una propuesta clara para entrenar, correr o compartir plan con tu comunidad.
+        </p>
+        <div className="createEventHero__date">{formatDayLabel(selectedDay)}</div>
       </section>
 
-      <section className="sectionBlock activitySection createEventFormCard">
+      <section className="sectionBlock createEventFormCard">
         <form className="createEventForm" onSubmit={handleSubmit}>
-          <div className="createEventForm__grid createEventForm__grid--2">
-            <div className="app-field">
-              <label className="app-label" htmlFor="create-event-type">
-                Tipo
-              </label>
-              <select
-                id="create-event-type"
-                className="app-select"
-                value={form.event_type}
-                onChange={(event) => updateField("event_type", event.target.value)}
-                disabled={saving}
-              >
-                <option value="entrenamiento">Entrenamiento</option>
-                <option value="rodaje">Rodaje</option>
-                <option value="serie">Series</option>
-                <option value="tirada_larga">Tirada larga</option>
-                <option value="carrera">Carrera</option>
-                <option value="social">Social</option>
-              </select>
-            </div>
+          <div className="createEventForm__group">
+            <label className="app-label" htmlFor="create-event-type">
+              Tipo de evento
+            </label>
+            <select
+              id="create-event-type"
+              className="app-select createEventForm__control"
+              value={form.event_type}
+              onChange={(event) => updateField("event_type", event.target.value)}
+              disabled={saving}
+            >
+              {EVENT_TYPES.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
 
-            <div className="app-field">
+          <div className="createEventForm__group">
+            <label className="app-label" htmlFor="create-event-meeting-point">
+              Punto de encuentro
+            </label>
+            <input
+              id="create-event-meeting-point"
+              className="app-input createEventForm__control"
+              value={form.meeting_point}
+              onChange={(event) => updateField("meeting_point", event.target.value)}
+              placeholder="Ej. Salida desde el paseo marítimo"
+              disabled={saving}
+            />
+          </div>
+
+          <div className="createEventForm__grid">
+            <div className="createEventForm__group">
               <label className="app-label" htmlFor="create-event-time">
                 Hora
               </label>
               <input
                 id="create-event-time"
-                className="app-input"
+                className="app-input createEventForm__control"
                 type="time"
                 value={form.time}
                 onChange={(event) => updateField("time", event.target.value)}
                 disabled={saving}
               />
             </div>
-          </div>
 
-          <div className="app-field">
-            <label className="app-label" htmlFor="create-event-location">
-              Punto de encuentro
-            </label>
-            <input
-              id="create-event-location"
-              className="app-input"
-              value={form.meeting_point}
-              onChange={(event) => updateField("meeting_point", event.target.value)}
-              placeholder="Ej. Parque de las Llamas, pista, salida de carrera..."
-              disabled={saving}
-            />
-          </div>
-
-          <div className="createEventForm__grid createEventForm__grid--2">
-            <div className="app-field">
-              <label className="app-label" htmlFor="create-event-level">
-                Nivel
+            <div className="createEventForm__group">
+              <label className="app-label" htmlFor="create-event-visibility">
+                Visibilidad
               </label>
               <select
-                id="create-event-level"
-                className="app-select"
-                value={form.level_tag}
-                onChange={(event) => updateField("level_tag", event.target.value)}
+                id="create-event-visibility"
+                className="app-select createEventForm__control"
+                value={form.visibility}
+                onChange={(event) => updateField("visibility", event.target.value)}
                 disabled={saving}
               >
-                <option value="">Sin especificar</option>
-                <option value="suave">Suave</option>
-                <option value="medio">Medio</option>
-                <option value="rapido">Rápido</option>
+                {VISIBILITY_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
               </select>
             </div>
-
-            <div className="app-field">
-              <label className="app-label" htmlFor="create-event-capacity">
-                Aforo
-              </label>
-              <input
-                id="create-event-capacity"
-                className="app-input"
-                type="number"
-                min="1"
-                value={form.capacity}
-                onChange={(event) => updateField("capacity", event.target.value)}
-                placeholder="10"
-                disabled={saving}
-              />
-            </div>
           </div>
 
-          <div className="createEventForm__grid createEventForm__grid--2">
-            <div className="app-field">
-              <label className="app-label" htmlFor="create-event-pace-min">
-                Ritmo mín. (seg/km)
-              </label>
-              <input
-                id="create-event-pace-min"
-                className="app-input"
-                type="number"
-                min="1"
-                value={form.pace_min}
-                onChange={(event) => updateField("pace_min", event.target.value)}
-                placeholder="300"
-                disabled={saving}
-              />
-            </div>
-
-            <div className="app-field">
-              <label className="app-label" htmlFor="create-event-pace-max">
-                Ritmo máx. (seg/km)
-              </label>
-              <input
-                id="create-event-pace-max"
-                className="app-input"
-                type="number"
-                min="1"
-                value={form.pace_max}
-                onChange={(event) => updateField("pace_max", event.target.value)}
-                placeholder="360"
-                disabled={saving}
-              />
-            </div>
-          </div>
-
-          <div className="app-field">
-            <label className="app-label" htmlFor="create-event-visibility">
-              Visibilidad
-            </label>
-            <select
-              id="create-event-visibility"
-              className="app-select"
-              value={form.visibility}
-              onChange={(event) => updateField("visibility", event.target.value)}
-              disabled={saving}
-            >
-              <option value="public">Público</option>
-              <option value="private">Privado</option>
-            </select>
-          </div>
-
-          <div className="app-field">
+          <div className="createEventForm__group">
             <label className="app-label" htmlFor="create-event-notes">
               Notas
             </label>
             <textarea
               id="create-event-notes"
-              className="app-textarea"
+              className="app-textarea createEventForm__control createEventForm__textarea"
               rows={5}
               value={form.notes}
               onChange={(event) => updateField("notes", event.target.value)}
-              placeholder="Añade detalles del plan, ritmo, recorrido o cualquier indicación."
+              placeholder="Describe el plan, recorrido, ambiente o cualquier detalle útil."
               disabled={saving}
             />
           </div>
 
-          <div className="createEventForm__actions">
-            <Link to="/perfil" className="app-button app-button--secondary">
-              Cancelar
-            </Link>
+          <div className="createEventForm__group">
+            <div className="createEventForm__groupHead">
+              <label className="app-label">Imagen opcional</label>
+              <button
+                type="button"
+                className="createEventSecondaryBtn"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={saving}
+              >
+                Subir foto
+              </button>
+            </div>
 
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handlePosterChange}
+              style={{ display: "none" }}
+            />
+
+            <div className="createEventUploadBox">
+              {posterPreview ? (
+                <div className="createEventUploadPreview">
+                  <img src={posterPreview} alt="Vista previa" className="createEventUploadPreview__image" />
+                  <div className="createEventUploadPreview__meta">
+                    <span className="createEventUploadPreview__name">
+                      {posterFile?.name || "Imagen seleccionada"}
+                    </span>
+                    <button
+                      type="button"
+                      className="createEventInlineRemove"
+                      onClick={() => {
+                        setPosterFile(null);
+                        setPosterPreview("");
+                        if (fileInputRef.current) fileInputRef.current.value = "";
+                      }}
+                    >
+                      Eliminar
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="createEventUploadEmpty">
+                  Sube opcionalmente el cartel de una carrera o una imagen del evento.
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="createEventForm__group">
+            <div className="createEventForm__groupHead">
+              <label className="app-label">Enlaces</label>
+              <button
+                type="button"
+                className="createEventSecondaryBtn"
+                onClick={addLinkField}
+                disabled={saving}
+              >
+                Añadir enlace
+              </button>
+            </div>
+
+            <div className="createEventLinksList">
+              {form.external_links.map((link, index) => (
+                <div key={index} className="createEventLinkRow">
+                  <input
+                    className="app-input createEventForm__control"
+                    value={link}
+                    onChange={(event) => updateLink(index, event.target.value)}
+                    placeholder="https://..."
+                    disabled={saving}
+                  />
+
+                  {form.external_links.length > 1 ? (
+                    <button
+                      type="button"
+                      className="createEventInlineRemove"
+                      onClick={() => removeLinkField(index)}
+                      disabled={saving}
+                    >
+                      Quitar
+                    </button>
+                  ) : null}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="createEventActions">
             <button
               type="submit"
-              className="app-button app-button--primary"
+              className="app-button app-button--primary createEventSubmitBtn"
               disabled={saving}
             >
-              {saving ? "Guardando..." : "Crear evento"}
+              {saving ? "Creando..." : "Crear evento"}
             </button>
           </div>
         </form>
