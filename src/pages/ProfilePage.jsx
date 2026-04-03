@@ -965,10 +965,7 @@ export default function ProfilePage() {
             {avatarUrl ? (
               <img src={avatarUrl} alt={displayName} className="profileHero__avatar" />
             ) : (
-              <div
-                className="profileHero__avatar profileHero__avatar--fallback"
-                style={{ display: "grid", placeItems: "center", fontWeight: 800 }}
-              >
+              <div className="profileHero__avatar profileHero__avatar--fallback">
                 {initialsFromName(displayName)}
               </div>
             )}
@@ -1005,25 +1002,15 @@ export default function ProfilePage() {
         </div>
 
         <div className="profileMiniSummary profileMiniSummary--duo">
-          <article className="profileMiniSummary__card">
-            <div className="profileMiniSummary__topline">
-              <span className="profileMiniSummary__label">Seguidores</span>
-              <Link to="/perfil/seguidores" className="profileMiniSummary__link">
-                Ver lista
-              </Link>
-            </div>
-            <strong className="profileMiniSummary__value">{profileData.followers_count}</strong>
-          </article>
+          <Link to="/perfil/seguidores" className="profileStatButton">
+            <span className="profileStatButton__label">Seguidores</span>
+            <strong className="profileStatButton__value">{profileData.followers_count}</strong>
+          </Link>
 
-          <article className="profileMiniSummary__card">
-            <div className="profileMiniSummary__topline">
-              <span className="profileMiniSummary__label">Seguidos</span>
-              <Link to="/perfil/seguidos" className="profileMiniSummary__link">
-                Ver lista
-              </Link>
-            </div>
-            <strong className="profileMiniSummary__value">{profileData.following_count}</strong>
-          </article>
+          <Link to="/perfil/seguidos" className="profileStatButton">
+            <span className="profileStatButton__label">Seguidos</span>
+            <strong className="profileStatButton__value">{profileData.following_count}</strong>
+          </Link>
         </div>
       </section>
 
