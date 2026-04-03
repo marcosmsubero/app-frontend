@@ -836,65 +836,190 @@
   box-shadow: 0 14px 28px rgba(124, 233, 155, 0.18);
 }
 
-/* ===== ActivityPage SPLIT UI ===== */
+/* ===== ActivityPage split layout (scoped) ===== */
 
-.activityPage__counters {
-  display: flex;
-  gap: 16px;
+.activityPageSplit__header {
+  align-items: center;
 }
 
-.activityPage__counter {
+.activityPageSplit__counters {
   display: flex;
   align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.activityPageSplit__counter {
+  display: inline-flex;
+  align-items: center;
   gap: 6px;
-  font-size: 14px;
-}
-
-.activityPage__counter strong {
+  color: var(--text);
+  font-size: 0.9rem;
   font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
-.activityPage__split {
+.activityPageSplit__counter strong {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.activityPageSplit {
   display: flex;
-  height: 100%;
+  gap: 0;
+  min-height: calc(100dvh - 220px);
+  overflow: hidden;
+  border-radius: 22px;
+  border: 1px solid var(--border);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.015), rgba(255, 255, 255, 0)),
+    var(--surface);
+  box-shadow: var(--shadow-sm);
 }
 
-.activityPage__column {
-  width: 50%;
-  padding: 12px 10px;
+.activityPageSplit__pane {
+  min-width: 0;
+  flex: 1 1 50%;
   display: flex;
   flex-direction: column;
   gap: 12px;
+  padding: 14px 10px 14px 12px;
   overflow-y: auto;
-  transition: all 0.25s ease;
+  transition:
+    flex-basis 220ms ease,
+    flex-grow 220ms ease,
+    flex-shrink 220ms ease,
+    opacity 180ms ease,
+    background-color 180ms ease;
 }
 
-.activityPage__column:first-child {
-  border-right: 1px solid rgba(255, 255, 255, 0.06);
+.activityPageSplit__pane + .activityPageSplit__pane {
+  border-left: 1px solid var(--border);
 }
 
-.activityPage__item {
+.activityPageSplit__pane--messages {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.activityPageSplit__pane--notifications {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.activityPageSplit__pane.is-expanded {
+  flex: 1 1 100%;
+}
+
+.activityPageSplit__pane.is-collapsed {
+  flex: 0 0 0%;
+  padding-left: 0;
+  padding-right: 0;
+  opacity: 0;
+  overflow: hidden;
+  border-left: 0;
+}
+
+.activityPageSplit__paneHead {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 2px;
+}
+
+.activityPageSplit__paneLabel {
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.activityPageSplit__paneCount {
+  min-width: 24px;
+  height: 24px;
+  padding: 0 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--text);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.activityPageSplit__list {
+  display: grid;
   gap: 10px;
 }
 
-.activityPage__avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.activityPage__name {
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.activityPage__column.isHidden {
-  display: none;
-}
-
-.activityPage__column.isActive {
+.activityPageSplit__item {
   width: 100%;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border: 0;
+  border-radius: 16px;
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+  font: inherit;
+  transition:
+    background-color 160ms ease,
+    transform 160ms ease,
+    opacity 160ms ease;
+}
+
+.activityPageSplit__item:active {
+  transform: scale(0.99);
+}
+
+.activityPageSplit__item:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.activityPageSplit__avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  object-fit: cover;
+  background: rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+}
+
+.activityPageSplit__avatar--fallback {
+  display: grid;
+  place-items: center;
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.activityPageSplit__name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+@media (max-width: 380px) {
+  .activityPageSplit__counter {
+    font-size: 0.84rem;
+  }
+
+  .activityPageSplit__avatar {
+    width: 38px;
+    height: 38px;
+  }
+
+  .activityPageSplit__name {
+    font-size: 0.88rem;
+  }
 }
