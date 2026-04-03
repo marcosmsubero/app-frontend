@@ -3,7 +3,7 @@ import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { getPreferredLoginIdentifier, isOnboardingComplete } from "../lib/userContract";
 import appLogo from "../assets/Logo.png";
-import appIcon from "../assets/Icono.png";
+import heroImage from "../assets/PhotoAuth.png";
 
 function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || "").trim());
@@ -162,9 +162,7 @@ export default function AuthPage({ mode = "login" }) {
     }
   }
 
-  if (isAuthed && !meReady) {
-    return <LoaderScreen />;
-  }
+  if (isAuthed && !meReady) return <LoaderScreen />;
 
   if (isAuthed && meReady) {
     return <Navigate to={isOnboardingComplete(me) ? "/" : "/onboarding"} replace />;
@@ -184,10 +182,10 @@ export default function AuthPage({ mode = "login" }) {
         <main className="appChrome__main">
           <div className="appChrome__content">
             <section className="page authPage">
+
               <section className="sectionBlock authBrandCard authBrandCard--hero">
-                <div className="authBrandCard__row">
-                  <img src={appIcon} alt="RunVibe" className="authBrandCard__icon" />
-                  <img src={appLogo} alt="RunVibe" className="authBrandCard__logo" />
+                <div className="authHeroImage">
+                  <img src={heroImage} alt="Running experience" />
                 </div>
               </section>
 
@@ -203,33 +201,27 @@ export default function AuthPage({ mode = "login" }) {
               </section>
 
               <section className="authSwitchSection">
-                <div className="authSwitch" role="tablist" aria-label="Autenticación">
+                <div className="authSwitch" role="tablist">
                   <button
                     type="button"
-                    role="tab"
-                    aria-selected={isLogin}
-                    className={`authSwitch__item${isLogin ? " authSwitch__item--active" : ""}`}
+                    className={`authSwitch__item ${isLogin ? "authSwitch__item--active" : ""}`}
                     onClick={() => {
                       resetMsg();
                       setTab("login");
                       nav("/login", { replace: true });
                     }}
-                    disabled={loading}
                   >
                     Login
                   </button>
 
                   <button
                     type="button"
-                    role="tab"
-                    aria-selected={!isLogin}
-                    className={`authSwitch__item${!isLogin ? " authSwitch__item--active" : ""}`}
+                    className={`authSwitch__item ${!isLogin ? "authSwitch__item--active" : ""}`}
                     onClick={() => {
                       resetMsg();
                       setTab("register");
                       nav("/register", { replace: true });
                     }}
-                    disabled={loading}
                   >
                     Registro
                   </button>
@@ -238,14 +230,10 @@ export default function AuthPage({ mode = "login" }) {
 
               <section className="sectionBlock authFormShell">
                 <form className="formCard authFormCard" onSubmit={handleSubmit}>
+
                   <div className="formRow authFormRow">
-                    <label htmlFor="auth-identifier">
-                      {isLogin ? "Email o usuario" : "Email"}
-                    </label>
+                    <label>Email o usuario</label>
                     <input
-                      id="auth-identifier"
-                      type={isLogin ? "text" : "email"}
-                      autoComplete={isLogin ? "username" : "email"}
                       value={identifier}
                       onChange={(e) => setIdentifier(e.target.value)}
                       disabled={loading}
@@ -254,11 +242,9 @@ export default function AuthPage({ mode = "login" }) {
                   </div>
 
                   <div className="formRow authFormRow">
-                    <label htmlFor="auth-password">Contraseña</label>
+                    <label>Contraseña</label>
                     <input
-                      id="auth-password"
                       type="password"
-                      autoComplete={isLogin ? "current-password" : "new-password"}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       disabled={loading}
@@ -266,37 +252,34 @@ export default function AuthPage({ mode = "login" }) {
                     />
                   </div>
 
-                  {!isLogin ? (
+                  {!isLogin && (
                     <div className="formRow authFormRow">
-                      <label htmlFor="auth-password-repeat">Repite contraseña</label>
+                      <label>Repite contraseña</label>
                       <input
-                        id="auth-password-repeat"
                         type="password"
-                        autoComplete="new-password"
                         value={password2}
                         onChange={(e) => setPassword2(e.target.value)}
                         disabled={loading}
                         placeholder=""
                       />
                     </div>
-                  ) : null}
+                  )}
 
-                  {msg.text ? (
-                    <div className={`stateCard authStateCard authStateCard--${msg.type || "info"}`}>
-                      <h3 className="stateCard__title">
-                        {msg.type === "error" ? "Revisa los datos" : "Todo correcto"}
-                      </h3>
-                      <p className="stateCard__text">{msg.text}</p>
+                  {msg.text && (
+                    <div className={`stateCard authStateCard authStateCard--${msg.type}`}>
+                      <p>{msg.text}</p>
                     </div>
-                  ) : null}
+                  )}
 
                   <div className="formActions authFormActions">
                     <button type="submit" className="btn btn--primary authSubmitBtn" disabled={loading}>
                       {loading ? "Procesando..." : isLogin ? "Entrar" : "Crear cuenta"}
                     </button>
                   </div>
+
                 </form>
               </section>
+
             </section>
           </div>
         </main>
