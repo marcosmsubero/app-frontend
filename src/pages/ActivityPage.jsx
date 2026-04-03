@@ -1,11 +1,8 @@
 import { useState } from "react";
-import "./activity.css";
 
 export default function ActivityPage({
   messageList = [],
   notificationsList = [],
-  unreadThreads = 0,
-  unreadNotifications = 0,
 }) {
   const [activeView, setActiveView] = useState("split"); // split | messages | notifications
 
@@ -14,13 +11,13 @@ export default function ActivityPage({
       {/* HEADER SIMPLE */}
       <section className="sectionBlock">
         <div className="app-section-header">
-          <div className="activityCounters">
-            <div className="activityCounter">
+          <div className="activityPage__counters">
+            <div className="activityPage__counter">
               <span>Mensajes</span>
               <strong>{messageList.length}</strong>
             </div>
 
-            <div className="activityCounter">
+            <div className="activityPage__counter">
               <span>Notificaciones</span>
               <strong>{notificationsList.length}</strong>
             </div>
@@ -28,23 +25,23 @@ export default function ActivityPage({
         </div>
       </section>
 
-      {/* CONTENIDO */}
-      <section className="activitySplitWrapper">
+      {/* SPLIT VIEW */}
+      <section className="activityPage__split">
         {/* MESSAGES */}
         <div
-          className={`activityColumn activityColumn--messages ${
+          className={`activityPage__column ${
             activeView === "messages" ? "isActive" : ""
           } ${activeView === "notifications" ? "isHidden" : ""}`}
           onClick={() => setActiveView("messages")}
         >
           {messageList.map((msg) => (
-            <div key={msg.id} className="activityItem">
+            <div key={msg.id} className="activityPage__item">
               <img
                 src={msg.avatar || "/default-avatar.png"}
                 alt=""
-                className="activityItem__avatar"
+                className="activityPage__avatar"
               />
-              <span className="activityItem__name">
+              <span className="activityPage__name">
                 {msg.name || "Usuario"}
               </span>
             </div>
@@ -53,19 +50,19 @@ export default function ActivityPage({
 
         {/* NOTIFICATIONS */}
         <div
-          className={`activityColumn activityColumn--notifications ${
+          className={`activityPage__column ${
             activeView === "notifications" ? "isActive" : ""
           } ${activeView === "messages" ? "isHidden" : ""}`}
           onClick={() => setActiveView("notifications")}
         >
           {notificationsList.map((notif) => (
-            <div key={notif.id} className="activityItem">
+            <div key={notif.id} className="activityPage__item">
               <img
                 src={notif.avatar || "/default-avatar.png"}
                 alt=""
-                className="activityItem__avatar"
+                className="activityPage__avatar"
               />
-              <span className="activityItem__name">
+              <span className="activityPage__name">
                 {notif.name || "Usuario"}
               </span>
             </div>
