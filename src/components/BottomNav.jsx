@@ -12,29 +12,33 @@ export default function BottomNav() {
 
   return (
     <nav className="bottomNav">
-      <div className="bottomNav__list">
-
+      <div className="bottomNav__inner">
         <button
+          type="button"
           className={`bottomNav__link ${isActive("/eventos") ? "is-active" : ""}`}
           onClick={() => navigate("/eventos")}
+          aria-label="Eventos"
         >
-          <img src={iconEventos} alt="Eventos" className="bottomNav__iconImage" />
+          <img src={iconEventos} alt="" className="bottomNav__iconImage" />
         </button>
 
         <button
+          type="button"
           className={`bottomNav__link ${isActive("/perfil") ? "is-active" : ""}`}
           onClick={() => navigate("/perfil")}
+          aria-label="Perfil"
         >
-          <img src={iconPerfil} alt="Perfil" className="bottomNav__iconImage" />
+          <img src={iconPerfil} alt="" className="bottomNav__iconImage" />
         </button>
 
         <button
+          type="button"
           className={`bottomNav__link ${isActive("/actividad") ? "is-active" : ""}`}
           onClick={() => navigate("/actividad")}
+          aria-label="Actividad"
         >
-          <img src={iconActividad} alt="Actividad" className="bottomNav__iconImage" />
+          <img src={iconActividad} alt="" className="bottomNav__iconImage" />
         </button>
-
       </div>
     </nav>
   );
