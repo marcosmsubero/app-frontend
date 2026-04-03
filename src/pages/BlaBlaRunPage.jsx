@@ -1,12 +1,10 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useMeetupSearch } from "../hooks/useMeetupSearch";
-import { EmptyState } from "../components/ui";
 import {
   addMonths,
   buildMonthGrid,
   localDayKey,
-  monthLabel,
   timeLabel,
 } from "../utils/dates";
 import "../styles/blablarun.css";
@@ -56,16 +54,21 @@ function CreatorLink({ event }) {
   return <Link to={`/perfil/${event.creator_profile_id}`}>{label}</Link>;
 }
 
-function formatDayTitle(dayKey) {
-  if (!dayKey) return "Selecciona un día";
-
-  const date = new Date(`${dayKey}T12:00:00`);
+function formatMonthYear(date) {
   return date.toLocaleDateString("es-ES", {
-    weekday: "long",
-    day: "numeric",
     month: "long",
     year: "numeric",
   });
+}
+
+function formatSelectedDay(dayKey) {
+  if (!dayKey) return "";
+
+  const date = new Date(`${dayKey}T12:00:00`);
+  const weekday = date.toLocaleDateString("es-ES", { weekday: "long" });
+  const formatted = date.toLocaleDateString("es-ES");
+
+  return `${weekday.charAt(0).toUpperCase() + weekday.slice(1)} ${formatted}`;
 }
 
 function daySummary(items = []) {
@@ -186,6 +189,7 @@ export default function BlaBlaRunPage() {
       <section className="sectionBlock discoverSection discoverSection--calendarOnly">
         <div className="discoverCalendarHeader">
           <div className="discoverCalendarHeader__copy">
+            <div className="discoverCalendarHeader__eyebrow">Agenda</div>
             <h1 className="discoverCalendarHeader__title">Calendario de Eventos</h1>
           </div>
 
@@ -194,18 +198,16 @@ export default function BlaBlaRunPage() {
               type="button"
               className="discoverMonthBtn"
               onClick={goPrevMonth}
-              aria-label="Mes anterior"
             >
               ←
             </button>
 
-            <div className="discoverMonthLabel">{monthLabel(month)}</div>
+            <div className="discoverMonthLabel">{formatMonthYear(month)}</div>
 
             <button
               type="button"
               className="discoverMonthBtn"
               onClick={goNextMonth}
-              aria-label="Mes siguiente"
             >
               →
             </button>
@@ -213,21 +215,17 @@ export default function BlaBlaRunPage() {
         </div>
 
         {error ? (
-          <EmptyState
-            icon="!"
-            title="No se pudo cargar el calendario"
-            description={error}
-            actionLabel="Reintentar"
-            onAction={() => run()}
-          />
+          <div className="discoverCalendarCard discoverCalendarCard--loading">
+            <p className="discoverLoading">Error cargando datos</p>
+          </div>
         ) : loading ? (
           <div className="discoverCalendarCard discoverCalendarCard--loading">
-            <p className="discoverLoading">Cargando calendario de eventos…</p>
+            <p className="discoverLoading">Cargando calendario…</p>
           </div>
         ) : (
           <>
             <div className="discoverCalendarCard discoverCalendarCard--premium">
-              <div className="discoverWeekdays" aria-hidden="true">
+              <div className="discoverWeekdays">
                 {WEEKDAYS.map((weekday) => (
                   <div key={weekday} className="discoverWeekdays__item">
                     {weekday}
@@ -245,7 +243,7 @@ export default function BlaBlaRunPage() {
 
                   return (
                     <button
-                      key={`${key}-${inMonth ? "in" : "out"}`}
+                      key={`${key}-${inMonth}`}
                       type="button"
                       onClick={() => handleSelectDay(key)}
                       className={`discoverDayCell discoverDayCell--compact${
@@ -253,7 +251,6 @@ export default function BlaBlaRunPage() {
                       }${dayItems.length > 0 ? " has-events" : ""}${
                         isToday ? " is-today" : ""
                       }${isSelected ? " is-selected" : ""}`}
-                      title={`${key} · ${daySummary(dayItems)}`}
                     >
                       <span className="discoverDayCell__date">{day.getDate()}</span>
                       <span className="discoverDayCell__marker" />
@@ -266,15 +263,16 @@ export default function BlaBlaRunPage() {
             <section className="discoverSelectedDay">
               <div className="discoverSelectedDay__head">
                 <div>
-                  <div className="discoverSelectedDay__title">{formatDayTitle(selectedDay)}</div>
+                  <div className="discoverSelectedDay__title">
+                    {formatSelectedDay(selectedDay)}
+                  </div>
                 </div>
               </div>
 
               {selectedEvents.length === 0 ? (
-                <EmptyState
-                  title="No hay eventos este día"
-                  description="Selecciona otro día para ver su actividad."
-                />
+                <div className="discoverEmptyText">
+                  No hay eventos este día
+                </div>
               ) : (
                 <div className="discoverEventList discoverEventList--day">
                   {selectedEvents.map((event) => (
