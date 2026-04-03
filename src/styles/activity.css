@@ -843,10 +843,12 @@
 }
 
 .activityPageSplit__counters {
-  display: flex;
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1px 1fr;
   align-items: center;
-  gap: 14px;
-  flex-wrap: nowrap;
+  width: 100%;
+  gap: 0;
 }
 
 .activityPageSplit__counter {
@@ -857,6 +859,14 @@
   font-size: 0.9rem;
   font-weight: 700;
   letter-spacing: -0.02em;
+}
+
+.activityPageSplit__counter--messages {
+  justify-self: start;
+}
+
+.activityPageSplit__counter--notifications {
+  justify-self: end;
 }
 
 .activityPageSplit__counter strong {
@@ -870,10 +880,11 @@
   height: 20px;
   background: var(--border);
   opacity: 0.9;
-  flex: 0 0 auto;
+  justify-self: center;
 }
 
 .activityPageSplit {
+  position: relative;
   display: flex;
   gap: 0;
   min-height: calc(100dvh - 220px);
@@ -885,6 +896,20 @@
     var(--surface);
   box-shadow: var(--shadow-sm);
   touch-action: pan-y;
+}
+
+.activityPageSplit::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  transform: translateX(-0.5px);
+  background: var(--border);
+  opacity: 0.9;
+  pointer-events: none;
+  z-index: 1;
 }
 
 .activityPageSplit__pane {
@@ -903,10 +928,12 @@
     background-color 180ms ease,
     padding 180ms ease,
     border-color 180ms ease;
+  position: relative;
+  z-index: 2;
 }
 
 .activityPageSplit__pane + .activityPageSplit__pane {
-  border-left: 1px solid var(--border);
+  border-left: 0;
 }
 
 .activityPageSplit__pane--messages {
@@ -927,7 +954,6 @@
   padding-right: 0;
   opacity: 0;
   overflow: hidden;
-  border-left: 0;
 }
 
 .activityPageSplit__paneHead {
