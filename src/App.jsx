@@ -8,6 +8,7 @@ import ActivityPage from "./pages/ActivityPage";
 import AuthPage from "./pages/AuthPage";
 import BlaBlaRunPage from "./pages/BlaBlaRunPage";
 import ChatThreadPage from "./pages/ChatThreadPage";
+import CreateEventPage from "./pages/CreateEventPage";
 import DeleteAccountPage from "./pages/DeleteAccountPage";
 import FollowersPage from "./pages/FollowersPage";
 import FollowingPage from "./pages/FollowingPage";
@@ -128,6 +129,7 @@ export default function App() {
           <Route path="perfil/seguidos" element={<FollowingPage />} />
 
           <Route path="actividad" element={<ActivityPage />} />
+          <Route path="crear-evento" element={<CreateEventPage />} />
 
           <Route path="mensajes" element={<MessagesPage />} />
           <Route path="mensajes/:threadId" element={<ChatThreadPage />} />
