@@ -1,0 +1,20 @@
+.profilePage {
+  position: relative;
+}
+
+/* ICONO AJUSTES FLOATING */
+.settingsIcon {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+  z-index: 10;
+  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.6));
+}
+
+/* CONTENIDO PERFIL */
+.profileContent {
+  padding: 16px;
+}
