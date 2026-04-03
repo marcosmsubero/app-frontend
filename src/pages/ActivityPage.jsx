@@ -1,4 +1,7 @@
-// ...imports y helpers SIN CAMBIOS
+import { useState, useEffect, useMemo, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+
+// ...tus imports originales (NO TOCAR)
 
 export default function ActivityPage() {
   const nav = useNavigate();
@@ -12,7 +15,7 @@ export default function ActivityPage() {
   const [notifications, setNotifications] = useState([]);
   const [notificationsLoading, setNotificationsLoading] = useState(false);
 
-  const [activeView, setActiveView] = useState("split"); // split | messages | notifications
+  const [activeView, setActiveView] = useState("split");
 
   const timerRef = useRef(null);
 
@@ -58,7 +61,7 @@ export default function ActivityPage() {
 
   return (
     <section className="page activityPage">
-      {/* HEADER SIMPLE SOLO CONTADORES */}
+      {/* HEADER */}
       <section className="sectionBlock">
         <div className="app-section-header">
           <div className="activityPage__counters">
@@ -75,7 +78,7 @@ export default function ActivityPage() {
         </div>
       </section>
 
-      {/* SPLIT VIEW */}
+      {/* SPLIT */}
       <section className="activityPage__split">
         {/* MENSAJES */}
         <div
@@ -88,7 +91,10 @@ export default function ActivityPage() {
             <div
               key={thread.id}
               className="activityPage__item"
-              onClick={() => openThread(thread)}
+              onClick={(e) => {
+                e.stopPropagation(); // 🔥 FIX CLAVE
+                openThread(thread);
+              }}
             >
               <img
                 src={thread.avatar_url}
@@ -113,7 +119,10 @@ export default function ActivityPage() {
             <div
               key={n.id}
               className="activityPage__item"
-              onClick={() => openNotif(n)}
+              onClick={(e) => {
+                e.stopPropagation(); // 🔥 FIX CLAVE
+                openNotif(n);
+              }}
             >
               <img
                 src={n.avatar_url}
