@@ -4,16 +4,22 @@
 
 .profileIdentityCard {
   position: relative;
+  overflow: visible;
 }
 
-/* ICONO AJUSTES BIEN POSICIONADO */
+/* ICONO AJUSTES EN LA ESQUINA SUPERIOR DERECHA DEL CONTENEDOR */
 .profileSettingsShortcut {
   position: absolute;
-  top: 14px;
-  right: 14px;
-  width: 32px;          /* ↓ más pequeño */
-  height: 32px;
-  z-index: 20;
+  top: 0;
+  right: 0;
+  transform: translate(-10px, 10px);
+  width: 28px;
+  height: 28px;
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .profileSettingsShortcut__icon {
@@ -25,12 +31,14 @@
     drop-shadow(0 0 6px rgba(124, 233, 155, 0.3))
     drop-shadow(0 4px 10px rgba(0, 0, 0, 0.35));
   transition: transform 0.2s ease;
+  pointer-events: none;
+  user-select: none;
 }
 
 .profileSettingsShortcut:hover .profileSettingsShortcut__icon {
-  transform: scale(1.1);
+  transform: scale(1.08);
 }
 
 .profileSettingsShortcut:active .profileSettingsShortcut__icon {
-  transform: scale(0.9);
+  transform: scale(0.92);
 }
