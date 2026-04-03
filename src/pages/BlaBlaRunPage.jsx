@@ -35,18 +35,6 @@ function groupByDay(meetups = []) {
   return map;
 }
 
-function eventImageSrc(event) {
-  return (
-    event?.image_url ||
-    event?.poster_url ||
-    event?.cover_url ||
-    event?.photo_url ||
-    event?.thumbnail_url ||
-    event?.banner_url ||
-    ""
-  );
-}
-
 function creatorLabel(event) {
   return (
     event?.host_profile_name ||
@@ -102,66 +90,62 @@ function formatEventDateLabel(isoDate) {
   });
 }
 
+function eventImageSrc(event) {
+  return (
+    event?.image_url ||
+    event?.poster_url ||
+    event?.cover_url ||
+    event?.photo_url ||
+    event?.thumbnail_url ||
+    event?.banner_url ||
+    ""
+  );
+}
+
 function DayEventCard({ event }) {
   const [isFlipped, setIsFlipped] = useState(false);
-  const notesText = String(event?.notes || "").replace(/^\[[^\]]+\]\s*/, "").trim();
+  const notesText = String(event?.notes || "")
+    .replace(/^\[[^\]]+\]\s*/, "")
+    .trim();
   const imageSrc = eventImageSrc(event);
 
   return (
-    <article
-      className={`discoverEventFlipCard${isFlipped ? " is-flipped" : ""}`}
-    >
+    <article className={`discoverEventFlipCard${isFlipped ? " is-flipped" : ""}`}>
       <div className="discoverEventFlipCard__inner">
         <div className="discoverEventFlipCard__face discoverEventFlipCard__face--front">
           <div className="discoverEventFlipCard__mediaWrap">
-            {imageSrc ? (
-              <button
-                type="button"
-                className="discoverEventFlipCard__mediaButton"
-                onClick={() => setIsFlipped(true)}
-                aria-label={`Ver detalles de ${event.meeting_point || "evento"}`}
-              >
+            <button
+              type="button"
+              className={`discoverEventFlipCard__mediaButton${
+                !imageSrc ? " discoverEventFlipCard__mediaButton--placeholder" : ""
+              }`}
+              onClick={() => setIsFlipped(true)}
+              aria-label={`Ver detalles de ${event.meeting_point || "evento"}`}
+            >
+              {imageSrc ? (
                 <img
                   src={imageSrc}
                   alt={event.meeting_point || "Evento"}
                   className="discoverEventFlipCard__image"
                 />
-              </button>
-            ) : (
-              <button
-                type="button"
-                className="discoverEventFlipCard__mediaButton discoverEventFlipCard__mediaButton--placeholder"
-                onClick={() => setIsFlipped(true)}
-                aria-label={`Ver detalles de ${event.meeting_point || "evento"}`}
-              >
+              ) : (
                 <span className="discoverEventFlipCard__placeholderTitle">
                   {event.meeting_point || "Evento"}
                 </span>
-              </button>
-            )}
-            <span
-              className={`discoverTag discoverEventFlipCard__tag ${
-                event?.visibility === "private" ? "" : "discoverTag--accent"
-              }`}
-            >
-              {event?.visibility === "private" ? "Privado" : "Público"}
-            </span>
+              )}
+            </button>
           </div>
 
           <div className="discoverEventFlipCard__frontBody">
             <h3 className="discoverEventFlipCard__title">
               {event.meeting_point || "Evento"}
             </h3>
-
-            <p className="discoverEventFlipCard__meta">
-              {formatEventDateLabel(event.starts_at)} · {timeLabel(event.starts_at)}
-            </p>
           </div>
         </div>
 
         <div className="discoverEventFlipCard__face discoverEventFlipCard__face--back">
           <div className="discoverEventFlipCard__backHead">
-            <h3 className="discoverEventFlipCard__title">
+            <h3 className="discoverEventFlipCard__title discoverEventFlipCard__title--back">
               {event.meeting_point || "Evento"}
             </h3>
 
@@ -224,7 +208,10 @@ export default function BlaBlaRunPage() {
   const [selectedDay, setSelectedDay] = useState(localDayKey(new Date()));
 
   const upcomingItems = useMemo(
-    () => (items || []).filter((item) => item?.starts_at && isSameOrAfterToday(item.starts_at)),
+    () =>
+      (items || []).filter(
+        (item) => item?.starts_at && isSameOrAfterToday(item.starts_at)
+      ),
     [items]
   );
 
@@ -259,21 +246,13 @@ export default function BlaBlaRunPage() {
           </div>
 
           <div className="discoverMonthControls">
-            <button
-              type="button"
-              className="discoverMonthBtn"
-              onClick={goPrevMonth}
-            >
+            <button type="button" className="discoverMonthBtn" onClick={goPrevMonth}>
               ←
             </button>
 
             <div className="discoverMonthLabel">{formatMonthYear(month)}</div>
 
-            <button
-              type="button"
-              className="discoverMonthBtn"
-              onClick={goNextMonth}
-            >
+            <button type="button" className="discoverMonthBtn" onClick={goNextMonth}>
               →
             </button>
           </div>
@@ -335,11 +314,13 @@ export default function BlaBlaRunPage() {
               </div>
 
               {selectedEvents.length === 0 ? (
-                <div className="discoverEmptyText">
-                  No hay eventos este día
-                </div>
+                <div className="discoverEmptyText">No hay eventos este día</div>
               ) : (
-                <div className={`discoverEventList discoverEventList--day${selectedEvents.length > 1 ? " discoverEventList--dayGrid" : ""}`}>
+                <div
+                  className={`discoverEventList discoverEventList--day${
+                    selectedEvents.length > 1 ? " discoverEventList--dayGrid" : ""
+                  }`}
+                >
                   {selectedEvents.map((event) => (
                     <DayEventCard key={event.id} event={event} />
                   ))}
