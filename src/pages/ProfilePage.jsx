@@ -52,7 +52,10 @@ function splitMeetupsByTime(meetups = []) {
     const ts = new Date(meetup.starts_at).getTime();
     if (Number.isNaN(ts)) continue;
 
-    if (ts >= now && (meetup.status === "open" || meetup.status === "full" || !meetup.status)) {
+    if (
+      ts >= now &&
+      (meetup.status === "open" || meetup.status === "full" || !meetup.status)
+    ) {
       future.push(meetup);
     } else {
       past.push(meetup);
@@ -182,64 +185,48 @@ function IconPlus() {
 
 function DayEventCard({ event }) {
   const [isFlipped, setIsFlipped] = useState(false);
-  const notesText = String(event?.notes || "").replace(/^\[[^\]]+\]\s*/, "").trim();
+  const notesText = String(event?.notes || "")
+    .replace(/^\[[^\]]+\]\s*/, "")
+    .trim();
   const imageSrc = eventImageSrc(event);
 
   return (
-    <article
-      className={`discoverEventFlipCard${isFlipped ? " is-flipped" : ""}`}
-    >
+    <article className={`discoverEventFlipCard${isFlipped ? " is-flipped" : ""}`}>
       <div className="discoverEventFlipCard__inner">
         <div className="discoverEventFlipCard__face discoverEventFlipCard__face--front">
           <div className="discoverEventFlipCard__mediaWrap">
-            {imageSrc ? (
-              <button
-                type="button"
-                className="discoverEventFlipCard__mediaButton"
-                onClick={() => setIsFlipped(true)}
-                aria-label={`Ver detalles de ${event.meeting_point || "evento"}`}
-              >
+            <button
+              type="button"
+              className={`discoverEventFlipCard__mediaButton${
+                !imageSrc ? " discoverEventFlipCard__mediaButton--placeholder" : ""
+              }`}
+              onClick={() => setIsFlipped(true)}
+              aria-label={`Ver detalles de ${event.meeting_point || "evento"}`}
+            >
+              {imageSrc ? (
                 <img
                   src={imageSrc}
                   alt={event.meeting_point || "Evento"}
                   className="discoverEventFlipCard__image"
                 />
-              </button>
-            ) : (
-              <button
-                type="button"
-                className="discoverEventFlipCard__mediaButton discoverEventFlipCard__mediaButton--placeholder"
-                onClick={() => setIsFlipped(true)}
-                aria-label={`Ver detalles de ${event.meeting_point || "evento"}`}
-              >
+              ) : (
                 <span className="discoverEventFlipCard__placeholderTitle">
                   {event.meeting_point || "Evento"}
                 </span>
-              </button>
-            )}
-            <span
-              className={`discoverTag discoverEventFlipCard__tag ${
-                event?.visibility === "private" ? "" : "discoverTag--accent"
-              }`}
-            >
-              {event?.visibility === "private" ? "Privado" : "Público"}
-            </span>
+              )}
+            </button>
           </div>
 
           <div className="discoverEventFlipCard__frontBody">
             <h3 className="discoverEventFlipCard__title">
               {event.meeting_point || "Evento"}
             </h3>
-
-            <p className="discoverEventFlipCard__meta">
-              {formatEventDateLabel(event.starts_at)} · {timeLabel(event.starts_at)}
-            </p>
           </div>
         </div>
 
         <div className="discoverEventFlipCard__face discoverEventFlipCard__face--back">
           <div className="discoverEventFlipCard__backHead">
-            <h3 className="discoverEventFlipCard__title">
+            <h3 className="discoverEventFlipCard__title discoverEventFlipCard__title--back">
               {event.meeting_point || "Evento"}
             </h3>
 
@@ -326,47 +313,41 @@ function MembersBlock({ members = [] }) {
   if (!members.length) return null;
 
   return (
-    <section className="sectionBlock profileMembersSection">
+    <section className="sectionBlock activitySection">
       <h2 className="activitySection__title">Miembros</h2>
 
-      <div className="profileMembersList">
+      <div className="compactList card profileMembersList">
         {members.map((member) => (
           <Link
-            key={member.id}
-            to={`/perfil/${member.id}`}
-            className="profileLinkItem"
+            key={`${member.user_id}-${member.profile_id || "na"}`}
+            to={member.profile_id ? `/perfil/${member.profile_id}` : "/perfil"}
+            className="compactListItem"
           >
-            <div style={{ display: "flex", gap: 10, alignItems: "center", minWidth: 0 }}>
+            <div className="compactListItem__icon">
               {member.avatar_url ? (
                 <img
                   src={member.avatar_url}
-                  alt={member.name || "Miembro"}
-                  style={{ width: 40, height: 40, borderRadius: 14, objectFit: "cover" }}
-                />
-              ) : (
-                <div
+                  alt={member.full_name || member.handle || "Miembro"}
                   style={{
                     width: 40,
                     height: 40,
                     borderRadius: 14,
-                    display: "grid",
-                    placeItems: "center",
-                    background: "rgba(255,255,255,0.06)",
-                    border: "1px solid var(--border)",
-                    fontWeight: 800,
+                    objectFit: "cover",
                   }}
-                >
-                  {initialsFromName(member.name)}
-                </div>
+                />
+              ) : (
+                <span>{initialsFromName(member.full_name || member.handle || "U")}</span>
               )}
-
-              <div style={{ minWidth: 0, display: "grid", gap: 2 }}>
-                <span className="profileLinkItem__label">{member.name || "Miembro"}</span>
-                <span className="profileLinkItem__value">
-                  {formatHandle(member.handle || member.username)}
-                </span>
-              </div>
             </div>
+
+            <div className="compactListItem__copy">
+              <h3 className="compactListItem__title">
+                {member.full_name || member.handle || "Miembro"}
+              </h3>
+              <p className="compactListItem__text">{formatHandle(member.handle)}</p>
+            </div>
+
+            <div className="compactListItem__aside">{member.role}</div>
           </Link>
         ))}
       </div>
@@ -379,7 +360,10 @@ function ProfileAgenda({ meetups = [], canCreate = false, onCreateEvent }) {
   const [selectedDay, setSelectedDay] = useState(null);
 
   const upcomingItems = useMemo(
-    () => (meetups || []).filter((item) => item?.starts_at && isSameOrAfterToday(item.starts_at)),
+    () =>
+      (meetups || []).filter(
+        (item) => item?.starts_at && isSameOrAfterToday(item.starts_at)
+      ),
     [meetups]
   );
 
@@ -410,7 +394,11 @@ function ProfileAgenda({ meetups = [], canCreate = false, onCreateEvent }) {
       <div className="discoverCalendarHeader">
         <div className="discoverCalendarHeader__copy"></div>
 
-        <div className={`discoverMonthControls${canCreate ? " discoverMonthControls--withCreate" : ""}`}>
+        <div
+          className={`discoverMonthControls${
+            canCreate ? " discoverMonthControls--withCreate" : ""
+          }`}
+        >
           <button
             type="button"
             className="discoverMonthBtn"
@@ -485,14 +473,20 @@ function ProfileAgenda({ meetups = [], canCreate = false, onCreateEvent }) {
         <section className="discoverSelectedDay">
           <div className="discoverSelectedDay__head">
             <div>
-              <div className="discoverSelectedDay__title">{formatSelectedDay(selectedDay)}</div>
+              <div className="discoverSelectedDay__title">
+                {formatSelectedDay(selectedDay)}
+              </div>
             </div>
           </div>
 
           {selectedEvents.length === 0 ? (
             <div className="discoverEmptyText">No hay eventos este día</div>
           ) : (
-            <div className={`discoverEventList discoverEventList--day${selectedEvents.length > 1 ? " discoverEventList--dayGrid" : ""}`}>
+            <div
+              className={`discoverEventList discoverEventList--day${
+                selectedEvents.length > 1 ? " discoverEventList--dayGrid" : ""
+              }`}
+            >
               {selectedEvents.map((event) => (
                 <DayEventCard key={event.id} event={event} />
               ))}
@@ -536,13 +530,12 @@ export default function ProfilePage() {
       setPublicError("");
 
       try {
-        const payload = profileId
+        const data = profileId
           ? await apiPublicProfile(profileId, token)
           : await apiPublicProfileByHandle(handle, token);
 
         if (!cancelled) {
-          setPublicProfile(payload || null);
-          setPublicError("");
+          setPublicProfile(data);
         }
       } catch (error) {
         if (!cancelled) {
@@ -550,7 +543,9 @@ export default function ProfilePage() {
           setPublicError(error?.message || "No se pudo cargar el perfil.");
         }
       } finally {
-        if (!cancelled) setPublicLoading(false);
+        if (!cancelled) {
+          setPublicLoading(false);
+        }
       }
     }
 
@@ -561,112 +556,131 @@ export default function ProfilePage() {
     };
   }, [handle, isPublicProfile, profileId, token]);
 
-  const profileData = isPublicProfile ? publicProfile : me;
-  const avatarUrl = profileData?.avatar_url;
-  const displayName = profileData?.name || user?.email || "Perfil";
-  const displayHandle = formatHandle(profileData?.handle || profileData?.username);
-  const displayBio = formatBio(profileData?.bio);
-  const displayLocation = formatLocation(profileData?.location);
-  const followersCount = profileData?.followers_count ?? 0;
-  const followingCount = profileData?.following_count ?? 0;
-  const memberLinks = profileData?.links || {};
-  const members = profileData?.members || [];
-  const meetups = isPublicProfile ? publicProfile?.meetups || [] : myMeetups;
-
   async function handleAvatarChange(event) {
     const file = event.target.files?.[0];
     event.target.value = "";
 
-    if (!file || !token || isPublicProfile) return;
+    if (!file) return;
+
+    const ownerId = user?.id || me?.supabase_user_id || null;
+
+    if (!ownerId) {
+      toast?.error?.("No se pudo identificar al usuario.");
+      return;
+    }
+
+    setUploadingAvatar(true);
 
     try {
-      setUploadingAvatar(true);
-
-      const publicUrl = await uploadAvatarToSupabase(file, me?.id || user?.id);
+      const { publicUrl } = await uploadAvatarToSupabase(file, ownerId);
       await apiUpdateProfile({ avatar_url: publicUrl }, token);
-      await refreshMe?.();
-
-      toast?.success?.("Avatar actualizado.");
+      await refreshMe(token);
+      toast?.success?.("Foto de perfil actualizada.");
     } catch (error) {
-      toast?.error?.(error?.message || "No se pudo actualizar el avatar.");
+      toast?.error?.(error?.message || "No se pudo actualizar la foto.");
     } finally {
       setUploadingAvatar(false);
     }
   }
 
+  const mySplit = useMemo(() => splitMeetupsByTime(myMeetups), [myMeetups]);
+
+  const profileData = isPublicProfile
+    ? {
+        display_name: publicProfile?.display_name || "Perfil",
+        handle: publicProfile?.handle || "",
+        bio: publicProfile?.bio || "",
+        location: publicProfile?.location || "",
+        avatar_url: publicProfile?.avatar_url || "",
+        followers_count: Number(publicProfile?.followers_count ?? 0),
+        following_count: Number(publicProfile?.following_count ?? 0),
+        links: publicProfile?.links || {},
+        profile_type: publicProfile?.profile_type || "individual",
+        members: publicProfile?.members || [],
+        future_meetups: publicProfile?.future_meetups || [],
+        past_meetups: publicProfile?.past_meetups || [],
+      }
+    : {
+        display_name: me?.display_name || me?.full_name || me?.handle || "Tu perfil",
+        handle: me?.handle || "",
+        bio: me?.bio || "",
+        location: me?.location || "",
+        avatar_url: me?.avatar_url || "",
+        followers_count: Number(me?.followers_count ?? 0),
+        following_count: Number(me?.following_count ?? 0),
+        links: me?.links || {},
+        profile_type: me?.profile_type || "individual",
+        members: [],
+        future_meetups: mySplit.future,
+        past_meetups: mySplit.past,
+      };
+
+  const displayName = profileData.display_name;
+  const avatarUrl = profileData.avatar_url;
+  const agendaMeetups = isPublicProfile
+    ? [...(profileData.future_meetups || []), ...(profileData.past_meetups || [])]
+    : [...myMeetups];
+
+  if (!meReady) {
+    return (
+      <section className="page profilePage">
+        <div className="stateCard">
+          <h3 className="stateCard__title">Cargando perfil</h3>
+          <p className="stateCard__text">
+            Estamos preparando la información del perfil.
+          </p>
+        </div>
+      </section>
+    );
+  }
+
   if (isPublicProfile && publicLoading) {
     return (
-      <section className="page page--eventsHome blablaRunPage profilePage">
-        <section className="sectionBlock">
-          <p className="discoverLoading">Cargando perfil…</p>
-        </section>
+      <section className="page profilePage">
+        <div className="stateCard">
+          <h3 className="stateCard__title">Cargando perfil público</h3>
+          <p className="stateCard__text">Espera un momento.</p>
+        </div>
       </section>
     );
   }
 
   if (isPublicProfile && publicError) {
     return (
-      <section className="page page--eventsHome blablaRunPage profilePage">
-        <section className="sectionBlock">
-          <p className="discoverLoading">{publicError}</p>
-        </section>
-      </section>
-    );
-  }
-
-  if (!profileData && !isPublicProfile && !meReady) {
-    return (
-      <section className="page page--eventsHome blablaRunPage profilePage">
-        <section className="sectionBlock">
-          <p className="discoverLoading">Cargando perfil…</p>
-        </section>
-      </section>
-    );
-  }
-
-  if (!profileData) {
-    return (
-      <section className="page page--eventsHome blablaRunPage profilePage">
-        <section className="sectionBlock">
-          <p className="discoverLoading">No se encontró el perfil.</p>
-        </section>
+      <section className="page profilePage">
+        <div className="stateCard">
+          <h3 className="stateCard__title">No se pudo cargar el perfil</h3>
+          <p className="stateCard__text">{publicError}</p>
+        </div>
       </section>
     );
   }
 
   return (
     <section className="page page--eventsHome blablaRunPage profilePage">
-      <section className="sectionBlock profileIdentityCard">
+      <section className="sectionBlock profileHeroCard profileIdentityCard">
         <div
-          className={`profileIdentityTop${!isPublicProfile ? " profileIdentityTop--editable" : ""}`}
-          onClick={
-            !isPublicProfile
-              ? () => {
-                  if (!uploadingAvatar) fileInputRef.current?.click();
-                }
-              : undefined
-          }
+          className={`profileIdentityTop${
+            !isPublicProfile ? " profileIdentityTop--editable" : ""
+          }`}
+          onClick={!isPublicProfile ? () => fileInputRef.current?.click() : undefined}
           onKeyDown={
             !isPublicProfile
               ? (event) => {
                   if (event.key === "Enter" || event.key === " ") {
                     event.preventDefault();
-                    if (!uploadingAvatar) fileInputRef.current?.click();
+                    fileInputRef.current?.click();
                   }
                 }
               : undefined
           }
           role={!isPublicProfile ? "button" : undefined}
           tabIndex={!isPublicProfile ? 0 : undefined}
-          aria-label={!isPublicProfile ? "Cambiar avatar" : undefined}
+          aria-label={!isPublicProfile ? "Cambiar foto de perfil" : undefined}
         >
           <div className="profileIdentityMain">
             {avatarUrl ? (
-              <img
-                src={avatarUrl}
-                alt={displayName}
-                className="profileHero__avatar"
-              />
+              <img src={avatarUrl} alt={displayName} className="profileHero__avatar" />
             ) : (
               <div className="profileHero__avatar profileHero__avatar--fallback">
                 {initialsFromName(displayName)}
@@ -678,64 +692,68 @@ export default function ProfilePage() {
                 <h1 className="profileHero__name">{displayName}</h1>
 
                 {!isPublicProfile ? (
-                  <button
-                    type="button"
+                  <Link
+                    to="/onboarding?mode=edit"
                     className="profileInlineEditBtn"
-                    onClick={(event) => event.stopPropagation()}
                     aria-label="Editar perfil"
-                    title="Editar perfil"
+                    onClick={(event) => event.stopPropagation()}
                   >
-                    <IconEdit />
-                  </button>
+                    <IconEdit size={15} />
+                  </Link>
                 ) : null}
               </div>
 
-              <div className="profileHero__handle">{displayHandle}</div>
-              <p className="profileHero__bio">{displayBio}</p>
-              <div className="profileLocationText">{displayLocation}</div>
+              <div className="profileHero__handle">
+                {formatHandle(profileData.handle)}
+              </div>
+              <p className="profileHero__bio">{formatBio(profileData.bio)}</p>
+              <span className="profileLocationText">
+                {formatLocation(profileData.location)}
+              </span>
             </div>
           </div>
 
-          {!isPublicProfile ? (
-            <div className="profileUploadState">
-              {uploadingAvatar ? "Subiendo avatar…" : "Pulsa para cambiar la imagen del perfil"}
-            </div>
-          ) : null}
-        </div>
-
-        {!isPublicProfile ? (
           <input
             ref={fileInputRef}
             type="file"
             accept="image/*"
-            hidden
             onChange={handleAvatarChange}
+            style={{ display: "none" }}
           />
-        ) : null}
+        </div>
 
         <div className="profileMiniSummary profileMiniSummary--duo">
-          <Link to="/seguidores" className="profileStatButton">
+          <Link to="/perfil/seguidores" className="profileStatButton">
             <span className="profileStatButton__label">Seguidores</span>
-            <span className="profileStatButton__value">{followersCount}</span>
+            <strong className="profileStatButton__value">
+              {profileData.followers_count}
+            </strong>
           </Link>
 
-          <Link to="/siguiendo" className="profileStatButton">
-            <span className="profileStatButton__label">Siguiendo</span>
-            <span className="profileStatButton__value">{followingCount}</span>
+          <Link to="/perfil/seguidos" className="profileStatButton">
+            <span className="profileStatButton__label">Seguidos</span>
+            <strong className="profileStatButton__value">
+              {profileData.following_count}
+            </strong>
           </Link>
         </div>
+
+        {!isPublicProfile && uploadingAvatar ? (
+          <div className="profileUploadState">Subiendo foto…</div>
+        ) : null}
       </section>
 
+      <MembersBlock members={profileData.members} />
+
       <ProfileAgenda
-        meetups={meetups}
+        meetups={agendaMeetups}
         canCreate={!isPublicProfile}
         onCreateEvent={(dayKey) => {
           navigate(`/crear-evento?day=${encodeURIComponent(dayKey)}`);
         }}
       />
 
-      <MembersBlock members={members} />
-      <LinksBlock links={memberLinks} />
+      <LinksBlock links={profileData.links} />
     </section>
   );
 }
