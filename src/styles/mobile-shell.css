@@ -2,7 +2,7 @@
   min-height: 100dvh;
   width: 100%;
   background: #0b0b0b;
-  color: #fff;
+  color: #ffffff;
 }
 
 .appChrome__frame {
@@ -10,9 +10,9 @@
   margin: 0 auto;
   min-height: 100dvh;
   padding:
-    calc(var(--safe-top, 0px) + 76px)
+    calc(var(--safe-top, 0px) + 64px)
     14px
-    calc(104px + var(--safe-bottom, 0px));
+    calc(128px + var(--safe-bottom, 0px));
 }
 
 .appChrome__content {
@@ -36,15 +36,15 @@
 .appTopbar__inner {
   width: min(100%, 520px);
   margin: 0 auto;
-  min-height: 62px;
+  min-height: 52px;
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  padding: 10px 14px;
+  padding: 6px 14px;
 }
 
 .appTopbar__logo {
-  height: 28px;
+  height: 36px;
   width: auto;
   object-fit: contain;
   display: block;
@@ -66,52 +66,91 @@
 .bottomNav__inner {
   width: min(100%, 520px);
   margin: 0 auto;
-  min-height: 72px;
+  min-height: 92px;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   align-items: center;
-  padding: 8px 10px;
+  padding: 6px 10px 8px;
 }
 
 .bottomNav__link {
   appearance: none;
   border: 0;
   background: transparent;
-  min-height: 56px;
+  min-height: 72px;
   display: grid;
   place-items: center;
-  padding: 6px;
+  padding: 4px;
   cursor: pointer;
-  opacity: 0.72;
-  transition: transform 160ms ease, opacity 160ms ease;
+  opacity: 0.76;
+  transition: transform 180ms ease, opacity 180ms ease, filter 180ms ease;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.bottomNav__link:active {
-  transform: scale(0.94);
+.bottomNav__link:hover {
+  opacity: 0.92;
 }
 
+.bottomNav__link:focus-visible {
+  outline: none;
+}
+
+.bottomNav__iconImage {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  display: block;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.35));
+  transition:
+    transform 180ms ease,
+    filter 180ms ease,
+    opacity 180ms ease;
+}
+
+/* ESTADO ACTIVO */
 .bottomNav__link.is-active {
   opacity: 1;
 }
 
-.bottomNav__iconImage {
-  width: 34px;
-  height: 34px;
-  object-fit: contain;
-  display: block;
-}
-
 .bottomNav__link.is-active .bottomNav__iconImage {
   transform: scale(1.08);
+  filter:
+    drop-shadow(0 0 8px rgba(124, 233, 155, 0.55))
+    drop-shadow(0 0 16px rgba(124, 233, 155, 0.35))
+    drop-shadow(0 6px 12px rgba(0, 0, 0, 0.4));
+}
+
+/* BOUNCE TIPO IOS AL PULSAR */
+.bottomNav__link:active .bottomNav__iconImage {
+  animation: navBounce 320ms cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+
+@keyframes navBounce {
+  0% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(0.84);
+  }
+  60% {
+    transform: scale(1.12);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 @media (min-width: 480px) {
   .appTopbar__logo {
-    height: 30px;
+    height: 40px;
+  }
+
+  .bottomNav__inner {
+    min-height: 96px;
   }
 
   .bottomNav__iconImage {
-    width: 36px;
-    height: 36px;
+    width: 68px;
+    height: 68px;
   }
 }
