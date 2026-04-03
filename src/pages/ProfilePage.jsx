@@ -647,7 +647,6 @@ function ProfileAgenda({ meetups = [], canCreate = false, onCreateEvent, selecte
     <section className="sectionBlock discoverSection discoverSection--calendarOnly profileAgendaSection">
       <div className="discoverCalendarHeader">
         <div className="discoverCalendarHeader__copy">
-          <h2 className="discoverCalendarHeader__title">Calendario</h2>
         </div>
 
         <div className={`discoverMonthControls${canCreate ? " discoverMonthControls--withCreate" : ""}`}>
