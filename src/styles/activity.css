@@ -648,52 +648,67 @@
 }
 
 .authPage {
-  gap: 18px;
-  padding-top: 4px;
+  gap: 14px;
+  padding-top: 0;
 }
 
 .authBrandCard--hero {
-  padding: 18px 16px;
+  padding: 0;
+  margin-top: -6px;
+  overflow: hidden;
   border-radius: 24px;
-  background:
-    radial-gradient(circle at top right, rgba(124, 233, 155, 0.14), transparent 38%),
-    linear-gradient(145deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.015)),
-    var(--surface-2);
+  background: transparent;
 }
 
-.authBrandCard--hero .authBrandCard__row {
-  justify-content: flex-start;
-  gap: 10px;
+.authHeroImage {
+  width: 100%;
+  height: 220px;
+  border-radius: 24px;
+  overflow: hidden;
+  position: relative;
+  background: #0b1118;
 }
 
-.authBrandCard--hero .authBrandCard__icon {
-  width: 38px;
-  height: 38px;
+.authHeroImage img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+  object-position: center;
 }
 
-.authBrandCard--hero .authBrandCard__logo {
-  width: min(188px, 100%);
+.authHeroImage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(7, 13, 20, 0.02) 0%,
+    rgba(7, 13, 20, 0.25) 100%
+  );
 }
 
 .authIntro {
   display: grid;
-  gap: 6px;
-  padding: 2px 2px 0;
+  gap: 4px;
+  padding: 0 2px;
 }
 
 .authIntro__title {
   margin: 0;
   color: #ffffff;
-  font-size: clamp(1.5rem, 5vw, 1.85rem);
-  line-height: 1.02;
-  letter-spacing: -0.05em;
-  font-weight: 800;
+  font-family: Inter, "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 1.45rem;
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+  font-weight: 700;
 }
 
 .authIntro__subtitle {
   margin: 0;
   color: rgba(255, 255, 255, 0.68);
-  font-size: 0.94rem;
+  font-family: Inter, "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 0.9rem;
   line-height: 1.5;
 }
 
@@ -704,9 +719,9 @@
 .authSwitch {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 6px;
-  padding: 4px;
-  border-radius: 20px;
+  gap: 4px;
+  padding: 3px;
+  border-radius: 18px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.04);
   box-shadow:
@@ -716,15 +731,15 @@
 }
 
 .authSwitch__item {
-  min-height: 46px;
+  min-height: 42px;
   padding: 0 14px;
   border: 0;
-  border-radius: 16px;
+  border-radius: 14px;
   background: transparent;
   color: rgba(255, 255, 255, 0.72);
   font: inherit;
-  font-size: 0.92rem;
-  font-weight: 800;
+  font-size: 0.88rem;
+  font-weight: 700;
   letter-spacing: -0.02em;
   transition:
     background-color 160ms ease,
@@ -745,15 +760,15 @@
 }
 
 .authFormShell {
-  padding: 16px;
-  border-radius: 24px;
+  padding: 14px;
+  border-radius: 20px;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0)),
     var(--surface);
 }
 
 .authFormCard {
-  gap: 16px;
+  gap: 12px;
 }
 
 .authFormRow {
@@ -762,18 +777,20 @@
 
 .authFormRow label {
   color: rgba(255, 255, 255, 0.74);
-  font-size: 0.77rem;
-  letter-spacing: 0.04em;
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
+  font-family: Inter, "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 .authFormRow input {
-  min-height: 52px;
-  padding: 14px 16px;
-  border-radius: 16px;
+  min-height: 44px;
+  padding: 11px 13px;
+  border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.045);
   color: #ffffff;
+  font-size: 0.88rem;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
 }
 
@@ -787,13 +804,16 @@
 
 .authFormRow input::placeholder {
   color: transparent;
+  font-size: 0.76rem;
+  opacity: 0.55;
 }
 
 .authStateCard {
-  padding: 14px;
-  border-radius: 18px;
+  padding: 12px;
+  border-radius: 14px;
   background: rgba(255, 255, 255, 0.04);
   box-shadow: none;
+  font-size: 0.85rem;
 }
 
 .authStateCard--error {
@@ -809,79 +829,9 @@
 }
 
 .authSubmitBtn {
-  min-height: 50px;
+  min-height: 46px;
+  border-radius: 14px;
+  font-size: 0.9rem;
   color: #000000;
   box-shadow: 0 14px 28px rgba(124, 233, 155, 0.18);
-}
-
-.authBrandCard--hero {
-  padding: 0;
-  overflow: hidden;
-}
-
-.authHeroImage {
-  width: 100%;
-  height: 180px;
-  border-radius: 24px;
-  overflow: hidden;
-  position: relative;
-}
-
-.authHeroImage img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.authHeroImage::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    180deg,
-    rgba(7, 13, 20, 0.1) 0%,
-    rgba(7, 13, 20, 0.6) 100%
-  );
-}
-
-/* Inputs más compactos (placeholder más pequeño) */
-.authFormRow input {
-  min-height: 46px;
-  padding: 12px 14px;
-  font-size: 0.9rem;
-}
-
-.authFormRow input::placeholder {
-  font-size: 0.8rem;
-  opacity: 0.6;
-}
-
-/* Imagen completa (sin crop agresivo) */
-.authHeroImage {
-  width: 100%;
-  height: 200px;
-  border-radius: 24px;
-  overflow: hidden;
-  position: relative;
-  background: #0b1118;
-}
-
-.authHeroImage img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain; /* clave para verla entera */
-  object-position: center;
-}
-
-/* Overlay más suave para no tapar imagen */
-.authHeroImage::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    180deg,
-    rgba(7, 13, 20, 0.05) 0%,
-    rgba(7, 13, 20, 0.35) 100%
-  );
 }
