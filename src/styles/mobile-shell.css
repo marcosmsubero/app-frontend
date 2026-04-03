@@ -41,7 +41,7 @@
   padding: 0 10px 0 8px;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: space-between;
   overflow: visible;
   position: relative;
 }
@@ -55,6 +55,29 @@
   display: block;
   transform: translateX(-6px) translateY(-1px);
   transform-origin: left center;
+  pointer-events: none;
+  user-select: none;
+}
+
+.appTopbar__settings {
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow: var(--shadow-sm);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.appTopbar__settingsIcon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  opacity: 0.9;
   pointer-events: none;
   user-select: none;
 }
