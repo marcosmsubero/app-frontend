@@ -3,57 +3,183 @@
   gap: 16px;
 }
 
-.createEventPage__topbar {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
+.createEventHero {
+  display: grid;
+  gap: 10px;
+  padding: 18px;
 }
 
-.createEventPage__back {
+.createEventHero__eyebrow {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.createEventHero__title {
+  margin: 0;
+  color: var(--text);
+  font-size: 1.3rem;
+  line-height: 1.08;
+  letter-spacing: -0.04em;
+  font-weight: 800;
+}
+
+.createEventHero__subtitle {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.createEventHero__date {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  color: var(--text-muted);
-  text-decoration: none;
+  width: fit-content;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border);
+  color: var(--text);
   font-size: 0.84rem;
   font-weight: 700;
 }
 
-.createEventHero {
-  padding: 18px;
-}
-
 .createEventFormCard {
-  padding: 16px;
+  padding: 14px;
 }
 
 .createEventForm {
   display: grid;
-  gap: 14px;
+  gap: 16px;
+}
+
+.createEventForm__group {
+  display: grid;
+  gap: 8px;
+}
+
+.createEventForm__groupHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
 }
 
 .createEventForm__grid {
   display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
 }
 
-.createEventForm__grid--2 {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+.createEventForm__control {
+  width: 100%;
 }
 
-.createEventForm__actions {
+.createEventForm__textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.createEventSecondaryBtn {
+  min-height: 30px;
+  padding: 0 10px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.createEventUploadBox {
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.03);
+  overflow: hidden;
+}
+
+.createEventUploadEmpty {
+  padding: 14px;
+  color: var(--text-soft);
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
+.createEventUploadPreview {
   display: grid;
-  grid-template-columns: 1fr 1fr;
   gap: 10px;
-  margin-top: 6px;
 }
 
-.createEventForm .app-button {
+.createEventUploadPreview__image {
+  width: 100%;
+  display: block;
+  max-height: 220px;
+  object-fit: cover;
+}
+
+.createEventUploadPreview__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0 12px 12px;
+}
+
+.createEventUploadPreview__name {
+  min-width: 0;
+  color: var(--text);
+  font-size: 0.82rem;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.createEventLinksList {
+  display: grid;
+  gap: 10px;
+}
+
+.createEventLinkRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.createEventInlineRemove {
+  min-height: 30px;
+  padding: 0 10px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.createEventActions {
+  padding-top: 4px;
+}
+
+.createEventSubmitBtn {
+  width: 100%;
   justify-content: center;
 }
 
 @media (max-width: 420px) {
-  .createEventForm__grid--2 {
+  .createEventForm__grid {
     grid-template-columns: 1fr;
+  }
+
+  .createEventLinkRow {
+    grid-template-columns: 1fr;
+  }
+
+  .createEventForm__groupHead {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }
