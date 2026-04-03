@@ -66,6 +66,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  align-self: center;
   border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.04);
@@ -74,9 +75,11 @@
 }
 
 .appTopbar__settingsIcon {
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
   object-fit: contain;
+  object-position: center;
+  display: block;
   opacity: 0.9;
   pointer-events: none;
   user-select: none;
