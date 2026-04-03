@@ -1,59 +1,136 @@
 .createEventPage {
   display: grid;
-  gap: 16px;
+  gap: 18px;
 }
 
 .createEventHero {
+  position: relative;
   display: grid;
-  gap: 10px;
-  padding: 18px;
+  gap: 12px;
+  padding: 20px;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background:
+    radial-gradient(circle at top right, rgba(124, 233, 155, 0.14), transparent 32%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.02)),
+    rgba(255, 255, 255, 0.03);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+.createEventHero::after {
+  content: "";
+  position: absolute;
+  inset: auto -40px -55px auto;
+  width: 140px;
+  height: 140px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  filter: blur(8px);
+  pointer-events: none;
 }
 
 .createEventHero__eyebrow {
-  color: var(--text-muted);
+  position: relative;
+  z-index: 1;
+  color: var(--primary);
   font-size: 0.72rem;
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
 }
 
 .createEventHero__title {
+  position: relative;
+  z-index: 1;
   margin: 0;
   color: var(--text);
-  font-size: 1.3rem;
-  line-height: 1.08;
-  letter-spacing: -0.04em;
+  font-size: 1.42rem;
+  line-height: 1.04;
+  letter-spacing: -0.045em;
   font-weight: 800;
 }
 
 .createEventHero__subtitle {
+  position: relative;
+  z-index: 1;
   margin: 0;
   color: var(--text-soft);
-  font-size: 0.92rem;
-  line-height: 1.5;
+  font-size: 0.93rem;
+  line-height: 1.56;
+  max-width: 32ch;
 }
 
 .createEventHero__date {
+  position: relative;
+  z-index: 1;
   display: inline-flex;
   align-items: center;
   width: fit-content;
-  min-height: 34px;
-  padding: 0 12px;
+  min-height: 38px;
+  padding: 0 14px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.06);
-  border: 1px solid var(--border);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   color: var(--text);
   font-size: 0.84rem;
   font-weight: 700;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .createEventFormCard {
-  padding: 14px;
+  display: grid;
+  gap: 16px;
+  padding: 16px;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.02)),
+    rgba(255, 255, 255, 0.025);
+  box-shadow: var(--shadow-md);
+}
+
+.createEventFormCard__head {
+  display: grid;
+  gap: 6px;
+}
+
+.createEventFormCard__title {
+  margin: 0;
+  color: var(--text);
+  font-size: 1rem;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  font-weight: 800;
+}
+
+.createEventFormCard__subtitle {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.84rem;
+  line-height: 1.45;
 }
 
 .createEventForm {
   display: grid;
   gap: 16px;
+}
+
+.createEventSection {
+  display: grid;
+  gap: 14px;
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.createEventSection__title {
+  color: var(--text);
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
 .createEventForm__group {
@@ -78,34 +155,70 @@
   width: 100%;
 }
 
+.createEventForm .app-label {
+  color: var(--text-muted);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.createEventForm .app-input,
+.createEventForm .app-select,
+.createEventForm .app-textarea {
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  box-shadow: none;
+}
+
+.createEventForm .app-input::placeholder,
+.createEventForm .app-textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.createEventForm .app-input:focus,
+.createEventForm .app-select:focus,
+.createEventForm .app-textarea:focus {
+  border-color: rgba(124, 233, 155, 0.42);
+  box-shadow: 0 0 0 3px rgba(124, 233, 155, 0.08);
+  outline: none;
+}
+
 .createEventForm__textarea {
-  min-height: 120px;
+  min-height: 124px;
   resize: vertical;
 }
 
 .createEventSecondaryBtn {
-  min-height: 30px;
-  padding: 0 10px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.04);
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.05);
   color: var(--text);
   font-size: 0.78rem;
   font-weight: 700;
+  transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+}
+
+.createEventSecondaryBtn:active {
+  transform: scale(0.97);
 }
 
 .createEventUploadBox {
-  border-radius: 16px;
-  border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.03);
+  border-radius: 18px;
+  border: 1px dashed rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.025);
   overflow: hidden;
 }
 
 .createEventUploadEmpty {
-  padding: 14px;
+  padding: 16px;
   color: var(--text-soft);
   font-size: 0.84rem;
-  line-height: 1.45;
+  line-height: 1.5;
 }
 
 .createEventUploadPreview {
@@ -151,7 +264,7 @@
 }
 
 .createEventInlineRemove {
-  min-height: 30px;
+  min-height: 32px;
   padding: 0 10px;
   border: none;
   background: transparent;
@@ -161,15 +274,33 @@
 }
 
 .createEventActions {
-  padding-top: 4px;
+  padding-top: 2px;
 }
 
 .createEventSubmitBtn {
   width: 100%;
+  min-height: 48px;
   justify-content: center;
+  border-radius: 16px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
 }
 
 @media (max-width: 420px) {
+  .createEventHero {
+    padding: 18px;
+    border-radius: 22px;
+  }
+
+  .createEventFormCard {
+    padding: 14px;
+    border-radius: 22px;
+  }
+
+  .createEventSection {
+    padding: 12px;
+  }
+
   .createEventForm__grid {
     grid-template-columns: 1fr;
   }
