@@ -1,0 +1,59 @@
+.createEventPage {
+  display: grid;
+  gap: 16px;
+}
+
+.createEventPage__topbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.createEventPage__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.createEventHero {
+  padding: 18px;
+}
+
+.createEventFormCard {
+  padding: 16px;
+}
+
+.createEventForm {
+  display: grid;
+  gap: 14px;
+}
+
+.createEventForm__grid {
+  display: grid;
+  gap: 12px;
+}
+
+.createEventForm__grid--2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.createEventForm__actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.createEventForm .app-button {
+  justify-content: center;
+}
+
+@media (max-width: 420px) {
+  .createEventForm__grid--2 {
+    grid-template-columns: 1fr;
+  }
+}
