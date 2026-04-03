@@ -186,7 +186,6 @@ export default function BlaBlaRunPage() {
       <section className="sectionBlock discoverSection discoverSection--calendarOnly">
         <div className="discoverCalendarHeader">
           <div className="discoverCalendarHeader__copy">
-            <div className="discoverCalendarHeader__eyebrow">Agenda</div>
             <h1 className="discoverCalendarHeader__title">Calendario de Eventos</h1>
           </div>
 
@@ -268,15 +267,11 @@ export default function BlaBlaRunPage() {
               <div className="discoverSelectedDay__head">
                 <div>
                   <div className="discoverSelectedDay__title">{formatDayTitle(selectedDay)}</div>
-                  <div className="discoverSelectedDay__subtitle">
-                    {daySummary(selectedEvents)}
-                  </div>
                 </div>
               </div>
 
               {selectedEvents.length === 0 ? (
                 <EmptyState
-                  icon="○"
                   title="No hay eventos este día"
                   description="Selecciona otro día para ver su actividad."
                 />
