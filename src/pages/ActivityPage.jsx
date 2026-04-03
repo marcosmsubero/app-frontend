@@ -112,6 +112,12 @@ export default function ActivityPage() {
   const [activePane, setActivePane] = useState("split"); // split | messages | notifications
 
   const timerRef = useRef(null);
+  const gestureRef = useRef({
+    active: false,
+    startX: 0,
+    startY: 0,
+    lockedAxis: null,
+  });
 
   async function loadMessages(query = messageQuery) {
     if (!token) {
@@ -208,6 +214,72 @@ export default function ActivityPage() {
     }
 
     nav(routeFromNotif(notification));
+  }
+
+  function setPaneFromSwipe(deltaX) {
+    const threshold = 56;
+
+    if (Math.abs(deltaX) < threshold) return;
+
+    if (activePane === "split") {
+      if (deltaX < 0) {
+        setActivePane("notifications");
+      } else {
+        setActivePane("messages");
+      }
+      return;
+    }
+
+    if (activePane === "messages" && deltaX < 0) {
+      setActivePane("split");
+      return;
+    }
+
+    if (activePane === "notifications" && deltaX > 0) {
+      setActivePane("split");
+    }
+  }
+
+  function handlePointerStart(clientX, clientY) {
+    gestureRef.current = {
+      active: true,
+      startX: clientX,
+      startY: clientY,
+      lockedAxis: null,
+    };
+  }
+
+  function handlePointerMove(clientX, clientY) {
+    const gesture = gestureRef.current;
+    if (!gesture.active) return;
+
+    const deltaX = clientX - gesture.startX;
+    const deltaY = clientY - gesture.startY;
+
+    if (!gesture.lockedAxis) {
+      if (Math.abs(deltaX) < 10 && Math.abs(deltaY) < 10) return;
+      gesture.lockedAxis =
+        Math.abs(deltaX) > Math.abs(deltaY) ? "x" : "y";
+    }
+  }
+
+  function handlePointerEnd(clientX, clientY) {
+    const gesture = gestureRef.current;
+    if (!gesture.active) return;
+
+    const deltaX = clientX - gesture.startX;
+    const deltaY = clientY - gesture.startY;
+
+    gestureRef.current = {
+      active: false,
+      startX: 0,
+      startY: 0,
+      lockedAxis: null,
+    };
+
+    if (Math.abs(deltaX) <= Math.abs(deltaY)) return;
+
+    setPaneFromSwipe(deltaX);
   }
 
   function renderMessagesPane() {
@@ -316,11 +388,19 @@ export default function ActivityPage() {
     <section className="page activityPage">
       <section className="sectionBlock">
         <div className="app-section-header activityPageSplit__header">
-          <div className="activityPageSplit__counters">
+          <div
+            className="activityPageSplit__counters"
+            aria-label="Resumen actividad"
+          >
             <div className="activityPageSplit__counter">
               <span>Mensajes</span>
               <strong>{messageList.length}</strong>
             </div>
+
+            <div
+              className="activityPageSplit__counterDivider"
+              aria-hidden="true"
+            />
 
             <div className="activityPageSplit__counter">
               <span>Notificaciones</span>
@@ -332,6 +412,21 @@ export default function ActivityPage() {
 
       <section
         className={`sectionBlock activityPageSplit activityPageSplit--${activePane}`}
+        onTouchStart={(e) => {
+          const touch = e.touches[0];
+          if (!touch) return;
+          handlePointerStart(touch.clientX, touch.clientY);
+        }}
+        onTouchMove={(e) => {
+          const touch = e.touches[0];
+          if (!touch) return;
+          handlePointerMove(touch.clientX, touch.clientY);
+        }}
+        onTouchEnd={(e) => {
+          const touch = e.changedTouches[0];
+          if (!touch) return;
+          handlePointerEnd(touch.clientX, touch.clientY);
+        }}
       >
         <div
           className={`activityPageSplit__pane activityPageSplit__pane--messages${
@@ -342,11 +437,11 @@ export default function ActivityPage() {
           tabIndex={0}
           onKeyDown={(e) => {
             if (e.key === "Enter" || e.key === " ") setActivePane("messages");
+            if (e.key === "ArrowLeft") setActivePane("split");
           }}
         >
           <div className="activityPageSplit__paneHead">
             <span className="activityPageSplit__paneLabel">Mensajes</span>
-            <span className="activityPageSplit__paneCount">{unreadThreads}</span>
           </div>
 
           {renderMessagesPane()}
@@ -363,13 +458,11 @@ export default function ActivityPage() {
             if (e.key === "Enter" || e.key === " ") {
               setActivePane("notifications");
             }
+            if (e.key === "ArrowRight") setActivePane("split");
           }}
         >
           <div className="activityPageSplit__paneHead">
             <span className="activityPageSplit__paneLabel">Notificaciones</span>
-            <span className="activityPageSplit__paneCount">
-              {unreadNotifications}
-            </span>
           </div>
 
           {renderNotificationsPane()}
