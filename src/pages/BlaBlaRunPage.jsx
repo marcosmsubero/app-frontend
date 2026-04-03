@@ -9,6 +9,7 @@ import {
   monthLabel,
   timeLabel,
 } from "../utils/dates";
+import "../styles/blablarun.css";
 
 const WEEKDAYS = ["L", "M", "X", "J", "V", "S", "D"];
 
@@ -96,13 +97,13 @@ function DayEventCard({ event }) {
           <span className="discoverEventCard__time">{formatEventDateLabel(event.starts_at)}</span>
         </div>
 
-        <button
-          type="button"
-          className="discoverEventCard__fav"
-          aria-label="Guardar en favoritos"
+        <span
+          className={`discoverTag ${
+            event?.visibility === "private" ? "" : "discoverTag--accent"
+          }`}
         >
-          ♥
-        </button>
+          {event?.visibility === "private" ? "Privado" : "Público"}
+        </span>
       </div>
 
       <div className="discoverEventCard__body">
@@ -181,7 +182,7 @@ export default function BlaBlaRunPage() {
   }
 
   return (
-    <section className="page page--eventsHome">
+    <section className="page page--eventsHome blablaRunPage">
       <section className="sectionBlock discoverSection discoverSection--calendarOnly">
         <div className="discoverCalendarHeader">
           <div className="discoverCalendarHeader__copy">
