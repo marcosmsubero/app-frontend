@@ -35,6 +35,18 @@ function groupByDay(meetups = []) {
   return map;
 }
 
+function eventImageSrc(event) {
+  return (
+    event?.image_url ||
+    event?.poster_url ||
+    event?.cover_url ||
+    event?.photo_url ||
+    event?.thumbnail_url ||
+    event?.banner_url ||
+    ""
+  );
+}
+
 function creatorLabel(event) {
   return (
     event?.host_profile_name ||
@@ -91,60 +103,114 @@ function formatEventDateLabel(isoDate) {
 }
 
 function DayEventCard({ event }) {
+  const [isFlipped, setIsFlipped] = useState(false);
   const notesText = String(event?.notes || "").replace(/^\[[^\]]+\]\s*/, "").trim();
+  const imageSrc = eventImageSrc(event);
 
   return (
-    <article className="discoverEventCard discoverEventCard--agenda">
-      <div className="discoverEventCard__top">
-        <div className="discoverEventCard__date">
-          <span className="discoverEventCard__time">{formatEventDateLabel(event.starts_at)}</span>
-        </div>
-
-        <span
-          className={`discoverTag ${
-            event?.visibility === "private" ? "" : "discoverTag--accent"
-          }`}
-        >
-          {event?.visibility === "private" ? "Privado" : "Público"}
-        </span>
-      </div>
-
-      <div className="discoverEventCard__body">
-        <div className="discoverEventCard__main">
-          <h3 className="discoverEventCard__title">
-            {event.meeting_point || "Evento"}
-          </h3>
-
-          <p className="discoverEventCard__metaLine">
-            {timeLabel(event.starts_at)}
-            {event?.level_tag ? ` · ${event.level_tag}` : ""}
-            {typeof event?.participants_count === "number"
-              ? ` · ${event.participants_count} inscritos`
-              : ""}
-          </p>
-
-          {notesText ? (
-            <p className="discoverEventCard__text">{notesText}</p>
-          ) : (
-            <p className="discoverEventCard__text">
-              Quedada preparada para salir a correr con la comunidad.
-            </p>
-          )}
-        </div>
-
-        <div className="discoverEventCard__footerRow">
-          <span className="discoverEventCard__hostInline">
-            <CreatorLink event={event} />
-          </span>
-
-          {event?.creator_profile_id ? (
-            <Link
-              to={`/perfil/${event.creator_profile_id}`}
-              className="discoverInlineLink"
+    <article
+      className={`discoverEventFlipCard${isFlipped ? " is-flipped" : ""}`}
+    >
+      <div className="discoverEventFlipCard__inner">
+        <div className="discoverEventFlipCard__face discoverEventFlipCard__face--front">
+          <div className="discoverEventFlipCard__mediaWrap">
+            {imageSrc ? (
+              <button
+                type="button"
+                className="discoverEventFlipCard__mediaButton"
+                onClick={() => setIsFlipped(true)}
+                aria-label={`Ver detalles de ${event.meeting_point || "evento"}`}
+              >
+                <img
+                  src={imageSrc}
+                  alt={event.meeting_point || "Evento"}
+                  className="discoverEventFlipCard__image"
+                />
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="discoverEventFlipCard__mediaButton discoverEventFlipCard__mediaButton--placeholder"
+                onClick={() => setIsFlipped(true)}
+                aria-label={`Ver detalles de ${event.meeting_point || "evento"}`}
+              >
+                <span className="discoverEventFlipCard__placeholderTitle">
+                  {event.meeting_point || "Evento"}
+                </span>
+              </button>
+            )}
+            <span
+              className={`discoverTag discoverEventFlipCard__tag ${
+                event?.visibility === "private" ? "" : "discoverTag--accent"
+              }`}
             >
-              Ver perfil
-            </Link>
-          ) : null}
+              {event?.visibility === "private" ? "Privado" : "Público"}
+            </span>
+          </div>
+
+          <div className="discoverEventFlipCard__frontBody">
+            <h3 className="discoverEventFlipCard__title">
+              {event.meeting_point || "Evento"}
+            </h3>
+
+            <p className="discoverEventFlipCard__meta">
+              {formatEventDateLabel(event.starts_at)} · {timeLabel(event.starts_at)}
+            </p>
+          </div>
+        </div>
+
+        <div className="discoverEventFlipCard__face discoverEventFlipCard__face--back">
+          <div className="discoverEventFlipCard__backHead">
+            <h3 className="discoverEventFlipCard__title">
+              {event.meeting_point || "Evento"}
+            </h3>
+
+            <button
+              type="button"
+              className="discoverEventFlipCard__close"
+              onClick={() => setIsFlipped(false)}
+              aria-label="Volver a la portada del evento"
+            >
+              ×
+            </button>
+          </div>
+
+          <div className="discoverEventFlipCard__details">
+            <p className="discoverEventFlipCard__detailLine">
+              {formatEventDateLabel(event.starts_at)} · {timeLabel(event.starts_at)}
+            </p>
+
+            {event?.level_tag ? (
+              <p className="discoverEventFlipCard__detailLine">
+                Nivel: {event.level_tag}
+              </p>
+            ) : null}
+
+            {typeof event?.participants_count === "number" ? (
+              <p className="discoverEventFlipCard__detailLine">
+                Inscritos: {event.participants_count}
+              </p>
+            ) : null}
+
+            <p className="discoverEventFlipCard__detailText">
+              {notesText || "Quedada preparada para salir a correr con la comunidad."}
+            </p>
+          </div>
+
+          <div className="discoverEventFlipCard__footer">
+            <span className="discoverEventFlipCard__host">
+              <CreatorLink event={event} />
+            </span>
+
+            {event?.creator_profile_id ? (
+              <Link
+                to={`/perfil/${event.creator_profile_id}`}
+                className="discoverInlineLink"
+              >
+                Ver perfil
+              </Link>
+            ) : null}
+          </div>
         </div>
       </div>
     </article>
@@ -273,7 +339,7 @@ export default function BlaBlaRunPage() {
                   No hay eventos este día
                 </div>
               ) : (
-                <div className="discoverEventList discoverEventList--day">
+                <div className={`discoverEventList discoverEventList--day${selectedEvents.length > 1 ? " discoverEventList--dayGrid" : ""}`}>
                   {selectedEvents.map((event) => (
                     <DayEventCard key={event.id} event={event} />
                   ))}
