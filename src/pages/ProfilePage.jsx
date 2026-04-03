@@ -1,12 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import "../styles/blablarun.css";
 import "../styles/profile.css";
 import { useAuth } from "../hooks/useAuth";
 import { useMyMeetups } from "../hooks/useMyMeetups";
 import { useToast } from "../hooks/useToast";
 import {
-  apiCreateMyMeetup,
   apiPublicProfile,
   apiPublicProfileByHandle,
   apiUpdateProfile,
@@ -114,46 +113,6 @@ function formatEventDateLabel(isoDate) {
   });
 }
 
-function daySummary(items = []) {
-  if (!items.length) return "No hay eventos este día";
-  if (items.length === 1) return "1 evento";
-  return `${items.length} eventos`;
-}
-
-function defaultTimeForDay(dayKey) {
-  const now = new Date();
-  const selected = new Date(`${dayKey}T00:00:00`);
-  const sameDay = localDayKey(now) === localDayKey(selected);
-
-  if (sameDay) {
-    const hour = Math.min(21, Math.max(6, now.getHours() + 1));
-    return `${String(hour).padStart(2, "0")}:00`;
-  }
-
-  return "19:00";
-}
-
-function buildStartsAt(dayKey, timeValue) {
-  const [year, month, day] = String(dayKey).split("-").map(Number);
-  const [hours, minutes] = String(timeValue || "19:00").split(":").map(Number);
-  const date = new Date(
-    year,
-    (month || 1) - 1,
-    day || 1,
-    hours || 0,
-    minutes || 0,
-    0,
-    0,
-  );
-  return date.toISOString();
-}
-
-function numberOrNull(value) {
-  if (value === "" || value === null || value === undefined) return null;
-  const n = Number(value);
-  return Number.isFinite(n) ? n : null;
-}
-
 function creatorLabel(event) {
   return (
     event?.host_profile_name ||
@@ -205,25 +164,6 @@ function IconPlus() {
     >
       <path d="M12 5v14" />
       <path d="M5 12h14" />
-    </svg>
-  );
-}
-
-function ModalCloseIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      width="18"
-      height="18"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="M18 6 6 18" />
-      <path d="m6 6 12 12" />
     </svg>
   );
 }
@@ -357,262 +297,7 @@ function MembersBlock({ members = [] }) {
   );
 }
 
-function CreateEventModal({ open, dayKey, saving, onClose, onSubmit }) {
-  const [form, setForm] = useState({
-    event_type: "entrenamiento",
-    time: "19:00",
-    meeting_point: "",
-    notes: "",
-    level_tag: "",
-    pace_min: "",
-    pace_max: "",
-    capacity: "",
-  });
-
-  useEffect(() => {
-    if (!open) return;
-
-    setForm({
-      event_type: "entrenamiento",
-      time: defaultTimeForDay(dayKey),
-      meeting_point: "",
-      notes: "",
-      level_tag: "",
-      pace_min: "",
-      pace_max: "",
-      capacity: "",
-    });
-  }, [dayKey, open]);
-
-  useEffect(() => {
-    if (!open) return;
-
-    function onKeyDown(event) {
-      if (event.key === "Escape") onClose?.();
-    }
-
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [onClose, open]);
-
-  if (!open || !dayKey) return null;
-
-  function updateField(field, value) {
-    setForm((prev) => ({ ...prev, [field]: value }));
-  }
-
-  async function handleSubmit(event) {
-    event.preventDefault();
-    if (!form.meeting_point.trim()) return;
-
-    const notesParts = [];
-    if (form.event_type) notesParts.push(`Tipo: ${form.event_type}`);
-    if (form.notes.trim()) notesParts.push(form.notes.trim());
-
-    await onSubmit?.({
-      starts_at: buildStartsAt(dayKey, form.time),
-      title: form.meeting_point.trim(),
-      meeting_point: form.meeting_point.trim(),
-      notes: notesParts.join("\n"),
-      level_tag: form.level_tag || null,
-      pace_min: numberOrNull(form.pace_min),
-      pace_max: numberOrNull(form.pace_max),
-      capacity: numberOrNull(form.capacity),
-    });
-  }
-
-  return (
-    <div className="ui-modalBackdrop" role="presentation" onClick={onClose}>
-      <div
-        className="ui-modal calendarMini__modal"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="profile-calendar-create-title"
-        onClick={(event) => event.stopPropagation()}
-      >
-        <div className="ui-modal__header">
-          <div>
-            <p className="app-kicker">Crear evento</p>
-            <h3 id="profile-calendar-create-title" className="ui-modal__title">
-              Nueva actividad para {dayKey}
-            </h3>
-          </div>
-
-          <button
-            type="button"
-            className="ui-iconBtn"
-            onClick={() => onClose?.()}
-            aria-label="Cerrar"
-            title="Cerrar"
-            disabled={saving}
-          >
-            <ModalCloseIcon />
-          </button>
-        </div>
-
-        <div className="ui-modal__body">
-          <form className="calendarMini__form" onSubmit={handleSubmit}>
-            <div className="calendarMini__formRow calendarMini__formRow--split">
-              <div className="app-field calendarMini__fieldGrow">
-                <label className="app-label" htmlFor="profile-calendar-event-type">
-                  Tipo
-                </label>
-                <select
-                  id="profile-calendar-event-type"
-                  className="app-select"
-                  value={form.event_type}
-                  onChange={(event) => updateField("event_type", event.target.value)}
-                  disabled={saving}
-                >
-                  <option value="entrenamiento">Entrenamiento</option>
-                  <option value="rodaje">Rodaje</option>
-                  <option value="serie">Series</option>
-                  <option value="tirada_larga">Tirada larga</option>
-                  <option value="carrera">Carrera</option>
-                  <option value="social">Social</option>
-                </select>
-              </div>
-
-              <div className="app-field calendarMini__fieldNarrow">
-                <label className="app-label" htmlFor="profile-calendar-time">
-                  Hora
-                </label>
-                <input
-                  id="profile-calendar-time"
-                  className="app-input"
-                  type="time"
-                  value={form.time}
-                  onChange={(event) => updateField("time", event.target.value)}
-                  disabled={saving}
-                />
-              </div>
-            </div>
-
-            <div className="app-field">
-              <label className="app-label" htmlFor="profile-calendar-meeting-point">
-                Punto de encuentro
-              </label>
-              <input
-                id="profile-calendar-meeting-point"
-                className="app-input"
-                value={form.meeting_point}
-                onChange={(event) => updateField("meeting_point", event.target.value)}
-                placeholder="Ej. parque, pista, salida de carrera..."
-                disabled={saving}
-              />
-            </div>
-
-            <div className="calendarMini__formRow calendarMini__formRow--split">
-              <div className="app-field calendarMini__fieldGrow">
-                <label className="app-label" htmlFor="profile-calendar-level">
-                  Nivel
-                </label>
-                <select
-                  id="profile-calendar-level"
-                  className="app-select"
-                  value={form.level_tag}
-                  onChange={(event) => updateField("level_tag", event.target.value)}
-                  disabled={saving}
-                >
-                  <option value="">Sin especificar</option>
-                  <option value="suave">Suave</option>
-                  <option value="medio">Medio</option>
-                  <option value="rapido">Rápido</option>
-                </select>
-              </div>
-
-              <div className="app-field calendarMini__fieldNarrow">
-                <label className="app-label" htmlFor="profile-calendar-capacity">
-                  Aforo
-                </label>
-                <input
-                  id="profile-calendar-capacity"
-                  className="app-input"
-                  type="number"
-                  min="1"
-                  value={form.capacity}
-                  onChange={(event) => updateField("capacity", event.target.value)}
-                  placeholder="10"
-                  disabled={saving}
-                />
-              </div>
-            </div>
-
-            <div className="calendarMini__formRow calendarMini__formRow--split">
-              <div className="app-field calendarMini__fieldGrow">
-                <label className="app-label" htmlFor="profile-calendar-pace-min">
-                  Ritmo mín. (seg/km)
-                </label>
-                <input
-                  id="profile-calendar-pace-min"
-                  className="app-input"
-                  type="number"
-                  min="1"
-                  value={form.pace_min}
-                  onChange={(event) => updateField("pace_min", event.target.value)}
-                  placeholder="300"
-                  disabled={saving}
-                />
-              </div>
-
-              <div className="app-field calendarMini__fieldGrow">
-                <label className="app-label" htmlFor="profile-calendar-pace-max">
-                  Ritmo máx. (seg/km)
-                </label>
-                <input
-                  id="profile-calendar-pace-max"
-                  className="app-input"
-                  type="number"
-                  min="1"
-                  value={form.pace_max}
-                  onChange={(event) => updateField("pace_max", event.target.value)}
-                  placeholder="360"
-                  disabled={saving}
-                />
-              </div>
-            </div>
-
-            <div className="app-field">
-              <label className="app-label" htmlFor="profile-calendar-notes">
-                Notas
-              </label>
-              <textarea
-                id="profile-calendar-notes"
-                className="app-textarea"
-                rows={4}
-                value={form.notes}
-                onChange={(event) => updateField("notes", event.target.value)}
-                placeholder="Detalles opcionales"
-                disabled={saving}
-              />
-            </div>
-
-            <div className="calendarMini__formActions">
-              <button
-                type="button"
-                className="app-button app-button--secondary"
-                onClick={() => onClose?.()}
-                disabled={saving}
-              >
-                Cancelar
-              </button>
-
-              <button
-                type="submit"
-                className="app-button app-button--primary"
-                disabled={saving || !form.meeting_point.trim()}
-              >
-                {saving ? "Guardando…" : "Crear evento"}
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function ProfileAgenda({ meetups = [], canCreate = false, onCreateEvent, selectedCreateDay }) {
+function ProfileAgenda({ meetups = [], canCreate = false, onCreateEvent }) {
   const [month, setMonth] = useState(() => new Date());
   const [selectedDay, setSelectedDay] = useState(null);
 
@@ -640,7 +325,7 @@ function ProfileAgenda({ meetups = [], canCreate = false, onCreateEvent, selecte
   }
 
   function handleOpenCreate() {
-    onCreateEvent?.(selectedDay || selectedCreateDay || todayKey);
+    onCreateEvent?.(selectedDay || todayKey);
   }
 
   return (
@@ -746,6 +431,7 @@ function ProfileAgenda({ meetups = [], canCreate = false, onCreateEvent, selecte
 export default function ProfilePage() {
   const { profileId, handle } = useParams();
   const isPublicProfile = Boolean(profileId || handle);
+  const navigate = useNavigate();
 
   const { me, meReady, token, refreshMe, user } = useAuth();
   const { items: myMeetups = [] } = useMyMeetups();
@@ -756,10 +442,6 @@ export default function ProfilePage() {
   const [publicProfile, setPublicProfile] = useState(null);
   const [publicLoading, setPublicLoading] = useState(false);
   const [publicError, setPublicError] = useState("");
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [savingEvent, setSavingEvent] = useState(false);
-  const [createdEvents, setCreatedEvents] = useState([]);
-  const [createDayKey, setCreateDayKey] = useState(localDayKey(new Date()));
 
   useEffect(() => {
     let cancelled = false;
@@ -831,48 +513,6 @@ export default function ProfilePage() {
     }
   }
 
-  async function handleCreateEvent(payload) {
-    setSavingEvent(true);
-
-    try {
-      const created = await apiCreateMyMeetup(payload, token);
-
-      const normalizedCreated = {
-        id: created?.id ?? `tmp-${Date.now()}`,
-        starts_at: created?.starts_at || payload.starts_at,
-        meeting_point: created?.meeting_point || payload.meeting_point,
-        notes: created?.notes || payload.notes,
-        level_tag: created?.level_tag ?? payload.level_tag,
-        pace_min: created?.pace_min ?? payload.pace_min,
-        pace_max: created?.pace_max ?? payload.pace_max,
-        capacity: created?.capacity ?? payload.capacity,
-        group_id: created?.group_id ?? null,
-        creator_profile_id: created?.creator_profile_id ?? null,
-        creator_profile_type: created?.creator_profile_type ?? "individual",
-        creator_profile_name:
-          created?.creator_profile_name ||
-          me?.display_name ||
-          me?.full_name ||
-          me?.handle ||
-          me?.email ||
-          "Mi perfil",
-        creator_profile_handle: created?.creator_profile_handle ?? me?.handle ?? null,
-        participants_count: created?.participants_count ?? 1,
-        created_by: created?.created_by ?? me?.id ?? user?.id ?? null,
-        is_joined: true,
-        title: payload.title,
-      };
-
-      setCreatedEvents((prev) => [normalizedCreated, ...prev]);
-      setShowCreateModal(false);
-      toast?.success?.("Evento creado correctamente.");
-    } catch (error) {
-      toast?.error?.(error?.message || "No se pudo crear el evento.");
-    } finally {
-      setSavingEvent(false);
-    }
-  }
-
   const mySplit = useMemo(() => splitMeetupsByTime(myMeetups), [myMeetups]);
 
   const profileData = isPublicProfile
@@ -909,7 +549,7 @@ export default function ProfilePage() {
   const avatarUrl = profileData.avatar_url;
   const agendaMeetups = isPublicProfile
     ? [...(profileData.future_meetups || []), ...(profileData.past_meetups || [])]
-    : [...myMeetups, ...createdEvents];
+    : [...myMeetups];
 
   if (!meReady) {
     return (
@@ -1027,23 +667,11 @@ export default function ProfilePage() {
         meetups={agendaMeetups}
         canCreate={!isPublicProfile}
         onCreateEvent={(dayKey) => {
-          setCreateDayKey(dayKey || localDayKey(new Date()));
-          setShowCreateModal(true);
+          navigate(`/crear-evento?day=${encodeURIComponent(dayKey)}`);
         }}
-        selectedCreateDay={createDayKey}
       />
 
       <LinksBlock links={profileData.links} />
-
-      {!isPublicProfile ? (
-        <CreateEventModal
-          open={showCreateModal}
-          dayKey={createDayKey}
-          onClose={() => setShowCreateModal(false)}
-          onSubmit={handleCreateEvent}
-          saving={savingEvent}
-        />
-      ) : null}
     </section>
   );
 }
