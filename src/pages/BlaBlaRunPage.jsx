@@ -21,14 +21,6 @@ const DEFAULT_FILTERS = {
   offset: 0,
 };
 
-const DISCOVERY_FILTERS = [
-  { id: "all", label: "Todo" },
-  { id: "today", label: "Hoy" },
-  { id: "week", label: "Esta semana" },
-  { id: "mine", label: "Creados por mí" },
-  { id: "joined", label: "Me apunto" },
-];
-
 function groupByDay(meetups = []) {
   const map = new Map();
 
@@ -182,65 +174,32 @@ function isSameOrAfterToday(isoDate) {
   return new Date(isoDate).getTime() >= Date.now();
 }
 
-function isWithinNextWeek(isoDate) {
-  const now = new Date();
-  const inSevenDays = new Date();
-  inSevenDays.setDate(now.getDate() + 7);
-
-  const value = new Date(isoDate).getTime();
-  return value >= now.getTime() && value <= inSevenDays.getTime();
+function formatEventDateLabel(isoDate) {
+  const date = new Date(isoDate);
+  return date.toLocaleDateString("es-ES", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
 }
 
-function matchesDiscoveryFilter(event, filterId, me) {
-  if (!event?.starts_at) return false;
-
-  const myIds = new Set(
-    [me?.id, me?.app_profile_id]
-      .filter((value) => value !== null && value !== undefined && value !== "")
-      .map(String)
-  );
-
-  const creatorId = event?.creator_profile_id ?? event?.host_profile_id ?? event?.created_by;
-
-  switch (filterId) {
-    case "today":
-      return localDayKey(event.starts_at) === localDayKey(new Date());
-
-    case "week":
-      return isWithinNextWeek(event.starts_at);
-
-    case "mine":
-      return creatorId !== null && creatorId !== undefined && myIds.has(String(creatorId));
-
-    case "joined":
-      return Boolean(event?.is_joined);
-
-    case "all":
-    default:
-      return isSameOrAfterToday(event.starts_at);
-  }
-}
-
-function EventCard({ event }) {
+function DayEventCard({ event }) {
   const notesText = String(event?.notes || "").replace(/^\[[^\]]+\]\s*/, "").trim();
 
   return (
-    <article className="discoverEventCard">
+    <article className="discoverEventCard discoverEventCard--agenda">
       <div className="discoverEventCard__top">
         <div className="discoverEventCard__date">
-          <span className="discoverEventCard__time">{timeLabel(event.starts_at)}</span>
-          <span className="discoverEventCard__host">
-            <CreatorLink event={event} />
-          </span>
+          <span className="discoverEventCard__time">{formatEventDateLabel(event.starts_at)}</span>
         </div>
 
-        <span
-          className={`discoverTag ${
-            event.visibility === "private" ? "" : "discoverTag--accent"
-          }`}
+        <button
+          type="button"
+          className="discoverEventCard__fav"
+          aria-label="Guardar en favoritos"
         >
-          {event.visibility === "private" ? "Privado" : "Público"}
-        </span>
+          ♥
+        </button>
       </div>
 
       <div className="discoverEventCard__body">
@@ -248,6 +207,14 @@ function EventCard({ event }) {
           <h3 className="discoverEventCard__title">
             {event.meeting_point || "Evento"}
           </h3>
+
+          <p className="discoverEventCard__metaLine">
+            {timeLabel(event.starts_at)}
+            {event?.level_tag ? ` · ${event.level_tag}` : ""}
+            {typeof event?.participants_count === "number"
+              ? ` · ${event.participants_count} inscritos`
+              : ""}
+          </p>
 
           {notesText ? (
             <p className="discoverEventCard__text">{notesText}</p>
@@ -258,63 +225,22 @@ function EventCard({ event }) {
           )}
         </div>
 
-        <div className="discoverMetaRow">
-          {event.level_tag ? (
-            <span className="discoverMetaPill">Nivel {event.level_tag}</span>
-          ) : null}
+        <div className="discoverEventCard__footerRow">
+          <span className="discoverEventCard__hostInline">
+            <CreatorLink event={event} />
+          </span>
 
-          {typeof event.participants_count === "number" ? (
-            <span className="discoverMetaPill">
-              {event.participants_count} inscritos
-            </span>
-          ) : null}
-
-          {typeof event.capacity === "number" && event.capacity > 0 ? (
-            <span className="discoverMetaPill">Aforo {event.capacity}</span>
-          ) : null}
-        </div>
-
-        {event?.creator_profile_id ? (
-          <div className="discoverEventCard__actions">
+          {event?.creator_profile_id ? (
             <Link
               to={`/perfil/${event.creator_profile_id}`}
               className="discoverInlineLink"
             >
               Ver perfil
             </Link>
-          </div>
-        ) : null}
+          ) : null}
+        </div>
       </div>
     </article>
-  );
-}
-
-function StatCard({ label, value, accent = false, helper }) {
-  return (
-    <article className={`discoverStatCard${accent ? " discoverStatCard--accent" : ""}`}>
-      <span className="discoverStatCard__label">{label}</span>
-      <strong className="discoverStatCard__value">{value}</strong>
-      {helper ? <span className="discoverStatCard__helper">{helper}</span> : null}
-    </article>
-  );
-}
-
-function CalendarLegend() {
-  return (
-    <div className="calendarLegend" aria-label="Leyenda del calendario">
-      <span className="calendarLegend__item">
-        <span className="calendarLegend__dot" />
-        Sin actividad
-      </span>
-      <span className="calendarLegend__item">
-        <span className="calendarLegend__dot calendarLegend__dot--active" />
-        Con eventos
-      </span>
-      <span className="calendarLegend__item">
-        <span className="calendarLegend__dot calendarLegend__dot--today" />
-        Hoy
-      </span>
-    </div>
   );
 }
 
@@ -394,7 +320,7 @@ function CreateMeetupModal({ open, initialDayKey, saving, onClose, onSubmit }) {
               <span className="sectionEyebrow">Crear quedada</span>
               <h2 className="cardTitle">Nuevo evento</h2>
               <p className="cardSubtitle">
-                Crea una quedada clara, rápida y lista para descubrir desde la home.
+                Crea una quedada clara, rápida y lista para descubrir desde la agenda.
               </p>
             </div>
 
@@ -571,55 +497,6 @@ function CreateMeetupModal({ open, initialDayKey, saving, onClose, onSubmit }) {
   );
 }
 
-function DayModal({ open, dayKey, events, onClose, onCreateForDay }) {
-  if (!open) return null;
-
-  return (
-    <div className="modalBackdrop" onClick={onClose}>
-      <div className="modalSheet modalSheet--discover" onClick={(e) => e.stopPropagation()}>
-        <div className="discoverModalCard">
-          <div className="discoverModalCard__head discoverModalCard__head--spaced">
-            <div>
-              <span className="sectionEyebrow">Agenda del día</span>
-              <h2 className="cardTitle">{formatDayTitle(dayKey)}</h2>
-              <p className="cardSubtitle">{daySummary(events)}</p>
-            </div>
-
-            <button
-              type="button"
-              className="discoverModalClose"
-              onClick={onClose}
-              aria-label="Cerrar"
-            >
-              ×
-            </button>
-          </div>
-
-          <div className="discoverModalActions discoverModalActions--top">
-            <Button variant="primary" onClick={() => onCreateForDay?.(dayKey)} block>
-              Crear aquí
-            </Button>
-          </div>
-
-          {events.length === 0 ? (
-            <EmptyState
-              icon="○"
-              title="No hay eventos este día"
-              description="Publica una quedada y aparecerá aquí dentro del calendario."
-            />
-          ) : (
-            <div className="discoverEventList">
-              {events.map((event) => (
-                <EventCard key={event.id} event={event} />
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export default function BlaBlaRunPage() {
   const toast = useToast();
   const { token, me, isAuthed } = useAuth();
@@ -627,12 +504,10 @@ export default function BlaBlaRunPage() {
 
   const [month, setMonth] = useState(() => new Date());
   const [selectedDay, setSelectedDay] = useState(localDayKey(new Date()));
-  const [dayModalOpen, setDayModalOpen] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
   const [createDayKey, setCreateDayKey] = useState(localDayKey(new Date()));
   const [saving, setSaving] = useState(false);
   const [localCreated, setLocalCreated] = useState([]);
-  const [activeFilter, setActiveFilter] = useState("all");
 
   const allItems = useMemo(() => mergeMeetups(items, localCreated), [items, localCreated]);
 
@@ -641,11 +516,7 @@ export default function BlaBlaRunPage() {
     [allItems]
   );
 
-  const filteredItems = useMemo(() => {
-    return upcomingItems.filter((event) => matchesDiscoveryFilter(event, activeFilter, me));
-  }, [activeFilter, me, upcomingItems]);
-
-  const byDay = useMemo(() => groupByDay(filteredItems), [filteredItems]);
+  const byDay = useMemo(() => groupByDay(upcomingItems), [upcomingItems]);
   const days = useMemo(() => buildMonthGrid(month), [month]);
   const monthIndex = month.getMonth();
   const todayKey = localDayKey(new Date());
@@ -655,18 +526,6 @@ export default function BlaBlaRunPage() {
     return byDay.get(selectedDay) || [];
   }, [byDay, selectedDay]);
 
-  const visibleDaysWithActivity = useMemo(
-    () => days.filter((day) => byDay.has(localDayKey(day))).length,
-    [byDay, days]
-  );
-
-  const todayEventsCount = useMemo(
-    () => upcomingItems.filter((item) => localDayKey(item.starts_at) === todayKey).length,
-    [todayKey, upcomingItems]
-  );
-
-  const nextEvents = useMemo(() => filteredItems.slice(0, 6), [filteredItems]);
-
   function goPrevMonth() {
     setMonth((prev) => addMonths(prev, -1));
   }
@@ -675,14 +534,8 @@ export default function BlaBlaRunPage() {
     setMonth((prev) => addMonths(prev, 1));
   }
 
-  function goToday() {
-    setMonth(new Date());
-    setSelectedDay(todayKey);
-  }
-
-  function openDay(dayKey) {
+  function handleSelectDay(dayKey) {
     setSelectedDay(dayKey);
-    setDayModalOpen(true);
   }
 
   function openCreateModal(dayKey = localDayKey(new Date())) {
@@ -709,7 +562,6 @@ export default function BlaBlaRunPage() {
 
       await run();
       setSelectedDay(localDayKey(normalized.starts_at));
-      setDayModalOpen(true);
       setCreateOpen(false);
 
       toast?.success?.("Quedada creada correctamente");
@@ -723,81 +575,11 @@ export default function BlaBlaRunPage() {
   return (
     <>
       <section className="page page--eventsHome">
-        <section className="sectionBlock discoverIntroCard">
-          <div className="discoverIntroCard__copy">
-            <div className="app-section-header">
-              <div>
-                <div className="app-section-header__title">Explora quedadas</div>
-                <div className="app-section-header__subtitle">
-                  Calendario primero, filtros rápidos y creación directa desde el día que elijas.
-                </div>
-              </div>
-            </div>
-
-            <div className="discoverStatsGrid">
-              <StatCard
-                label="Próximos"
-                value={upcomingItems.length}
-                accent
-                helper="Eventos abiertos a futuro"
-              />
-              <StatCard
-                label="Hoy"
-                value={todayEventsCount}
-                helper="Actividad para el día actual"
-              />
-              <StatCard
-                label="Días activos"
-                value={visibleDaysWithActivity}
-                helper="Días con movimiento este mes"
-              />
-            </div>
-          </div>
-
-          <div className="discoverIntroCard__actions">
-            <Button variant="primary" onClick={() => openCreateModal()}>
-              Crear quedada
-            </Button>
-
-            <Button variant="secondary" onClick={goToday}>
-              Ir a hoy
-            </Button>
-          </div>
-        </section>
-
-        <section className="sectionBlock discoverSection">
-          <div className="app-section-header">
-            <div>
-              <div className="app-section-header__title">Filtros</div>
-              <div className="app-section-header__subtitle">
-                Reduce ruido y encuentra antes lo que quieres hacer.
-              </div>
-            </div>
-          </div>
-
-          <div className="discoverFilterRow">
-            {DISCOVERY_FILTERS.map((filter) => (
-              <button
-                key={filter.id}
-                type="button"
-                className={`discoverFilterChip${activeFilter === filter.id ? " is-active" : ""}`}
-                onClick={() => setActiveFilter(filter.id)}
-              >
-                {filter.label}
-              </button>
-            ))}
-          </div>
-        </section>
-
-        <section className="sectionBlock discoverSection">
-          <div className="discoverCalendarHead">
-            <div className="app-section-header">
-              <div>
-                <div className="app-section-header__title">{monthLabel(month)}</div>
-                <div className="app-section-header__subtitle">
-                  Pulsa un día para ver el detalle o crear una quedada exactamente ahí.
-                </div>
-              </div>
+        <section className="sectionBlock discoverSection discoverSection--calendarOnly">
+          <div className="discoverCalendarHeader">
+            <div className="discoverCalendarHeader__copy">
+              <div className="discoverCalendarHeader__eyebrow">Agenda</div>
+              <h1 className="discoverCalendarHeader__title">Calendario de Eventos</h1>
             </div>
 
             <div className="discoverMonthControls">
@@ -809,13 +591,9 @@ export default function BlaBlaRunPage() {
               >
                 ←
               </button>
-              <button
-                type="button"
-                className="discoverMonthBtn discoverMonthBtn--wide"
-                onClick={goToday}
-              >
-                Hoy
-              </button>
+
+              <div className="discoverMonthLabel">{monthLabel(month)}</div>
+
               <button
                 type="button"
                 className="discoverMonthBtn"
@@ -840,101 +618,81 @@ export default function BlaBlaRunPage() {
               <p className="discoverLoading">Cargando calendario de eventos…</p>
             </div>
           ) : (
-            <div className="discoverCalendarCard">
-              <CalendarLegend />
+            <>
+              <div className="discoverCalendarCard discoverCalendarCard--premium">
+                <div className="discoverWeekdays" aria-hidden="true">
+                  {WEEKDAYS.map((weekday) => (
+                    <div key={weekday} className="discoverWeekdays__item">
+                      {weekday}
+                    </div>
+                  ))}
+                </div>
 
-              <div className="discoverWeekdays" aria-hidden="true">
-                {WEEKDAYS.map((weekday) => (
-                  <div key={weekday} className="discoverWeekdays__item">
-                    {weekday}
-                  </div>
-                ))}
-              </div>
+                <div className="discoverCalendarGrid discoverCalendarGrid--compact">
+                  {days.map((day) => {
+                    const inMonth = day.getMonth() === monthIndex;
+                    const key = localDayKey(day);
+                    const dayItems = byDay.get(key) || [];
+                    const isToday = key === todayKey;
+                    const isSelected = key === selectedDay;
 
-              <div className="discoverCalendarGrid">
-                {days.map((day) => {
-                  const inMonth = day.getMonth() === monthIndex;
-                  const key = localDayKey(day);
-                  const dayItems = byDay.get(key) || [];
-                  const isToday = key === todayKey;
-                  const isSelected = key === selectedDay;
-
-                  return (
-                    <button
-                      key={`${key}-${inMonth ? "in" : "out"}`}
-                      type="button"
-                      onClick={() => openDay(key)}
-                      className={`discoverDayCell${!inMonth ? " is-outside" : ""}${
-                        dayItems.length > 0 ? " has-events" : ""
-                      }${isToday ? " is-today" : ""}${isSelected ? " is-selected" : ""}`}
-                      title={`${key} · ${daySummary(dayItems)}`}
-                    >
-                      <div className="discoverDayCell__top">
+                    return (
+                      <button
+                        key={`${key}-${inMonth ? "in" : "out"}`}
+                        type="button"
+                        onClick={() => handleSelectDay(key)}
+                        className={`discoverDayCell discoverDayCell--compact${
+                          !inMonth ? " is-outside" : ""
+                        }${dayItems.length > 0 ? " has-events" : ""}${
+                          isToday ? " is-today" : ""
+                        }${isSelected ? " is-selected" : ""}`}
+                        title={`${key} · ${daySummary(dayItems)}`}
+                      >
                         <span className="discoverDayCell__date">{day.getDate()}</span>
-                        {dayItems.length > 0 ? (
-                          <span className="discoverDayCell__count">{dayItems.length}</span>
-                        ) : null}
-                      </div>
-
-                      <div className="discoverDayCell__preview">
-                        {dayItems.length > 0 ? (
-                          <>
-                            {dayItems.slice(0, 2).map((item) => (
-                              <span key={item.id} className="discoverDayCell__line">
-                                {timeLabel(item.starts_at)} · {creatorLabel(item)}
-                              </span>
-                            ))}
-                          </>
-                        ) : (
-                          <span className="discoverDayCell__empty">Sin eventos</span>
-                        )}
-                      </div>
-                    </button>
-                  );
-                })}
+                        <span className="discoverDayCell__marker" />
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          )}
-        </section>
 
-        <section className="sectionBlock discoverSection">
-          <div className="app-section-header">
-            <div>
-              <div className="app-section-header__title">Próximos planes</div>
-              <div className="app-section-header__subtitle">
-                Una lista rápida para descubrir actividad sin depender solo del calendario.
-              </div>
-            </div>
-          </div>
+              <section className="discoverSelectedDay">
+                <div className="discoverSelectedDay__head">
+                  <div>
+                    <div className="discoverSelectedDay__title">{formatDayTitle(selectedDay)}</div>
+                    <div className="discoverSelectedDay__subtitle">
+                      {daySummary(selectedEvents)}
+                    </div>
+                  </div>
 
-          {loading ? null : nextEvents.length === 0 ? (
-            <EmptyState
-              icon="○"
-              title="No hay eventos para este filtro"
-              description="Prueba otro filtro o crea una nueva quedada para activar el calendario."
-              actionLabel="Crear quedada"
-              onAction={() => openCreateModal(selectedDay || todayKey)}
-            />
-          ) : (
-            <div className="discoverEventList">
-              {nextEvents.map((event) => (
-                <EventCard key={event.id} event={event} />
-              ))}
-            </div>
+                  <Button
+                    variant="primary"
+                    onClick={() => openCreateModal(selectedDay || todayKey)}
+                  >
+                    Crear quedada
+                  </Button>
+                </div>
+
+                {selectedEvents.length === 0 ? (
+                  <EmptyState
+                    icon="○"
+                    title="No hay eventos este día"
+                    description="Selecciona otro día o crea una quedada para que aparezca aquí."
+                    actionLabel="Crear quedada"
+                    onAction={() => openCreateModal(selectedDay || todayKey)}
+                  />
+                ) : (
+                  <div className="discoverEventList discoverEventList--day">
+                    {selectedEvents.map((event) => (
+                      <DayEventCard key={event.id} event={event} />
+                    ))}
+                  </div>
+                )}
+              </section>
+            </>
           )}
         </section>
       </section>
-
-      <DayModal
-        open={dayModalOpen}
-        dayKey={selectedDay}
-        events={selectedEvents}
-        onClose={() => setDayModalOpen(false)}
-        onCreateForDay={(dayKey) => {
-          setDayModalOpen(false);
-          openCreateModal(dayKey);
-        }}
-      />
 
       <CreateMeetupModal
         open={createOpen}
