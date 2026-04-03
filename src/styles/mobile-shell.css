@@ -53,7 +53,7 @@
   object-fit: contain;
   object-position: left center;
   display: block;
-  transform: translateX(-4px) translateY(0px);
+  transform: translateX(-6px) translateY(-1px);
   transform-origin: left center;
   pointer-events: none;
   user-select: none;
