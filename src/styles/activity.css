@@ -813,3 +813,34 @@
   color: #000000;
   box-shadow: 0 14px 28px rgba(124, 233, 155, 0.18);
 }
+
+.authBrandCard--hero {
+  padding: 0;
+  overflow: hidden;
+}
+
+.authHeroImage {
+  width: 100%;
+  height: 180px;
+  border-radius: 24px;
+  overflow: hidden;
+  position: relative;
+}
+
+.authHeroImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.authHeroImage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(7, 13, 20, 0.1) 0%,
+    rgba(7, 13, 20, 0.6) 100%
+  );
+}
