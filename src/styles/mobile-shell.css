@@ -98,12 +98,12 @@
 }
 
 .bottomNav__iconImage {
-  width: 44px;
-  height: 44px;
+  width: 65px;
+  height: 65px;
   object-fit: contain;
   object-position: center;
   display: block;
-  transform: translateY(2px);
+  transform: translateY(4px);
   transition: transform 0.2s ease, filter 0.2s ease;
   pointer-events: none;
   user-select: none;
