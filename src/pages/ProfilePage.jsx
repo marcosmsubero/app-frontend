@@ -113,6 +113,18 @@ function formatEventDateLabel(isoDate) {
   });
 }
 
+function eventImageSrc(event) {
+  return (
+    event?.image_url ||
+    event?.poster_url ||
+    event?.cover_url ||
+    event?.photo_url ||
+    event?.thumbnail_url ||
+    event?.banner_url ||
+    ""
+  );
+}
+
 function creatorLabel(event) {
   return (
     event?.host_profile_name ||
@@ -169,60 +181,114 @@ function IconPlus() {
 }
 
 function DayEventCard({ event }) {
+  const [isFlipped, setIsFlipped] = useState(false);
   const notesText = String(event?.notes || "").replace(/^\[[^\]]+\]\s*/, "").trim();
+  const imageSrc = eventImageSrc(event);
 
   return (
-    <article className="discoverEventCard discoverEventCard--agenda">
-      <div className="discoverEventCard__top">
-        <div className="discoverEventCard__date">
-          <span className="discoverEventCard__time">{formatEventDateLabel(event.starts_at)}</span>
-        </div>
-
-        <span
-          className={`discoverTag ${
-            event?.visibility === "private" ? "" : "discoverTag--accent"
-          }`}
-        >
-          {event?.visibility === "private" ? "Privado" : "Público"}
-        </span>
-      </div>
-
-      <div className="discoverEventCard__body">
-        <div className="discoverEventCard__main">
-          <h3 className="discoverEventCard__title">
-            {event.meeting_point || "Evento"}
-          </h3>
-
-          <p className="discoverEventCard__metaLine">
-            {timeLabel(event.starts_at)}
-            {event?.level_tag ? ` · ${event.level_tag}` : ""}
-            {typeof event?.participants_count === "number"
-              ? ` · ${event.participants_count} inscritos`
-              : ""}
-          </p>
-
-          {notesText ? (
-            <p className="discoverEventCard__text">{notesText}</p>
-          ) : (
-            <p className="discoverEventCard__text">
-              Quedada preparada para salir a correr con la comunidad.
-            </p>
-          )}
-        </div>
-
-        <div className="discoverEventCard__footerRow">
-          <span className="discoverEventCard__hostInline">
-            <CreatorLink event={event} />
-          </span>
-
-          {event?.creator_profile_id ? (
-            <Link
-              to={`/perfil/${event.creator_profile_id}`}
-              className="discoverInlineLink"
+    <article
+      className={`discoverEventFlipCard${isFlipped ? " is-flipped" : ""}`}
+    >
+      <div className="discoverEventFlipCard__inner">
+        <div className="discoverEventFlipCard__face discoverEventFlipCard__face--front">
+          <div className="discoverEventFlipCard__mediaWrap">
+            {imageSrc ? (
+              <button
+                type="button"
+                className="discoverEventFlipCard__mediaButton"
+                onClick={() => setIsFlipped(true)}
+                aria-label={`Ver detalles de ${event.meeting_point || "evento"}`}
+              >
+                <img
+                  src={imageSrc}
+                  alt={event.meeting_point || "Evento"}
+                  className="discoverEventFlipCard__image"
+                />
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="discoverEventFlipCard__mediaButton discoverEventFlipCard__mediaButton--placeholder"
+                onClick={() => setIsFlipped(true)}
+                aria-label={`Ver detalles de ${event.meeting_point || "evento"}`}
+              >
+                <span className="discoverEventFlipCard__placeholderTitle">
+                  {event.meeting_point || "Evento"}
+                </span>
+              </button>
+            )}
+            <span
+              className={`discoverTag discoverEventFlipCard__tag ${
+                event?.visibility === "private" ? "" : "discoverTag--accent"
+              }`}
             >
-              Ver perfil
-            </Link>
-          ) : null}
+              {event?.visibility === "private" ? "Privado" : "Público"}
+            </span>
+          </div>
+
+          <div className="discoverEventFlipCard__frontBody">
+            <h3 className="discoverEventFlipCard__title">
+              {event.meeting_point || "Evento"}
+            </h3>
+
+            <p className="discoverEventFlipCard__meta">
+              {formatEventDateLabel(event.starts_at)} · {timeLabel(event.starts_at)}
+            </p>
+          </div>
+        </div>
+
+        <div className="discoverEventFlipCard__face discoverEventFlipCard__face--back">
+          <div className="discoverEventFlipCard__backHead">
+            <h3 className="discoverEventFlipCard__title">
+              {event.meeting_point || "Evento"}
+            </h3>
+
+            <button
+              type="button"
+              className="discoverEventFlipCard__close"
+              onClick={() => setIsFlipped(false)}
+              aria-label="Volver a la portada del evento"
+            >
+              ×
+            </button>
+          </div>
+
+          <div className="discoverEventFlipCard__details">
+            <p className="discoverEventFlipCard__detailLine">
+              {formatEventDateLabel(event.starts_at)} · {timeLabel(event.starts_at)}
+            </p>
+
+            {event?.level_tag ? (
+              <p className="discoverEventFlipCard__detailLine">
+                Nivel: {event.level_tag}
+              </p>
+            ) : null}
+
+            {typeof event?.participants_count === "number" ? (
+              <p className="discoverEventFlipCard__detailLine">
+                Inscritos: {event.participants_count}
+              </p>
+            ) : null}
+
+            <p className="discoverEventFlipCard__detailText">
+              {notesText || "Quedada preparada para salir a correr con la comunidad."}
+            </p>
+          </div>
+
+          <div className="discoverEventFlipCard__footer">
+            <span className="discoverEventFlipCard__host">
+              <CreatorLink event={event} />
+            </span>
+
+            {event?.creator_profile_id ? (
+              <Link
+                to={`/perfil/${event.creator_profile_id}`}
+                className="discoverInlineLink"
+              >
+                Ver perfil
+              </Link>
+            ) : null}
+          </div>
         </div>
       </div>
     </article>
@@ -260,36 +326,47 @@ function MembersBlock({ members = [] }) {
   if (!members.length) return null;
 
   return (
-    <section className="sectionBlock activitySection">
+    <section className="sectionBlock profileMembersSection">
       <h2 className="activitySection__title">Miembros</h2>
 
-      <div className="compactList card profileMembersList">
+      <div className="profileMembersList">
         {members.map((member) => (
           <Link
-            key={`${member.user_id}-${member.profile_id || "na"}`}
-            to={member.profile_id ? `/perfil/${member.profile_id}` : "/perfil"}
-            className="compactListItem"
+            key={member.id}
+            to={`/perfil/${member.id}`}
+            className="profileLinkItem"
           >
-            <div className="compactListItem__icon">
+            <div style={{ display: "flex", gap: 10, alignItems: "center", minWidth: 0 }}>
               {member.avatar_url ? (
                 <img
                   src={member.avatar_url}
-                  alt={member.full_name || member.handle || "Miembro"}
+                  alt={member.name || "Miembro"}
                   style={{ width: 40, height: 40, borderRadius: 14, objectFit: "cover" }}
                 />
               ) : (
-                <span>{initialsFromName(member.full_name || member.handle || "U")}</span>
+                <div
+                  style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: 14,
+                    display: "grid",
+                    placeItems: "center",
+                    background: "rgba(255,255,255,0.06)",
+                    border: "1px solid var(--border)",
+                    fontWeight: 800,
+                  }}
+                >
+                  {initialsFromName(member.name)}
+                </div>
               )}
-            </div>
 
-            <div className="compactListItem__copy">
-              <h3 className="compactListItem__title">
-                {member.full_name || member.handle || "Miembro"}
-              </h3>
-              <p className="compactListItem__text">{formatHandle(member.handle)}</p>
+              <div style={{ minWidth: 0, display: "grid", gap: 2 }}>
+                <span className="profileLinkItem__label">{member.name || "Miembro"}</span>
+                <span className="profileLinkItem__value">
+                  {formatHandle(member.handle || member.username)}
+                </span>
+              </div>
             </div>
-
-            <div className="compactListItem__aside">{member.role}</div>
           </Link>
         ))}
       </div>
@@ -331,8 +408,7 @@ function ProfileAgenda({ meetups = [], canCreate = false, onCreateEvent }) {
   return (
     <section className="sectionBlock discoverSection discoverSection--calendarOnly profileAgendaSection">
       <div className="discoverCalendarHeader">
-        <div className="discoverCalendarHeader__copy">
-        </div>
+        <div className="discoverCalendarHeader__copy"></div>
 
         <div className={`discoverMonthControls${canCreate ? " discoverMonthControls--withCreate" : ""}`}>
           <button
@@ -416,7 +492,7 @@ function ProfileAgenda({ meetups = [], canCreate = false, onCreateEvent }) {
           {selectedEvents.length === 0 ? (
             <div className="discoverEmptyText">No hay eventos este día</div>
           ) : (
-            <div className="discoverEventList discoverEventList--day">
+            <div className={`discoverEventList discoverEventList--day${selectedEvents.length > 1 ? " discoverEventList--dayGrid" : ""}`}>
               {selectedEvents.map((event) => (
                 <DayEventCard key={event.id} event={event} />
               ))}
@@ -460,12 +536,13 @@ export default function ProfilePage() {
       setPublicError("");
 
       try {
-        const data = profileId
+        const payload = profileId
           ? await apiPublicProfile(profileId, token)
           : await apiPublicProfileByHandle(handle, token);
 
         if (!cancelled) {
-          setPublicProfile(data);
+          setPublicProfile(payload || null);
+          setPublicError("");
         }
       } catch (error) {
         if (!cancelled) {
@@ -473,9 +550,7 @@ export default function ProfilePage() {
           setPublicError(error?.message || "No se pudo cargar el perfil.");
         }
       } finally {
-        if (!cancelled) {
-          setPublicLoading(false);
-        }
+        if (!cancelled) setPublicLoading(false);
       }
     }
 
@@ -486,127 +561,112 @@ export default function ProfilePage() {
     };
   }, [handle, isPublicProfile, profileId, token]);
 
+  const profileData = isPublicProfile ? publicProfile : me;
+  const avatarUrl = profileData?.avatar_url;
+  const displayName = profileData?.name || user?.email || "Perfil";
+  const displayHandle = formatHandle(profileData?.handle || profileData?.username);
+  const displayBio = formatBio(profileData?.bio);
+  const displayLocation = formatLocation(profileData?.location);
+  const followersCount = profileData?.followers_count ?? 0;
+  const followingCount = profileData?.following_count ?? 0;
+  const memberLinks = profileData?.links || {};
+  const members = profileData?.members || [];
+  const meetups = isPublicProfile ? publicProfile?.meetups || [] : myMeetups;
+
   async function handleAvatarChange(event) {
     const file = event.target.files?.[0];
     event.target.value = "";
 
-    if (!file) return;
-
-    const ownerId = user?.id || me?.supabase_user_id || null;
-
-    if (!ownerId) {
-      toast?.error?.("No se pudo identificar al usuario.");
-      return;
-    }
-
-    setUploadingAvatar(true);
+    if (!file || !token || isPublicProfile) return;
 
     try {
-      const { publicUrl } = await uploadAvatarToSupabase(file, ownerId);
+      setUploadingAvatar(true);
+
+      const publicUrl = await uploadAvatarToSupabase(file, me?.id || user?.id);
       await apiUpdateProfile({ avatar_url: publicUrl }, token);
-      await refreshMe(token);
-      toast?.success?.("Foto de perfil actualizada.");
+      await refreshMe?.();
+
+      toast?.success?.("Avatar actualizado.");
     } catch (error) {
-      toast?.error?.(error?.message || "No se pudo actualizar la foto.");
+      toast?.error?.(error?.message || "No se pudo actualizar el avatar.");
     } finally {
       setUploadingAvatar(false);
     }
   }
 
-  const mySplit = useMemo(() => splitMeetupsByTime(myMeetups), [myMeetups]);
-
-  const profileData = isPublicProfile
-    ? {
-        display_name: publicProfile?.display_name || "Perfil",
-        handle: publicProfile?.handle || "",
-        bio: publicProfile?.bio || "",
-        location: publicProfile?.location || "",
-        avatar_url: publicProfile?.avatar_url || "",
-        followers_count: Number(publicProfile?.followers_count ?? 0),
-        following_count: Number(publicProfile?.following_count ?? 0),
-        links: publicProfile?.links || {},
-        profile_type: publicProfile?.profile_type || "individual",
-        members: publicProfile?.members || [],
-        future_meetups: publicProfile?.future_meetups || [],
-        past_meetups: publicProfile?.past_meetups || [],
-      }
-    : {
-        display_name: me?.display_name || me?.full_name || me?.handle || "Tu perfil",
-        handle: me?.handle || "",
-        bio: me?.bio || "",
-        location: me?.location || "",
-        avatar_url: me?.avatar_url || "",
-        followers_count: Number(me?.followers_count ?? 0),
-        following_count: Number(me?.following_count ?? 0),
-        links: me?.links || {},
-        profile_type: me?.profile_type || "individual",
-        members: [],
-        future_meetups: mySplit.future,
-        past_meetups: mySplit.past,
-      };
-
-  const displayName = profileData.display_name;
-  const avatarUrl = profileData.avatar_url;
-  const agendaMeetups = isPublicProfile
-    ? [...(profileData.future_meetups || []), ...(profileData.past_meetups || [])]
-    : [...myMeetups];
-
-  if (!meReady) {
-    return (
-      <section className="page profilePage">
-        <div className="stateCard">
-          <h3 className="stateCard__title">Cargando perfil</h3>
-          <p className="stateCard__text">Estamos preparando la información del perfil.</p>
-        </div>
-      </section>
-    );
-  }
-
   if (isPublicProfile && publicLoading) {
     return (
-      <section className="page profilePage">
-        <div className="stateCard">
-          <h3 className="stateCard__title">Cargando perfil público</h3>
-          <p className="stateCard__text">Espera un momento.</p>
-        </div>
+      <section className="page page--eventsHome blablaRunPage profilePage">
+        <section className="sectionBlock">
+          <p className="discoverLoading">Cargando perfil…</p>
+        </section>
       </section>
     );
   }
 
   if (isPublicProfile && publicError) {
     return (
-      <section className="page profilePage">
-        <div className="stateCard">
-          <h3 className="stateCard__title">No se pudo cargar el perfil</h3>
-          <p className="stateCard__text">{publicError}</p>
-        </div>
+      <section className="page page--eventsHome blablaRunPage profilePage">
+        <section className="sectionBlock">
+          <p className="discoverLoading">{publicError}</p>
+        </section>
+      </section>
+    );
+  }
+
+  if (!profileData && !isPublicProfile && !meReady) {
+    return (
+      <section className="page page--eventsHome blablaRunPage profilePage">
+        <section className="sectionBlock">
+          <p className="discoverLoading">Cargando perfil…</p>
+        </section>
+      </section>
+    );
+  }
+
+  if (!profileData) {
+    return (
+      <section className="page page--eventsHome blablaRunPage profilePage">
+        <section className="sectionBlock">
+          <p className="discoverLoading">No se encontró el perfil.</p>
+        </section>
       </section>
     );
   }
 
   return (
     <section className="page page--eventsHome blablaRunPage profilePage">
-      <section className="sectionBlock profileHeroCard profileIdentityCard">
+      <section className="sectionBlock profileIdentityCard">
         <div
           className={`profileIdentityTop${!isPublicProfile ? " profileIdentityTop--editable" : ""}`}
-          onClick={!isPublicProfile ? () => fileInputRef.current?.click() : undefined}
+          onClick={
+            !isPublicProfile
+              ? () => {
+                  if (!uploadingAvatar) fileInputRef.current?.click();
+                }
+              : undefined
+          }
           onKeyDown={
             !isPublicProfile
               ? (event) => {
                   if (event.key === "Enter" || event.key === " ") {
                     event.preventDefault();
-                    fileInputRef.current?.click();
+                    if (!uploadingAvatar) fileInputRef.current?.click();
                   }
                 }
               : undefined
           }
           role={!isPublicProfile ? "button" : undefined}
           tabIndex={!isPublicProfile ? 0 : undefined}
-          aria-label={!isPublicProfile ? "Cambiar foto de perfil" : undefined}
+          aria-label={!isPublicProfile ? "Cambiar avatar" : undefined}
         >
           <div className="profileIdentityMain">
             {avatarUrl ? (
-              <img src={avatarUrl} alt={displayName} className="profileHero__avatar" />
+              <img
+                src={avatarUrl}
+                alt={displayName}
+                className="profileHero__avatar"
+              />
             ) : (
               <div className="profileHero__avatar profileHero__avatar--fallback">
                 {initialsFromName(displayName)}
@@ -618,60 +678,64 @@ export default function ProfilePage() {
                 <h1 className="profileHero__name">{displayName}</h1>
 
                 {!isPublicProfile ? (
-                  <Link
-                    to="/onboarding?mode=edit"
+                  <button
+                    type="button"
                     className="profileInlineEditBtn"
-                    aria-label="Editar perfil"
                     onClick={(event) => event.stopPropagation()}
+                    aria-label="Editar perfil"
+                    title="Editar perfil"
                   >
-                    <IconEdit size={15} />
-                  </Link>
+                    <IconEdit />
+                  </button>
                 ) : null}
               </div>
 
-              <div className="profileHero__handle">{formatHandle(profileData.handle)}</div>
-              <p className="profileHero__bio">{formatBio(profileData.bio)}</p>
-              <span className="profileLocationText">{formatLocation(profileData.location)}</span>
+              <div className="profileHero__handle">{displayHandle}</div>
+              <p className="profileHero__bio">{displayBio}</p>
+              <div className="profileLocationText">{displayLocation}</div>
             </div>
           </div>
 
+          {!isPublicProfile ? (
+            <div className="profileUploadState">
+              {uploadingAvatar ? "Subiendo avatar…" : "Pulsa para cambiar la imagen del perfil"}
+            </div>
+          ) : null}
+        </div>
+
+        {!isPublicProfile ? (
           <input
             ref={fileInputRef}
             type="file"
             accept="image/*"
+            hidden
             onChange={handleAvatarChange}
-            style={{ display: "none" }}
           />
-        </div>
+        ) : null}
 
         <div className="profileMiniSummary profileMiniSummary--duo">
-          <Link to="/perfil/seguidores" className="profileStatButton">
+          <Link to="/seguidores" className="profileStatButton">
             <span className="profileStatButton__label">Seguidores</span>
-            <strong className="profileStatButton__value">{profileData.followers_count}</strong>
+            <span className="profileStatButton__value">{followersCount}</span>
           </Link>
 
-          <Link to="/perfil/seguidos" className="profileStatButton">
-            <span className="profileStatButton__label">Seguidos</span>
-            <strong className="profileStatButton__value">{profileData.following_count}</strong>
+          <Link to="/siguiendo" className="profileStatButton">
+            <span className="profileStatButton__label">Siguiendo</span>
+            <span className="profileStatButton__value">{followingCount}</span>
           </Link>
         </div>
-
-        {!isPublicProfile && uploadingAvatar ? (
-          <div className="profileUploadState">Subiendo foto…</div>
-        ) : null}
       </section>
 
-      <MembersBlock members={profileData.members} />
-
       <ProfileAgenda
-        meetups={agendaMeetups}
+        meetups={meetups}
         canCreate={!isPublicProfile}
         onCreateEvent={(dayKey) => {
           navigate(`/crear-evento?day=${encodeURIComponent(dayKey)}`);
         }}
       />
 
-      <LinksBlock links={profileData.links} />
+      <MembersBlock members={members} />
+      <LinksBlock links={memberLinks} />
     </section>
   );
 }
