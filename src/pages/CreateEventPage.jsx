@@ -24,12 +24,6 @@ function buildStartsAt(dayKey, timeValue) {
   return date.toISOString();
 }
 
-function numberOrNull(value) {
-  if (value === "" || value === null || value === undefined) return null;
-  const n = Number(value);
-  return Number.isFinite(n) ? n : null;
-}
-
 function formatDayLabel(dayKey) {
   const date = new Date(`${dayKey}T12:00:00`);
   const weekday = date.toLocaleDateString("es-ES", { weekday: "long" });
@@ -40,6 +34,34 @@ function formatDayLabel(dayKey) {
   });
 
   return `${weekday.charAt(0).toUpperCase() + weekday.slice(1)} ${formatted}`;
+}
+
+function UploadIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M12 16V4" />
+      <path d="m7 9 5-5 5 5" />
+      <path d="M20 16.5v1.5A2 2 0 0 1 18 20H6a2 2 0 0 1-2-2v-1.5" />
+    </svg>
+  );
+}
+
+function LinkIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M10 13a5 5 0 0 0 7.07 0l2.83-2.83a5 5 0 0 0-7.07-7.07L11 4" />
+      <path d="M14 11a5 5 0 0 0-7.07 0L4.1 13.83a5 5 0 0 0 7.07 7.07L13 19" />
+    </svg>
+  );
+}
+
+function SearchIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="11" cy="11" r="7" />
+      <path d="m20 20-3.5-3.5" />
+    </svg>
+  );
 }
 
 const EVENT_TYPES = [
@@ -53,6 +75,21 @@ const VISIBILITY_OPTIONS = [
   { value: "public", label: "Público" },
   { value: "private", label: "Privado" },
 ];
+
+const TIME_OPTIONS = Array.from({ length: 48 }, (_, index) => {
+  const hours = Math.floor(index / 2);
+  const minutes = index % 2 === 0 ? "00" : "30";
+  const value = `${String(hours).padStart(2, "0")}:${minutes}`;
+
+  const date = new Date(2026, 0, 1, hours, Number(minutes));
+  const label = date.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+
+  return { value, label };
+});
 
 export default function CreateEventPage() {
   const navigate = useNavigate();
@@ -75,36 +112,33 @@ export default function CreateEventPage() {
     time: "19:00",
     visibility: "public",
     notes: "",
-    external_links: [""],
+    external_links: [],
   });
 
   function updateField(field, value) {
     setForm((prev) => ({ ...prev, [field]: value }));
   }
 
-  function updateLink(index, value) {
+  function addLinkField() {
+    setForm((prev) => ({
+      ...prev,
+      external_links: [...prev.external_links, { title: "", url: "" }],
+    }));
+  }
+
+  function updateLink(index, field, value) {
     setForm((prev) => {
       const nextLinks = [...prev.external_links];
-      nextLinks[index] = value;
+      nextLinks[index] = { ...nextLinks[index], [field]: value };
       return { ...prev, external_links: nextLinks };
     });
   }
 
-  function addLinkField() {
+  function removeLinkField(index) {
     setForm((prev) => ({
       ...prev,
-      external_links: [...prev.external_links, ""],
+      external_links: prev.external_links.filter((_, i) => i !== index),
     }));
-  }
-
-  function removeLinkField(index) {
-    setForm((prev) => {
-      const nextLinks = prev.external_links.filter((_, i) => i !== index);
-      return {
-        ...prev,
-        external_links: nextLinks.length ? nextLinks : [""],
-      };
-    });
   }
 
   function handlePosterChange(event) {
@@ -120,6 +154,17 @@ export default function CreateEventPage() {
     reader.readAsDataURL(file);
   }
 
+  function handleMapsSearch() {
+    const query = form.meeting_point.trim();
+    if (!query) {
+      toast?.error?.("Escribe primero un punto de encuentro.");
+      return;
+    }
+
+    const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+    window.open(url, "_blank", "noopener,noreferrer");
+  }
+
   async function handleSubmit(event) {
     event.preventDefault();
 
@@ -132,16 +177,29 @@ export default function CreateEventPage() {
 
     try {
       const cleanLinks = form.external_links
-        .map((item) => item.trim())
-        .filter(Boolean);
+        .map((item) => ({
+          title: item.title.trim(),
+          url: item.url.trim(),
+        }))
+        .filter((item) => item.title || item.url);
 
       const notesParts = [];
       if (form.notes.trim()) notesParts.push(form.notes.trim());
+
       if (cleanLinks.length) {
         notesParts.push("");
         notesParts.push("Enlaces:");
-        cleanLinks.forEach((link) => notesParts.push(link));
+        cleanLinks.forEach((item) => {
+          if (item.title && item.url) {
+            notesParts.push(`${item.title}: ${item.url}`);
+          } else if (item.title) {
+            notesParts.push(item.title);
+          } else if (item.url) {
+            notesParts.push(item.url);
+          }
+        });
       }
+
       if (posterFile?.name) {
         notesParts.push("");
         notesParts.push(`Imagen adjunta: ${posterFile.name}`);
@@ -155,7 +213,6 @@ export default function CreateEventPage() {
           notes: notesParts.join("\n"),
           visibility: form.visibility,
           event_type: form.event_type,
-          capacity: numberOrNull(null),
         },
         token
       );
@@ -172,24 +229,11 @@ export default function CreateEventPage() {
   return (
     <section className="page page--eventsHome blablaRunPage createEventPage">
       <section className="sectionBlock createEventHero">
-        <div className="createEventHero__eyebrow">Nuevo evento</div>
         <h1 className="createEventHero__title">Nuevo evento</h1>
-        <p className="createEventHero__subtitle">
-          Diseña una propuesta clara, atractiva y fácil de compartir con tu comunidad.
-        </p>
         <div className="createEventHero__date">{formatDayLabel(selectedDay)}</div>
       </section>
 
       <section className="sectionBlock createEventFormCard">
-        <div className="createEventFormCard__head">
-          <div>
-            <h2 className="createEventFormCard__title">Detalles del evento</h2>
-            <p className="createEventFormCard__subtitle">
-              Completa lo esencial y añade extras si quieres dar más contexto.
-            </p>
-          </div>
-        </div>
-
         <form className="createEventForm" onSubmit={handleSubmit}>
           <div className="createEventSection">
             <div className="createEventSection__title">Información principal</div>
@@ -217,29 +261,47 @@ export default function CreateEventPage() {
               <label className="app-label" htmlFor="create-event-meeting-point">
                 Punto de encuentro
               </label>
-              <input
-                id="create-event-meeting-point"
-                className="app-input createEventForm__control"
-                value={form.meeting_point}
-                onChange={(event) => updateField("meeting_point", event.target.value)}
-                placeholder="Ej. Salida desde el paseo marítimo"
-                disabled={saving}
-              />
+
+              <div className="createEventPlaceRow">
+                <input
+                  id="create-event-meeting-point"
+                  className="app-input createEventForm__control"
+                  value={form.meeting_point}
+                  onChange={(event) => updateField("meeting_point", event.target.value)}
+                  placeholder="Ej. Salida desde el paseo marítimo"
+                  disabled={saving}
+                />
+
+                <button
+                  type="button"
+                  className="createEventIconBtn"
+                  onClick={handleMapsSearch}
+                  disabled={saving}
+                  aria-label="Buscar en Google Maps"
+                  title="Buscar en Google Maps"
+                >
+                  <SearchIcon />
+                </button>
+              </div>
             </div>
 
             <div className="createEventForm__grid">
               <div className="createEventForm__group">
-                <label className="app-label" htmlFor="create-event-time">
-                  Hora
-                </label>
-                <input
-                  id="create-event-time"
-                  className="app-input createEventForm__control"
-                  type="time"
-                  value={form.time}
-                  onChange={(event) => updateField("time", event.target.value)}
-                  disabled={saving}
-                />
+                <label className="app-label">Hora</label>
+
+                <div className="createEventTimeScroller" role="listbox" aria-label="Seleccionar hora">
+                  {TIME_OPTIONS.map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      className={`createEventTimeChip${form.time === option.value ? " is-active" : ""}`}
+                      onClick={() => updateField("time", option.value)}
+                      disabled={saving}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               <div className="createEventForm__group">
@@ -283,14 +345,15 @@ export default function CreateEventPage() {
 
             <div className="createEventForm__group">
               <div className="createEventForm__groupHead">
-                <label className="app-label">Imagen opcional</label>
+                <label className="app-label">Imagen</label>
                 <button
                   type="button"
-                  className="createEventSecondaryBtn"
+                  className="createEventActionBtn"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={saving}
                 >
-                  Subir foto
+                  <UploadIcon />
+                  <span>Subir imagen</span>
                 </button>
               </div>
 
@@ -302,8 +365,8 @@ export default function CreateEventPage() {
                 style={{ display: "none" }}
               />
 
-              <div className="createEventUploadBox">
-                {posterPreview ? (
+              {posterPreview ? (
+                <div className="createEventUploadBox">
                   <div className="createEventUploadPreview">
                     <img
                       src={posterPreview}
@@ -327,12 +390,8 @@ export default function CreateEventPage() {
                       </button>
                     </div>
                   </div>
-                ) : (
-                  <div className="createEventUploadEmpty">
-                    Sube opcionalmente el cartel de una carrera o una imagen del evento.
-                  </div>
-                )}
-              </div>
+                </div>
+              ) : null}
             </div>
 
             <div className="createEventForm__group">
@@ -340,38 +399,64 @@ export default function CreateEventPage() {
                 <label className="app-label">Enlaces</label>
                 <button
                   type="button"
-                  className="createEventSecondaryBtn"
+                  className="createEventActionBtn"
                   onClick={addLinkField}
                   disabled={saving}
                 >
-                  Añadir enlace
+                  <LinkIcon />
+                  <span>Añadir enlace</span>
                 </button>
               </div>
 
-              <div className="createEventLinksList">
-                {form.external_links.map((link, index) => (
-                  <div key={index} className="createEventLinkRow">
-                    <input
-                      className="app-input createEventForm__control"
-                      value={link}
-                      onChange={(event) => updateLink(index, event.target.value)}
-                      placeholder="https://..."
-                      disabled={saving}
-                    />
+              {form.external_links.length > 0 ? (
+                <>
+                  <div className="createEventLinksEditor">
+                    {form.external_links.map((link, index) => (
+                      <div key={index} className="createEventLinksEditor__row">
+                        <input
+                          className="app-input createEventForm__control"
+                          value={link.title}
+                          onChange={(event) => updateLink(index, "title", event.target.value)}
+                          placeholder="Título del enlace"
+                          disabled={saving}
+                        />
 
-                    {form.external_links.length > 1 ? (
-                      <button
-                        type="button"
-                        className="createEventInlineRemove"
-                        onClick={() => removeLinkField(index)}
-                        disabled={saving}
-                      >
-                        Quitar
-                      </button>
-                    ) : null}
+                        <input
+                          className="app-input createEventForm__control"
+                          value={link.url}
+                          onChange={(event) => updateLink(index, "url", event.target.value)}
+                          placeholder="https://..."
+                          disabled={saving}
+                        />
+
+                        <button
+                          type="button"
+                          className="createEventInlineRemove"
+                          onClick={() => removeLinkField(index)}
+                          disabled={saving}
+                        >
+                          Quitar
+                        </button>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
+
+                  <div className="createEventLinksSummary">
+                    {form.external_links
+                      .filter((item) => item.title.trim() || item.url.trim())
+                      .map((item, index) => (
+                        <div key={`${item.title}-${item.url}-${index}`} className="createEventLinksSummary__item">
+                          <span className="createEventLinksSummary__title">
+                            {item.title.trim() || "Enlace"}:
+                          </span>
+                          <span className="createEventLinksSummary__url">
+                            {item.url.trim() || "Sin URL"}
+                          </span>
+                        </div>
+                      ))}
+                  </div>
+                </>
+              ) : null}
             </div>
           </div>
 
