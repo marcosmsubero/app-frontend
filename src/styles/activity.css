@@ -836,7 +836,7 @@
   box-shadow: 0 14px 28px rgba(124, 233, 155, 0.18);
 }
 
-/* ===== ActivityPage (scoped, no rompe otras páginas) ===== */
+/* ===== ActivityPage SPLIT UI ===== */
 
 .activityPage__counters {
   display: flex;
@@ -848,11 +848,10 @@
   align-items: center;
   gap: 6px;
   font-size: 14px;
-  color: #111;
 }
 
 .activityPage__counter strong {
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .activityPage__split {
@@ -862,16 +861,16 @@
 
 .activityPage__column {
   width: 50%;
-  overflow-y: auto;
   padding: 12px 10px;
   display: flex;
   flex-direction: column;
   gap: 12px;
+  overflow-y: auto;
   transition: all 0.25s ease;
 }
 
 .activityPage__column:first-child {
-  border-right: 1px solid rgba(0, 0, 0, 0.06);
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .activityPage__item {
@@ -881,16 +880,15 @@
 }
 
 .activityPage__avatar {
-  width: 38px;
-  height: 38px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   object-fit: cover;
 }
 
 .activityPage__name {
   font-size: 14px;
-  font-weight: 500;
-  color: #111;
+  font-weight: 600;
 }
 
 .activityPage__column.isHidden {
