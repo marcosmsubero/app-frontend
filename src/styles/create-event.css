@@ -315,6 +315,7 @@
   border-radius: 16px;
   font-weight: 800;
   letter-spacing: 0.01em;
+  color: #000 !important;
 }
 
 @media (max-width: 420px) {
