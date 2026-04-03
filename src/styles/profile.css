@@ -1,20 +1,9 @@
-.profilePage {
-  position: relative;
-}
-
-.profileIdentityCard {
-  position: relative;
-  overflow: visible;
-}
-
-/* ICONO AJUSTES EN LA ESQUINA SUPERIOR DERECHA DEL CONTENEDOR */
 .profileSettingsShortcut {
   position: absolute;
-  top: 0;
-  right: 0;
-  transform: translate(-10px, 10px);
-  width: 28px;
-  height: 28px;
+  top: 14px;          /* 🔑 misma altura que el avatar */
+  right: 12px;
+  width: 22px;        /* 🔑 más pequeño */
+  height: 22px;
   z-index: 30;
   display: grid;
   place-items: center;
@@ -23,8 +12,8 @@
 }
 
 .profileSettingsShortcut__icon {
-  width: 65%;
-  height: 65%;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
   display: block;
   filter:
