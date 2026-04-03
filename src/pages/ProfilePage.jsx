@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import settingsIcon from "../assets/Ajustes.png";
 import "../styles/blablarun.css";
 import "../styles/profile.css";
 import { useAuth } from "../hooks/useAuth";
@@ -164,6 +163,16 @@ function creatorLabel(event) {
   );
 }
 
+function CreatorLink({ event }) {
+  const label = creatorLabel(event);
+
+  if (!event?.creator_profile_id) {
+    return <span>{label}</span>;
+  }
+
+  return <Link to={`/perfil/${event.creator_profile_id}`}>{label}</Link>;
+}
+
 function IconEdit({ size = 16 }) {
   return (
     <svg
@@ -241,7 +250,7 @@ function DayEventCard({ event }) {
       <div className="discoverEventCard__body">
         <div className="discoverEventCard__main">
           <h3 className="discoverEventCard__title">
-            {event.meeting_point || event.title || "Evento"}
+            {event.meeting_point || "Evento"}
           </h3>
 
           <p className="discoverEventCard__metaLine">
@@ -262,7 +271,9 @@ function DayEventCard({ event }) {
         </div>
 
         <div className="discoverEventCard__footerRow">
-          <span className="discoverEventCard__hostInline">{creatorLabel(event)}</span>
+          <span className="discoverEventCard__hostInline">
+            <CreatorLink event={event} />
+          </span>
 
           {event?.creator_profile_id ? (
             <Link
@@ -284,8 +295,8 @@ function LinksBlock({ links = {} }) {
   if (entries.length === 0) return null;
 
   return (
-    <section className="sectionBlock profileSectionStack profileSimpleLinks">
-      <h2 className="profileBlockTitle">Enlaces</h2>
+    <section className="sectionBlock profileLinksSection">
+      <h2 className="activitySection__title">Enlaces</h2>
 
       <div className="profileLinksList">
         {entries.map(([key, value]) => (
@@ -309,10 +320,10 @@ function MembersBlock({ members = [] }) {
   if (!members.length) return null;
 
   return (
-    <section className="sectionBlock profileSectionStack">
-      <h2 className="profileBlockTitle">Miembros</h2>
+    <section className="sectionBlock activitySection">
+      <h2 className="activitySection__title">Miembros</h2>
 
-      <div className="compactList card">
+      <div className="compactList card profileMembersList">
         {members.map((member) => (
           <Link
             key={`${member.user_id}-${member.profile_id || "na"}`}
@@ -601,7 +612,7 @@ function CreateEventModal({ open, dayKey, saving, onClose, onSubmit }) {
   );
 }
 
-function ProfileAgenda({ meetups = [], canCreate = false, onCreateEvent }) {
+function ProfileAgenda({ meetups = [], canCreate = false, onCreateEvent, selectedCreateDay }) {
   const [month, setMonth] = useState(() => new Date());
   const [selectedDay, setSelectedDay] = useState(null);
 
@@ -628,6 +639,10 @@ function ProfileAgenda({ meetups = [], canCreate = false, onCreateEvent }) {
     setMonth((prev) => addMonths(prev, 1));
   }
 
+  function handleOpenCreate() {
+    onCreateEvent?.(selectedDay || selectedCreateDay || todayKey);
+  }
+
   return (
     <section className="sectionBlock discoverSection discoverSection--calendarOnly profileAgendaSection">
       <div className="discoverCalendarHeader">
@@ -635,7 +650,7 @@ function ProfileAgenda({ meetups = [], canCreate = false, onCreateEvent }) {
           <h2 className="discoverCalendarHeader__title">Calendario</h2>
         </div>
 
-        <div className="discoverMonthControls">
+        <div className={`discoverMonthControls${canCreate ? " discoverMonthControls--withCreate" : ""}`}>
           <button
             type="button"
             className="discoverMonthBtn"
@@ -660,7 +675,7 @@ function ProfileAgenda({ meetups = [], canCreate = false, onCreateEvent }) {
             <button
               type="button"
               className="discoverMonthBtn profileAgendaCreateBtn"
-              onClick={onCreateEvent}
+              onClick={handleOpenCreate}
               aria-label="Crear evento"
               title="Crear evento"
             >
@@ -711,7 +726,6 @@ function ProfileAgenda({ meetups = [], canCreate = false, onCreateEvent }) {
           <div className="discoverSelectedDay__head">
             <div>
               <div className="discoverSelectedDay__title">{formatSelectedDay(selectedDay)}</div>
-              <div className="profileAgendaSummary">{daySummary(selectedEvents)}</div>
             </div>
           </div>
 
@@ -746,6 +760,7 @@ export default function ProfilePage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [savingEvent, setSavingEvent] = useState(false);
   const [createdEvents, setCreatedEvents] = useState([]);
+  const [createDayKey, setCreateDayKey] = useState(localDayKey(new Date()));
 
   useEffect(() => {
     let cancelled = false;
@@ -931,8 +946,8 @@ export default function ProfilePage() {
   }
 
   return (
-    <section className="page profilePage">
-      <section className="sectionBlock profileIdentityCard">
+    <section className="page page--eventsHome blablaRunPage profilePage">
+      <section className="sectionBlock profileHeroCard profileIdentityCard">
         <div
           className={`profileIdentityTop${!isPublicProfile ? " profileIdentityTop--editable" : ""}`}
           onClick={!isPublicProfile ? () => fileInputRef.current?.click() : undefined}
@@ -950,17 +965,6 @@ export default function ProfilePage() {
           tabIndex={!isPublicProfile ? 0 : undefined}
           aria-label={!isPublicProfile ? "Cambiar foto de perfil" : undefined}
         >
-          {!isPublicProfile ? (
-            <Link
-              to="/ajustes"
-              className="profileSettingsShortcut"
-              aria-label="Ir a ajustes"
-              onClick={(event) => event.stopPropagation()}
-            >
-              <img src={settingsIcon} alt="" className="profileSettingsShortcut__icon" />
-            </Link>
-          ) : null}
-
           <div className="profileIdentityMain">
             {avatarUrl ? (
               <img src={avatarUrl} alt={displayName} className="profileHero__avatar" />
@@ -1012,6 +1016,10 @@ export default function ProfilePage() {
             <strong className="profileStatButton__value">{profileData.following_count}</strong>
           </Link>
         </div>
+
+        {!isPublicProfile && uploadingAvatar ? (
+          <div className="profileUploadState">Subiendo foto…</div>
+        ) : null}
       </section>
 
       <MembersBlock members={profileData.members} />
@@ -1019,7 +1027,11 @@ export default function ProfilePage() {
       <ProfileAgenda
         meetups={agendaMeetups}
         canCreate={!isPublicProfile}
-        onCreateEvent={() => setShowCreateModal(true)}
+        onCreateEvent={(dayKey) => {
+          setCreateDayKey(dayKey || localDayKey(new Date()));
+          setShowCreateModal(true);
+        }}
+        selectedCreateDay={createDayKey}
       />
 
       <LinksBlock links={profileData.links} />
@@ -1027,7 +1039,7 @@ export default function ProfilePage() {
       {!isPublicProfile ? (
         <CreateEventModal
           open={showCreateModal}
-          dayKey={localDayKey(new Date())}
+          dayKey={createDayKey}
           onClose={() => setShowCreateModal(false)}
           onSubmit={handleCreateEvent}
           saving={savingEvent}
