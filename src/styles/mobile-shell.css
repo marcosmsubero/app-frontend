@@ -37,7 +37,7 @@
 .appTopbar__inner {
   width: min(100%, 520px);
   margin: 0 auto;
-  min-height: 42px;
+  min-height: 20px;
   display: flex;
   align-items: center;
   justify-content: flex-start;
