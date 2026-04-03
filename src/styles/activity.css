@@ -844,3 +844,44 @@
     rgba(7, 13, 20, 0.6) 100%
   );
 }
+
+/* Inputs más compactos (placeholder más pequeño) */
+.authFormRow input {
+  min-height: 46px;
+  padding: 12px 14px;
+  font-size: 0.9rem;
+}
+
+.authFormRow input::placeholder {
+  font-size: 0.8rem;
+  opacity: 0.6;
+}
+
+/* Imagen completa (sin crop agresivo) */
+.authHeroImage {
+  width: 100%;
+  height: 200px;
+  border-radius: 24px;
+  overflow: hidden;
+  position: relative;
+  background: #0b1118;
+}
+
+.authHeroImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* clave para verla entera */
+  object-position: center;
+}
+
+/* Overlay más suave para no tapar imagen */
+.authHeroImage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(7, 13, 20, 0.05) 0%,
+    rgba(7, 13, 20, 0.35) 100%
+  );
+}
