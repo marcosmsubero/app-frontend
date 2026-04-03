@@ -11,9 +11,9 @@
   margin: 0 auto;
   min-height: 100dvh;
   padding:
-    calc(var(--safe-top, 0px) + 60px)
+    calc(var(--safe-top, 0px) + 52px)
     14px
-    calc(110px + var(--safe-bottom, 0px));
+    calc(95px + var(--safe-bottom, 0px));
 }
 
 .appChrome__content {
@@ -37,15 +37,15 @@
 .appTopbar__inner {
   width: min(100%, 520px);
   margin: 0 auto;
-  min-height: 20px;
+  min-height: 34px;       /* ↓ MUY estrecho */
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  padding: 1px 6px;
+  padding: 2px 14px;      /* ↓ compacto */
 }
 
 .appTopbar__logo {
-  height: 60px;
+  height: 64px;           /* ↑ grande */
   width: auto;
   object-fit: contain;
   display: block;
@@ -67,26 +67,28 @@
 .bottomNav__inner {
   width: min(100%, 520px);
   margin: 0 auto;
-  min-height: 65px;
+  min-height: 58px;      /* ↓ más bajo */
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   align-items: center;
-  padding: 2px 6px;
+  padding: 0px 8px;
 }
 
 .bottomNav__link {
   border: none;
   background: transparent;
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
   opacity: 0.75;
   transition: all 0.2s ease;
+  min-height: 48px;
 }
 
 .bottomNav__iconImage {
-  width: 65px;
-  height: 65px;
+  width: 64px;           /* se mantiene */
+  height: 64px;
   object-fit: contain;
   display: block;
   transition: transform 0.2s ease, filter 0.2s ease;
