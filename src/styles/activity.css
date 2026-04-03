@@ -835,3 +835,68 @@
   color: #000000;
   box-shadow: 0 14px 28px rgba(124, 233, 155, 0.18);
 }
+
+/* ===== ActivityPage (scoped, no rompe otras páginas) ===== */
+
+.activityPage__counters {
+  display: flex;
+  gap: 16px;
+}
+
+.activityPage__counter {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: #111;
+}
+
+.activityPage__counter strong {
+  font-weight: 600;
+}
+
+.activityPage__split {
+  display: flex;
+  height: 100%;
+}
+
+.activityPage__column {
+  width: 50%;
+  overflow-y: auto;
+  padding: 12px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: all 0.25s ease;
+}
+
+.activityPage__column:first-child {
+  border-right: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.activityPage__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.activityPage__avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.activityPage__name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #111;
+}
+
+.activityPage__column.isHidden {
+  display: none;
+}
+
+.activityPage__column.isActive {
+  width: 100%;
+}
