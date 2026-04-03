@@ -1,6 +1,6 @@
 .profilePage {
   position: relative;
-  padding-top: 8px;
+  padding-top: 4px;
 }
 
 .profileIdentityCard {
@@ -22,5 +22,22 @@
   height: 24px;
   object-fit: contain;
   display: block;
-  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.35));
+  filter:
+    drop-shadow(0 0 6px rgba(124, 233, 155, 0.22))
+    drop-shadow(0 4px 10px rgba(0, 0, 0, 0.35));
+  transition: transform 180ms ease, filter 180ms ease, opacity 180ms ease;
+  opacity: 0.92;
+}
+
+.profileSettingsShortcut:hover .profileSettingsShortcut__icon {
+  transform: scale(1.06);
+  opacity: 1;
+}
+
+.profileSettingsShortcut:active .profileSettingsShortcut__icon {
+  transform: scale(0.92);
+}
+
+.profileContent {
+  padding: 16px;
 }
