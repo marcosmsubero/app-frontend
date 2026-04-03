@@ -189,7 +189,6 @@ export default function BlaBlaRunPage() {
       <section className="sectionBlock discoverSection discoverSection--calendarOnly">
         <div className="discoverCalendarHeader">
           <div className="discoverCalendarHeader__copy">
-            <div className="discoverCalendarHeader__eyebrow">Agenda</div>
             <h1 className="discoverCalendarHeader__title">Calendario de Eventos</h1>
           </div>
 
