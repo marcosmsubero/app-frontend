@@ -6,18 +6,21 @@ import logo from "../assets/Logo.png";
 export default function MobileShell() {
   return (
     <div className="appChrome">
+      {/* HEADER */}
       <header className="appTopbar">
         <div className="appTopbar__inner">
           <img src={logo} alt="RunVibe" className="appTopbar__logo" />
         </div>
       </header>
 
+      {/* CONTENIDO */}
       <main className="appChrome__frame">
         <div className="appChrome__content">
           <Outlet />
         </div>
       </main>
 
+      {/* BOTTOM NAV */}
       <BottomNav />
     </div>
   );
