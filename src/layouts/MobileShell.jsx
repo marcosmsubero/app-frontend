@@ -1,25 +1,26 @@
 import { Outlet } from "react-router-dom";
 import BottomNav from "../components/BottomNav";
-import appIcon from "../assets/Icono.png";
+import "../styles/mobile-shell.css";
 
 export default function MobileShell() {
   return (
-    <div className="appChrome">
-      <div className="appChrome__frame">
-        <header className="appTopbar appTopbar--brand">
-          <div className="appBrandHeader">
-            <img src={appIcon} alt="RunVibe" className="appBrandHeader__icon" />
-            <span className="appBrandHeader__name">RunVibe</span>
-          </div>
-        </header>
+    <div className="appContainer">
+      
+      {/* HEADER FLOATING */}
+      <header className="appHeader">
+        <img
+          src="/src/assets/Logo.png"
+          alt="RunVibe"
+          className="appLogo"
+        />
+      </header>
 
-        <main className="appChrome__main">
-          <div className="appChrome__content">
-            <Outlet />
-          </div>
-        </main>
-      </div>
+      {/* CONTENIDO */}
+      <main className="pageContent">
+        <Outlet />
+      </main>
 
+      {/* BOTTOM NAV */}
       <BottomNav />
     </div>
   );
