@@ -38,7 +38,15 @@ function formatDayLabel(dayKey) {
 
 function UploadIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.9"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
       <path d="M12 16V4" />
       <path d="m7 9 5-5 5 5" />
       <path d="M20 16.5v1.5A2 2 0 0 1 18 20H6a2 2 0 0 1-2-2v-1.5" />
@@ -48,18 +56,29 @@ function UploadIcon() {
 
 function LinkIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.9"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
       <path d="M10 13a5 5 0 0 0 7.07 0l2.83-2.83a5 5 0 0 0-7.07-7.07L11 4" />
       <path d="M14 11a5 5 0 0 0-7.07 0L4.1 13.83a5 5 0 0 0 7.07 7.07L13 19" />
     </svg>
   );
 }
 
-function SearchIcon() {
+function MapsIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <circle cx="11" cy="11" r="7" />
-      <path d="m20 20-3.5-3.5" />
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7Z"
+        fill="#EA4335"
+      />
+      <circle cx="12" cy="9" r="3" fill="#4285F4" />
     </svg>
   );
 }
@@ -156,12 +175,10 @@ export default function CreateEventPage() {
 
   function handleMapsSearch() {
     const query = form.meeting_point.trim();
-    if (!query) {
-      toast?.error?.("Escribe primero un punto de encuentro.");
-      return;
-    }
+    const url = query
+      ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`
+      : "https://www.google.com/maps";
 
-    const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
     window.open(url, "_blank", "noopener,noreferrer");
   }
 
@@ -277,10 +294,10 @@ export default function CreateEventPage() {
                   className="createEventIconBtn"
                   onClick={handleMapsSearch}
                   disabled={saving}
-                  aria-label="Buscar en Google Maps"
-                  title="Buscar en Google Maps"
+                  aria-label="Abrir Google Maps"
+                  title="Abrir Google Maps"
                 >
-                  <SearchIcon />
+                  <MapsIcon />
                 </button>
               </div>
             </div>
@@ -289,7 +306,11 @@ export default function CreateEventPage() {
               <div className="createEventForm__group">
                 <label className="app-label">Hora</label>
 
-                <div className="createEventTimeScroller" role="listbox" aria-label="Seleccionar hora">
+                <div
+                  className="createEventTimeScroller"
+                  role="listbox"
+                  aria-label="Seleccionar hora"
+                >
                   {TIME_OPTIONS.map((option) => (
                     <button
                       key={option.value}
@@ -445,7 +466,10 @@ export default function CreateEventPage() {
                     {form.external_links
                       .filter((item) => item.title.trim() || item.url.trim())
                       .map((item, index) => (
-                        <div key={`${item.title}-${item.url}-${index}`} className="createEventLinksSummary__item">
+                        <div
+                          key={`${item.title}-${item.url}-${index}`}
+                          className="createEventLinksSummary__item"
+                        >
                           <span className="createEventLinksSummary__title">
                             {item.title.trim() || "Enlace"}:
                           </span>
