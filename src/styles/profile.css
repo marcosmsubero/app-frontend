@@ -1,22 +1,19 @@
 .profilePage {
   position: relative;
-  padding-top: 4px;
 }
 
 .profileIdentityCard {
   position: relative;
 }
 
+/* ICONO AJUSTES BIEN POSICIONADO */
 .profileSettingsShortcut {
   position: absolute;
-  top: 10px;
-  right: 10px;
-  width: 44px;
-  height: 44px;
-  display: block;
-  z-index: 10;
-  line-height: 0;
-  text-decoration: none;
+  top: 14px;
+  right: 14px;
+  width: 32px;          /* ↓ más pequeño */
+  height: 32px;
+  z-index: 20;
 }
 
 .profileSettingsShortcut__icon {
@@ -31,13 +28,9 @@
 }
 
 .profileSettingsShortcut:hover .profileSettingsShortcut__icon {
-  transform: scale(1.08);
+  transform: scale(1.1);
 }
 
 .profileSettingsShortcut:active .profileSettingsShortcut__icon {
   transform: scale(0.9);
-}
-
-.profileContent {
-  padding: 16px;
 }
