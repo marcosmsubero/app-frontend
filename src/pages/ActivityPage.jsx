@@ -57,7 +57,9 @@ function routeFromNotif(notification) {
   }
 
   if (notification?.type === "group") {
-    if (notification.group_profile_id) return `/perfil/${notification.group_profile_id}`;
+    if (notification.group_profile_id) {
+      return `/perfil/${notification.group_profile_id}`;
+    }
     if (notification.profile_id) return `/perfil/${notification.profile_id}`;
     return "/blablarun";
   }
@@ -109,7 +111,7 @@ export default function ActivityPage() {
   const [notificationsLoading, setNotificationsLoading] = useState(false);
   const [notificationsError, setNotificationsError] = useState("");
 
-  const [activePane, setActivePane] = useState("split"); // split | messages | notifications
+  const [activePane, setActivePane] = useState("split");
 
   const timerRef = useRef(null);
   const gestureRef = useRef({
@@ -155,7 +157,9 @@ export default function ActivityPage() {
       const items = Array.isArray(res) ? res : res?.items || [];
       setNotifications(items);
     } catch (e) {
-      setNotificationsError(e?.message || "No se pudieron cargar las notificaciones");
+      setNotificationsError(
+        e?.message || "No se pudieron cargar las notificaciones"
+      );
     } finally {
       setNotificationsLoading(false);
     }
@@ -258,8 +262,7 @@ export default function ActivityPage() {
 
     if (!gesture.lockedAxis) {
       if (Math.abs(deltaX) < 10 && Math.abs(deltaY) < 10) return;
-      gesture.lockedAxis =
-        Math.abs(deltaX) > Math.abs(deltaY) ? "x" : "y";
+      gesture.lockedAxis = Math.abs(deltaX) > Math.abs(deltaY) ? "x" : "y";
     }
   }
 
@@ -392,7 +395,7 @@ export default function ActivityPage() {
             className="activityPageSplit__counters"
             aria-label="Resumen actividad"
           >
-            <div className="activityPageSplit__counter">
+            <div className="activityPageSplit__counter activityPageSplit__counter--messages">
               <span>Mensajes</span>
               <strong>{messageList.length}</strong>
             </div>
@@ -402,7 +405,7 @@ export default function ActivityPage() {
               aria-hidden="true"
             />
 
-            <div className="activityPageSplit__counter">
+            <div className="activityPageSplit__counter activityPageSplit__counter--notifications">
               <span>Notificaciones</span>
               <strong>{notificationsList.length}</strong>
             </div>
