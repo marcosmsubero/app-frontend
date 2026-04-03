@@ -32,6 +32,7 @@
   border: 1px solid var(--border);
   background: rgba(255, 255, 255, 0.04);
   box-shadow: var(--shadow-sm);
+  transform: translateY(-4px);
 }
 
 .profilePage .profileHero__avatar--fallback {
@@ -109,8 +110,10 @@
 
 .profilePage .profileStatButton {
   min-width: 0;
-  display: grid;
-  gap: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
   padding: 10px 12px;
   text-decoration: none;
   border-radius: 14px;
@@ -132,6 +135,7 @@
   line-height: 1;
   letter-spacing: -0.03em;
   font-weight: 800;
+  flex: 0 0 auto;
 }
 
 .profilePage .profileUploadState {
@@ -221,6 +225,7 @@
     width: 68px;
     height: 68px;
     border-radius: 18px;
+    transform: translateY(-3px);
   }
 
   .profilePage .profileIdentityTop {
