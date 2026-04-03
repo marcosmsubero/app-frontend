@@ -406,13 +406,13 @@ export default function ProfilePage() {
 
   return (
     <section className="page profilePage">
-      {!isPublicProfile ? (
-        <Link to="/ajustes" className="profileSettingsFloating" aria-label="Ir a ajustes">
-          <img src={settingsIcon} alt="" className="profileSettingsFloating__icon" />
-        </Link>
-      ) : null}
-
       <section className="sectionBlock profileIdentityCard">
+        {!isPublicProfile ? (
+          <Link to="/ajustes" className="profileSettingsShortcut" aria-label="Ir a ajustes">
+            <img src={settingsIcon} alt="" className="profileSettingsShortcut__icon" />
+          </Link>
+        ) : null}
+
         <div className="profileIdentityTop">
           <div className="profileIdentityMain">
             {avatarUrl ? (
