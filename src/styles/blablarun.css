@@ -1,6 +1,5 @@
 .blablaRunPage {
   gap: 16px;
-  overflow-x: hidden;
 }
 
 .blablaRunPage .discoverSection--calendarOnly {
@@ -155,8 +154,6 @@
   border-radius: 20px;
   border: 1px solid var(--border);
   background: var(--surface);
-  overflow: hidden;
-  width: 100%;
 }
 
 .blablaRunPage .discoverSelectedDay__title {
@@ -169,17 +166,10 @@
 
 .blablaRunPage .discoverEventList--day {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
   gap: 10px;
-  width: 100%;
-  overflow: hidden;
 }
 
-.blablaRunPage .discoverEventList--dayGrid {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-/* EVENT CARD ANTIGUA */
+/* EVENT CARD */
 
 .blablaRunPage .discoverEventCard--agenda {
   padding: 12px;
@@ -216,30 +206,37 @@
 
 /* Event day cards: fixed width, no horizontal stretch */
 
-.blablaRunPage,
-.blablaRunPage .discoverSection--calendarOnly,
-.blablaRunPage .discoverCalendarCard,
-.blablaRunPage .discoverCalendarCard--premium,
 .blablaRunPage .discoverSelectedDay,
 .blablaRunPage .discoverSelectedDay__head,
-.blablaRunPage .discoverEventList,
 .blablaRunPage .discoverEventList--day,
 .blablaRunPage .discoverEventFlipCard,
 .blablaRunPage .discoverEventFlipCard__inner,
 .blablaRunPage .discoverEventFlipCard__face,
 .blablaRunPage .discoverEventFlipCard__frontBody,
-.blablaRunPage .discoverEventFlipCard__details,
-.blablaRunPage .discoverEventFlipCard__mediaWrap,
-.blablaRunPage .discoverEventFlipCard__mediaButton {
+.blablaRunPage .discoverEventFlipCard__details {
   min-width: 0;
   max-width: 100%;
   box-sizing: border-box;
 }
 
+.blablaRunPage .discoverSelectedDay {
+  overflow-x: hidden;
+}
+
+.blablaRunPage .discoverEventList--day {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  width: 100%;
+}
+
+.blablaRunPage .discoverEventList--dayGrid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .blablaRunPage .discoverEventFlipCard {
   width: 100%;
   min-width: 0;
-  overflow: hidden;
   perspective: 1200px;
 }
 
@@ -247,7 +244,6 @@
   position: relative;
   width: 100%;
   height: 232px;
-  overflow: hidden;
   transform-style: preserve-3d;
   transition: transform 0.55s ease;
 }
@@ -259,7 +255,6 @@
 .blablaRunPage .discoverEventFlipCard__face {
   position: absolute;
   inset: 0;
-  width: 100%;
   display: flex;
   flex-direction: column;
   border-radius: 16px;
@@ -290,7 +285,6 @@
   border: 0;
   padding: 0;
   background: transparent;
-  overflow: hidden;
 }
 
 .blablaRunPage .discoverEventFlipCard__mediaButton--placeholder {
