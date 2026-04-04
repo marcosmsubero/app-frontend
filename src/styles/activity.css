@@ -1,0 +1,1143 @@
+.formCard,
+.formRow,
+.formActions,
+.settingsPage,
+.settingsRow,
+.settingsRow__left,
+.settingsRow__copy,
+.chatThreadPage,
+.chatThreadPage__body,
+.chatThreadPage__messages,
+.chatThreadPage__composer,
+.chatBubble__meta,
+.chatComposer,
+.chatComposer__row,
+.deleteAccountPage,
+.followList,
+.followCard,
+.activityOverview,
+.activitySection,
+.activityGrid,
+.activityPanel,
+.discoverHero,
+.discoverSection,
+.discoverFiltersSection,
+.discoverCalendarCard,
+.discoverModalCard,
+.discoverEventsList,
+.discoverEventCard,
+.discoverHero__copy,
+.discoverHero__actions,
+.discoverMetaRow,
+.discoverEventCard__footer,
+.authPage,
+.messagesSimple__emptyBody,
+.activityPage,
+.activitySummaryGrid,
+.activityFilterRow,
+.chatMessageList,
+.chatThreadHeader__main,
+.chatThreadHeader__actions,
+.chatThreadHeader__copy,
+.discoverIntroCard,
+.discoverIntroCard__copy,
+.discoverIntroCard__actions,
+.discoverCalendarHead {
+  display: grid;
+  gap: 12px;
+}
+
+.formCard {
+  gap: 14px;
+}
+
+.formRow {
+  gap: 8px;
+}
+
+.formRow label {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  line-height: 1.2;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.formRow input,
+.formRow textarea,
+.formRow select {
+  width: 100%;
+  min-height: 48px;
+  padding: 13px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  outline: none;
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.formRow textarea {
+  min-height: 112px;
+  resize: vertical;
+}
+
+.formRow input:focus,
+.formRow textarea:focus,
+.formRow select:focus {
+  border-color: rgba(255, 107, 87, 0.28);
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 0 0 4px rgba(255, 107, 87, 0.1);
+}
+
+.formRow input::placeholder,
+.formRow textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.formHint {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.formActions {
+  grid-auto-flow: column;
+  justify-content: stretch;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: 10px;
+}
+
+.btn {
+  min-height: 46px;
+  border-radius: 16px;
+  border: 1px solid transparent;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  transition:
+    transform 160ms ease,
+    background-color 160ms ease,
+    border-color 160ms ease,
+    opacity 160ms ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn--primary {
+  color: #fff;
+  background: linear-gradient(180deg, var(--primary-strong), var(--primary));
+  box-shadow: 0 14px 28px rgba(255, 107, 87, 0.2);
+}
+
+.btn--ghost {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--border);
+}
+
+.settingsPage,
+.deleteAccountPage,
+.activityOverview,
+.authPage,
+.activityPage {
+  gap: 14px;
+}
+
+.settingsRow {
+  align-items: center;
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.settingsRow__left {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.settingsRow__title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.settingsRow__text {
+  margin: 4px 0 0;
+  color: var(--text-soft);
+  font-size: 0.86rem;
+  line-height: 1.5;
+}
+
+.activitySummaryGrid,
+.discoverStatsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.discoverStatsGrid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.activitySummaryCard,
+.discoverStatCard {
+  min-width: 0;
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.activitySummaryCard__label,
+.discoverStatCard__label {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.activitySummaryCard__value,
+.discoverStatCard__value {
+  font-size: 1.18rem;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.followList {
+  gap: 10px;
+}
+
+.followCard {
+  align-items: center;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.followCard__avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  object-fit: cover;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.followCard__name {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.followCard__meta {
+  margin: 4px 0 0;
+  color: var(--text-soft);
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
+.chatThreadPage {
+  gap: 14px;
+}
+
+.chatThreadPage__body {
+  min-height: calc(100dvh - 220px);
+  align-content: start;
+}
+
+.chatThreadPage__messages {
+  gap: 10px;
+}
+
+.chatMessageList {
+  gap: 10px;
+}
+
+.chatBubble {
+  max-width: min(88%, 320px);
+  padding: 12px 14px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.chatBubble--me {
+  margin-left: auto;
+  background: rgba(124, 233, 155, 0.12);
+  border-color: rgba(124, 233, 155, 0.18);
+}
+
+.chatBubble__meta {
+  gap: 4px;
+}
+
+.chatBubble__author {
+  margin: 0;
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.chatBubble__time {
+  margin: 0;
+  font-size: 0.72rem;
+  color: var(--text-faint);
+}
+
+.chatBubble__text {
+  margin: 0;
+  color: var(--text);
+  font-size: 0.92rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.chatComposer {
+  gap: 10px;
+  padding: 12px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.chatComposer__row {
+  align-items: end;
+  gap: 10px;
+  grid-template-columns: 1fr auto;
+}
+
+.chatComposer textarea {
+  min-height: 48px;
+  max-height: 140px;
+}
+
+.chatComposer__submit {
+  min-width: 92px;
+}
+
+.chatThreadHeader__main,
+.chatThreadHeader__actions,
+.chatThreadHeader__copy {
+  gap: 10px;
+}
+
+.chatThreadHeader__title {
+  margin: 0;
+  font-size: 1.06rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.chatThreadHeader__subtitle {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.86rem;
+  line-height: 1.5;
+}
+
+.discoverHero,
+.discoverSection,
+.discoverFiltersSection,
+.discoverCalendarCard,
+.discoverModalCard,
+.discoverIntroCard {
+  padding: 16px;
+  border-radius: 22px;
+  border: 1px solid var(--border);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.015), rgba(255, 255, 255, 0)),
+    var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.discoverHero {
+  gap: 14px;
+}
+
+.discoverHero__copy,
+.discoverHero__actions,
+.discoverMetaRow,
+.discoverIntroCard__copy,
+.discoverIntroCard__actions,
+.discoverCalendarHead {
+  gap: 10px;
+}
+
+.discoverHero__title,
+.discoverIntroCard__title {
+  margin: 0;
+  font-size: 1.16rem;
+  line-height: 1.1;
+  letter-spacing: -0.04em;
+  font-weight: 800;
+}
+
+.discoverHero__text,
+.discoverIntroCard__text {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.discoverMetaRow {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.discoverMetaChip {
+  padding: 12px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.discoverMetaChip__label {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.discoverMetaChip__value {
+  margin: 6px 0 0;
+  color: var(--text);
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.discoverFiltersSection {
+  gap: 12px;
+}
+
+.discoverFiltersTitle {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.discoverFiltersRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.discoverFilterChip {
+  min-height: 38px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-soft);
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.discoverFilterChip--active {
+  color: #0b0b0b;
+  background: var(--primary);
+  border-color: transparent;
+}
+
+.discoverCalendarCard {
+  gap: 12px;
+}
+
+.discoverCalendarHead__title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.discoverCalendarHead__text {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
+.discoverEventsList {
+  gap: 10px;
+}
+
+.discoverEventCard {
+  gap: 10px;
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.discoverEventCard__title {
+  margin: 0;
+  font-size: 0.98rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.discoverEventCard__text,
+.discoverEventCard__meta {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
+.discoverEventCard__footer {
+  grid-template-columns: 1fr auto;
+  align-items: center;
+}
+
+.discoverModalCard {
+  gap: 14px;
+}
+
+.discoverModalCard__title {
+  margin: 0;
+  font-size: 1.06rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.discoverModalCard__text {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+.messagesSimple__emptyBody {
+  justify-items: start;
+}
+
+.messagesSimple__emptyTitle {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.messagesSimple__emptyText {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+.activityPage {
+  gap: 16px;
+}
+
+.activityOverview {
+  gap: 14px;
+}
+
+.activitySection {
+  gap: 12px;
+}
+
+.activitySection__title {
+  margin: 0;
+  font-size: 0.98rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.activitySection__text {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.86rem;
+  line-height: 1.5;
+}
+
+.activityGrid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.activityPanel {
+  gap: 8px;
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.activityPanel__label {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.activityPanel__value {
+  margin: 0;
+  font-size: 1.08rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.activityFilterRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.activityFilterBtn {
+  min-height: 38px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-soft);
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.activityFilterBtn--active {
+  color: #0b0b0b;
+  background: var(--primary);
+  border-color: transparent;
+}
+
+@media (min-width: 768px) {
+  .activityGrid,
+  .activitySummaryGrid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .discoverMetaRow {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.authChrome {
+  background:
+    radial-gradient(circle at top center, rgba(125, 211, 252, 0.08), transparent 30%),
+    radial-gradient(circle at top right, rgba(124, 233, 155, 0.07), transparent 34%),
+    linear-gradient(180deg, #09111a 0%, #070d14 100%);
+}
+
+.authChrome__frame {
+  padding-bottom: 28px;
+}
+
+.authPage {
+  gap: 14px;
+  padding-top: 0;
+}
+
+.authBrandCard--hero {
+  padding: 0;
+  margin-top: -6px;
+  overflow: hidden;
+  border-radius: 24px;
+  background: transparent;
+}
+
+.authHeroImage {
+  width: 100%;
+  height: 220px;
+  border-radius: 24px;
+  overflow: hidden;
+  position: relative;
+  background: #0b1118;
+}
+
+.authHeroImage img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: center;
+}
+
+.authHeroImage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(7, 13, 20, 0.02) 0%,
+    rgba(7, 13, 20, 0.25) 100%
+  );
+}
+
+.authIntro {
+  display: grid;
+  gap: 4px;
+  padding: 0 2px;
+}
+
+.authIntro__title {
+  margin: 0;
+  color: #ffffff;
+  font-family: Inter, "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 1.45rem;
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+  font-weight: 700;
+}
+
+.authIntro__subtitle {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.68);
+  font-family: Inter, "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.authSwitchSection {
+  display: grid;
+}
+
+.authSwitch {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  padding: 3px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 12px 28px rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(14px);
+}
+
+.authSwitch__item {
+  min-height: 42px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.72);
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    opacity 160ms ease;
+}
+
+.authSwitch__item:disabled {
+  opacity: 0.6;
+}
+
+.authSwitch__item--active {
+  color: #0b0b0b;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.88));
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.18);
+}
+
+.authFormShell {
+  padding: 14px;
+  border-radius: 20px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0)),
+    var(--surface);
+}
+
+.authFormCard {
+  gap: 12px;
+}
+
+.authFormRow {
+  gap: 8px;
+}
+
+.authFormRow label {
+  color: rgba(255, 255, 255, 0.74);
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-family: Inter, "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.authFormRow input {
+  min-height: 44px;
+  padding: 11px 13px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.045);
+  color: #ffffff;
+  font-size: 0.88rem;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
+}
+
+.authFormRow input:focus {
+  border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.065);
+  box-shadow:
+    0 0 0 4px rgba(255, 255, 255, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.authFormRow input::placeholder {
+  color: transparent;
+  font-size: 0.76rem;
+  opacity: 0.55;
+}
+
+.authStateCard {
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow: none;
+  font-size: 0.85rem;
+}
+
+.authStateCard--error {
+  border-color: rgba(255, 122, 122, 0.2);
+}
+
+.authStateCard--success {
+  border-color: rgba(124, 233, 155, 0.2);
+}
+
+.authFormActions {
+  margin-top: 2px;
+}
+
+.authSubmitBtn {
+  min-height: 46px;
+  border-radius: 14px;
+  font-size: 0.9rem;
+  color: #000000;
+  box-shadow: 0 14px 28px rgba(124, 233, 155, 0.18);
+}
+
+/* ===== ActivityPage split layout (scoped) ===== */
+
+.activityPageSplit__header {
+  align-items: center;
+}
+
+.activityPageSplit__counters {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1px 1fr;
+  align-items: center;
+  width: 100%;
+  gap: 0;
+}
+
+.activityPageSplit__counter {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.activityPageSplit__counter--messages {
+  justify-self: start;
+}
+
+.activityPageSplit__counter--notifications {
+  justify-self: end;
+}
+
+.activityPageSplit__counter strong {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.activityPageSplit__counterDivider {
+  width: 1px;
+  height: 20px;
+  background: var(--border);
+  opacity: 0.9;
+  justify-self: center;
+}
+
+.activityPageSplit {
+  position: relative;
+  display: flex;
+  gap: 0;
+  min-height: calc(100dvh - 220px);
+  overflow: hidden;
+  border-radius: 22px;
+  border: 1px solid var(--border);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.015), rgba(255, 255, 255, 0)),
+    var(--surface);
+  box-shadow: var(--shadow-sm);
+  touch-action: pan-y;
+}
+
+.activityPageSplit::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  transform: translateX(-0.5px);
+  background: var(--border);
+  opacity: 0.9;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.activityPageSplit__pane {
+  min-width: 0;
+  flex: 1 1 50%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px 10px 14px 12px;
+  overflow-y: auto;
+  transition:
+    flex-basis 220ms ease,
+    flex-grow 220ms ease,
+    flex-shrink 220ms ease,
+    opacity 180ms ease,
+    background-color 180ms ease,
+    padding 180ms ease,
+    border-color 180ms ease;
+  position: relative;
+  z-index: 2;
+}
+
+.activityPageSplit__pane + .activityPageSplit__pane {
+  border-left: 0;
+}
+
+.activityPageSplit__pane--messages {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.activityPageSplit__pane--notifications {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.activityPageSplit__pane.is-expanded {
+  flex: 1 1 100%;
+}
+
+.activityPageSplit__pane.is-collapsed {
+  flex: 0 0 0%;
+  padding-left: 0;
+  padding-right: 0;
+  opacity: 0;
+  overflow: hidden;
+}
+
+.activityPageSplit__paneHead {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  padding: 0 2px;
+}
+
+.activityPageSplit__paneLabel {
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.activityPageSplit__list {
+  display: grid;
+  gap: 10px;
+}
+
+.activityPageSplit__item {
+  width: 100%;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border: 0;
+  border-radius: 16px;
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+  font: inherit;
+  transition:
+    background-color 160ms ease,
+    transform 160ms ease,
+    opacity 160ms ease;
+}
+
+.activityPageSplit__item:active {
+  transform: scale(0.99);
+}
+
+.activityPageSplit__item:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.activityPageSplit__avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  object-fit: cover;
+  background: rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+}
+
+.activityPageSplit__avatar--fallback {
+  display: grid;
+  place-items: center;
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.activityPageSplit__name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+@media (max-width: 380px) {
+  .activityPageSplit__counter {
+    font-size: 0.84rem;
+  }
+
+  .activityPageSplit__avatar {
+    width: 38px;
+    height: 38px;
+  }
+
+  .activityPageSplit__name {
+    font-size: 0.88rem;
+  }
+}
+
+
+.formCard,
+.formRow,
+.formActions,
+.settingsPage,
+.settingsRow,
+.settingsRow__left,
+.settingsRow__copy,
+.chatThreadPage,
+.chatThreadPage__body,
+.chatThreadPage__messages,
+.chatThreadPage__composer,
+.chatBubble__meta,
+.chatComposer,
+.chatComposer__row,
+.deleteAccountPage,
+.followList,
+.followCard,
+.activityOverview,
+.activitySection,
+.activityGrid,
+.activityPanel,
+.discoverHero,
+.discoverSection,
+.discoverFiltersSection,
+.discoverCalendarCard,
+.discoverModalCard,
+.discoverEventsList,
+.discoverEventCard,
+.discoverHero__copy,
+.discoverHero__actions,
+.discoverMetaRow,
+.discoverEventCard__footer,
+.authPage,
+.messagesSimple__emptyBody,
+.activityPage,
+.activitySummaryGrid,
+.activityFilterRow,
+.chatMessageList,
+.chatThreadHeader__main,
+.chatThreadHeader__actions,
+.chatThreadHeader__copy,
+.discoverIntroCard,
+.discoverIntroCard__copy,
+.discoverIntroCard__actions,
+.discoverCalendarHead {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.formRow input,
+.formRow textarea,
+.formRow select,
+.settingsRow,
+.followCard,
+.discoverEventCard,
+.discoverModalCard,
+.authBrandCard--hero,
+.authHeroImage {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.settingsRow__title,
+.settingsRow__text,
+.followCard__name,
+.followCard__meta,
+.authIntro__title,
+.authIntro__subtitle,
+.discoverEventCard__title,
+.discoverEventCard__text {
+  overflow-wrap: anywhere;
+}
+
+.chatThreadHeader__actions,
+.discoverHero__actions,
+.discoverEventCard__footer {
+  flex-wrap: wrap;
+}
+
+@media (max-width: 360px) {
+  .formActions,
+  .activitySummaryGrid,
+  .discoverStatsGrid {
+    grid-template-columns: 1fr;
+    grid-auto-flow: row;
+  }
+}
+
+
+.formActions--single {
+  grid-auto-flow: row;
+  grid-auto-columns: unset;
+}
