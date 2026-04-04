@@ -1,15 +1,58 @@
-import API_BASE, { buildApiUrl } from "../config/api.js";
+import API_BASE, {
+  API_TIMEOUT_MS,
+  buildApiUrl,
+  getPublicApiConfigSnapshot,
+} from "../config/api.js";
 import { supabase } from "../lib/supabase.js";
 import { normalizeUserContract } from "../lib/userContract.js";
 
 export { API_BASE };
 
 async function getAccessToken() {
+  if (!supabase) return null;
+
   const {
     data: { session },
   } = await supabase.auth.getSession();
 
   return session?.access_token ?? null;
+}
+
+function isAbortError(error) {
+  return error?.name === "AbortError";
+}
+
+function buildTransportErrorMessage(error) {
+  if (isAbortError(error)) {
+    return "La API tardó demasiado en responder.";
+  }
+
+  const snapshot = getPublicApiConfigSnapshot();
+  const apiHost = snapshot.apiBase || "API no configurada";
+
+  return `No se puede conectar con el servidor. Revisa Render/CORS/VITE_API_BASE. API actual: ${apiHost}`;
+}
+
+function extractApiErrorMessage(res, data) {
+  if (typeof data === "string" && data.trim()) {
+    return data.trim();
+  }
+
+  if (data?.detail) {
+    if (typeof data.detail === "string") return data.detail;
+    if (Array.isArray(data.detail)) {
+      return data.detail
+        .map((item) => item?.msg || item?.message || JSON.stringify(item))
+        .filter(Boolean)
+        .join(" · ");
+    }
+  }
+
+  if (data?.message && typeof data.message === "string") {
+    return data.message;
+  }
+
+  return `Error ${res.status}: ${res.statusText}`;
 }
 
 async function normalizeApiResponse(path, data) {
@@ -27,15 +70,25 @@ async function normalizeApiResponse(path, data) {
   return data;
 }
 
-export async function api(path, { method = "GET", token, body } = {}) {
+export async function api(path, { method = "GET", token, body, signal } = {}) {
+  if (!API_BASE) {
+    throw new Error("Falta VITE_API_BASE para conectar frontend y backend.");
+  }
+
   const resolvedToken = token ?? (await getAccessToken());
 
   const headers = {
     Accept: "application/json",
+    "Cache-Control": "no-store",
   };
 
   if (body !== undefined) headers["Content-Type"] = "application/json";
   if (resolvedToken) headers.Authorization = `Bearer ${resolvedToken}`;
+
+  const controller = signal ? null : new AbortController();
+  const timeoutId = controller
+    ? window.setTimeout(() => controller.abort(), API_TIMEOUT_MS)
+    : null;
 
   let res;
 
@@ -43,10 +96,16 @@ export async function api(path, { method = "GET", token, body } = {}) {
     res = await fetch(buildApiUrl(path), {
       method,
       headers,
+      cache: "no-store",
       body: body !== undefined ? JSON.stringify(body) : undefined,
+      signal: signal ?? controller?.signal,
     });
-  } catch {
-    throw new Error("No se puede conectar con el servidor");
+  } catch (error) {
+    throw new Error(buildTransportErrorMessage(error));
+  } finally {
+    if (timeoutId) {
+      window.clearTimeout(timeoutId);
+    }
   }
 
   const text = await res.text();
@@ -63,9 +122,7 @@ export async function api(path, { method = "GET", token, body } = {}) {
   }
 
   if (!res.ok) {
-    throw new Error(
-      data?.detail || data?.message || `Error ${res.status}: ${res.statusText}`
-    );
+    throw new Error(extractApiErrorMessage(res, data));
   }
 
   return normalizeApiResponse(path, data);
