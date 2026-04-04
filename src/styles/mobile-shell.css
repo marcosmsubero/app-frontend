@@ -1,8 +1,8 @@
 :root {
   --app-shell-max-width: 520px;
   --app-shell-side-pad: 14px;
-  --app-topbar-inner-height: 42px;
-  --app-bottom-nav-height: 54px;
+  --app-topbar-inner-height: 40px;
+  --app-bottom-nav-height: 50px;
 }
 
 .appChrome {
@@ -78,8 +78,8 @@
 }
 
 .appTopbar__settings {
-  width: 32px;
-  height: 32px;
+  width: 35px;
+  height: 35px;
   flex: 0 0 32px;
   display: inline-flex;
   align-items: center;
