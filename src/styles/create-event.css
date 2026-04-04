@@ -1,0 +1,401 @@
+.createEventPage {
+  display: grid;
+  gap: 18px;
+}
+
+.createEventHero {
+  display: grid;
+  gap: 12px;
+  padding: 20px;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background:
+    radial-gradient(circle at top right, rgba(124, 233, 155, 0.14), transparent 32%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.02)),
+    rgba(255, 255, 255, 0.03);
+  box-shadow: var(--shadow-md);
+}
+
+.createEventHero__title {
+  margin: 0;
+  color: var(--text);
+  font-size: 1.42rem;
+  line-height: 1.04;
+  letter-spacing: -0.045em;
+  font-weight: 800;
+}
+
+.createEventHero__date {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  min-height: 38px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text);
+  font-size: 0.84rem;
+  font-weight: 700;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.createEventFormCard {
+  display: grid;
+  gap: 16px;
+  padding: 16px;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.02)),
+    rgba(255, 255, 255, 0.025);
+  box-shadow: var(--shadow-md);
+}
+
+.createEventForm {
+  display: grid;
+  gap: 16px;
+}
+
+.createEventSection {
+  display: grid;
+  gap: 14px;
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.createEventSection__title {
+  color: var(--text);
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.createEventForm__group {
+  display: grid;
+  gap: 8px;
+}
+
+.createEventForm__groupHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.createEventForm__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: 12px;
+}
+
+.createEventForm__control {
+  width: 100%;
+}
+
+.createEventForm .app-label {
+  color: var(--text-muted);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.createEventForm .app-input,
+.createEventForm .app-select,
+.createEventForm .app-textarea {
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  box-shadow: none;
+}
+
+.createEventForm .app-input::placeholder,
+.createEventForm .app-textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.createEventForm .app-input:focus,
+.createEventForm .app-select:focus,
+.createEventForm .app-textarea:focus {
+  border-color: rgba(124, 233, 155, 0.42);
+  box-shadow: 0 0 0 3px rgba(124, 233, 155, 0.08);
+  outline: none;
+}
+
+.createEventForm__textarea {
+  min-height: 124px;
+  resize: vertical;
+}
+
+.createEventPlaceRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 44px;
+  gap: 8px;
+  align-items: center;
+}
+
+.createEventIconBtn {
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text);
+  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+
+.createEventIconBtn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.createEventIconBtn:active {
+  transform: scale(0.96);
+}
+
+.createEventTimeScroller {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: max-content;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 2px 0 4px;
+  scrollbar-width: none;
+}
+
+.createEventTimeScroller::-webkit-scrollbar {
+  display: none;
+}
+
+.createEventTimeChip {
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-soft);
+  font-size: 0.82rem;
+  font-weight: 700;
+  white-space: nowrap;
+  transition:
+    transform 0.18s ease,
+    background 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease;
+}
+
+.createEventTimeChip.is-active {
+  background: rgba(124, 233, 155, 0.14);
+  border-color: rgba(124, 233, 155, 0.32);
+  color: var(--text);
+}
+
+.createEventActionBtn {
+  min-height: 36px;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text);
+  font-size: 0.78rem;
+  font-weight: 700;
+  transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+}
+
+.createEventActionBtn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.createEventActionBtn:active {
+  transform: scale(0.97);
+}
+
+.createEventUploadBox {
+  border-radius: 18px;
+  border: 1px dashed rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.025);
+  overflow: hidden;
+}
+
+.createEventUploadPreview {
+  display: grid;
+  gap: 10px;
+}
+
+.createEventUploadPreview__image {
+  width: 100%;
+  display: block;
+  max-height: 220px;
+  object-fit: cover;
+}
+
+.createEventUploadPreview__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0 12px 12px;
+}
+
+.createEventUploadPreview__name {
+  min-width: 0;
+  color: var(--text);
+  font-size: 0.82rem;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.createEventLinksEditor {
+  display: grid;
+  gap: 10px;
+}
+
+.createEventLinksEditor__row {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr) auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.createEventInlineRemove {
+  min-height: 32px;
+  padding: 0 10px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.createEventLinksSummary {
+  display: grid;
+  gap: 8px;
+}
+
+.createEventLinksSummary__item {
+  display: grid;
+  gap: 2px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.createEventLinksSummary__title {
+  color: var(--text);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.createEventLinksSummary__url {
+  color: var(--text-soft);
+  font-size: 0.8rem;
+  line-height: 1.45;
+  word-break: break-word;
+}
+
+.createEventActions {
+  padding-top: 2px;
+}
+
+.createEventSubmitBtn {
+  width: 100%;
+  min-height: 48px;
+  justify-content: center;
+  border-radius: 16px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  color: #000;
+}
+
+@media (max-width: 420px) {
+  .createEventHero {
+    padding: 18px;
+    border-radius: 22px;
+  }
+
+  .createEventFormCard {
+    padding: 14px;
+    border-radius: 22px;
+  }
+
+  .createEventSection {
+    padding: 12px;
+  }
+
+  .createEventForm__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .createEventPlaceRow {
+    grid-template-columns: 1fr 44px;
+  }
+
+  .createEventLinksEditor__row {
+    grid-template-columns: 1fr;
+  }
+
+  .createEventForm__groupHead {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+
+.createEventPage,
+.createEventHero,
+.createEventFormCard,
+.createEventForm,
+.createEventSection,
+.createEventForm__group,
+.createEventLinksEditor,
+.createEventLinksEditor__row,
+.createEventUploadPreview,
+.createEventUploadPreview__meta,
+.createEventLinksSummary__item,
+.createEventActions {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.createEventSection__title,
+.createEventUploadPreview__name,
+.createEventLinksSummary__title,
+.createEventLinksSummary__url {
+  overflow-wrap: anywhere;
+}
+
+.createEventUploadPreview__meta {
+  flex-wrap: wrap;
+}
+
+.createEventPlaceRow > *,
+.createEventLinksEditor__row > * {
+  min-width: 0;
+}
+
+.createEventTimeScroller {
+  overscroll-behavior-x: contain;
+  max-width: 100%;
+}
+
+@media (max-width: 520px) {
+  .createEventForm__grid,
+  .createEventLinksEditor__row {
+    grid-template-columns: 1fr;
+  }
+}

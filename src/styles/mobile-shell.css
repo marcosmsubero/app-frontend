@@ -1,0 +1,200 @@
+:root {
+  --app-shell-max-width: 520px;
+  --app-shell-side-pad: 14px;
+  --app-topbar-inner-height: 42px;
+  --app-bottom-nav-height: 54px;
+}
+
+.appChrome {
+  min-height: 100svh;
+  min-height: 100dvh;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: clip;
+  background: #0b0b0b;
+  color: #ffffff;
+  isolation: isolate;
+}
+
+.appChrome__frame {
+  width: min(100%, var(--app-shell-max-width));
+  max-width: 100%;
+  margin: 0 auto;
+  min-height: 100svh;
+  min-height: 100dvh;
+  padding:
+    calc(var(--safe-top, 0px) + var(--app-topbar-inner-height) + 14px)
+    var(--app-shell-side-pad)
+    calc(var(--app-bottom-nav-height) + 14px + var(--safe-bottom, 0px));
+}
+
+.appChrome__main,
+.appChrome__content {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* HEADER */
+.appTopbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 70;
+  padding-top: var(--safe-top, 0px);
+  overflow: clip;
+  background: rgba(8, 17, 29, 0.96);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+}
+
+.appTopbar__inner {
+  width: min(calc(100% - (var(--app-shell-side-pad) * 2)), var(--app-shell-max-width));
+  max-width: 100%;
+  height: var(--app-topbar-inner-height);
+  margin: 0 auto;
+  padding: 0 2px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  position: relative;
+  min-width: 0;
+}
+
+.appTopbar__logo {
+  height: 56px;
+  width: auto;
+  max-width: min(58vw, 182px);
+  object-fit: contain;
+  object-position: left center;
+  display: block;
+  transform: translateX(-2px);
+  transform-origin: left center;
+  pointer-events: none;
+  user-select: none;
+}
+
+.appTopbar__settings {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+  overflow: hidden;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.appTopbar__settingsIcon {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transform: scale(1.7);
+  display: block;
+  opacity: 0.92;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* BOTTOM NAV */
+.bottomNav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 80;
+  padding-bottom: var(--safe-bottom, 0px);
+  overflow: clip;
+  background: rgba(8, 17, 29, 0.96);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+}
+
+.bottomNav__list {
+  width: min(calc(100% - (var(--app-shell-side-pad) * 2)), var(--app-shell-max-width));
+  max-width: 100%;
+  min-height: var(--app-bottom-nav-height);
+  margin: 0 auto;
+  padding: 4px 0 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  place-items: center;
+  gap: 0;
+}
+
+.bottomNav__link {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  min-width: 0;
+  height: var(--app-bottom-nav-height);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  opacity: 0.72;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.bottomNav__iconImage {
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+  object-position: center;
+  display: block;
+  transform: translateY(3px);
+  transition: transform 0.2s ease, filter 0.2s ease;
+  pointer-events: none;
+  user-select: none;
+}
+
+.bottomNav__link.is-active {
+  opacity: 1;
+}
+
+.bottomNav__link.is-active .bottomNav__iconImage {
+  transform: translateY(2px) scale(1.04);
+  filter:
+    drop-shadow(0 0 8px rgba(124, 233, 155, 0.58))
+    drop-shadow(0 0 16px rgba(124, 233, 155, 0.34));
+}
+
+.bottomNav__link:active .bottomNav__iconImage {
+  animation: bounce 0.3s ease;
+}
+
+@keyframes bounce {
+  0% {
+    transform: translateY(2px) scale(1);
+  }
+  30% {
+    transform: translateY(2px) scale(0.9);
+  }
+  60% {
+    transform: translateY(2px) scale(1.08);
+  }
+  100% {
+    transform: translateY(2px) scale(1);
+  }
+}
+
+@media (max-width: 360px) {
+  .appTopbar__logo {
+    max-width: 148px;
+    height: 52px;
+  }
+
+  .bottomNav__iconImage {
+    width: 46px;
+    height: 46px;
+  }
+}
