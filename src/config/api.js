@@ -1,14 +1,27 @@
-const LOCAL_API = "http://127.0.0.1:8000";
-const PROD_API = "https://app-backend-jd8f.onrender.com";
+const DEFAULT_LOCAL_API = "http://127.0.0.1:8000";
+const DEFAULT_PROD_API = "https://app-backend-jd8f.onrender.com";
 
-const RAW_API_BASE =
-  import.meta.env.VITE_API_BASE || (import.meta.env.PROD ? PROD_API : LOCAL_API);
+function normalizeBaseUrl(rawValue, fallback) {
+  const value = String(rawValue || fallback || "").trim();
+  if (!value) return "";
 
-const API_BASE = String(RAW_API_BASE || "").replace(/\/+$/, "");
+  try {
+    const url = new URL(value);
+    return url.toString().replace(/\/+$/, "");
+  } catch {
+    return String(fallback || "").trim().replace(/\/+$/, "");
+  }
+}
+
+const envApiBase = import.meta.env.VITE_API_BASE;
+const defaultApiBase = import.meta.env.PROD ? DEFAULT_PROD_API : DEFAULT_LOCAL_API;
+
+const API_BASE = normalizeBaseUrl(envApiBase, defaultApiBase);
 
 export default API_BASE;
 export { API_BASE };
 
+export const API_TIMEOUT_MS = Number(import.meta.env.VITE_API_TIMEOUT_MS || 15000);
 export const EVENTS_PATH = "/events";
 export const EVENTS_URL = `${API_BASE}${EVENTS_PATH}`;
 
@@ -24,9 +37,22 @@ export function buildApiUrl(path = "") {
 }
 
 export function buildEventStreamUrl(token) {
-  if (!token) return null;
+  if (!token || !API_BASE) return null;
 
-  const url = new URL(EVENTS_URL);
-  url.searchParams.set("token", token);
-  return url.toString();
+  try {
+    const url = new URL(buildApiUrl(EVENTS_PATH));
+    url.searchParams.set("token", token);
+    return url.toString();
+  } catch {
+    return null;
+  }
+}
+
+export function getPublicApiConfigSnapshot() {
+  return {
+    apiBase: API_BASE,
+    isProd: Boolean(import.meta.env.PROD),
+    mode: import.meta.env.MODE || "unknown",
+    timeoutMs: API_TIMEOUT_MS,
+  };
 }
