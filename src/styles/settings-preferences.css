@@ -1,0 +1,59 @@
+.settingsPreferencesPage {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.settingsPreferences__header {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.settingsPreferences__title {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.settingsPreferences__subtitle {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+}
+
+.settingsPreferences__saving,
+.settingsPreferences__error {
+  font-size: 0.82rem;
+  margin: 0;
+}
+
+.settingsPreferences__saving {
+  color: var(--primary);
+}
+
+.settingsPreferences__error {
+  color: #ef4444;
+}
+
+.settingsPreferences__section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.settingsPreferences__sectionTitle {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.settingsPreferences__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
