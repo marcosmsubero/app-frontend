@@ -296,6 +296,16 @@ export const apiUpdateMySettings = (payload, token) =>
   api(`/me/settings`, { method: "PUT", token, body: payload });
 
 /* ============================================================================
+   PREFERENCES  (matching preferences, 17-field catalog)
+============================================================================ */
+
+export const apiGetMyPreferences = (token) =>
+  api(`/api/me/preferences`, { token });
+
+export const apiUpdateMyPreferences = (payload, token) =>
+  api(`/api/me/preferences`, { method: "PATCH", token, body: payload });
+
+/* ============================================================================
    BLOCKED USERS
 ============================================================================ */
 
