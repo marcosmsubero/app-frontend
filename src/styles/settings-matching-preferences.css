@@ -57,3 +57,36 @@
   grid-template-columns: 1fr;
   gap: 10px;
 }
+
+/* Pad the bottom of the page so the sticky action bar doesn't overlap
+   the last preference row. */
+.settingsMatchingPreferencesPage {
+  padding-bottom: 96px;
+}
+
+/* Sticky action bar: only visible when there are unsaved changes.
+   Sits above the bottom nav + respects safe-area-inset-bottom so it
+   doesn't clip under the iOS home indicator. */
+.settingsMatchingPreferences__actions {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--app-bottom-nav-height, 64px) + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  gap: 10px;
+  padding: 12px 16px;
+  background: linear-gradient(to top, var(--bg) 70%, transparent);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 40;
+  animation: settingsMatchingPreferencesActionsIn 220ms var(--ease-out, ease);
+}
+
+.settingsMatchingPreferences__actions .app-button {
+  flex: 1;
+}
+
+@keyframes settingsMatchingPreferencesActionsIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

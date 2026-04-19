@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { fieldsBySection } from "../lib/preferencesContract";
 import { useUserPreferences } from "../hooks/useUserPreferences";
 import PreferenceField from "../components/ui/PreferenceField";
+import { useToast } from "../hooks/useToast";
 import "../styles/settings-matching-preferences.css";
 
 const SECTION_LABELS = {
@@ -14,8 +15,28 @@ const SECTION_LABELS = {
 const SECTION_ORDER = ["safety", "running", "logistics", "vibe"];
 
 export default function SettingsMatchingPreferencesPage() {
-  const { preferences, loading, saving, error, setField } = useUserPreferences();
+  const {
+    draft,
+    isDirty,
+    loading,
+    saving,
+    error,
+    setField,
+    save,
+    discard,
+  } = useUserPreferences();
+  const { showToast } = useToast();
   const sections = useMemo(() => fieldsBySection(), []);
+
+  async function handleSave() {
+    try {
+      await save();
+      showToast("Preferencias guardadas", { variant: "success" });
+    } catch {
+      // error state is already set by the hook; toast as fallback UX.
+      showToast("No se pudieron guardar las preferencias", { variant: "error" });
+    }
+  }
 
   return (
     <section className="page settingsMatchingPreferencesPage">
@@ -25,7 +46,6 @@ export default function SettingsMatchingPreferencesPage() {
           Cuanto más rellenes, mejores matches. Todos los campos son opcionales.
         </p>
         {error ? <p className="settingsMatchingPreferences__error">{error}</p> : null}
-        {saving ? <p className="settingsMatchingPreferences__saving">Guardando…</p> : null}
       </header>
 
       {SECTION_ORDER.map((sectionId) => (
@@ -38,7 +58,7 @@ export default function SettingsMatchingPreferencesPage() {
               <PreferenceField
                 key={field.id}
                 field={field}
-                entry={preferences[field.id]}
+                entry={draft[field.id]}
                 onChange={(entry) => setField(field.id, entry)}
                 disabled={loading || saving}
               />
@@ -46,6 +66,30 @@ export default function SettingsMatchingPreferencesPage() {
           </div>
         </section>
       ))}
+
+      {/* Bottom-sticky action bar. Only renders when the draft diverges
+          from the server state so it doesn't take vertical space while
+          the user is reviewing their saved prefs. */}
+      {isDirty ? (
+        <div className="settingsMatchingPreferences__actions">
+          <button
+            type="button"
+            className="app-button app-button--ghost app-button--sm"
+            onClick={discard}
+            disabled={saving}
+          >
+            Descartar
+          </button>
+          <button
+            type="button"
+            className="app-button app-button--primary"
+            onClick={handleSave}
+            disabled={saving}
+          >
+            {saving ? "Guardando…" : "Guardar cambios"}
+          </button>
+        </div>
+      ) : null}
     </section>
   );
 }

@@ -58,14 +58,36 @@ export const PREFERENCE_FIELDS = [
     section: "running",
     label: "Ritmo habitual (min/km)",
     kind: "pace_range",
-    bounds: { minSec: 180, maxSec: 540 },
+    // Discrete 15-second steps so the native <select> renders as a clean
+    // wheel on iOS. Stored as seconds/km internally (min_sec / max_sec).
+    options: (() => {
+      const out = [];
+      for (let s = 180; s <= 540; s += 15) {
+        const m = Math.floor(s / 60);
+        const sec = s % 60;
+        out.push({ value: s, label: `${m}:${String(sec).padStart(2, "0")}` });
+      }
+      return out;
+    })(),
   },
   {
     id: "distance_range",
     section: "running",
     label: "Distancia típica (km)",
     kind: "km_range",
-    bounds: { minKm: 1, maxKm: 50 },
+    // Runner-friendly discrete set (10k, medio, maratón…) instead of a
+    // 50-option slider.
+    options: [
+      { value: 3, label: "3 km" },
+      { value: 5, label: "5 km" },
+      { value: 7, label: "7 km" },
+      { value: 10, label: "10 km" },
+      { value: 15, label: "15 km" },
+      { value: 21, label: "21 km" },
+      { value: 30, label: "30 km" },
+      { value: 42, label: "42 km" },
+      { value: 50, label: "50+ km" },
+    ],
   },
   {
     id: "duration",

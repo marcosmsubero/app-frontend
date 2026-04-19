@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   DEFAULT_PREFERENCES,
   normalizePreferences,
@@ -27,8 +27,16 @@ function writeCache(value) {
   }
 }
 
+/**
+ * Draft/save model: edits live in `draft` until the user taps "Guardar".
+ * `preferences` = last-known server state. `isDirty` = draft diverges from
+ * preferences. On save, PATCH fires with the full draft; the server echoes
+ * back the normalized payload which becomes the new baseline.
+ */
 export function useUserPreferences() {
-  const [preferences, setPreferences] = useState(() => readCache());
+  const initial = readCache();
+  const [preferences, setPreferences] = useState(initial);
+  const [draft, setDraft] = useState(initial);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -47,7 +55,10 @@ export function useUserPreferences() {
     try {
       const response = await apiGetMyPreferences();
       const normalized = normalizePreferences(response.data || {});
-      if (mountedRef.current) setPreferences(normalized);
+      if (mountedRef.current) {
+        setPreferences(normalized);
+        setDraft(normalized);
+      }
       writeCache(normalized);
     } catch (err) {
       if (mountedRef.current) {
@@ -62,47 +73,60 @@ export function useUserPreferences() {
     load();
   }, [load]);
 
-  const commit = useCallback(async (nextPreferences) => {
-    const normalized = normalizePreferences(nextPreferences);
-    const previous = preferences;
-    setPreferences(normalized); // optimistic
+  const setField = useCallback((fieldId, entry) => {
+    setDraft((prev) => {
+      const next = { ...prev };
+      if (!entry || entry.mode === "off") {
+        delete next[fieldId];
+      } else {
+        next[fieldId] = entry;
+      }
+      return next;
+    });
+  }, []);
+
+  const save = useCallback(async () => {
     setSaving(true);
     setError("");
     try {
-      const response = await apiUpdateMyPreferences(normalized);
+      const response = await apiUpdateMyPreferences(draft);
       const serverNormalized = normalizePreferences(response.data || {});
-      if (mountedRef.current) setPreferences(serverNormalized);
+      if (mountedRef.current) {
+        setPreferences(serverNormalized);
+        setDraft(serverNormalized);
+      }
       writeCache(serverNormalized);
       return serverNormalized;
     } catch (err) {
-      // Rollback optimistic change.
       if (mountedRef.current) {
-        setPreferences(previous);
         setError(err?.message || "No se pudieron guardar las preferencias.");
       }
       throw err;
     } finally {
       if (mountedRef.current) setSaving(false);
     }
+  }, [draft]);
+
+  const discard = useCallback(() => {
+    setDraft(preferences);
+    setError("");
   }, [preferences]);
 
-  const setField = useCallback((fieldId, entry) => {
-    const next = { ...preferences };
-    if (!entry || entry.mode === "off") {
-      delete next[fieldId];
-    } else {
-      next[fieldId] = entry;
-    }
-    return commit(next);
-  }, [preferences, commit]);
+  const isDirty = useMemo(() => {
+    // Shallow JSON compare is fine — payload is small + flat.
+    return JSON.stringify(preferences) !== JSON.stringify(draft);
+  }, [preferences, draft]);
 
   return {
     preferences,
+    draft,
+    isDirty,
     loading,
     saving,
     error,
-    reload: load,
-    commit,
     setField,
+    save,
+    discard,
+    reload: load,
   };
 }

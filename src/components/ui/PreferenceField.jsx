@@ -1,14 +1,17 @@
 import ngeohash from "ngeohash";
 import { PREFERENCE_MODES } from "../../lib/preferencesContract";
+import "../../styles/create-event.css"; // reuse .floatingField styles
 import "./PreferenceField.css";
 
 /**
- * Reusable preference editor. Given a field definition + current entry,
- * renders a value selector appropriate to the kind + the off/soft/hard
- * mode selector.
+ * Reusable preference editor. Renders a value selector appropriate to the
+ * field's `kind` plus a three-state mode selector (off / soft / hard).
+ *
+ * Visual language matches the CreateEvent form: floating-label inputs +
+ * native <select> (which invokes the iOS wheel picker).
  *
  * Props:
- *   field: { id, label, kind, options?, bounds?, max? }
+ *   field: { id, label, kind, options?, max? }
  *   entry: { value, mode } | undefined
  *   onChange: (entry | null) => void — pass null to reset (off)
  *   disabled?: boolean
@@ -16,8 +19,6 @@ import "./PreferenceField.css";
 export default function PreferenceField({ field, entry, onChange, disabled }) {
   const mode = entry?.mode || "off";
   const value = entry?.value;
-  const isSet = mode !== "off";
-  const isHard = mode === "hard";
 
   function setMode(nextMode) {
     if (disabled) return;
@@ -37,17 +38,16 @@ export default function PreferenceField({ field, entry, onChange, disabled }) {
     onChange({ value: nextValue, mode: nextMode });
   }
 
+  const isSet = mode !== "off";
+  const isHard = mode === "hard";
+
   return (
     <div
-      className={`prefField${isSet ? " is-set" : ""}${isHard ? " is-hard" : ""}`}
+      className={`prefRow${isSet ? " is-set" : ""}${isHard ? " is-hard" : ""}`}
     >
-      <div className="prefField__label">{field.label}</div>
+      {renderValueEditor(field, value, setValue, disabled)}
 
-      <div className="prefField__value">
-        {renderValueEditor(field, value, setValue, disabled)}
-      </div>
-
-      <div className="prefField__modeBar" role="radiogroup" aria-label="Modo">
+      <div className="prefRow__modeBar" role="radiogroup" aria-label="Modo">
         {PREFERENCE_MODES.map((m) => (
           <button
             key={m}
@@ -55,7 +55,7 @@ export default function PreferenceField({ field, entry, onChange, disabled }) {
             role="radio"
             aria-checked={mode === m}
             className={
-              `prefField__mode prefField__mode--${m}` +
+              `prefRow__mode prefRow__mode--${m}` +
               (mode === m ? " is-active" : "")
             }
             onClick={() => setMode(m)}
@@ -70,7 +70,7 @@ export default function PreferenceField({ field, entry, onChange, disabled }) {
 }
 
 function labelForMode(m) {
-  if (m === "off") return "No me importa";
+  if (m === "off") return "Opcional";
   if (m === "soft") return "Prefiero";
   return "Imprescindible";
 }
@@ -86,7 +86,7 @@ function defaultValueFor(field) {
       return field.options?.[0]?.value ?? null;
     case "pace_range":
     case "km_range":
-      return {};
+      return defaultRangeFor(field);
     case "zones":
       return [];
     default:
@@ -94,27 +94,52 @@ function defaultValueFor(field) {
   }
 }
 
+function defaultRangeFor(field) {
+  const first = field.options?.[0]?.value;
+  const last = field.options?.[field.options.length - 1]?.value;
+  if (field.kind === "pace_range") {
+    return { min_sec: first, max_sec: last };
+  }
+  if (field.kind === "km_range") {
+    return { min_km: first, max_km: last };
+  }
+  return {};
+}
+
 function renderValueEditor(field, value, setValue, disabled) {
+  const inputId = `pref-${field.id}`;
+
   switch (field.kind) {
     case "enum":
-    case "enum_int":
+    case "enum_int": {
+      const current = value ?? "";
       return (
-        <div className="prefField__chips">
-          {field.options.map((opt) => (
-            <button
-              key={String(opt.value)}
-              type="button"
-              className={
-                "prefField__chip" + (value === opt.value ? " is-active" : "")
-              }
-              onClick={() => setValue(opt.value)}
-              disabled={disabled}
-            >
-              {opt.label}
-            </button>
-          ))}
+        <div className="floatingField floatingField--always-floated floatingField--select">
+          <select
+            id={inputId}
+            className="floatingField__input"
+            value={current}
+            onChange={(e) => {
+              const raw = e.target.value;
+              if (raw === "") return;
+              const parsed = field.kind === "enum_int" ? Number(raw) : raw;
+              setValue(parsed);
+            }}
+            disabled={disabled}
+          >
+            <option value="">—</option>
+            {field.options.map((opt) => (
+              <option key={String(opt.value)} value={String(opt.value)}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+          <label className="floatingField__label" htmlFor={inputId}>
+            {field.label}
+          </label>
         </div>
       );
+    }
 
     case "multi_enum": {
       const arr = Array.isArray(value) ? value : [];
@@ -123,139 +148,114 @@ function renderValueEditor(field, value, setValue, disabled) {
         setValue(next);
       };
       return (
-        <div className="prefField__chips">
-          {field.options.map((opt) => (
-            <button
-              key={String(opt.value)}
-              type="button"
-              className={
-                "prefField__chip" + (arr.includes(opt.value) ? " is-active" : "")
-              }
-              onClick={() => toggle(opt.value)}
-              disabled={disabled}
-            >
-              {opt.label}
-            </button>
-          ))}
+        <div className="prefRow__chipGroup">
+          <div className="prefRow__chipLabel">{field.label}</div>
+          <div className="prefRow__chips">
+            {field.options.map((opt) => (
+              <button
+                key={String(opt.value)}
+                type="button"
+                className={
+                  "prefRow__chip" + (arr.includes(opt.value) ? " is-active" : "")
+                }
+                onClick={() => toggle(opt.value)}
+                disabled={disabled}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
         </div>
       );
     }
 
     case "bool":
       return (
-        <div className="prefField__chips">
-          <button
-            type="button"
-            className={"prefField__chip" + (value === false ? " is-active" : "")}
-            onClick={() => setValue(false)}
-            disabled={disabled}
-          >
-            {field.falseLabel || "No"}
-          </button>
-          <button
-            type="button"
-            className={"prefField__chip" + (value === true ? " is-active" : "")}
-            onClick={() => setValue(true)}
-            disabled={disabled}
-          >
-            {field.trueLabel || "Sí"}
-          </button>
+        <div className="prefRow__switchRow">
+          <span className="prefRow__switchLabel">{field.label}</span>
+          <label className="prefRow__switch">
+            <input
+              type="checkbox"
+              checked={value === true}
+              onChange={(e) => setValue(e.target.checked)}
+              disabled={disabled}
+            />
+            <span className="prefRow__switchTrack" />
+          </label>
         </div>
       );
 
-    case "pace_range": {
-      const min = value?.min_sec ?? field.bounds.minSec;
-      const max = value?.max_sec ?? field.bounds.maxSec;
-      const toLabel = (sec) => {
-        const m = Math.floor(sec / 60);
-        const s = sec % 60;
-        return `${m}:${String(s).padStart(2, "0")}`;
-      };
-      return (
-        <div className="prefField__rangeRow">
-          <input
-            type="range"
-            min={field.bounds.minSec}
-            max={field.bounds.maxSec}
-            step={15}
-            value={min}
-            onChange={(e) =>
-              setValue({
-                min_sec: Number(e.target.value),
-                max_sec: Math.max(max, Number(e.target.value)),
-              })
-            }
-            disabled={disabled}
-          />
-          <span className="prefField__rangeLabel">
-            {toLabel(min)}–{toLabel(max)}
-          </span>
-          <input
-            type="range"
-            min={field.bounds.minSec}
-            max={field.bounds.maxSec}
-            step={15}
-            value={max}
-            onChange={(e) =>
-              setValue({
-                min_sec: Math.min(min, Number(e.target.value)),
-                max_sec: Number(e.target.value),
-              })
-            }
-            disabled={disabled}
-          />
-        </div>
-      );
-    }
-
+    case "pace_range":
     case "km_range": {
-      const min = value?.min_km ?? field.bounds.minKm;
-      const max = value?.max_km ?? field.bounds.maxKm;
+      const isPace = field.kind === "pace_range";
+      const minKey = isPace ? "min_sec" : "min_km";
+      const maxKey = isPace ? "max_sec" : "max_km";
+      const min = value?.[minKey] ?? field.options[0].value;
+      const max = value?.[maxKey] ?? field.options[field.options.length - 1].value;
+      const minId = `${inputId}-min`;
+      const maxId = `${inputId}-max`;
       return (
-        <div className="prefField__rangeRow">
-          <input
-            type="range"
-            min={field.bounds.minKm}
-            max={field.bounds.maxKm}
-            step={1}
-            value={min}
-            onChange={(e) =>
-              setValue({
-                min_km: Number(e.target.value),
-                max_km: Math.max(max, Number(e.target.value)),
-              })
-            }
-            disabled={disabled}
-          />
-          <span className="prefField__rangeLabel">
-            {min}–{max} km
-          </span>
-          <input
-            type="range"
-            min={field.bounds.minKm}
-            max={field.bounds.maxKm}
-            step={1}
-            value={max}
-            onChange={(e) =>
-              setValue({
-                min_km: Math.min(min, Number(e.target.value)),
-                max_km: Number(e.target.value),
-              })
-            }
-            disabled={disabled}
-          />
+        <div className="prefRow__rangeGroup">
+          <div className="prefRow__chipLabel">{field.label}</div>
+          <div className="createEventForm__grid">
+            <div className="floatingField floatingField--always-floated floatingField--select">
+              <select
+                id={minId}
+                className="floatingField__input"
+                value={String(min)}
+                onChange={(e) => {
+                  const next = Number(e.target.value);
+                  setValue({ [minKey]: next, [maxKey]: Math.max(max, next) });
+                }}
+                disabled={disabled}
+              >
+                {field.options.map((opt) => (
+                  <option key={opt.value} value={String(opt.value)}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+              <label className="floatingField__label" htmlFor={minId}>
+                Mínimo
+              </label>
+            </div>
+            <div className="floatingField floatingField--always-floated floatingField--select">
+              <select
+                id={maxId}
+                className="floatingField__input"
+                value={String(max)}
+                onChange={(e) => {
+                  const next = Number(e.target.value);
+                  setValue({ [minKey]: Math.min(min, next), [maxKey]: next });
+                }}
+                disabled={disabled}
+              >
+                {field.options.map((opt) => (
+                  <option key={opt.value} value={String(opt.value)}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+              <label className="floatingField__label" htmlFor={maxId}>
+                Máximo
+              </label>
+            </div>
+          </div>
         </div>
       );
     }
 
     case "zones":
       return (
-        <ZonesEditor
-          zones={value}
-          max={field.max}
-          onChange={setValue}
-          disabled={disabled}
-        />
+        <div className="prefRow__chipGroup">
+          <div className="prefRow__chipLabel">{field.label}</div>
+          <ZonesEditor
+            zones={value}
+            max={field.max}
+            onChange={setValue}
+            disabled={disabled}
+          />
+        </div>
       );
 
     default:
@@ -275,24 +275,24 @@ function ZonesEditor({ zones, max, onChange, disabled }) {
         pos.coords.longitude,
         6,
       );
-      const name = window.prompt("Nombre de la zona (ej. Chamberí)", "") || "Zona";
+      const name =
+        window.prompt("Nombre de la zona (ej. Chamberí)", "") || "Zona";
       onChange([...list, { geohash, name: name.slice(0, 80) }]);
     });
   }
 
   function removeZone(i) {
-    const next = list.filter((_, idx) => idx !== i);
-    onChange(next);
+    onChange(list.filter((_, idx) => idx !== i));
   }
 
   return (
-    <div className="prefField__zones">
+    <div className="prefRow__zones">
       {list.map((z, i) => (
-        <div className="prefField__zonePill" key={`${z.geohash}-${i}`}>
+        <div className="prefRow__zonePill" key={`${z.geohash}-${i}`}>
           <span>{z.name}</span>
           <button
             type="button"
-            className="prefField__zoneRemove"
+            className="prefRow__zoneRemove"
             onClick={() => removeZone(i)}
             disabled={disabled}
             aria-label={`Quitar ${z.name}`}
@@ -304,11 +304,11 @@ function ZonesEditor({ zones, max, onChange, disabled }) {
       {list.length < max && (
         <button
           type="button"
-          className="prefField__chip"
+          className="prefRow__chip"
           onClick={addZone}
           disabled={disabled}
         >
-          + Añadir zona (usa mi ubicación)
+          + Añadir zona
         </button>
       )}
     </div>

@@ -1,160 +1,213 @@
-.prefField {
+/* PreferenceField — a single preference row.
+   Value editor on top (floating-label select, chips, or switch),
+   three-state mode selector below (Opcional / Prefiero / Imprescindible). */
+
+.prefRow {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   padding: 14px;
   border: 1px solid var(--border-subtle);
   border-radius: 14px;
   background: var(--surface);
-  transition: border-color 160ms var(--ease-out, ease);
+  transition: border-color 160ms var(--ease-out, ease), background 160ms var(--ease-out, ease);
 }
 
-.prefField.is-set {
+.prefRow.is-set {
   border-color: var(--border);
 }
 
-.prefField.is-hard {
+.prefRow.is-hard {
   border-color: var(--primary);
   background: var(--primary-glow-soft);
 }
 
-.prefField__label {
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: var(--text);
-  letter-spacing: -0.005em;
-}
-
-.prefField__value {
-  min-height: 36px;
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.prefField__modeBar {
-  display: flex;
+/* Mode bar (Opcional / Prefiero / Imprescindible) */
+.prefRow__modeBar {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 2px;
   padding: 2px;
   border-radius: 10px;
   background: var(--surface-2);
-  align-self: flex-start;
 }
 
-.prefField__mode {
+.prefRow__mode {
   appearance: none;
   border: none;
   background: transparent;
-  padding: 6px 12px;
-  font-size: 0.78rem;
-  font-weight: 600;
+  padding: 8px 4px;
+  font-size: 0.76rem;
+  font-weight: 700;
   color: var(--text-muted);
   border-radius: 8px;
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
   transition:
     background 160ms var(--ease-out, ease),
     color 160ms var(--ease-out, ease);
 }
 
-.prefField__mode.is-active {
+.prefRow__mode.is-active {
   background: var(--surface-3);
   color: var(--text);
 }
 
-.prefField__mode--hard.is-active {
+.prefRow__mode--hard.is-active {
   background: var(--primary-glow-soft);
   color: var(--primary);
 }
 
-.prefField__mode--hard.is-active::before {
+.prefRow__mode--hard.is-active::before {
   content: "🔒 ";
 }
 
-.prefField__chips {
+/* Chip group — used for multi_enum fields + zones (no floating label) */
+.prefRow__chipGroup,
+.prefRow__rangeGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.prefRow__chipLabel {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.prefRow__chips {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
 }
 
-.prefField__chip {
+.prefRow__chip {
   appearance: none;
-  padding: 5px 10px;
-  min-height: 28px;
+  padding: 6px 12px;
+  min-height: 30px;
   border-radius: 999px;
   border: 1px solid var(--border-subtle);
   background: transparent;
   color: var(--text-soft);
-  font-size: 0.78rem;
+  font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 160ms var(--ease-out, ease), border-color 160ms var(--ease-out, ease), color 160ms var(--ease-out, ease);
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background 160ms var(--ease-out, ease),
+    border-color 160ms var(--ease-out, ease),
+    color 160ms var(--ease-out, ease);
 }
 
-.prefField__chip.is-active {
+.prefRow__chip.is-active {
   background: var(--primary-glow-soft);
   border-color: var(--primary);
   color: var(--text);
+  font-weight: 700;
 }
 
-/* Dual-thumb range sliders (pace_range, km_range) */
-.prefField__rangeRow {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
+/* Bool switch row — a label + iOS-style toggle */
+.prefRow__switchRow {
+  display: flex;
   align-items: center;
-  gap: 10px;
-  width: 100%;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 44px;
 }
 
-.prefField__rangeRow input[type="range"] {
-  width: 100%;
+.prefRow__switchLabel {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
 }
 
-.prefField__rangeLabel {
-  font-variant-numeric: tabular-nums;
-  font-size: 0.82rem;
-  color: var(--text-muted);
-  min-width: 60px;
-  text-align: center;
+.prefRow__switch {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.prefRow__switch input {
+  appearance: none;
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.prefRow__switchTrack {
+  display: inline-block;
+  width: 44px;
+  height: 26px;
+  border-radius: 999px;
+  background: var(--surface-3);
+  border: 1px solid var(--border-subtle);
+  position: relative;
+  transition: background 160ms var(--ease-out, ease);
+}
+
+.prefRow__switchTrack::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  transition: transform 180ms var(--ease-out, ease), background 180ms var(--ease-out, ease);
+}
+
+.prefRow__switch input:checked + .prefRow__switchTrack {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+.prefRow__switch input:checked + .prefRow__switchTrack::after {
+  transform: translateX(18px);
 }
 
 /* Zones editor */
-.prefField__zones {
+.prefRow__zones {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
 }
 
-.prefField__zonePill {
+.prefRow__zonePill {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 5px 4px 5px 10px;
+  padding: 5px 4px 5px 12px;
   border-radius: 999px;
   border: 1px solid var(--border-subtle);
   background: var(--surface-2);
-  font-size: 0.78rem;
+  font-size: 0.82rem;
   font-weight: 600;
   color: var(--text);
 }
 
-.prefField__zoneRemove {
+.prefRow__zoneRemove {
   appearance: none;
   border: none;
   background: transparent;
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   border-radius: 999px;
   cursor: pointer;
   color: var(--text-muted);
-  font-size: 1rem;
+  font-size: 1.05rem;
   line-height: 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
 }
 
-.prefField__zoneRemove:hover:not(:disabled) {
+.prefRow__zoneRemove:hover:not(:disabled) {
   background: var(--surface-3);
   color: var(--text);
 }
