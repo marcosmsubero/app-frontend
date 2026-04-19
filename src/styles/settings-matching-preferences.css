@@ -1,49 +1,49 @@
-.settingsPreferencesPage {
+.settingsMatchingPreferencesPage {
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
-.settingsPreferences__header {
+.settingsMatchingPreferences__header {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
-.settingsPreferences__title {
+.settingsMatchingPreferences__title {
   margin: 0;
   font-size: 1.4rem;
   font-weight: 800;
   letter-spacing: -0.02em;
 }
 
-.settingsPreferences__subtitle {
+.settingsMatchingPreferences__subtitle {
   margin: 0;
   font-size: 0.88rem;
   color: var(--text-muted);
 }
 
-.settingsPreferences__saving,
-.settingsPreferences__error {
+.settingsMatchingPreferences__saving,
+.settingsMatchingPreferences__error {
   font-size: 0.82rem;
   margin: 0;
 }
 
-.settingsPreferences__saving {
+.settingsMatchingPreferences__saving {
   color: var(--primary);
 }
 
-.settingsPreferences__error {
+.settingsMatchingPreferences__error {
   color: #ef4444;
 }
 
-.settingsPreferences__section {
+.settingsMatchingPreferences__section {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.settingsPreferences__sectionTitle {
+.settingsMatchingPreferences__sectionTitle {
   margin: 0;
   font-size: 0.72rem;
   font-weight: 700;
@@ -52,7 +52,7 @@
   text-transform: uppercase;
 }
 
-.settingsPreferences__grid {
+.settingsMatchingPreferences__grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: 10px;

@@ -30,6 +30,7 @@ import SettingsAccountPage from "./pages/SettingsAccountPage";
 import SettingsPrivacyPage from "./pages/SettingsPrivacyPage";
 import SettingsNotificationsPage from "./pages/SettingsNotificationsPage";
 import SettingsPreferencesPage from "./pages/SettingsPreferencesPage";
+import SettingsMatchingPreferencesPage from "./pages/SettingsMatchingPreferencesPage";
 import SettingsPermissionsPage from "./pages/SettingsPermissionsPage";
 import SettingsBlockedUsersPage from "./pages/SettingsBlockedUsersPage";
 import SettingsHelpPage from "./pages/SettingsHelpPage";
@@ -248,6 +249,10 @@ export default function App() {
           <Route
             path="ajustes/preferencias"
             element={<SettingsPreferencesPage />}
+          />
+          <Route
+            path="ajustes/matcheo"
+            element={<SettingsMatchingPreferencesPage />}
           />
           <Route path="ajustes/permisos" element={<SettingsPermissionsPage />} />
           <Route

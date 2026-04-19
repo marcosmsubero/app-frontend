@@ -254,9 +254,16 @@ export default function PlaceholderSettingsPage() {
       >
         <SettingsLinkRow
           icon={<SlidersIcon />}
+          title="Preferencias"
+          text="Idioma, tema, unidades, radio de exploración y más."
+          to="/ajustes/preferencias"
+        />
+
+        <SettingsLinkRow
+          icon={<SlidersIcon />}
           title="Preferencias de matcheo"
           text="Define con quién quieres matchear: seguridad, running, logística y vibe."
-          to="/ajustes/preferencias"
+          to="/ajustes/matcheo"
         />
       </SettingsSection>
 
