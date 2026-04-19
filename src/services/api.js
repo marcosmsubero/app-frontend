@@ -300,10 +300,10 @@ export const apiUpdateMySettings = (payload, token) =>
 ============================================================================ */
 
 export const apiGetMyPreferences = (token) =>
-  api(`/api/me/preferences`, { token });
+  api(`/me/preferences`, { token });
 
 export const apiUpdateMyPreferences = (payload, token) =>
-  api(`/api/me/preferences`, { method: "PATCH", token, body: payload });
+  api(`/me/preferences`, { method: "PATCH", token, body: payload });
 
 /* ============================================================================
    BLOCKED USERS
