@@ -1,0 +1,76 @@
+/* Shared iPhone-style wheel picker styles. Imported directly by
+   src/components/ui/WheelPicker.jsx so any consumer gets the rules
+   automatically. Kept in sync with the legacy inline copy in
+   create-event.css, which remains there to avoid breaking existing
+   imports. */
+
+.wheelPicker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 64px;
+}
+
+.wheelPicker__label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.wheelPicker__viewport {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.wheelPicker__highlight {
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  border-radius: 10px;
+  background: rgba(110, 231, 160, 0.12);
+  border: 1px solid rgba(110, 231, 160, 0.2);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.wheelPicker__scroll {
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  scroll-snap-type: y mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  touch-action: pan-y;
+  overscroll-behavior: contain;
+}
+
+.wheelPicker__scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.wheelPicker__item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  scroll-snap-align: center;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-muted, #888);
+  cursor: pointer;
+  transition: color 0.15s ease;
+  user-select: none;
+}
+
+.wheelPicker__item.is-active {
+  color: var(--text, #fff);
+  font-weight: 800;
+}
+
+:root[data-theme="light"] .wheelPicker__highlight {
+  background: rgba(16, 185, 129, 0.14);
+  border-color: rgba(16, 185, 129, 0.3);
+}

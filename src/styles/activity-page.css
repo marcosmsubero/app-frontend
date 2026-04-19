@@ -1,0 +1,359 @@
+/* ============================================================
+   ActivityPage — Instagram-style tabs + list
+   ============================================================ */
+
+.actv {
+  gap: 0 !important;
+  padding: 0 !important;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: auto;
+  overflow: hidden;
+}
+
+/* --- Tabs bar --------------------------------------------- */
+
+.actv__tabs {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  /* Match the app background in both themes — tokens switch with
+     data-theme so no per-theme override needed. */
+  background: var(--bg);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.actv__tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 38px;
+  padding: 0 10px;
+  border: 0;
+  background: transparent;
+  color: var(--text-muted, #888);
+  font: inherit;
+  font-size: 0.84rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  position: relative;
+  transition: color 0.15s ease;
+}
+
+.actv__tab--active {
+  color: var(--text, #fff);
+}
+
+.actv__tab--active::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 20%;
+  right: 20%;
+  height: 2.5px;
+  border-radius: 2px;
+  background: var(--primary);
+  box-shadow: 0 0 8px rgba(110, 231, 160, 0.3);
+}
+
+.actv__tabBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--primary, #6ee7a0);
+  color: #0a1628;
+  font-size: 0.64rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+/* --- List ------------------------------------------------- */
+
+.actv__list {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  padding: var(--space-1, 4px) 0;
+}
+
+/* stagger entrance for thread/notif rows */
+.actv__list > *:nth-child(1) { animation-delay: 0ms; }
+.actv__list > *:nth-child(2) { animation-delay: 30ms; }
+.actv__list > *:nth-child(3) { animation-delay: 60ms; }
+.actv__list > *:nth-child(4) { animation-delay: 90ms; }
+.actv__list > *:nth-child(5) { animation-delay: 120ms; }
+.actv__list > *:nth-child(n+6) { animation-delay: 150ms; }
+
+.actv__list > * {
+  animation: actvRowIn 280ms var(--ease-out, ease) both;
+}
+
+@keyframes actvRowIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --- Row (thread or notification) ------------------------- */
+
+.actv__row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px var(--space-4, 16px);
+  border: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  background: transparent;
+  color: var(--text, #fff);
+  font: inherit;
+  text-align: left;
+  border-radius: var(--radius-md, 16px);
+  margin-bottom: 2px;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background 150ms var(--ease-out, ease),
+    transform 180ms var(--ease-spring, ease);
+}
+
+.actv__row:last-child {
+  border-bottom: 0;
+}
+
+.actv__row:active {
+  transform: scale(0.98);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+@media (hover: hover) {
+  .actv__row:hover {
+    background: rgba(255, 255, 255, 0.04);
+  }
+}
+
+.actv__row--unread {
+  /* Keep the unread affordance purely as a left-edge accent so the row
+     background matches the app background (no tint). */
+  background: transparent;
+  border-left: 3px solid var(--primary);
+}
+
+.actv__row--unread .actv__rowName {
+  font-weight: 800;
+}
+
+.actv__row--unread .actv__rowPreview {
+  color: var(--text-soft, #ccc);
+}
+
+/* --- Avatar ---------------------------------------------- */
+
+.actv__avatar {
+  flex-shrink: 0;
+  border-radius: var(--radius-lg, 20px);
+  object-fit: cover;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.actv__avatar--fallback {
+  display: grid;
+  place-items: center;
+  font-size: 0.84rem;
+  font-weight: 800;
+  color: var(--text, #fff);
+  background: linear-gradient(135deg, rgba(110, 231, 160, 0.12), rgba(125, 211, 252, 0.08));
+}
+
+/* --- Row body -------------------------------------------- */
+
+.actv__rowBody {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.actv__rowTop {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.actv__rowName {
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.actv__rowTime {
+  flex-shrink: 0;
+  font-size: 0.76rem;
+  color: var(--text-muted, #888);
+}
+
+.actv__rowPreview {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--text-muted, #888);
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* --- Right-side indicators ------------------------------- */
+
+.actv__badge {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--primary, #6ee7a0);
+  color: #0a1628;
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1;
+  box-shadow: 0 0 8px rgba(110, 231, 160, 0.3);
+}
+
+.actv__dot {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--primary, #6ee7a0);
+  box-shadow: 0 0 6px rgba(110, 231, 160, 0.4);
+}
+
+.actv__chevron {
+  flex-shrink: 0;
+  font-size: 1.2rem;
+  color: var(--text-muted, #666);
+  line-height: 1;
+}
+
+/* --- Empty state ----------------------------------------- */
+
+.actv__empty {
+  display: grid;
+  gap: 8px;
+  padding: 48px 24px;
+  text-align: center;
+  animation: actvRowIn 300ms var(--ease-out, ease) both;
+}
+
+.actv__emptyTitle {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text, #fff);
+}
+
+.actv__emptyText {
+  margin: 0;
+  font-size: 0.84rem;
+  color: var(--text-muted, #888);
+  line-height: 1.5;
+}
+
+/* --- Login card ------------------------------------------ */
+
+.actv__loginCard {
+  display: grid;
+  gap: 12px;
+  padding: 40px 24px;
+  text-align: center;
+}
+
+/* --- Responsive ------------------------------------------ */
+
+/* .actv__tabs + .actv__row--unread now use token-based transparent
+   backgrounds, so no per-theme override needed for those. */
+:root[data-theme="light"] .actv__row {
+    border-bottom-color: rgba(0, 0, 0, 0.05);
+  }
+:root[data-theme="light"] .actv__row:active {
+    background: rgba(0, 0, 0, 0.03);
+  }
+:root[data-theme="light"] .actv__avatar {
+    background: rgba(0, 0, 0, 0.06);
+  }
+
+@media (max-width: 380px) {
+  .actv__row {
+    padding: 10px 14px;
+    gap: 10px;
+  }
+
+  .actv__avatar {
+    width: 44px !important;
+    height: 44px !important;
+  }
+
+  .actv__rowName {
+    font-size: 0.86rem;
+  }
+
+  .actv__rowPreview {
+    font-size: 0.78rem;
+  }
+}
+
+@media (max-width: 320px) {
+  .actv__row {
+    padding: 8px 10px;
+    gap: 8px;
+  }
+
+  .actv__avatar {
+    width: 38px !important;
+    height: 38px !important;
+  }
+
+  .actv__tab {
+    font-size: 0.82rem;
+    min-height: 40px;
+  }
+
+  .actv__tabBadge {
+    min-width: 16px;
+    height: 16px;
+    font-size: 0.62rem;
+  }
+}
+
+
+.actv__row--static {
+  cursor: default;
+}
+
+.actv__row--static:active {
+  background: transparent;
+}

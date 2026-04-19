@@ -1,0 +1,537 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   MOBILE SHELL — Premium glass-morphism layout
+   Full-width frosted glass bars, rounded duotone nav, elevated FAB
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  --app-shell-max-width: 520px;
+  --app-shell-side-pad: 16px;
+  --app-topbar-height: 44px;
+  --app-bottom-nav-height: 64px;
+  --app-bar-blur: 18px;
+}
+
+/* Keyboard skip-link. Visually hidden until a Tab lands on it, then
+   slides into view in the top-left so the user can jump past all the
+   chrome and land directly on page content. */
+.appSkipLink {
+  position: fixed;
+  top: -100px;
+  left: 12px;
+  z-index: 9999;
+  padding: 10px 16px;
+  border-radius: var(--radius-md, 16px);
+  background: var(--primary);
+  color: #0a1628;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: var(--shadow-md);
+  transition: top 180ms var(--ease-out, ease);
+}
+
+.appSkipLink:focus,
+.appSkipLink:focus-visible {
+  top: max(12px, env(safe-area-inset-top));
+  outline: var(--focus-ring-width, 3px) solid var(--focus-ring-color, rgba(110, 231, 160, 0.55));
+  outline-offset: 2px;
+}
+
+/* ── App chrome (root wrapper) ── */
+
+.appChrome {
+  min-height: 100svh;
+  min-height: 100dvh;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: clip;
+  background: var(--bg, #080f1a);
+  color: var(--text, #f0f2f8);
+  isolation: isolate;
+}
+
+.appChrome__frame {
+  width: min(100%, var(--app-shell-max-width));
+  max-width: 100%;
+  margin: 0 auto;
+  min-height: 100svh;
+  min-height: 100dvh;
+  padding:
+    calc(var(--safe-top, 0px) + var(--app-topbar-height) + 10px)
+    var(--app-shell-side-pad)
+    calc(var(--app-bottom-nav-height) + 14px + var(--safe-bottom, 0px));
+}
+
+.appChrome__main,
+.appChrome__content {
+  display: grid;
+  gap: var(--space-4, 16px);
+  min-width: 0;
+  max-width: 100%;
+  /* Stop scroll chaining into the document when a list bottoms out,
+     so pull-to-refresh and rubber-band don't fire unexpectedly. */
+  overscroll-behavior-y: contain;
+}
+
+/* ── No-header mode: drop the topbar padding from the top edge while
+   keeping side + bottom spacing. Applied on all routes that don't
+   render the header (everything except profile). The safe-area top
+   inset still applies so content doesn't hide under the notch. */
+.appChrome__frame--noHeader {
+  padding-top: calc(var(--safe-top, 0px) + 10px);
+}
+
+/* ── Chat mode: remove shell spacing so chat can fill the screen ── */
+.appChrome__frame--chat {
+  width: 100%;
+  max-width: 100%;
+  min-height: 100svh;
+  min-height: 100dvh;
+  padding: 0;
+}
+
+.appChrome__frame--chat .appChrome__main,
+.appChrome__frame--chat .appChrome__content {
+  min-height: 100%;
+  height: 100%;
+  gap: 0;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   TOP BAR — Refined frosted glass with gradient accent
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.appTopbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 70;
+  padding-top: var(--safe-top, 0px);
+  overflow: clip;
+  background: var(--bg, #080f1a);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Minimal shell — used on login / register / onboarding. Centres the logo
+   and omits bottom-nav padding. */
+.appTopbar__inner--minimal {
+  justify-content: center;
+}
+
+.appChrome__frame--minimal {
+  padding-bottom: calc(14px + var(--safe-bottom, 0px));
+}
+
+.appTopbar__inner {
+  width: min(calc(100% - (var(--app-shell-side-pad) * 2)), var(--app-shell-max-width));
+  max-width: 100%;
+  height: var(--app-topbar-height);
+  margin: 0 auto;
+  padding: 0 4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  position: relative;
+  min-width: 0;
+}
+
+.appTopbar__logo {
+  height: 34px;
+  width: auto;
+  max-width: min(48vw, 140px);
+  object-fit: contain;
+  object-position: left center;
+  display: block;
+  pointer-events: none;
+  user-select: none;
+  opacity: 0.95;
+}
+
+/* Page-title variant of the topbar brand slot. Used on routes that own
+   the vertical space so strongly that the logo would feel redundant
+   (e.g. /eventos). The title replaces the logo inline — same baseline,
+   same tap-exclusion area. Styled distinctly per theme so it reads as
+   a *title*, not a label: heavy in dark (high contrast, tight tracking),
+   gradient-tinted underline in light (matches brand accent). */
+.appTopbar__pageTitle {
+  margin: 0;
+  padding: 0;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1;
+  color: var(--text);
+  user-select: none;
+  position: relative;
+  display: inline-block;
+}
+
+/* Dark mode: pure high-contrast white, no decoration. The weight and
+   tight tracking do the visual work. */
+:root[data-theme="dark"] .appTopbar__pageTitle {
+  color: #ffffff;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+/* Light mode: near-black title with a short brand-gradient underline
+   that echoes the "Vibe" underline from the logo. This keeps the visual
+   language of the topbar consistent even when the logo is hidden. */
+:root[data-theme="light"] .appTopbar__pageTitle {
+  color: #0a0a0a;
+}
+
+:root[data-theme="light"] .appTopbar__pageTitle::after {
+  content: "";
+  position: absolute;
+  left: 2px;
+  right: 6px;
+  bottom: -4px;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #8df2b6, #22c55e);
+  opacity: 0.65;
+}
+
+/* "Run" in the logo inherits currentColor from the topbar, so the
+   per-theme override lives in the color token, not in this stylesheet. */
+.appTopbar {
+  color: var(--text);
+}
+
+/* Settings button — icon-only, transparent chrome. The visual glyph stays
+   small (18px) to keep the topbar compact, but the tap target is expanded
+   to 44×44 via min-width/min-height so it still meets WCAG 2.5.5. The
+   surrounding area is invisible — pure hitbox extension. */
+.appTopbar__settings {
+  min-width: var(--tap-min, 44px);
+  min-height: var(--tap-min, 44px);
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+  border: none;
+  background: transparent;
+  color: var(--text-soft, rgba(240, 242, 248, 0.72));
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  padding: 0;
+  /* Nudge the icon slightly toward the edge so the bigger hitbox doesn't
+     visually push the icon away from the corner where users expect it. */
+  margin-inline-end: -10px;
+  transition:
+    color 160ms var(--ease-out, ease),
+    transform 140ms var(--ease-out, ease);
+}
+
+.appTopbar__settings:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+@media (hover: hover) {
+  .appTopbar__settings:hover {
+    color: var(--text, #f0f2f8);
+  }
+}
+
+.appTopbar__settings svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+/* Legacy PNG icon — hide by default since we're switching to SVG */
+.appTopbar__settingsIcon {
+  display: none;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   BOTTOM NAV — Full-width frosted glass with gradient border
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.bottomNav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 80;
+  padding-bottom: var(--safe-bottom, 0px);
+  overflow: visible;
+}
+
+.bottomNav__glass {
+  /* Solid anchor at the bottom. Single hairline border does all the
+     separation work — no gradient decorations. */
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+  position: relative;
+}
+
+.bottomNav__list {
+  width: min(calc(100% - (var(--app-shell-side-pad) * 2)), var(--app-shell-max-width));
+  max-width: 100%;
+  min-height: var(--app-bottom-nav-height);
+  margin: 0 auto;
+  padding: 6px 0 4px;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  place-items: center;
+  gap: 0;
+  position: relative;
+}
+
+/* ── Sliding indicator pill ── */
+.bottomNav__indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 28px;
+  height: 3px;
+  border-radius: 0 0 var(--radius-pill, 999px) var(--radius-pill, 999px);
+  background: var(--primary);
+  transition:
+    transform 220ms var(--ease-out, ease),
+    opacity 160ms var(--ease-out, ease);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* ── Nav link ── */
+.bottomNav__link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-width: 0;
+  height: var(--app-bottom-nav-height);
+  padding: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted, rgba(240, 242, 248, 0.44));
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    color 160ms var(--ease-out, ease),
+    transform 140ms var(--ease-out, ease);
+  position: relative;
+}
+
+.bottomNav__link:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+.bottomNav__link svg {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  transition:
+    transform 180ms var(--ease-out, ease),
+    opacity 160ms var(--ease-out, ease);
+}
+
+/* Labels intentionally removed from markup; rule kept as no-op in case
+   legacy consumers still ship one. */
+.bottomNav__label {
+  display: none !important;
+}
+
+/* ── Active state ── */
+.bottomNav__link.is-active {
+  color: var(--primary, #6ee7a0);
+}
+
+.bottomNav__link.is-active svg {
+  transform: translateY(-1px) scale(1.03);
+  opacity: 1;
+}
+
+.bottomNav__link.is-active .bottomNav__label {
+  opacity: 1;
+  color: var(--primary, #6ee7a0);
+  transform: none;
+}
+
+/* ── Desktop hover for non-active ── */
+@media (hover: hover) {
+  .bottomNav__link:not(.is-active):hover {
+    color: var(--text-soft, rgba(240, 242, 248, 0.72));
+  }
+
+  .bottomNav__link:not(.is-active):hover svg {
+    transform: translateY(-1px) scale(1.02);
+  }
+
+  .bottomNav__link:not(.is-active):hover .bottomNav__label {
+    opacity: 0.8;
+  }
+}
+
+
+/* ── FAB (create event) — elevated gradient with glow ── */
+
+.bottomNav__fabWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--app-bottom-nav-height);
+}
+
+.bottomNav__fab {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--primary);
+  color: #0a1628;
+  cursor: pointer;
+  transform: translateY(-6px);
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+  z-index: 3;
+  transition: transform var(--transition-press, 140ms) var(--ease-out);
+}
+
+.bottomNav__fab:active {
+  transform: translateY(-6px) scale(0.97);
+}
+
+@media (hover: hover) {
+  .bottomNav__fab:hover {
+    transform: translateY(-8px);
+  }
+}
+
+.bottomNav__fab svg {
+  width: 22px;
+  height: 22px;
+  transition: transform 160ms var(--ease-out, ease);
+}
+
+.bottomNav__fab:active svg {
+  transform: scale(0.96);
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   LIGHT MODE
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root[data-theme="light"] .appChrome {
+    background: var(--bg, #f5f7fa);
+    color: var(--text, #1a1f2e);
+  }
+:root[data-theme="light"] .appTopbar {
+    background: var(--bg, #f5f7fa);
+    border-bottom-color: rgba(0, 0, 0, 0.06);
+  }
+:root[data-theme="light"] .appTopbar::after {
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(22, 163, 74, 0.12) 30%,
+      rgba(59, 130, 246, 0.06) 70%,
+      transparent
+    );
+  }
+:root[data-theme="light"] .appTopbar__settings {
+    color: var(--text-soft, #555);
+  }
+:root[data-theme="light"] .appTopbar__settings:hover {
+    color: var(--text, #1a1f2e);
+  }
+:root[data-theme="light"] .bottomNav__glass {
+    background: var(--bg, #f5f7fa);
+    border-top-color: rgba(0, 0, 0, 0.05);
+  }
+:root[data-theme="light"] .bottomNav__link {
+    color: rgba(17, 24, 39, 0.35);
+  }
+:root[data-theme="light"] .bottomNav__link.is-active {
+    color: var(--primary, #16a34a);
+  }
+:root[data-theme="light"] .bottomNav__indicator {
+    background: var(--primary, #16a34a);
+  }
+:root[data-theme="light"] .bottomNav__label {
+    color: rgba(17, 24, 39, 0.45);
+  }
+:root[data-theme="light"] .bottomNav__link.is-active .bottomNav__label {
+    color: var(--primary, #16a34a);
+  }
+:root[data-theme="light"] .bottomNav__fab {
+    background: var(--primary);
+    color: #ffffff;
+  }
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Small screens ── */
+@media (max-width: 360px) {
+  :root {
+    --app-shell-side-pad: 12px;
+    --app-bottom-nav-height: 58px;
+  }
+
+  .appTopbar__logo {
+    max-width: 130px;
+    height: 30px;
+  }
+
+  .bottomNav__fab {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    transform: translateY(-6px);
+  }
+
+  .bottomNav__link svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .bottomNav__label {
+    font-size: 0.58rem;
+  }
+}
+
+/* ── Extra-small screens ── */
+@media (max-width: 320px) {
+  :root {
+    --app-topbar-height: 44px;
+    --app-bottom-nav-height: 52px;
+  }
+
+  .appTopbar__logo {
+    max-width: 116px;
+    height: 26px;
+  }
+
+  .bottomNav__fab {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    transform: translateY(-4px);
+  }
+
+  /* Keep 44×44 hitbox even on small screens; just tighten the icon. */
+  .appTopbar__settings svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .bottomNav__link svg {
+    width: 20px;
+    height: 20px;
+  }
+}

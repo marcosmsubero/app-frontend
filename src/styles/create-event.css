@@ -1,0 +1,1003 @@
+.createEventPage {
+  display: grid;
+  gap: 18px;
+}
+
+.createEventHero {
+  display: grid;
+  gap: 12px;
+  padding: 20px;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background:
+    radial-gradient(circle at top right, rgba(124, 233, 155, 0.14), transparent 32%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.02)),
+    rgba(255, 255, 255, 0.03);
+  box-shadow: var(--shadow-md);
+}
+
+.createEventHero__title {
+  margin: 0;
+  color: var(--text);
+  font-size: 1.42rem;
+  line-height: 1.04;
+  letter-spacing: -0.045em;
+  font-weight: 800;
+}
+
+.createEventHero__date {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  min-height: 38px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text);
+  font-size: 0.84rem;
+  font-weight: 700;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.createEventFormCard {
+  display: grid;
+  gap: 16px;
+  padding: 16px;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.02)),
+    rgba(255, 255, 255, 0.025);
+  box-shadow: var(--shadow-md);
+}
+
+.createEventForm {
+  display: grid;
+  gap: 16px;
+}
+
+.createEventSection {
+  display: grid;
+  gap: 14px;
+  padding: 12px 2px;
+}
+
+.createEventSection + .createEventSection {
+  border-top: 1px solid var(--border, rgba(255, 255, 255, 0.06));
+}
+
+.createEventSection__title {
+  color: var(--text);
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.createEventForm__group {
+  display: grid;
+  gap: 8px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   FLOATING FIELD — the label sits INSIDE the input by default, same size
+   as the typing area. On focus/fill it shrinks and rises to the top edge,
+   freeing the label row and cutting ~24px of vertical height per field.
+   The trick: `placeholder=" "` keeps `:placeholder-shown` truthy when
+   empty; the label uses that to decide resting vs. floated position.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.floatingField {
+  position: relative;
+  display: block;
+}
+
+.floatingField__input,
+.floatingField__textarea {
+  width: 100%;
+  padding: 22px 14px 8px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  background: var(--surface-2);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.95rem;
+  line-height: 1.3;
+  outline: none;
+  transition: border-color 160ms var(--ease-out, ease), background 160ms var(--ease-out, ease);
+  box-sizing: border-box;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.floatingField__textarea {
+  resize: vertical;
+  min-height: 120px;
+  padding-top: 26px;
+}
+
+/* Placeholder must be invisible — the label plays that role instead. */
+.floatingField__input::placeholder,
+.floatingField__textarea::placeholder {
+  color: transparent;
+}
+
+.floatingField__input:focus,
+.floatingField__textarea:focus {
+  border-color: var(--primary);
+  background: var(--surface-3);
+}
+
+.floatingField__label {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 0 2px;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  font-weight: 500;
+  line-height: 1;
+  pointer-events: none;
+  background: transparent;
+  transition:
+    top 180ms var(--ease-out, ease),
+    font-size 180ms var(--ease-out, ease),
+    color 180ms var(--ease-out, ease),
+    transform 180ms var(--ease-out, ease);
+}
+
+/* Textareas: the label starts near the top (not centered) because the
+   field is tall. */
+.floatingField--textarea .floatingField__label {
+  top: 18px;
+  transform: translateY(0);
+}
+
+/* Floated state — applied when the input is focused OR has a value
+   (i.e. the placeholder is no longer being shown). */
+.floatingField__input:focus ~ .floatingField__label,
+.floatingField__input:not(:placeholder-shown) ~ .floatingField__label,
+.floatingField__textarea:focus ~ .floatingField__label,
+.floatingField__textarea:not(:placeholder-shown) ~ .floatingField__label {
+  top: 8px;
+  transform: translateY(0);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.floatingField__input:focus ~ .floatingField__label,
+.floatingField__textarea:focus ~ .floatingField__label {
+  color: var(--primary);
+}
+
+/* Native date/time pickers always "show" their own UI, so
+   :placeholder-shown doesn't behave like on text fields. Force the
+   floated state unconditionally for those. */
+.floatingField--always-floated .floatingField__label {
+  top: 8px;
+  transform: translateY(0);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.floatingField--always-floated .floatingField__input:focus ~ .floatingField__label {
+  color: var(--primary);
+}
+
+/* Select variant — invokes the OS-native wheel on iOS and the native
+   dropdown on Android. We reset the default select chrome so it matches
+   the other floating fields, then paint our own caret on the right. */
+.floatingField--select {
+  position: relative;
+}
+
+.floatingField--select .floatingField__input {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 34px;
+  cursor: pointer;
+  /* Empty value would otherwise render as a blank — keep the row
+     balanced so the caret column stays visible. */
+  min-height: 56px;
+}
+
+.floatingField--select::after {
+  content: "";
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid var(--text-muted);
+  border-bottom: 2px solid var(--text-muted);
+  transform: translateY(-70%) rotate(45deg);
+  pointer-events: none;
+  transition: border-color 160ms var(--ease-out, ease);
+}
+
+.floatingField--select:focus-within::after {
+  border-right-color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+
+.createEventForm__groupHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.createEventForm__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: 12px;
+}
+
+.createEventForm__control {
+  width: 100%;
+}
+
+.createEventForm .app-label {
+  color: var(--text-muted);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.createEventForm .app-input,
+.createEventForm .app-select,
+.createEventForm .app-textarea {
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  box-shadow: none;
+}
+
+.createEventForm .app-input::placeholder,
+.createEventForm .app-textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.createEventForm .app-input:focus,
+.createEventForm .app-select:focus,
+.createEventForm .app-textarea:focus {
+  border-color: rgba(124, 233, 155, 0.42);
+  box-shadow: 0 0 0 3px rgba(124, 233, 155, 0.08);
+  outline: none;
+}
+
+.createEventForm__textarea {
+  min-height: 124px;
+  resize: vertical;
+}
+
+.createEventPlaceRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 44px;
+  gap: 8px;
+  align-items: center;
+}
+
+.createEventIconBtn {
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--surface-3, rgba(255, 255, 255, 0.05));
+  color: var(--text);
+  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+
+.createEventIconBtn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.createEventIconBtn:active {
+  transform: scale(0.96);
+}
+
+.createEventTimeScroller {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: max-content;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 2px 0 4px;
+  scrollbar-width: none;
+}
+
+.createEventTimeScroller::-webkit-scrollbar {
+  display: none;
+}
+
+.createEventTimeChip {
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-soft);
+  font-size: 0.82rem;
+  font-weight: 700;
+  white-space: nowrap;
+  transition:
+    transform 0.18s ease,
+    background 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease;
+}
+
+.createEventTimeChip.is-active {
+  background: rgba(124, 233, 155, 0.14);
+  border-color: rgba(124, 233, 155, 0.32);
+  color: var(--text);
+}
+
+.createEventActionBtn {
+  min-height: 36px;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--surface-3, rgba(255, 255, 255, 0.05));
+  color: var(--text);
+  font-size: 0.78rem;
+  font-weight: 700;
+  transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+}
+
+.createEventActionBtn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.createEventActionBtn:active {
+  transform: scale(0.97);
+}
+
+.createEventUploadBox {
+  border-radius: 18px;
+  border: 1px dashed rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.025);
+  overflow: hidden;
+}
+
+.createEventUploadPreview {
+  display: grid;
+  gap: 10px;
+}
+
+.createEventUploadPreview__image {
+  width: 100%;
+  display: block;
+  max-height: 220px;
+  object-fit: cover;
+}
+
+.createEventUploadPreview__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0 12px 12px;
+}
+
+.createEventUploadPreview__name {
+  min-width: 0;
+  color: var(--text);
+  font-size: 0.82rem;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.createEventLinksEditor {
+  display: grid;
+  gap: 10px;
+}
+
+.createEventLinksEditor__row {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr) auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.createEventInlineRemove {
+  min-height: 32px;
+  padding: 0 10px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.createEventLinksSummary {
+  display: grid;
+  gap: 8px;
+}
+
+.createEventLinksSummary__item {
+  display: grid;
+  gap: 2px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.createEventLinksSummary__title {
+  color: var(--text);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.createEventLinksSummary__url {
+  color: var(--text-soft);
+  font-size: 0.8rem;
+  line-height: 1.45;
+  word-break: break-word;
+}
+
+.createEventActions {
+  padding-top: 2px;
+}
+
+.createEventSubmitBtn {
+  width: 100%;
+  min-height: 48px;
+  justify-content: center;
+  border-radius: 16px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  color: #000;
+}
+
+@media (max-width: 420px) {
+  .createEventHero {
+    padding: 18px;
+    border-radius: 22px;
+  }
+
+  .createEventFormCard {
+    padding: 14px;
+    border-radius: 22px;
+  }
+
+  .createEventSection {
+    padding: 12px;
+  }
+
+  .createEventForm__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .createEventPlaceRow {
+    grid-template-columns: 1fr 44px;
+  }
+
+  .createEventLinksEditor__row {
+    grid-template-columns: 1fr;
+  }
+
+  .createEventForm__groupHead {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+
+.createEventLoadingState {
+  color: var(--text-muted);
+  font-size: 0.92rem;
+}
+
+.createEventLocationGroup {
+  position: relative;
+}
+
+.createEventAutocomplete {
+  position: relative;
+}
+
+.createEventAutocomplete__menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  z-index: 12;
+  display: grid;
+  gap: 6px;
+  padding: 8px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(10, 12, 20, 0.98);
+  box-shadow: var(--shadow-md);
+}
+
+.createEventAutocomplete__item,
+.createEventAutocomplete__status {
+  min-width: 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  font-size: 0.82rem;
+  line-height: 1.4;
+  text-align: left;
+}
+
+.createEventAutocomplete__item:active {
+  transform: scale(0.99);
+}
+
+.createEventForm__hint {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.76rem;
+  line-height: 1.45;
+}
+
+.createEventSelectedPlace {
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(124, 233, 155, 0.18);
+  background: rgba(124, 233, 155, 0.08);
+  color: var(--text);
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+/* Selected place with icon */
+.createEventSelectedPlace {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* iOS ALARM-STYLE TIME PICKER */
+
+.createEventTimePicker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px;
+  border-radius: 16px;
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+  background: rgba(255, 255, 255, 0.03);
+  touch-action: pan-y;
+  overscroll-behavior: contain;
+  overflow: hidden;
+}
+
+.createEventTimePicker__separator {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--text);
+  padding: 0 4px;
+}
+
+.wheelPicker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 64px;
+}
+
+.wheelPicker__label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.wheelPicker__viewport {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.wheelPicker__highlight {
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  border-radius: 10px;
+  background: rgba(110, 231, 160, 0.12);
+  border: 1px solid rgba(110, 231, 160, 0.2);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.wheelPicker__scroll {
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  scroll-snap-type: y mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  touch-action: pan-y;
+  overscroll-behavior: contain;
+}
+
+.wheelPicker__scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.wheelPicker__item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  scroll-snap-align: center;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-muted, #888);
+  cursor: pointer;
+  transition: color 0.15s ease;
+  user-select: none;
+}
+
+.wheelPicker__item.is-active {
+  color: var(--text, #fff);
+  font-weight: 800;
+}
+
+/* MAP PICKER */
+
+.createEventMapPicker {
+  display: grid;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.createEventMapPicker__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  padding: 8px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text, #fff);
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.createEventMapPicker__toggle:active {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.createEventMapPicker__coords {
+  font-size: 0.72rem;
+  color: var(--text-muted, #888);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.createEventMapPicker__map {
+  width: 100%;
+  height: 240px;
+  border-radius: 16px;
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+  overflow: hidden;
+  z-index: 0;
+}
+
+/* APPROVAL TOGGLE */
+
+.createEventToggleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.createEventToggleRow__copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.createEventToggleRow__hint {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.createEventToggle {
+  position: relative;
+  width: 50px;
+  height: 28px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.2s ease;
+}
+
+.createEventToggle.is-on {
+  background: var(--primary, #6ee7a0);
+}
+
+.createEventToggle__thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease;
+}
+
+.createEventToggle.is-on .createEventToggle__thumb {
+  transform: translateX(22px);
+}
+
+/* SCROLLABLE DISTANCE/ELEVATION PICKER */
+
+.createEventScrollPicker {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  border-radius: 14px;
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.createEventScrollPicker::-webkit-scrollbar {
+  display: none;
+}
+
+.createEventScrollPicker__track {
+  display: flex;
+  gap: 4px;
+  padding: 6px;
+  min-width: max-content;
+}
+
+.createEventScrollPicker__chip {
+  flex-shrink: 0;
+  min-width: 40px;
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: var(--surface-3, rgba(255, 255, 255, 0.05));
+  color: var(--text-muted, #888);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.createEventScrollPicker__chip:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.createEventScrollPicker__chip.is-active {
+  background: rgba(110, 231, 160, 0.15);
+  border-color: rgba(110, 231, 160, 0.3);
+  color: var(--primary, #6ee7a0);
+  font-weight: 700;
+}
+
+.createEventScrollPicker__value {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--primary, #6ee7a0);
+  padding-top: 4px;
+}
+
+/* DATE INPUT STYLING */
+
+.createEventForm__control[type="date"] {
+  color-scheme: dark;
+}
+
+:root[data-theme="light"] .createEventForm__control[type="date"] {
+    color-scheme: light;
+  }
+
+/* ---- Light theme overrides ---- */
+:root[data-theme="light"] .createEventFormCard {
+    background: var(--surface);
+  }
+:root[data-theme="light"] .createEventSection {
+    background: rgba(0, 0, 0, 0.02);
+    border-color: rgba(0, 0, 0, 0.08);
+  }
+:root[data-theme="light"] .createEventTimeScroller {
+    background: rgba(0, 0, 0, 0.02);
+    border-color: rgba(0, 0, 0, 0.08);
+  }
+:root[data-theme="light"] .createEventTimeChip {
+    border-color: rgba(0, 0, 0, 0.08);
+    background: rgba(0, 0, 0, 0.02);
+  }
+:root[data-theme="light"] .createEventTimeChip.is-active {
+    background: var(--primary);
+    color: #fff;
+  }
+:root[data-theme="light"] .createEventUploadBox {
+    background: rgba(0, 0, 0, 0.02);
+    border-color: rgba(0, 0, 0, 0.08);
+  }
+:root[data-theme="light"] .createEventAutocomplete__menu {
+    background: #fff;
+    border-color: rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  }
+:root[data-theme="light"] .createEventAutocomplete__item {
+    background: rgba(0, 0, 0, 0.02);
+  }
+:root[data-theme="light"] .createEventAutocomplete__item:hover {
+    background: rgba(0, 0, 0, 0.05);
+  }
+:root[data-theme="light"] .createEventSelectedPlace {
+    border-color: rgba(22, 163, 74, 0.2);
+    background: rgba(22, 163, 74, 0.06);
+  }
+:root[data-theme="light"] .createEventActionBtn {
+    background: rgba(0, 0, 0, 0.03);
+    border-color: rgba(0, 0, 0, 0.1);
+  }
+:root[data-theme="light"] /* Time picker light */
+  .createEventTimePicker {
+    background: rgba(0, 0, 0, 0.02);
+    border-color: rgba(0, 0, 0, 0.08);
+  }
+:root[data-theme="light"] .wheelPicker__highlight {
+    background: rgba(22, 163, 74, 0.1);
+    border-color: rgba(22, 163, 74, 0.2);
+  }
+:root[data-theme="light"] /* Toggle light */
+  .createEventToggle {
+    background: rgba(0, 0, 0, 0.12);
+  }
+:root[data-theme="light"] .createEventToggle.is-on {
+    background: var(--primary, #16a34a);
+  }
+:root[data-theme="light"] /* Scroll picker light */
+  .createEventScrollPicker {
+    background: rgba(0, 0, 0, 0.02);
+    border-color: rgba(0, 0, 0, 0.08);
+  }
+:root[data-theme="light"] .createEventScrollPicker__chip {
+    background: rgba(0, 0, 0, 0.03);
+    color: var(--text-muted);
+  }
+:root[data-theme="light"] .createEventScrollPicker__chip:hover {
+    background: rgba(0, 0, 0, 0.06);
+  }
+:root[data-theme="light"] .createEventScrollPicker__chip.is-active {
+    background: rgba(22, 163, 74, 0.1);
+    border-color: rgba(22, 163, 74, 0.25);
+    color: var(--primary, #16a34a);
+  }
+:root[data-theme="light"] .createEventScrollPicker__value {
+    color: var(--primary, #16a34a);
+  }
+:root[data-theme="light"] .createEventMapPicker__toggle {
+    background: rgba(0, 0, 0, 0.03);
+    border-color: rgba(0, 0, 0, 0.1);
+    color: var(--text);
+  }
+:root[data-theme="light"] .createEventMapPicker__toggle:active {
+    background: rgba(0, 0, 0, 0.06);
+  }
+
+/* ============================================================================
+   Training type selector (carrera continua / series)
+============================================================================ */
+
+.trainingTypeRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.trainingTypeRow__chip {
+  appearance: none;
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text, #f0f2f8);
+  padding: 12px 10px;
+  border-radius: 14px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  transition: background 140ms ease, border-color 140ms ease,
+    color 140ms ease, transform 140ms ease;
+}
+
+.trainingTypeRow__chip:hover,
+.trainingTypeRow__chip:active {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.trainingTypeRow__chip.is-active {
+  background: rgba(110, 231, 160, 0.14);
+  border-color: rgba(110, 231, 160, 0.55);
+  color: var(--primary, #6ee7a0);
+}
+
+.trainingTypeRow__chip:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+:root[data-theme="light"] .trainingTypeRow__chip {
+  background: rgba(0, 0, 0, 0.02);
+  border-color: rgba(0, 0, 0, 0.08);
+  color: var(--text);
+}
+
+:root[data-theme="light"] .trainingTypeRow__chip:hover,
+:root[data-theme="light"] .trainingTypeRow__chip:active {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+:root[data-theme="light"] .trainingTypeRow__chip.is-active {
+  background: rgba(22, 163, 74, 0.1);
+  border-color: rgba(22, 163, 74, 0.4);
+  color: var(--primary);
+}
+
+/* ============================================================================
+   Side-by-side wheel pickers for distance + elevation
+============================================================================ */
+
+.createEventWheelRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  align-items: start;
+}
+
+.createEventWheelRow__col {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.createEventWheelRow__col .app-label {
+  text-align: center;
+}
+
+/* A touch more breathing room around the (already-styled) wheel picker when
+ * it's inside the paired layout above. */
+.createEventWheelRow .wheelPicker {
+  margin-top: 2px;
+}

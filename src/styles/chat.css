@@ -1,0 +1,486 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   CHAT — WhatsApp-style layout
+   Full-screen chat, only messages scroll
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.chatPage {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100dvh;
+  max-height: 100dvh;
+  min-height: 100dvh;
+  overflow: hidden;
+  overscroll-behavior: none;
+  background: var(--bg, #080f1a);
+  box-sizing: border-box;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   HEADER
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.chatHeader {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: calc(env(safe-area-inset-top, 0px) + 8px) 12px 8px;
+  min-height: 54px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text);
+  box-sizing: border-box;
+  position: relative;
+  z-index: 5;
+}
+
+.chatHeader__back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 200ms var(--ease-spring, ease);
+}
+
+.chatHeader__back:active {
+  transform: scale(0.88);
+}
+
+.chatHeader__back svg {
+  width: 20px;
+  height: 20px;
+}
+
+.chatHeader__avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--surface-2);
+}
+
+.chatHeader__avatar--fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--text);
+  background: linear-gradient(135deg, rgba(110, 231, 160, 0.22), rgba(125, 211, 252, 0.18));
+}
+
+.chatHeader__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.chatHeader__name {
+  margin: 0;
+  font-size: 0.94rem;
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MESSAGES
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.chatMessages {
+  flex: 1 1 auto;
+  min-height: 0;
+  min-width: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  padding: 12px 14px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 1;
+}
+
+.chatMessages__end {
+  height: 8px;
+  flex-shrink: 0;
+}
+
+.chatMessages__state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-soft, rgba(240, 242, 248, 0.72));
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.chatMessages__stateHint {
+  color: var(--text-muted, rgba(240, 242, 248, 0.44));
+  font-size: 0.82rem;
+  font-weight: 400;
+  margin-top: 4px;
+}
+
+
+/* ── Date separator ── */
+
+.chatDateSeparator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 0 6px;
+}
+
+.chatDateSeparator span {
+  padding: 4px 12px;
+  border-radius: var(--radius-pill, 999px);
+  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: capitalize;
+}
+
+
+/* ── Bubble rows ── */
+
+.chatBubbleRow {
+  display: flex;
+  max-width: 82%;
+  animation: chatBubbleIn 180ms var(--ease-out, ease) both;
+}
+
+@keyframes chatBubbleIn {
+  from { opacity: 0; transform: translateY(6px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.chatBubbleRow--mine {
+  align-self: flex-end;
+}
+
+.chatBubbleRow--theirs {
+  align-self: flex-start;
+}
+
+
+/* ── Bubble ── */
+
+/* WhatsApp-style bubble. Green for me, neutral surface for them.
+   Time + status glyph sit inline with the text (via chatBubble__meta
+   floated right) so short messages wrap around the timestamp elegantly. */
+.chatBubble {
+  padding: 6px 10px 4px;
+  border-radius: 12px;
+  font-size: var(--text-base, 0.9375rem);
+  line-height: 1.3;
+  word-break: break-word;
+  white-space: pre-wrap;
+  position: relative;
+  max-width: 100%;
+  transition:
+    opacity 220ms var(--ease-out, ease),
+    filter 220ms var(--ease-out, ease);
+}
+
+.chatBubble--sending {
+  opacity: 0.72;
+  filter: blur(1.5px) saturate(0.9);
+}
+
+.chatBubble--delivered {
+  opacity: 1;
+  filter: none;
+}
+
+/* Mine — sent bubble: green tinted surface, tail on right. */
+.chatBubbleRow--mine .chatBubble {
+  background: var(--primary-soft);
+  color: var(--text);
+  border-bottom-right-radius: 4px;
+}
+
+.chatBubbleRow--mine .chatBubble::after {
+  content: "";
+  position: absolute;
+  right: -6px;
+  bottom: 0;
+  width: 12px;
+  height: 12px;
+  background: var(--primary-soft);
+  clip-path: polygon(0 0, 100% 100%, 0 100%);
+}
+
+/* Theirs — received bubble: surface-2 (white in light, dark card in dark),
+   tail on left. */
+.chatBubbleRow--theirs .chatBubble {
+  background: var(--surface-2);
+  color: var(--text);
+  border-bottom-left-radius: 4px;
+  border: 1px solid var(--border-subtle);
+}
+
+.chatBubbleRow--theirs .chatBubble::after {
+  content: "";
+  position: absolute;
+  left: -6px;
+  bottom: 0;
+  width: 12px;
+  height: 12px;
+  background: var(--surface-2);
+  border-left: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+}
+
+.chatBubble__text {
+  display: inline;
+}
+
+/* Timestamp + checks live inside the bubble, bottom-right, inlined so
+   they share the last line of text when it fits. */
+.chatBubble__meta {
+  display: inline-flex;
+  align-items: baseline;
+  float: right;
+  margin: 6px 0 -1px 8px;
+  font-size: 0.68rem;
+  line-height: 1;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.chatBubbleRow--mine .chatBubble__meta {
+  color: var(--text-muted);
+}
+
+.chatBubbleRow--theirs .chatBubble__meta {
+  color: var(--text-muted);
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   COMPOSER
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.chatComposer {
+  flex: 0 0 auto;
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  /* Keep the composer above the iOS home indicator / Android gesture bar
+     while still reserving a visible gap on notchless devices. */
+  padding: 8px 12px max(12px, env(safe-area-inset-bottom, 0px));
+  background: var(--surface);
+  border-top: 1px solid var(--border-subtle);
+  box-sizing: border-box;
+  transform: translateZ(0);
+  position: relative;
+  z-index: 10;
+}
+
+.chatComposer__inputWrap {
+  flex: 1;
+  min-width: 0;
+}
+
+.chatComposer__input {
+  width: 100%;
+  min-height: 38px;
+  max-height: 120px;
+  padding: 9px 14px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 22px;
+  background: var(--surface-2);
+  color: var(--text);
+  font: inherit;
+  font-size: 16px;
+  line-height: 1.35;
+  resize: none;
+  outline: none;
+  box-sizing: border-box;
+  overflow-y: auto;
+  -webkit-appearance: none;
+  appearance: none;
+  transition: border-color 200ms ease, background 200ms ease;
+}
+
+.chatComposer__input:focus {
+  border-color: var(--primary);
+  background: var(--surface-3);
+}
+
+.chatComposer__input::placeholder {
+  color: var(--text-muted);
+}
+
+.chatComposer__send {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border: none;
+  border-radius: 999px;
+  background: var(--primary, #6ee7a0);
+  color: #0a1628;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(110, 231, 160, 0.2);
+  transition:
+    opacity 200ms ease,
+    transform 200ms var(--ease-spring, ease),
+    box-shadow 200ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.chatComposer__send svg {
+  width: 20px;
+  height: 20px;
+}
+
+.chatComposer__send:disabled {
+  opacity: 0.35;
+  cursor: default;
+  box-shadow: none;
+}
+
+.chatComposer__send:active:not(:disabled) {
+  transform: scale(0.88);
+}
+
+@media (hover: hover) {
+  .chatComposer__send:not(:disabled):hover {
+    box-shadow: 0 4px 16px rgba(110, 231, 160, 0.3);
+    transform: scale(1.05);
+  }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   RESPONSIVE TWEAKS
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 380px) {
+  .chatBubbleRow {
+    max-width: 88%;
+  }
+
+  .chatComposer {
+    gap: 6px;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .chatMessages {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+}
+
+
+/* ── Messages inbox list: entrance stagger (Emil) ──
+   Short 40ms stagger between rows on first paint. Feels alive but never
+   blocks interaction; after ~240ms all rows are in place. Applied with
+   CSS animation so the browser handles it off-thread, and `fill: both`
+   holds the final state so the rows don't reset on re-render. */
+
+.messagesSimple__list {
+  display: grid;
+  gap: 4px;
+}
+
+.messagesSimple__list > * {
+  animation: messagesRowIn 260ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)) both;
+}
+
+.messagesSimple__list > *:nth-child(1) { animation-delay: 0ms; }
+.messagesSimple__list > *:nth-child(2) { animation-delay: 40ms; }
+.messagesSimple__list > *:nth-child(3) { animation-delay: 80ms; }
+.messagesSimple__list > *:nth-child(4) { animation-delay: 120ms; }
+.messagesSimple__list > *:nth-child(5) { animation-delay: 160ms; }
+.messagesSimple__list > *:nth-child(6) { animation-delay: 200ms; }
+.messagesSimple__list > *:nth-child(n+7) { animation-delay: 240ms; }
+
+@keyframes messagesRowIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Unread affordance: subtle left accent line. Emil: state by contrast,
+   not color saturation — the primary dot carries the weight, the row
+   stays restrained. */
+.messagesSimple__row--unread {
+  position: relative;
+}
+
+.messagesSimple__row--unread::before {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 50%;
+  width: 3px;
+  height: 28px;
+  transform: translateY(-50%);
+  border-radius: 999px;
+  background: var(--primary);
+  opacity: 0.85;
+}
+
+.messagesSimple__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--primary);
+  color: #0a1628;
+  font-size: var(--text-caption, 0.75rem);
+  font-weight: var(--weight-bold, 700);
+  font-variant-numeric: tabular-nums;
+}
+
+:root[data-theme="light"] .messagesSimple__badge {
+  color: #fff;
+}
+
+/* Respect reduced motion — drop the stagger, keep the content instantly
+   visible. */
+@media (prefers-reduced-motion: reduce) {
+  .messagesSimple__list > * {
+    animation: none;
+  }
+}

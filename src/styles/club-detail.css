@@ -1,0 +1,833 @@
+/* ============================================================================
+   CLUB DETAIL PAGE
+============================================================================ */
+
+/* Profile-like vertical header */
+.clubDetailPage .clubDetailHeader--profile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  padding: 24px 16px 18px;
+  border-radius: 22px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(12px) saturate(140%);
+  -webkit-backdrop-filter: blur(12px) saturate(140%);
+  position: relative;
+}
+
+.clubDetailPage .clubDetailHeader__avatarWrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.clubDetailPage .clubDetailHeader__avatar {
+  width: 86px;
+  height: 86px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.06);
+  border: 3px solid rgba(110, 231, 160, 0.3);
+}
+
+.clubDetailPage .clubDetailHeader__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.clubDetailPage .clubDetailHeader__avatarFallback {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  color: var(--primary, #6ee7a0);
+  font-size: 2rem;
+  background: var(--primary-glow-soft, rgba(110, 231, 160, 0.08));
+}
+
+.clubDetailPage .clubDetailHeader__avatarEditBtn {
+  position: absolute;
+  bottom: 4px;
+  right: -4px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--primary, #6ee7a0);
+  color: #0a1628;
+  border: 2px solid var(--bg, #080f1a);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.clubDetailPage .clubDetailHeader__uploadingBadge {
+  font-size: 0.7rem;
+  color: var(--primary, #6ee7a0);
+  font-weight: 600;
+}
+
+.clubDetailPage .clubDetailHeader__body {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+}
+
+.clubDetailPage .clubDetailHeader__name {
+  margin: 0;
+  font-size: var(--text-xl, 1.375rem);
+  font-weight: var(--weight-bold, 700);
+  letter-spacing: var(--tracking-tight, -0.02em);
+  line-height: var(--leading-tight, 1.15);
+  color: var(--text);
+}
+
+.clubDetailPage .clubDetailHeader__handle {
+  font-size: var(--text-sm, 0.8125rem);
+  color: var(--text-muted);
+  font-weight: var(--weight-semibold, 600);
+}
+
+.clubDetailPage .clubDetailHeader__bio {
+  margin: 4px 0 0;
+  font-size: var(--text-base, 0.9375rem);
+  color: var(--text-soft);
+  line-height: var(--leading-base, 1.5);
+  max-width: 320px;
+}
+
+.clubDetailPage .clubDetailHeader__bio--empty {
+  opacity: 0.5;
+  font-style: italic;
+}
+
+.clubDetailPage .clubDetailHeader__meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 8px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.clubDetailPage .clubDetailHeader__metaItem {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.clubDetailPage .clubDetailHeader__metaItem svg {
+  color: var(--primary, #6ee7a0);
+  opacity: 0.8;
+}
+
+.clubDetailPage .clubDetailHeader__role {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: rgba(110, 231, 160, 0.12);
+  padding: 2px 8px;
+  border-radius: 999px;
+  color: var(--primary, #6ee7a0);
+}
+
+.clubDetailPage .clubDetailHeader__privateBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.clubDetailPage .clubDetailHeader__actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+  justify-content: center;
+}
+
+.clubDetailPage .clubDetailHeader__actionBtn {
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 120ms ease;
+}
+
+.clubDetailPage .clubDetailHeader__actionBtn:active {
+  transform: scale(0.98);
+}
+
+.clubDetailPage .clubDetailHeader__actionBtn--primary {
+  background: var(--accent);
+  color: #000;
+  border-color: var(--accent);
+}
+
+.clubDetailPage .clubDetailHeader__actionBtn--secondary {
+  background: transparent;
+  color: var(--text);
+}
+
+/* Tabs */
+.clubDetailPage .clubDetailTabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  padding: 6px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.clubDetailPage .clubDetailTabs__btn {
+  padding: 10px 12px;
+  border-radius: var(--radius-sm, 10px);
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: var(--text-sm, 0.8125rem);
+  font-weight: var(--weight-semibold, 600);
+  cursor: pointer;
+  transition:
+    background-color 180ms var(--ease-out, ease),
+    color 180ms var(--ease-out, ease),
+    transform 140ms var(--ease-out, ease);
+}
+
+.clubDetailPage .clubDetailTabs__btn:active {
+  transform: scale(0.97);
+}
+
+.clubDetailPage .clubDetailTabs__btn.is-active {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* Twitter-like Compose Box */
+.clubDetailPage .clubCompose {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  gap: 12px;
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  margin-bottom: 16px;
+}
+
+.clubDetailPage .clubCompose__avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border);
+  flex: 0 0 auto;
+}
+
+.clubDetailPage .clubCompose__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.clubDetailPage .clubCompose__avatarFallback {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  font-size: 0.75rem;
+  color: var(--text);
+}
+
+.clubDetailPage .clubCompose__content {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.clubDetailPage .clubCompose__input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 0;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font-size: 1rem;
+  font-family: inherit;
+  outline: none;
+  resize: none;
+  min-height: 48px;
+  max-height: 200px;
+}
+
+.clubDetailPage .clubCompose__input::placeholder {
+  color: var(--text-muted);
+}
+
+.clubDetailPage .clubCompose__footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.clubDetailPage .clubCompose__charCount {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.clubDetailPage .clubCompose__submitBtn {
+  padding: 8px 24px;
+  border-radius: 999px;
+  border: none;
+  background: var(--accent);
+  color: #000;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 120ms ease;
+}
+
+.clubDetailPage .clubCompose__submitBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.clubDetailPage .clubCompose__submitBtn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* Twitter-like Wall List */
+.clubDetailPage .clubWallList {
+  display: grid;
+  gap: 0;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* Date Separator */
+.clubDetailPage .clubWallDateSeparator {
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-align: center;
+}
+
+/* Individual Post */
+.clubDetailPage .clubWallPost {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  background: transparent;
+  backdrop-filter: none;
+  transition: background 120ms ease;
+}
+
+.clubDetailPage .clubWallPost:last-child {
+  border-bottom: none;
+}
+
+.clubDetailPage .clubWallPost:active {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.clubDetailPage .clubWallPost__avatarLink {
+  display: block;
+  flex: 0 0 auto;
+  text-decoration: none;
+}
+
+.clubDetailPage .clubWallPost__avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  object-fit: cover;
+  display: block;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border);
+}
+
+.clubDetailPage .clubWallPost__avatar--fallback {
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  font-size: 0.75rem;
+  color: var(--text);
+}
+
+.clubDetailPage .clubWallPost__body {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.clubDetailPage .clubWallPost__header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  color: inherit;
+  transition: opacity 120ms ease;
+}
+
+.clubDetailPage .clubWallPost__header:active {
+  opacity: 0.7;
+}
+
+.clubDetailPage .clubWallPost__authorName {
+  font-weight: 800;
+  color: var(--text);
+  font-size: 0.88rem;
+}
+
+.clubDetailPage .clubWallPost__you {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.clubDetailPage .clubWallPost__time {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.clubDetailPage .clubWallPost__text {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--text);
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.clubDetailPage .clubWallPost__image {
+  width: 100%;
+  border-radius: 12px;
+  display: block;
+  margin-top: 8px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* Post Actions Row */
+.clubDetailPage .clubWallPost__actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  justify-content: space-between;
+}
+
+.clubDetailPage .clubWallPost__actionBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 120ms ease;
+}
+
+.clubDetailPage .clubWallPost__actionBtn:active {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.clubDetailPage .clubWallPost__likeBtn {
+  color: var(--text-muted);
+}
+
+.clubDetailPage .clubWallPost__likeBtn--liked {
+  color: #ef4444;
+}
+
+.clubDetailPage .clubWallPost__likeBtn--liked:active {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+/* Event Creation Form */
+.clubDetailPage .clubEventsHeader {
+  margin-bottom: 16px;
+}
+
+.clubDetailPage .clubEventForm {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  margin-bottom: 16px;
+}
+
+.clubDetailPage .clubEventForm__title {
+  margin: 0;
+  font-size: 0.96rem;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.clubDetailPage .clubEventForm__field {
+  display: grid;
+  gap: 6px;
+}
+
+.clubDetailPage .clubEventForm__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.clubDetailPage .clubEventForm__label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.clubDetailPage .clubEventForm__label svg {
+  color: var(--accent);
+}
+
+.clubDetailPage .clubEventForm__input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  font-size: 0.88rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 120ms ease, background 120ms ease;
+}
+
+.clubDetailPage .clubEventForm__input:focus {
+  border-color: var(--accent);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.clubDetailPage .clubEventForm__actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  padding-top: 8px;
+}
+
+/* Edit Club Form */
+.clubDetailPage .clubEditForm {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.clubDetailPage .clubEditForm__title {
+  margin: 0;
+  font-size: 0.96rem;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.clubDetailPage .clubEditForm__field {
+  display: grid;
+  gap: 6px;
+}
+
+.clubDetailPage .clubEditForm__label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.clubDetailPage .clubEditForm__input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  font-size: 0.88rem;
+  font-family: inherit;
+  outline: none;
+  resize: vertical;
+  transition: border-color 120ms ease, background 120ms ease;
+}
+
+.clubDetailPage .clubEditForm__input:focus {
+  border-color: var(--accent);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.clubDetailPage .clubEditForm__checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+  font-size: 0.88rem;
+  color: var(--text);
+}
+
+.clubDetailPage .clubEditForm__checkbox input {
+  cursor: pointer;
+  accent-color: var(--accent);
+}
+
+.clubDetailPage .clubEditForm__actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  padding-top: 8px;
+}
+
+/* Private Club Banner */
+.clubDetailPage .clubPrivateBanner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  background: rgba(239, 68, 68, 0.05);
+  margin-bottom: 16px;
+}
+
+.clubDetailPage .clubPrivateBanner__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  flex: 0 0 auto;
+}
+
+.clubDetailPage .clubPrivateBanner__text {
+  margin: 0;
+  font-size: 0.82rem;
+  color: #ef4444;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+/* Events list */
+.clubDetailPage .clubEventsList {
+  display: grid;
+  gap: 0;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.clubDetailPage .clubEventRow {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  text-decoration: none;
+  color: inherit;
+  background: transparent;
+  transition: background 120ms ease;
+}
+
+.clubDetailPage .clubEventRow:last-child {
+  border-bottom: none;
+}
+
+.clubDetailPage .clubEventRow:active {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.clubDetailPage .clubEventRow__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: rgba(110, 231, 160, 0.1);
+  color: var(--accent);
+  flex: 0 0 auto;
+}
+
+.clubDetailPage .clubEventRow__body {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.clubDetailPage .clubEventRow__title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.clubDetailPage .clubEventRow__details {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  min-width: 0;
+}
+
+.clubDetailPage .clubEventRow__date {
+  white-space: nowrap;
+  color: var(--accent);
+}
+
+.clubDetailPage .clubEventRow__separator {
+  color: var(--text-muted);
+}
+
+.clubDetailPage .clubEventRow__location {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Members list */
+.clubDetailPage .clubMembersList {
+  display: grid;
+  gap: 8px;
+}
+
+.clubDetailPage .clubMemberRow {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  padding: 10px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  text-decoration: none;
+  color: inherit;
+}
+
+.clubDetailPage .clubMemberRow__avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  font-weight: 800;
+  color: var(--text);
+  font-size: 0.9rem;
+  object-fit: cover;
+  border: 1px solid var(--border);
+}
+
+.clubDetailPage .clubMemberRow__avatar--fallback {
+  display: grid;
+  place-items: center;
+}
+
+.clubDetailPage .clubMemberRow {
+  transition: transform 0.15s ease, background 0.2s ease;
+}
+
+.clubDetailPage .clubMemberRow:active {
+  transform: scale(0.98);
+}
+
+.clubDetailPage .clubMemberRow__name {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.clubDetailPage .clubMemberRow__role {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+:root[data-theme="light"] .clubDetailPage .clubDetailHeader, :root[data-theme="light"] .clubDetailPage .clubDetailTabs, :root[data-theme="light"] .clubDetailPage .clubCompose, :root[data-theme="light"] .clubDetailPage .clubWallList, :root[data-theme="light"] .clubDetailPage .clubEventForm, :root[data-theme="light"] .clubDetailPage .clubEditForm, :root[data-theme="light"] .clubDetailPage .clubEventsList, :root[data-theme="light"] .clubDetailPage .clubMembersList {
+    background: rgba(0, 0, 0, 0.02);
+  }
+:root[data-theme="light"] .clubDetailPage .clubCompose__input, :root[data-theme="light"] .clubDetailPage .clubEventForm__input, :root[data-theme="light"] .clubDetailPage .clubEditForm__input {
+    background: rgba(0, 0, 0, 0.04);
+  }
+:root[data-theme="light"] .clubDetailPage .clubCompose__input:focus, :root[data-theme="light"] .clubDetailPage .clubEventForm__input:focus, :root[data-theme="light"] .clubDetailPage .clubEditForm__input:focus {
+    background: rgba(0, 0, 0, 0.06);
+  }
+:root[data-theme="light"] .clubDetailPage .clubWallPost:active {
+    background: rgba(0, 0, 0, 0.03);
+  }
+:root[data-theme="light"] .clubDetailPage .clubWallDateSeparator {
+    background: rgba(0, 0, 0, 0.03);
+  }
+:root[data-theme="light"] .clubDetailPage .clubEventRow:active {
+    background: rgba(0, 0, 0, 0.03);
+  }
+:root[data-theme="light"] .clubDetailPage .clubMemberRow {
+    background: rgba(0, 0, 0, 0.02);
+  }
+:root[data-theme="light"] .clubDetailPage .clubPrivateBanner {
+    background: rgba(239, 68, 68, 0.08);
+    border-color: rgba(239, 68, 68, 0.2);
+  }

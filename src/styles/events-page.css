@@ -1,0 +1,1385 @@
+.eventsPage {
+  gap: 16px;
+}
+
+.eventsPage .discoverSection {
+  gap: 14px;
+  max-width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.eventsPage .discoverCalendarHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.eventsPage .discoverCalendarHeader > * {
+  min-width: 0;
+}
+
+.eventsPage .discoverCalendarHeader__copy {
+  display: grid;
+  gap: 4px;
+}
+
+.eventsPage .discoverCalendarHeader__eyebrow {
+  color: var(--text-muted);
+  font-size: var(--text-caption, 0.75rem);
+  font-weight: var(--weight-bold, 700);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.eventsPage .discoverCalendarHeader__title {
+  margin: 0;
+  color: var(--text);
+  font-size: var(--text-lg, 1.125rem);
+  letter-spacing: var(--tracking-tight, -0.02em);
+  line-height: var(--leading-tight, 1.15);
+  font-weight: var(--weight-bold, 700);
+}
+
+/* CONTROLES MES */
+
+.eventsPage .discoverMonthControls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.eventsPage .discoverMonthBtn {
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface-3, rgba(255, 255, 255, 0.05));
+  color: var(--text);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  cursor: pointer;
+  transition:
+    transform 0.16s ease,
+    background 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    color 0.2s ease;
+}
+
+.eventsPage .discoverMonthBtn:hover {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.16);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.16);
+  transform: translateY(-1px);
+}
+
+.eventsPage .discoverMonthBtn:active {
+  transform: scale(0.92);
+}
+
+.eventsPage .discoverMonthBtn:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px rgba(110, 231, 160, 0.2),
+    0 6px 18px rgba(0, 0, 0, 0.16);
+}
+
+/* Month/year label — unified typography across Events and Profile
+   calendars. Smaller and bolder than before to match the profile's
+   compact agenda treatment. */
+:is(.eventsPage, .profilePage) .discoverMonthLabel {
+  flex: 1 1 auto;
+  min-width: 0;
+  text-align: center;
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  text-transform: capitalize;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.eventsPage .discoverCreateBtn {
+  background: rgba(110, 231, 160, 0.15);
+  border-color: rgba(110, 231, 160, 0.3);
+  color: var(--primary, #6ee7a0);
+}
+
+.eventsPage .discoverCreateBtn:hover {
+  background: rgba(110, 231, 160, 0.22);
+  border-color: rgba(110, 231, 160, 0.44);
+  color: #8af0b6;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(110, 231, 160, 0.14);
+}
+
+.eventsPage .discoverCreateBtn svg {
+  transition: transform 0.16s ease;
+}
+
+.eventsPage .discoverCreateBtn:hover svg {
+  transform: scale(1.05);
+}
+
+.eventsPage .discoverCreateBtn:active {
+  transform: scale(0.92);
+}
+
+.eventsPage .discoverCreateBtn:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px rgba(110, 231, 160, 0.22),
+    0 8px 18px rgba(110, 231, 160, 0.14);
+}
+
+/* HEADER ACTIONS (filter btn + view toggle) */
+
+.discoverHeaderActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.discoverFilterBtn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+  border-radius: 12px;
+  background: var(--surface-3, rgba(255, 255, 255, 0.05));
+  color: var(--text-muted, rgba(245, 247, 251, 0.48));
+  cursor: pointer;
+  transition: background 160ms ease, color 160ms ease;
+}
+
+.discoverFilterBtn:hover,
+.discoverFilterBtn.has-filters {
+  color: var(--primary, #6ee7a0);
+  border-color: rgba(110, 231, 160, 0.3);
+  background: var(--primary-glow-soft, rgba(110, 231, 160, 0.08));
+}
+
+.discoverFilterBtn__dot {
+  position: absolute;
+  top: -1px;
+  right: -1px;
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--primary, #6ee7a0);
+  box-shadow: 0 0 0 1.5px var(--surface-2);
+}
+
+/* FILTER POPUP (chip-preset redesign, compact variant).
+   The sheet should feel like a small panel — not a full drawer — so
+   we override the BottomSheet's defaults via `.eventFilterSheet`:
+   tighter header/body/footer padding + capped max-width so it reads
+   as a contextual action rather than a dominant surface. */
+
+.eventFilterSheet.ui-sheet__panel,
+.eventFilterSheet {
+  max-width: 420px;
+  max-height: min(72vh, 560px);
+}
+
+.eventFilterSheet .ui-sheet__header {
+  padding: 4px 16px 6px;
+}
+
+.eventFilterSheet .ui-sheet__title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.eventFilterSheet .ui-sheet__grabberWrap {
+  padding: 6px 0 2px;
+}
+
+.eventFilterSheet .ui-sheet__body {
+  padding: 4px 16px 8px;
+}
+
+.eventFilterSheet .ui-sheet__footer {
+  padding: 8px 16px calc(env(safe-area-inset-bottom, 8px) + 8px);
+}
+
+.filterPopup__body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.filterPopup__group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.filterPopup__label {
+  font-size: 0.66rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.filterPopup__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.filterPopup__chips--tight {
+  gap: 4px;
+  margin-top: 2px;
+}
+
+/* Chip: compact, flat, high-touch. Active state uses the brand soft
+   tint with a full-contrast border — no drop shadow, no gradient,
+   just a clean pressed-pill. */
+.filterPopup__chip {
+  appearance: none;
+  flex: 0 0 auto;
+  padding: 5px 10px;
+  min-height: 28px;
+  border-radius: 999px;
+  border: 1px solid var(--border-subtle);
+  background: transparent;
+  color: var(--text-soft);
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.005em;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background 160ms var(--ease-out, ease),
+    border-color 160ms var(--ease-out, ease),
+    color 160ms var(--ease-out, ease),
+    transform 140ms var(--ease-out, ease);
+}
+
+.filterPopup__chip:active {
+  transform: scale(0.96);
+}
+
+.filterPopup__chip.is-active {
+  background: var(--primary-glow-soft);
+  border-color: var(--primary);
+  color: var(--text);
+  font-weight: 700;
+}
+
+.filterPopup__textInput {
+  width: 100%;
+  padding: 8px 12px;
+  min-height: 36px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  background: var(--surface-2);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.88rem;
+  outline: none;
+  transition: border-color 160ms ease, background 160ms ease;
+  box-sizing: border-box;
+}
+
+.filterPopup__textInput:focus {
+  border-color: var(--primary);
+  background: var(--surface-3);
+}
+
+.filterPopup__textInput::placeholder {
+  color: var(--text-muted);
+}
+
+/* Footer buttons inside the filter sheet — tighter than default. */
+.filterPopup__footer {
+  display: flex;
+  gap: 8px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.filterPopup__footer .app-button {
+  flex: 1;
+}
+
+/* FILTRO DE UBICACIÓN */
+
+.discoverLocationFilter {
+  width: 100%;
+}
+
+.discoverLocationFilter__inputWrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  height: 42px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  transition: border-color 0.15s ease;
+}
+
+.discoverLocationFilter__inputWrap:focus-within {
+  border-color: rgba(255, 107, 87, 0.46);
+}
+
+.discoverLocationFilter__icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  color: var(--text-muted);
+}
+
+.discoverLocationFilter__input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--text);
+  font-size: 0.88rem;
+  font-weight: 500;
+}
+
+.discoverLocationFilter__input::placeholder {
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+
+.discoverLocationFilter__clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.discoverLocationFilter__dropdown {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 4px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--card-bg, rgba(30, 30, 30, 0.95));
+  backdrop-filter: blur(12px);
+  overflow: hidden;
+}
+
+.discoverLocationFilter__dropdown li {
+  margin: 0;
+}
+
+.discoverLocationFilter__option {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+.discoverLocationFilter__option:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.discoverLocationFilter__optLabel {
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.discoverLocationFilter__optSub {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.discoverLocationFilter__clear:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--text);
+}
+
+/* CALENDARIO */
+
+/* ═══ CALENDAR CARD (Premium upgrade) ═══ */
+:is(.eventsPage, .profilePage) .discoverCalendarCard {
+  border-radius: var(--radius-xl, 24px);
+  border: 1px solid var(--border);
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 0%, rgba(110, 231, 160, 0.04), transparent 50%),
+    rgba(255, 255, 255, 0.04);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(20px) saturate(1.2);
+  -webkit-backdrop-filter: blur(20px) saturate(1.2);
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+:is(.eventsPage, .profilePage) .discoverCalendarCard--premium {
+  backdrop-filter: blur(24px) saturate(1.3);
+}
+
+:is(.eventsPage, .profilePage) .discoverWeekdays {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 2px;
+  padding: 10px 8px 4px;
+}
+
+:is(.eventsPage, .profilePage) .discoverWeekdays__item {
+  text-align: center;
+  color: var(--text-faint);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+:is(.eventsPage, .profilePage) .discoverCalendarGrid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+  padding: 4px 8px 10px;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+:is(.eventsPage, .profilePage) .discoverCalendarGrid--compact {
+  gap: 3px;
+}
+
+:is(.eventsPage, .profilePage) .discoverDayCell {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  min-height: 0;
+  min-width: 0;
+  border: 1.5px solid transparent;
+  border-radius: var(--radius-sm, 12px);
+  background: transparent;
+  color: var(--text);
+  display: grid;
+  place-items: center;
+  padding: 2px;
+  overflow: hidden;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    transform 180ms var(--ease-spring, cubic-bezier(0.34, 1.56, 0.64, 1)),
+    background 200ms var(--ease-out, ease),
+    border-color 200ms var(--ease-out, ease),
+    box-shadow 200ms var(--ease-out, ease);
+}
+
+:is(.eventsPage, .profilePage) .discoverDayCell--compact {
+  aspect-ratio: 1 / 1;
+}
+
+:is(.eventsPage, .profilePage) .discoverDayCell:active {
+  transform: scale(0.90);
+}
+
+@media (hover: hover) {
+  :is(.eventsPage, .profilePage) .discoverDayCell:hover {
+    background: rgba(255, 255, 255, 0.06);
+  }
+}
+
+:is(.eventsPage, .profilePage) .discoverDayCell.is-outside {
+  color: var(--text-faint);
+}
+
+:is(.eventsPage, .profilePage) .discoverDayCell.is-today {
+  border-color: rgba(125, 211, 252, 0.28);
+  background: rgba(125, 211, 252, 0.06);
+}
+
+:is(.eventsPage, .profilePage) .discoverDayCell.is-today .discoverDayCell__date {
+  color: var(--accent);
+}
+
+:is(.eventsPage, .profilePage) .discoverDayCell.is-selected {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+  box-shadow: 0 0 0 1px rgba(110, 231, 160, 0.12) inset, 0 0 12px var(--primary-glow-soft, rgba(110, 231, 160, 0.08));
+}
+
+:is(.eventsPage, .profilePage) .discoverDayCell.is-selected .discoverDayCell__date {
+  color: var(--primary-strong);
+  font-weight: 800;
+}
+
+:is(.eventsPage, .profilePage) .discoverDayCell.has-events {
+  border-color: rgba(110, 231, 160, 0.2);
+  background: rgba(110, 231, 160, 0.05);
+}
+
+/* Own vs other event colors */
+:is(.eventsPage, .profilePage) .discoverDayCell.has-own-events {
+  border-color: rgba(110, 231, 160, 0.3);
+  background: var(--primary-glow-soft, rgba(110, 231, 160, 0.08));
+}
+
+:is(.eventsPage, .profilePage) .discoverDayCell__date {
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1;
+  transition: color 200ms ease, font-weight 200ms ease;
+}
+
+/* ── Event dots (improved visibility) ── */
+:is(.eventsPage, .profilePage) .discoverDayCell__marker {
+  position: absolute;
+  bottom: 4px;
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--primary);
+  opacity: 0;
+  transition: opacity 200ms ease, transform 300ms var(--ease-spring, ease);
+  transform: scale(0);
+}
+
+:is(.eventsPage, .profilePage) .discoverDayCell.has-events .discoverDayCell__marker {
+  opacity: 1;
+  transform: scale(1);
+}
+
+:is(.eventsPage, .profilePage) .discoverDayCell.has-own-events .discoverDayCell__marker {
+  background: var(--primary, #6ee7a0);
+  opacity: 1;
+  transform: scale(1);
+}
+
+:is(.eventsPage, .profilePage) .discoverDayCell.has-other-events .discoverDayCell__marker {
+  background: var(--accent, #7dd3fc);
+  opacity: 1;
+  transform: scale(1);
+}
+
+:is(.eventsPage, .profilePage) .discoverDayCell__markerDual {
+  position: absolute;
+  bottom: 4px;
+  display: flex;
+  gap: 3px;
+}
+
+:is(.eventsPage, .profilePage) .discoverDayCell__dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  transition: transform 300ms var(--ease-spring, ease);
+  transform: scale(1);
+}
+
+:is(.eventsPage, .profilePage) .discoverDayCell__dot--own {
+  background: var(--primary, #6ee7a0);
+}
+
+:is(.eventsPage, .profilePage) .discoverDayCell__dot--other {
+  background: var(--accent, #7dd3fc);
+}
+
+/* EVENTOS DEL DÍA */
+
+.eventsPage .discoverSelectedDay {
+  display: grid;
+  gap: 12px;
+  overflow-x: hidden;
+}
+
+.eventsPage .discoverSelectedDay__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.eventsPage .discoverSelectedDay__title {
+  color: var(--text);
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  text-transform: capitalize;
+}
+
+.eventsPage .discoverSelectedDay__events {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  min-width: 0;
+}
+
+.eventsPage .discoverEmptyState {
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  padding: 14px;
+}
+
+.eventsPage .discoverEmptyState p {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+/* DAY EVENT CARDS */
+
+.eventsPage .discoverSelectedDay {
+  overflow-x: hidden;
+}
+
+.eventsPage .discoverEventList--day {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  width: 100%;
+}
+
+.eventsPage .discoverEventList--dayGrid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.eventsPage .dayEventCard {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  width: 100%;
+  min-width: 0;
+  border-radius: var(--radius-lg, 20px);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  overflow: hidden;
+  cursor: pointer;
+  transition:
+    transform 180ms var(--ease-spring, ease),
+    box-shadow 200ms var(--ease-out, ease),
+    border-color 200ms var(--ease-out, ease);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.eventsPage .dayEventCard:active {
+  transform: scale(0.98);
+}
+
+@media (hover: hover) {
+  .eventsPage .dayEventCard:hover {
+    border-color: var(--border-strong);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
+}
+
+.eventsPage .dayEventCard__imageWrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 2 / 1;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.eventsPage .dayEventCard__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  background: rgba(255, 255, 255, 0.02);
+  transition: transform 400ms var(--ease-out, ease);
+}
+
+@media (hover: hover) {
+  .eventsPage .dayEventCard:hover .dayEventCard__image {
+    transform: scale(1.04);
+  }
+}
+
+.eventsPage .dayEventCard__imagePlaceholder {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: end start;
+  padding: 14px;
+  background:
+    linear-gradient(160deg, rgba(110, 231, 160, 0.2), rgba(125, 211, 252, 0.08)),
+    rgba(255, 255, 255, 0.04);
+}
+
+.eventsPage .dayEventCard__placeholderTitle {
+  color: var(--text);
+  font-size: var(--font-base, 0.92rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.eventsPage .dayEventCard__body {
+  display: grid;
+  gap: 6px;
+  padding: var(--space-3, 12px) var(--space-4, 16px);
+}
+
+.eventsPage .dayEventCard__title {
+  margin: 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--text-md, 1rem);
+  font-weight: var(--weight-semibold, 600);
+  letter-spacing: var(--tracking-snug, -0.01em);
+  line-height: var(--leading-snug, 1.35);
+}
+
+.eventsPage .dayEventCard__meta {
+  margin: 0;
+  font-size: var(--text-sm, 0.8125rem);
+  color: var(--text-muted);
+  line-height: var(--leading-base, 1.5);
+}
+
+.eventsPage .dayEventCard__social {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.eventsPage .dayEventCard__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.eventsPage .dayEventCard__iconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-muted, #aaa);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+  text-decoration: none;
+}
+
+.eventsPage .dayEventCard__iconBtn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.eventsPage .dayEventCard__iconBtn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text, #fff);
+}
+
+.eventsPage .dayEventCard__iconBtn--danger {
+  color: #ff8a8a;
+}
+
+.eventsPage .dayEventCard__iconBtn--danger:hover {
+  background: rgba(255, 80, 80, 0.15);
+  color: #ff6b6b;
+}
+
+@media (max-width: 420px) {
+  .eventsPage .discoverEventList--dayGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .eventsPage .dayEventCard__title {
+    font-size: 0.88rem;
+  }
+
+  .eventsPage .dayEventCard__meta {
+    font-size: 0.75rem;
+  }
+}
+
+/* VIEW TOGGLE BUTTONS */
+
+.discoverViewToggle {
+  display: flex;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 3px;
+}
+
+.discoverViewBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text-muted, rgba(245, 247, 251, 0.48));
+  cursor: pointer;
+  transition: background 160ms ease, color 160ms ease;
+}
+
+.discoverViewBtn:hover {
+  color: var(--text-soft, rgba(245, 247, 251, 0.76));
+}
+
+.discoverViewBtn.is-active {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--primary, #7ce99b);
+}
+
+/* FILTER CHIPS */
+
+.discoverFilterChips {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.discoverFilterChips::-webkit-scrollbar {
+  display: none;
+}
+
+.discoverFilterChip {
+  flex-shrink: 0;
+  padding: 6px 14px;
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-soft, rgba(245, 247, 251, 0.76));
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 160ms ease, color 160ms ease, border-color 160ms ease;
+  white-space: nowrap;
+}
+
+.discoverFilterChip:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.discoverFilterChip.is-active {
+  background: rgba(124, 233, 155, 0.15);
+  border-color: rgba(124, 233, 155, 0.3);
+  color: var(--primary, #7ce99b);
+}
+
+/* GRID VIEW */
+
+.discoverGridView {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+/* ═══ GRID EVENT CARD (Premium upgrade) ═══ */
+.gridEventCard {
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius-lg, 20px);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    transform 180ms var(--ease-spring, ease),
+    background 200ms var(--ease-out, ease),
+    box-shadow 200ms var(--ease-out, ease),
+    border-color 200ms var(--ease-out, ease);
+}
+
+.gridEventCard:active {
+  transform: scale(0.97);
+}
+
+@media (hover: hover) {
+  .gridEventCard:hover {
+    transform: translateY(-3px);
+    border-color: var(--border-strong);
+    box-shadow: var(--shadow-md);
+  }
+
+  .gridEventCard:hover .gridEventCard__image {
+    transform: scale(1.06);
+  }
+}
+
+.gridEventCard__imageWrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.gridEventCard__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 500ms var(--ease-out, ease);
+}
+
+.gridEventCard__dateBadge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 5px 10px;
+  border-radius: var(--radius-sm, 12px);
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(12px) saturate(1.3);
+  -webkit-backdrop-filter: blur(12px) saturate(1.3);
+  color: #fff;
+  line-height: 1.1;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.gridEventCard__dateDay {
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.gridEventCard__dateMonth {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+
+.gridEventCard__body {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 10px 12px 12px;
+}
+
+.gridEventCard__title {
+  margin: 0;
+  font-size: var(--text-sm, 0.8125rem);
+  font-weight: var(--weight-semibold, 600);
+  letter-spacing: var(--tracking-snug, -0.01em);
+  line-height: var(--leading-snug, 1.35);
+  color: var(--text, #f5f7fb);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gridEventCard__tech {
+  margin: 0;
+  font-size: var(--text-caption, 0.75rem);
+  font-weight: var(--weight-semibold, 600);
+  letter-spacing: var(--tracking-wide, 0.02em);
+  color: var(--primary, #7ce99b);
+}
+
+.gridEventCard__meta {
+  margin: 0;
+  font-size: var(--text-caption, 0.75rem);
+  color: var(--text-muted, rgba(245, 247, 251, 0.48));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gridEventCard__social {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+
+/* MAP VIEW */
+
+.discoverMapView {
+  width: 100%;
+  height: 420px;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+}
+
+/* Override Leaflet default icon chrome for custom divIcon markers */
+.mapMarker--custom {
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 14px !important;
+  font-family: inherit !important;
+}
+
+.leaflet-popup-tip {
+  background: #fff !important;
+}
+
+/* TECH LINE (distance/elevation on day cards) */
+
+.dayEventCard__techLine {
+  color: var(--primary, #7ce99b) !important;
+  font-weight: 600;
+}
+
+/* EMPTY TEXT */
+
+.discoverEmptyText {
+  text-align: center;
+  color: var(--text-muted, rgba(245, 247, 251, 0.48));
+  font-size: 0.88rem;
+  padding: 24px 0;
+}
+
+/* ---- Light theme overrides ---- */
+:root[data-theme="light"] .eventsPage .discoverMonthBtn {
+    background: rgba(0, 0, 0, 0.03);
+  }
+:root[data-theme="light"] :is(.eventsPage, .profilePage) .discoverCalendarCard--premium, :root[data-theme="light"] :is(.eventsPage, .profilePage) .discoverCalendarCard {
+    background: rgba(0, 0, 0, 0.02);
+  }
+:root[data-theme="light"] :is(.eventsPage, .profilePage) .discoverDayCell, :root[data-theme="light"] :is(.eventsPage, .profilePage) .discoverDayCell--compact {
+    background: rgba(0, 0, 0, 0.02);
+  }
+:root[data-theme="light"] :is(.eventsPage, .profilePage) .discoverDayCell:hover, :root[data-theme="light"] :is(.eventsPage, .profilePage) .discoverDayCell--compact:hover {
+    background: rgba(0, 0, 0, 0.04);
+  }
+:root[data-theme="light"] :is(.eventsPage, .profilePage) .discoverDayCell.is-today, :root[data-theme="light"] :is(.eventsPage, .profilePage) .discoverDayCell--compact.is-today {
+    background: rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.1);
+  }
+:root[data-theme="light"] :is(.eventsPage, .profilePage) .discoverDayCell.is-selected, :root[data-theme="light"] :is(.eventsPage, .profilePage) .discoverDayCell--compact.is-selected {
+    background: linear-gradient(
+      160deg,
+      rgba(255, 107, 87, 0.16),
+      rgba(0, 0, 0, 0.02)
+    );
+    border-color: rgba(255, 107, 87, 0.24);
+  }
+:root[data-theme="light"] :is(.eventsPage, .profilePage) .discoverWeekdays__item {
+    color: var(--text-muted);
+  }
+:root[data-theme="light"] .eventsPage .discoverLocationFilter__input {
+    background: rgba(0, 0, 0, 0.03);
+    border-color: rgba(0, 0, 0, 0.1);
+  }
+:root[data-theme="light"] .eventsPage .discoverLocationFilter__input:focus {
+    border-color: rgba(29, 158, 78, 0.4);
+    background: #fff;
+  }
+:root[data-theme="light"] .eventsPage .dayEventCard {
+    background: rgba(0, 0, 0, 0.02);
+    border-color: var(--border);
+  }
+:root[data-theme="light"] .eventsPage .dayEventCard__imageWrap {
+    background: rgba(0, 0, 0, 0.03);
+  }
+:root[data-theme="light"] .eventsPage .dayEventCard__iconBtn {
+    background: rgba(0, 0, 0, 0.03);
+    border-color: var(--border);
+  }
+:root[data-theme="light"] .eventsPage .dayEventCard__iconBtn:hover {
+    background: rgba(0, 0, 0, 0.06);
+  }
+:root[data-theme="light"] .eventsPage .dayEventCard__iconBtn--danger {
+    color: #dc2626;
+  }
+:root[data-theme="light"] .eventsPage .dayEventCard__iconBtn--danger:hover {
+    background: rgba(220, 38, 38, 0.1);
+    color: #dc2626;
+  }
+:root[data-theme="light"] .eventsPage .discoverLocationFilter__dropdown {
+    background: #fff;
+    border-color: rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  }
+:root[data-theme="light"] .eventsPage .discoverLocationFilter__option:hover {
+    background: rgba(0, 0, 0, 0.04);
+  }
+:root[data-theme="light"] /* View toggle light */
+  .discoverViewToggle {
+    background: rgba(0, 0, 0, 0.05);
+  }
+:root[data-theme="light"] .discoverViewBtn.is-active {
+    background: rgba(0, 0, 0, 0.08);
+    color: var(--primary);
+  }
+:root[data-theme="light"] /* Filter chips light */
+  .discoverFilterChip {
+    background: rgba(0, 0, 0, 0.03);
+    border-color: rgba(0, 0, 0, 0.1);
+    color: var(--text-soft);
+  }
+:root[data-theme="light"] .discoverFilterChip:hover {
+    background: rgba(0, 0, 0, 0.06);
+  }
+:root[data-theme="light"] .discoverFilterChip.is-active {
+    background: rgba(29, 158, 78, 0.1);
+    border-color: rgba(29, 158, 78, 0.25);
+    color: var(--primary);
+  }
+:root[data-theme="light"] /* Grid cards light */
+  .gridEventCard {
+    background: rgba(0, 0, 0, 0.02);
+    border-color: rgba(0, 0, 0, 0.08);
+  }
+:root[data-theme="light"] .gridEventCard:hover {
+    background: rgba(0, 0, 0, 0.04);
+  }
+:root[data-theme="light"] .gridEventCard__imageWrap {
+    background: rgba(0, 0, 0, 0.03);
+  }
+:root[data-theme="light"] .gridEventCard__dateBadge {
+    background: rgba(0, 0, 0, 0.6);
+  }
+:root[data-theme="light"] /* Map view light */
+  .discoverMapView {
+    border-color: rgba(0, 0, 0, 0.1);
+  }
+:root[data-theme="light"] /* Filter button light */
+  .discoverFilterBtn {
+    background: rgba(0, 0, 0, 0.03);
+    border-color: rgba(0, 0, 0, 0.1);
+    color: var(--text-muted);
+  }
+:root[data-theme="light"] .discoverFilterBtn:hover, :root[data-theme="light"] .discoverFilterBtn.has-filters {
+    background: rgba(22, 163, 74, 0.08);
+    border-color: rgba(22, 163, 74, 0.25);
+    color: var(--primary);
+  }
+:root[data-theme="light"] .discoverFilterBtn__dot {
+    background: var(--primary, #16a34a);
+  }
+:root[data-theme="light"] /* Create button light */
+  .eventsPage .discoverCreateBtn {
+    background: rgba(22, 163, 74, 0.1);
+    border-color: rgba(22, 163, 74, 0.2);
+    color: var(--primary, #16a34a);
+  }
+:root[data-theme="light"] .filterPopup__footer {
+    border-color: rgba(0, 0, 0, 0.06);
+  }
+:root[data-theme="light"] .filterPopup__slider {
+    background: rgba(0, 0, 0, 0.1);
+  }
+:root[data-theme="light"] .filterPopup__slider::-webkit-slider-thumb {
+    background: var(--primary, #16a34a);
+  }
+:root[data-theme="light"] .filterPopup__textInput {
+    background: rgba(0, 0, 0, 0.03);
+    border-color: rgba(0, 0, 0, 0.1);
+    color: var(--text);
+  }
+:root[data-theme="light"] .filterPopup__textInput:focus {
+    border-color: var(--primary, #16a34a);
+  }
+:root[data-theme="light"] /* Own events light */
+  :is(.eventsPage, .profilePage) .discoverDayCell.has-own-events {
+    border-color: rgba(22, 163, 74, 0.25);
+    background: rgba(22, 163, 74, 0.08);
+  }
+:root[data-theme="light"] :is(.eventsPage, .profilePage) .discoverDayCell.has-own-events .discoverDayCell__marker {
+    background: var(--primary, #16a34a);
+  }
+:root[data-theme="light"] :is(.eventsPage, .profilePage) .discoverDayCell__dot--own {
+    background: var(--primary, #16a34a);
+  }
+
+/* --- Responsive: Extra-small phones --- */
+@media (max-width: 320px) {
+  .eventsPage .discoverCalendarHeader__title {
+    font-size: 1rem;
+  }
+
+  .discoverViewBtn {
+    width: 32px;
+    height: 32px;
+  }
+
+  .discoverFilterChip {
+    padding: 5px 10px;
+    font-size: 0.74rem;
+  }
+
+  .discoverGridView {
+    grid-template-columns: 1fr;
+  }
+
+  .discoverMapView {
+    height: 300px;
+  }
+
+  :is(.eventsPage, .profilePage) .discoverDayCell--compact {
+    padding: 2px;
+  }
+
+  :is(.eventsPage, .profilePage) .discoverDayCell__date {
+    font-size: 0.78rem;
+  }
+
+  :is(.eventsPage, .profilePage) .discoverCalendarGrid--compact {
+    gap: 2px;
+    padding: 6px 4px;
+  }
+
+  .gridEventCard__body {
+    padding: 8px 10px 10px;
+  }
+
+  .gridEventCard__title {
+    font-size: 0.82rem;
+  }
+}
+
+/* --- Responsive: Small phones --- */
+@media (min-width: 321px) and (max-width: 375px) {
+  .discoverMapView {
+    height: 360px;
+  }
+
+  :is(.eventsPage, .profilePage) .discoverDayCell--compact {
+    padding: 2px;
+  }
+}
+
+/* --- Responsive: Large phones --- */
+@media (min-width: 415px) {
+  .discoverMapView {
+    height: 460px;
+  }
+
+  .eventsPage .discoverCalendarHeader__title {
+    font-size: 1.22rem;
+  }
+}
+
+/* Compact calendar sizing */
+.eventsPage .discoverSection--calendarOnly {
+  gap: 12px;
+}
+
+.eventsPage .discoverMonthControls,
+:is(.eventsPage, .profilePage) .discoverCalendarCard--premium,
+.eventsPage .discoverSelectedDay {
+  width: 100%;
+  max-width: 392px;
+  margin-inline: auto;
+}
+
+:is(.eventsPage, .profilePage) .discoverCalendarCard {
+  border-radius: 18px;
+}
+
+:is(.eventsPage, .profilePage) .discoverWeekdays {
+  padding: 6px 6px 0;
+}
+
+:is(.eventsPage, .profilePage) .discoverWeekdays__item {
+  font-size: 0.66rem;
+}
+
+:is(.eventsPage, .profilePage) .discoverCalendarGrid {
+  gap: 2px;
+  padding: 6px;
+}
+
+:is(.eventsPage, .profilePage) .discoverDayCell {
+  border-radius: 9px;
+}
+
+:is(.eventsPage, .profilePage) .discoverDayCell__date {
+  font-size: 0.76rem;
+}
+
+:is(.eventsPage, .profilePage) .discoverDayCell__marker,
+:is(.eventsPage, .profilePage) .discoverDayCell__markerDual {
+  bottom: 2px;
+}
+
+@media (max-width: 420px) {
+  .eventsPage .discoverMonthControls,
+  :is(.eventsPage, .profilePage) .discoverCalendarCard--premium,
+  .eventsPage .discoverSelectedDay {
+    max-width: 100%;
+  }
+
+  .eventsPage .discoverMonthControls {
+    grid-template-columns: 30px minmax(0, 1fr) 30px 30px;
+    gap: 6px;
+  }
+
+  .eventsPage .discoverMonthBtn {
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+  }
+
+  .profilePage .discoverMonthControls--withCreate {
+    grid-template-columns: 30px minmax(0, 1fr) 30px 28px;
+    gap: 6px;
+  }
+
+  :is(.eventsPage, .profilePage) .discoverWeekdays {
+    padding: 6px 4px 0;
+  }
+
+  :is(.eventsPage, .profilePage) .discoverCalendarGrid {
+    gap: 2px;
+    padding: 6px 4px;
+  }
+
+  :is(.eventsPage, .profilePage) .discoverDayCell__date {
+    font-size: 0.72rem;
+  }
+}

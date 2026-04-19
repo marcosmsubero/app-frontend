@@ -1,0 +1,656 @@
+/* ============================================================
+   EventDetailPage
+   ============================================================ */
+
+.eventDetailPage {
+  padding-bottom: calc(var(--app-bottom-nav-height, 50px) + 24px);
+}
+
+/* --- Navigation bar ---------------------------------------- */
+
+.eventDetailNav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 4px 4px;
+}
+
+.eventDetailNav__right {
+  display: flex;
+  gap: 6px;
+}
+
+/* .eventDetailIconBtn and .eventDetailBackBtn removed — superseded by the
+   shared IconButton component (Phase B). JSX was migrated in Phase C. */
+
+/* --- Hero image -------------------------------------------- */
+
+.eventDetailHero {
+  position: relative;
+  width: 100%;
+  border-radius: var(--radius-md, 20px);
+  overflow: hidden;
+  margin-bottom: 16px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+button.eventDetailHero--image {
+  appearance: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: zoom-in;
+  display: block;
+  text-align: left;
+}
+
+.eventDetailHero__image {
+  width: 100%;
+  max-height: 420px;
+  object-fit: cover;
+  display: block;
+}
+
+.eventDetailHero__overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 12px 14px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.65));
+  display: flex;
+  align-items: flex-end;
+}
+
+.eventDetailHero__badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill, 999px);
+  background: rgba(124, 233, 155, 0.2);
+  color: var(--primary, #7ce99b);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+/* --- Segmented hero panel (Image / Organizer) -------------- */
+
+.eventDetailHeroPanel {
+  margin-bottom: 16px;
+}
+
+.eventDetailHeroPanel__tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+  border-radius: var(--radius-pill, 999px);
+}
+
+.eventDetailHeroPanel__tab {
+  appearance: none;
+  background: transparent;
+  border: none;
+  color: var(--text-muted, rgba(245, 247, 251, 0.6));
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 8px 12px;
+  border-radius: var(--radius-pill, 999px);
+  cursor: pointer;
+  transition: background 140ms ease, color 140ms ease;
+}
+
+.eventDetailHeroPanel__tab:hover {
+  color: var(--text, #f5f7fb);
+}
+
+.eventDetailHeroPanel__tab.is-active {
+  background: var(--surface-raised, rgba(255, 255, 255, 0.1));
+  color: var(--text, #f5f7fb);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.eventDetailHero--organizer {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  padding: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+  transition: background 140ms ease;
+}
+
+.eventDetailHero--organizer:hover {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.eventDetailHeroOrganizer {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.eventDetailHeroOrganizer__avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.eventDetailHeroOrganizer__avatar--fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--text, #f5f7fb);
+  background: rgba(124, 233, 155, 0.18);
+}
+
+.eventDetailHeroOrganizer__info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.eventDetailHeroOrganizer__label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted, rgba(245, 247, 251, 0.55));
+}
+
+.eventDetailHeroOrganizer__name {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text, #f5f7fb);
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.eventDetailHeroOrganizer__handle {
+  font-size: 0.85rem;
+  color: var(--text-muted, rgba(245, 247, 251, 0.55));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.eventDetailHeroOrganizer__arrow {
+  color: var(--text-muted, rgba(245, 247, 251, 0.4));
+  font-size: 1.6rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+:root[data-theme="light"] .eventDetailHeroPanel__tabs {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+:root[data-theme="light"] .eventDetailHeroPanel__tab.is-active {
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+:root[data-theme="light"] .eventDetailHero--organizer {
+  background: #fff;
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+:root[data-theme="light"] .eventDetailHero--organizer:hover {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+:root[data-theme="light"] .eventDetailHeroOrganizer__avatar--fallback {
+  background: rgba(124, 233, 155, 0.25);
+  color: #0b1115;
+}
+
+/* --- Body content ------------------------------------------ */
+
+.eventDetailBody {
+  padding: 0 4px;
+}
+
+.eventDetailTitle {
+  font-size: var(--text-xl, 1.375rem);
+  font-weight: var(--weight-bold, 700);
+  letter-spacing: var(--tracking-tight, -0.02em);
+  line-height: var(--leading-snug, 1.35);
+  color: var(--text, #f5f7fb);
+  margin: 0 0 8px;
+}
+
+/* --- Status badge ------------------------------------------ */
+
+.eventDetailStatus {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill, 999px);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.eventDetailStatus--full {
+  background: rgba(247, 185, 85, 0.18);
+  color: var(--warning, #f7b955);
+}
+
+.eventDetailStatus--cancelled {
+  background: rgba(255, 122, 122, 0.18);
+  color: var(--danger, #ff7a7a);
+}
+
+.eventDetailStatus--done {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-muted, rgba(245, 247, 251, 0.48));
+}
+
+/* --- Meta rows --------------------------------------------- */
+
+.eventDetailMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.eventDetailMetaRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-soft, rgba(245, 247, 251, 0.76));
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.eventDetailMetaLabel {
+  color: var(--text-muted, rgba(245, 247, 251, 0.48));
+  font-size: 0.85rem;
+}
+
+.eventDetailLevelBadge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: var(--radius-pill, 999px);
+  background: rgba(124, 233, 155, 0.12);
+  color: var(--primary, #7ce99b);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+/* --- Tech stats (distance/elevation) ------------------------- */
+
+.eventDetailTechStats {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.eventDetailStatChip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  padding: 8px 14px;
+  border-radius: var(--radius-pill, 999px);
+  background: var(--primary-soft, rgba(124, 233, 155, 0.16));
+  border: 1px solid rgba(124, 233, 155, 0.2);
+}
+
+.eventDetailStatChip__value {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--primary, #7ce99b);
+}
+
+.eventDetailStatChip__unit {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+/* --- Directions button --------------------------------------- */
+
+.eventDetailDirectionsBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill, 999px);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--accent, #7dd3fc);
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 160ms ease;
+  align-self: flex-start;
+}
+
+.eventDetailDirectionsBtn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.eventDetailInlineLink {
+  background: none;
+  border: none;
+  color: var(--accent, #7dd3fc);
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0;
+  margin-left: auto;
+  text-decoration: none;
+}
+
+.eventDetailInlineLink:hover {
+  text-decoration: underline;
+}
+
+/* --- Notes / description ----------------------------------- */
+
+.eventDetailNotes {
+  margin-bottom: 20px;
+}
+
+.eventDetailSectionTitle {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-muted, rgba(245, 247, 251, 0.48));
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 0 0 8px;
+}
+
+.eventDetailNotesText {
+  color: var(--text-soft, rgba(245, 247, 251, 0.76));
+  font-size: 0.92rem;
+  line-height: 1.55;
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+/* --- External links --------------------------------------- */
+
+.eventDetailLinks {
+  margin-bottom: 24px;
+}
+
+.eventDetailLinksList {
+  display: grid;
+  gap: 8px;
+}
+
+.eventDetailLinkItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--card-bg, rgba(255, 255, 255, 0.06));
+  color: var(--accent, #a78bfa);
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+
+.eventDetailLinkItem:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.eventDetailLinkLabel {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.eventDetailLinkArrow {
+  flex-shrink: 0;
+  font-size: 1.2rem;
+  opacity: 0.5;
+  margin-left: 8px;
+}
+
+/* --- Creator card ------------------------------------------ */
+
+.eventDetailCreator {
+  margin-bottom: 24px;
+}
+
+.eventDetailCreatorCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-sm, 16px);
+  text-decoration: none;
+  color: inherit;
+  transition: background 160ms ease;
+}
+
+.eventDetailCreatorCard:hover {
+  background: rgba(255, 255, 255, 0.09);
+}
+
+.eventDetailCreatorAvatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.eventDetailCreatorAvatar--fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(124, 233, 155, 0.15);
+  color: var(--primary, #7ce99b);
+  font-weight: 800;
+  font-size: 0.9rem;
+}
+
+.eventDetailCreatorInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.eventDetailCreatorName {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text, #f5f7fb);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.eventDetailCreatorHandle {
+  font-size: 0.82rem;
+  color: var(--text-muted, rgba(245, 247, 251, 0.48));
+}
+
+.eventDetailCreatorArrow {
+  font-size: 1.4rem;
+  color: var(--text-muted, rgba(245, 247, 251, 0.48));
+  flex-shrink: 0;
+}
+
+/* --- Action buttons ---------------------------------------- */
+
+.eventDetailActions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: 16px;
+}
+
+.eventDetailActionBtn {
+  width: 100%;
+}
+
+.eventDetailOwnerActions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.eventDetailJoinedBadge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 16px;
+  border-radius: var(--radius-sm, 16px);
+  background: rgba(124, 233, 155, 0.1);
+  color: var(--primary, #7ce99b);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.eventDetailJoinedBadge--creator {
+  background: rgba(124, 233, 155, 0.18);
+  color: var(--primary, #7ce99b);
+  font-weight: 700;
+}
+
+.eventDetailContactBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* --- Loading / error --------------------------------------- */
+
+.eventDetailLoading,
+.eventDetailError {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  gap: 12px;
+  text-align: center;
+  color: var(--text-soft, rgba(245, 247, 251, 0.76));
+}
+
+.eventDetailError h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text, #f5f7fb);
+  margin: 0;
+}
+
+.eventDetailError p {
+  font-size: 0.9rem;
+  margin: 0 0 16px;
+}
+
+/* ---- Light theme overrides ---- */
+:root[data-theme="light"] .eventDetailHero {
+    background: rgba(0, 0, 0, 0.03);
+  }
+:root[data-theme="light"] .eventDetailHero__overlay {
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.45));
+  }
+:root[data-theme="light"] .eventDetailMetaRow svg {
+    color: var(--text-muted);
+  }
+:root[data-theme="light"] .eventDetailCreatorAvatar--fallback {
+    background: rgba(0, 0, 0, 0.06);
+  }
+:root[data-theme="light"] .eventDetailCreatorCard {
+    background: rgba(0, 0, 0, 0.03);
+  }
+:root[data-theme="light"] .eventDetailCreatorCard:hover {
+    background: rgba(0, 0, 0, 0.05);
+  }
+:root[data-theme="light"] .eventDetailInlineLink {
+    color: var(--accent, #3b82f6);
+  }
+:root[data-theme="light"] .eventDetailLinkItem {
+    background: rgba(0, 0, 0, 0.03);
+    border-color: rgba(0, 0, 0, 0.08);
+  }
+:root[data-theme="light"] .eventDetailLinkItem:hover {
+    background: rgba(0, 0, 0, 0.05);
+  }
+:root[data-theme="light"] .eventDetailJoinedBadge {
+    background: rgba(22, 163, 74, 0.08);
+    color: var(--primary);
+  }
+:root[data-theme="light"] .eventDetailStatChip {
+    background: rgba(29, 158, 78, 0.08);
+    border-color: rgba(29, 158, 78, 0.16);
+  }
+:root[data-theme="light"] .eventDetailDirectionsBtn {
+    background: rgba(0, 0, 0, 0.03);
+    color: var(--accent, #3b82f6);
+  }
+:root[data-theme="light"] .eventDetailDirectionsBtn:hover {
+    background: rgba(0, 0, 0, 0.06);
+  }
+
+/* --- Responsive --- */
+@media (max-width: 320px) {
+  .eventDetailTitle {
+    font-size: 1.18rem;
+  }
+
+  .eventDetailMetaRow {
+    font-size: 0.84rem;
+  }
+
+  .eventDetailBody {
+    padding: 0 2px;
+  }
+
+  .eventDetailHero__image {
+    max-height: 280px;
+  }
+
+  .eventDetailTechStats {
+    gap: 6px;
+  }
+
+  .eventDetailStatChip {
+    padding: 6px 10px;
+  }
+
+  .eventDetailStatChip__value {
+    font-size: 0.95rem;
+  }
+}
+
+@media (min-width: 415px) {
+  .eventDetailTitle {
+    font-size: 1.5rem;
+  }
+
+  .eventDetailHero__image {
+    max-height: 480px;
+  }
+}

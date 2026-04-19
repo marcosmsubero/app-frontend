@@ -1,0 +1,1193 @@
+.formCard,
+.formRow,
+.formActions,
+.settingsPage,
+.settingsRow,
+.settingsRow__left,
+.settingsRow__copy,
+.chatThreadPage,
+.chatThreadPage__body,
+.chatThreadPage__messages,
+.chatThreadPage__composer,
+.chatBubble__meta,
+.chatComposer,
+.chatComposer__row,
+.deleteAccountPage,
+.followList,
+.followCard,
+.activityOverview,
+.activitySection,
+.activityGrid,
+.activityPanel,
+.discoverHero,
+.discoverSection,
+.discoverFiltersSection,
+.discoverCalendarCard,
+.discoverModalCard,
+.discoverEventsList,
+.discoverEventCard,
+.discoverHero__copy,
+.discoverHero__actions,
+.discoverMetaRow,
+.discoverEventCard__footer,
+.authPage,
+.messagesSimple__emptyBody,
+.activityPage,
+.activitySummaryGrid,
+.activityFilterRow,
+.chatMessageList,
+.chatThreadHeader__main,
+.chatThreadHeader__actions,
+.chatThreadHeader__copy,
+.discoverIntroCard,
+.discoverIntroCard__copy,
+.discoverIntroCard__actions,
+.discoverCalendarHead {
+  display: grid;
+  gap: 12px;
+}
+
+.formCard {
+  gap: 14px;
+}
+
+.formRow {
+  gap: 8px;
+}
+
+.formRow label {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  line-height: 1.2;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.formRow input,
+.formRow textarea,
+.formRow select {
+  width: 100%;
+  min-height: 48px;
+  padding: 13px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  outline: none;
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.formRow textarea {
+  min-height: 112px;
+  resize: vertical;
+}
+
+.formRow input:focus,
+.formRow textarea:focus,
+.formRow select:focus {
+  border-color: rgba(255, 107, 87, 0.28);
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 0 0 4px rgba(255, 107, 87, 0.1);
+}
+
+.formRow input::placeholder,
+.formRow textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.formHint {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.formActions {
+  grid-auto-flow: column;
+  justify-content: stretch;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: 10px;
+}
+
+.btn {
+  min-height: 46px;
+  border-radius: 16px;
+  border: 1px solid transparent;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  transition:
+    transform 160ms ease,
+    background-color 160ms ease,
+    border-color 160ms ease,
+    opacity 160ms ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn--primary {
+  color: #fff;
+  background: linear-gradient(180deg, var(--primary-strong), var(--primary));
+  box-shadow: 0 14px 28px rgba(255, 107, 87, 0.2);
+}
+
+.btn--ghost {
+  color: var(--text);
+  background: var(--surface-3, rgba(255, 255, 255, 0.05));
+  border-color: var(--border);
+}
+
+.settingsPage,
+.deleteAccountPage,
+.activityOverview,
+.authPage,
+.activityPage {
+  gap: 14px;
+}
+
+.settingsRow {
+  align-items: center;
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.settingsRow__left {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.settingsRow__title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.settingsRow__text {
+  margin: 4px 0 0;
+  color: var(--text-soft);
+  font-size: 0.86rem;
+  line-height: 1.5;
+}
+
+.activitySummaryGrid,
+.discoverStatsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.discoverStatsGrid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.activitySummaryCard,
+.discoverStatCard {
+  min-width: 0;
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.activitySummaryCard__label,
+.discoverStatCard__label {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.activitySummaryCard__value,
+.discoverStatCard__value {
+  font-size: 1.18rem;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.followList {
+  gap: 10px;
+}
+
+.followCard {
+  align-items: center;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.followCard__avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  object-fit: cover;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.followCard__name {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.followCard__meta {
+  margin: 4px 0 0;
+  color: var(--text-soft);
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
+.chatThreadPage {
+  gap: 14px;
+}
+
+.chatThreadPage__body {
+  min-height: calc(100dvh - 220px);
+  align-content: start;
+}
+
+.chatThreadPage__messages {
+  gap: 10px;
+}
+
+.chatMessageList {
+  gap: 10px;
+}
+
+.chatBubble {
+  max-width: min(88%, 320px);
+  padding: 12px 14px;
+  border-radius: 18px;
+  background: var(--surface-3, rgba(255, 255, 255, 0.05));
+}
+
+.chatBubble--me {
+  margin-left: auto;
+  background: rgba(124, 233, 155, 0.12);
+  border-color: rgba(124, 233, 155, 0.18);
+}
+
+.chatBubble__meta {
+  gap: 4px;
+}
+
+.chatBubble__author {
+  margin: 0;
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.chatBubble__time {
+  margin: 0;
+  font-size: 0.72rem;
+  color: var(--text-faint);
+}
+
+.chatBubble__text {
+  margin: 0;
+  color: var(--text);
+  font-size: 0.92rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.chatComposer {
+  gap: 10px;
+  padding: 12px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.chatComposer__row {
+  align-items: end;
+  gap: 10px;
+  grid-template-columns: 1fr auto;
+}
+
+.chatComposer textarea {
+  min-height: 48px;
+  max-height: 140px;
+}
+
+.chatComposer__submit {
+  min-width: 92px;
+}
+
+.chatThreadHeader__main,
+.chatThreadHeader__actions,
+.chatThreadHeader__copy {
+  gap: 10px;
+}
+
+.chatThreadHeader__title {
+  margin: 0;
+  font-size: 1.06rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.chatThreadHeader__subtitle {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.86rem;
+  line-height: 1.5;
+}
+
+.discoverHero,
+.discoverSection,
+.discoverFiltersSection,
+.discoverCalendarCard,
+.discoverModalCard,
+.discoverIntroCard {
+  padding: 16px;
+  border-radius: 22px;
+  border: 1px solid var(--border);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.015), rgba(255, 255, 255, 0)),
+    var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.discoverHero {
+  gap: 14px;
+}
+
+.discoverHero__copy,
+.discoverHero__actions,
+.discoverMetaRow,
+.discoverIntroCard__copy,
+.discoverIntroCard__actions,
+.discoverCalendarHead {
+  gap: 10px;
+}
+
+.discoverHero__title,
+.discoverIntroCard__title {
+  margin: 0;
+  font-size: 1.16rem;
+  line-height: 1.1;
+  letter-spacing: -0.04em;
+  font-weight: 800;
+}
+
+.discoverHero__text,
+.discoverIntroCard__text {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.discoverMetaRow {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.discoverMetaChip {
+  padding: 12px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.discoverMetaChip__label {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.discoverMetaChip__value {
+  margin: 6px 0 0;
+  color: var(--text);
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.discoverFiltersSection {
+  gap: 12px;
+}
+
+.discoverFiltersTitle {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.discoverFiltersRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.discoverFilterChip {
+  min-height: 38px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-soft);
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.discoverFilterChip--active {
+  color: #0b0b0b;
+  background: var(--primary);
+  border-color: transparent;
+}
+
+.discoverCalendarCard {
+  gap: 12px;
+}
+
+.discoverCalendarHead__title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.discoverCalendarHead__text {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
+.discoverEventsList {
+  gap: 10px;
+}
+
+.discoverEventCard {
+  gap: 10px;
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.discoverEventCard__title {
+  margin: 0;
+  font-size: 0.98rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.discoverEventCard__text,
+.discoverEventCard__meta {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
+.discoverEventCard__footer {
+  grid-template-columns: 1fr auto;
+  align-items: center;
+}
+
+.discoverModalCard {
+  gap: 14px;
+}
+
+.discoverModalCard__title {
+  margin: 0;
+  font-size: 1.06rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.discoverModalCard__text {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+.messagesSimple__emptyBody {
+  justify-items: start;
+}
+
+.messagesSimple__emptyTitle {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.messagesSimple__emptyText {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+.activityPage {
+  gap: 16px;
+}
+
+.activityOverview {
+  gap: 14px;
+}
+
+.activitySection {
+  gap: 12px;
+}
+
+.activitySection__title {
+  margin: 0;
+  font-size: 0.98rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.activitySection__text {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.86rem;
+  line-height: 1.5;
+}
+
+.activityGrid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.activityPanel {
+  gap: 8px;
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.activityPanel__label {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.activityPanel__value {
+  margin: 0;
+  font-size: 1.08rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.activityFilterRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.activityFilterBtn {
+  min-height: 38px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-soft);
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.activityFilterBtn--active {
+  color: #0b0b0b;
+  background: var(--primary);
+  border-color: transparent;
+}
+
+/* Tablet/desktop media query removed — RunVibe is mobile-only (≤430px). */
+
+.authChrome {
+  background:
+    radial-gradient(circle at top center, rgba(125, 211, 252, 0.08), transparent 30%),
+    radial-gradient(circle at top right, rgba(124, 233, 155, 0.07), transparent 34%),
+    linear-gradient(180deg, #09111a 0%, #070d14 100%);
+}
+
+.authChrome__frame {
+  padding-bottom: 28px;
+}
+
+.authPage {
+  gap: 14px;
+  padding-top: 0;
+}
+
+.authBrandCard--hero {
+  padding: 0;
+  margin-top: -6px;
+  overflow: hidden;
+  border-radius: 24px;
+  background: transparent;
+}
+
+.authHeroImage {
+  width: 100%;
+  height: 220px;
+  border-radius: 24px;
+  overflow: hidden;
+  position: relative;
+  background: #0b1118;
+}
+
+.authHeroImage img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: center;
+}
+
+.authHeroImage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(7, 13, 20, 0.02) 0%,
+    rgba(7, 13, 20, 0.25) 100%
+  );
+}
+
+.authIntro {
+  display: grid;
+  gap: 4px;
+  padding: 0 2px;
+}
+
+.authIntro__title {
+  margin: 0;
+  color: var(--text);
+  font-size: var(--text-2xl, 1.75rem);
+  line-height: var(--leading-tight, 1.15);
+  letter-spacing: var(--tracking-tight, -0.02em);
+  font-weight: var(--weight-bold, 700);
+}
+
+.authIntro__subtitle {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: var(--text-base, 0.9375rem);
+  line-height: var(--leading-base, 1.5);
+}
+
+.authSwitchSection {
+  display: grid;
+}
+
+.authSwitch {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  padding: 3px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 12px 28px rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(14px);
+}
+
+.authSwitch__item {
+  min-height: 42px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: var(--radius-md, 14px);
+  background: transparent;
+  color: var(--text-soft);
+  font: inherit;
+  font-size: var(--text-sm, 0.8125rem);
+  font-weight: var(--weight-semibold, 600);
+  letter-spacing: var(--tracking-snug, -0.01em);
+  transition:
+    background-color 180ms var(--ease-out, ease),
+    color 180ms var(--ease-out, ease),
+    transform 140ms var(--ease-out, ease),
+    box-shadow 220ms var(--ease-out, ease);
+}
+
+.authSwitch__item:active {
+  transform: scale(0.97);
+}
+
+.authSwitch__item:disabled {
+  opacity: 0.6;
+}
+
+.authSwitch__item--active {
+  color: #ffffff;
+  background: linear-gradient(140deg, var(--primary-strong, #22c55e), var(--primary, #16a34a));
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.25);
+}
+
+.authAltPrompt {
+  margin-top: 2px;
+  text-align: center;
+  font-size: var(--text-sm, 0.8125rem);
+  color: var(--text-soft);
+}
+
+.authAltPrompt__link {
+  border: 0;
+  background: transparent;
+  color: var(--primary, #16a34a);
+  font: inherit;
+  font-weight: 700;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.authAltPrompt__link:hover {
+  color: var(--primary-strong, #22c55e);
+}
+
+.authFormShell {
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.authFormCard {
+  gap: 8px;
+}
+
+.authFormRow {
+  gap: 4px;
+}
+
+.authFormRow label {
+  color: var(--text-soft);
+  font-size: var(--text-caption, 0.75rem);
+  font-weight: var(--weight-semibold, 600);
+  letter-spacing: var(--tracking-wide, 0.02em);
+  text-transform: uppercase;
+}
+
+.authFormRow input {
+  min-height: 38px;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm, 10px);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  font-size: var(--text-md, 1rem);
+  box-shadow: none;
+}
+
+.authFormRow input:focus {
+  border-color: var(--primary);
+  background: transparent;
+  box-shadow: 0 0 0 3px var(--primary-glow-mid, rgba(110, 231, 160, 0.18));
+}
+
+/* Native validation error state. `:user-invalid` only fires after the
+   user has touched the field, so fresh forms aren't drenched in red. */
+.authFormRow input:user-invalid {
+  border-color: var(--danger);
+}
+
+.authFormRow input:user-invalid:focus {
+  box-shadow: 0 0 0 3px var(--danger-soft);
+}
+
+.authFormRow input::placeholder {
+  color: transparent;
+  font-size: 0.76rem;
+  opacity: 0.55;
+}
+
+.authStateCard {
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow: none;
+  font-size: 0.85rem;
+}
+
+.authStateCard--error {
+  border-color: rgba(255, 122, 122, 0.2);
+}
+
+.authStateCard--success {
+  border-color: rgba(124, 233, 155, 0.2);
+}
+
+.authFormActions {
+  margin-top: 2px;
+}
+
+.authSubmitBtn {
+  min-height: 46px;
+  border-radius: 14px;
+  font-size: 0.9rem;
+  color: #000000;
+  box-shadow: 0 14px 28px rgba(124, 233, 155, 0.18);
+}
+
+.authForgotLink {
+  text-align: center;
+  padding: 4px 0 0;
+}
+
+.authForgotLink--inline {
+  text-align: left;
+  padding: 2px 2px 0;
+  margin-top: -6px;
+}
+
+.authForgotLink__btn {
+  background: none;
+  border: none;
+  color: var(--text-muted, #aaa);
+  font-size: 0.82rem;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 0.15s ease;
+}
+
+.authForgotLink__btn:hover {
+  color: var(--text, #fff);
+}
+
+/* ── Terms & Conditions checkbox ── */
+
+.authTermsRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 4px 0 2px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.authTermsRow__checkbox {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  margin-top: 1px;
+  accent-color: var(--primary, #6ee7a0);
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.authTermsRow__text {
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: var(--text-soft, rgba(240, 242, 248, 0.72));
+}
+
+.authTermsRow__link {
+  color: var(--primary, #6ee7a0);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  font-weight: 600;
+  transition: opacity 0.15s ease;
+}
+
+.authTermsRow__link:hover {
+  opacity: 0.8;
+}
+
+/* ActivityPage split layout removed — now uses activity-page.css */
+
+
+.formCard,
+.formRow,
+.formActions,
+.settingsPage,
+.settingsRow,
+.settingsRow__left,
+.settingsRow__copy,
+.chatThreadPage,
+.chatThreadPage__body,
+.chatThreadPage__messages,
+.chatThreadPage__composer,
+.chatBubble__meta,
+.chatComposer,
+.chatComposer__row,
+.deleteAccountPage,
+.followList,
+.followCard,
+.activityOverview,
+.activitySection,
+.activityGrid,
+.activityPanel,
+.discoverHero,
+.discoverSection,
+.discoverFiltersSection,
+.discoverCalendarCard,
+.discoverModalCard,
+.discoverEventsList,
+.discoverEventCard,
+.discoverHero__copy,
+.discoverHero__actions,
+.discoverMetaRow,
+.discoverEventCard__footer,
+.authPage,
+.messagesSimple__emptyBody,
+.activityPage,
+.activitySummaryGrid,
+.activityFilterRow,
+.chatMessageList,
+.chatThreadHeader__main,
+.chatThreadHeader__actions,
+.chatThreadHeader__copy,
+.discoverIntroCard,
+.discoverIntroCard__copy,
+.discoverIntroCard__actions,
+.discoverCalendarHead {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.formRow input,
+.formRow textarea,
+.formRow select,
+.settingsRow,
+.followCard,
+.discoverEventCard,
+.discoverModalCard,
+.authBrandCard--hero,
+.authHeroImage {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.settingsRow__title,
+.settingsRow__text,
+.followCard__name,
+.followCard__meta,
+.authIntro__title,
+.authIntro__subtitle,
+.discoverEventCard__title,
+.discoverEventCard__text {
+  overflow-wrap: anywhere;
+}
+
+.chatThreadHeader__actions,
+.discoverHero__actions,
+.discoverEventCard__footer {
+  flex-wrap: wrap;
+}
+
+@media (max-width: 360px) {
+  .formActions,
+  .activitySummaryGrid,
+  .discoverStatsGrid {
+    grid-template-columns: 1fr;
+    grid-auto-flow: row;
+  }
+}
+
+
+.formActions--single {
+  grid-auto-flow: row;
+  grid-auto-columns: unset;
+}
+
+/* ---- Light theme overrides ---- */
+:root[data-theme="light"] .formCard {
+    background: #fff;
+    border-color: rgba(0, 0, 0, 0.08);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.03);
+  }
+:root[data-theme="light"] .formRow label {
+    color: #374151;
+  }
+:root[data-theme="light"] .formRow input, :root[data-theme="light"] .formRow textarea, :root[data-theme="light"] .formRow select {
+    border-color: #d1d5db;
+    background: #f9fafb;
+    color: var(--text);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  }
+:root[data-theme="light"] .formRow input:focus, :root[data-theme="light"] .formRow textarea:focus, :root[data-theme="light"] .formRow select:focus {
+    border-color: #22c55e;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15), 0 1px 2px rgba(0, 0, 0, 0.04);
+  }
+:root[data-theme="light"] .formRow input::placeholder, :root[data-theme="light"] .formRow textarea::placeholder {
+    color: #9ca3af;
+  }
+:root[data-theme="light"] .btn--primary {
+    box-shadow: 0 4px 14px rgba(22, 163, 74, 0.25), 0 1px 3px rgba(0, 0, 0, 0.06);
+  }
+:root[data-theme="light"] .btn--ghost {
+    background: #f3f4f6;
+    border-color: #e5e7eb;
+  }
+:root[data-theme="light"] .settingsRow {
+    background: #fff;
+    border-color: #e5e7eb;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  }
+:root[data-theme="light"] .settingsRow:hover {
+    background: #f9fafb;
+    border-color: #d1d5db;
+  }
+:root[data-theme="light"] .activitySummaryCard, :root[data-theme="light"] .discoverStatCard {
+    background: #fff;
+    border-color: #e5e7eb;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  }
+:root[data-theme="light"] .followCard {
+    background: #fff;
+    border-color: #e5e7eb;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  }
+:root[data-theme="light"] .followCard__avatar {
+    background: #f3f4f6;
+  }
+:root[data-theme="light"] .chatBubble {
+    background: #f3f4f6;
+  }
+:root[data-theme="light"] .chatBubble--me {
+    background: #dcfce7;
+    border-color: rgba(34, 197, 94, 0.25);
+  }
+:root[data-theme="light"] .chatComposer {
+    background: #fff;
+    border-top: 1px solid #e5e7eb;
+  }
+:root[data-theme="light"] .discoverHero, :root[data-theme="light"] .discoverSection, :root[data-theme="light"] .discoverFiltersSection, :root[data-theme="light"] .discoverCalendarCard, :root[data-theme="light"] .discoverModalCard, :root[data-theme="light"] .discoverIntroCard {
+    background: #fff;
+    border-color: #e5e7eb;
+  }
+:root[data-theme="light"] .discoverMetaChip {
+    background: #f3f4f6;
+    border-color: #e5e7eb;
+  }
+:root[data-theme="light"] .discoverFilterChip {
+    background: #f3f4f6;
+    border-color: #e5e7eb;
+  }
+:root[data-theme="light"] .discoverFilterChip--active {
+    color: #fff;
+  }
+:root[data-theme="light"] .discoverEventCard {
+    background: #fff;
+    border-color: #e5e7eb;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  }
+:root[data-theme="light"] .activityPanel {
+    background: rgba(0, 0, 0, 0.02);
+  }
+:root[data-theme="light"] .activityFilterBtn {
+    background: rgba(0, 0, 0, 0.03);
+  }
+:root[data-theme="light"] .activityFilterBtn--active {
+    color: #fff;
+  }
+:root[data-theme="light"] .authChrome {
+    background:
+      radial-gradient(circle at top center, rgba(59, 130, 246, 0.05), transparent 30%),
+      radial-gradient(circle at top right, rgba(29, 158, 78, 0.04), transparent 34%),
+      linear-gradient(180deg, #f0f4f8 0%, #f5f7fa 100%);
+  }
+:root[data-theme="light"] .authHeroImage {
+    background: #e8edf2;
+  }
+:root[data-theme="light"] .authHeroImage::after {
+    background: linear-gradient(180deg, rgba(245, 247, 250, 0.02) 0%, rgba(245, 247, 250, 0.25) 100%);
+  }
+:root[data-theme="light"] .authIntro__title {
+    color: var(--text, #1a1f2e);
+  }
+:root[data-theme="light"] .authIntro__subtitle {
+    color: var(--text-soft);
+  }
+:root[data-theme="light"] .authSwitch {
+    border-color: rgba(0, 0, 0, 0.1);
+    background: rgba(0, 0, 0, 0.03);
+    box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.02), 0 4px 12px rgba(0, 0, 0, 0.06);
+  }
+:root[data-theme="light"] .authSwitch__item {
+    color: var(--text-soft);
+  }
+:root[data-theme="light"] .authSwitch__item--active {
+    color: #ffffff;
+    background: linear-gradient(140deg, var(--primary-strong, #22c55e), var(--primary, #16a34a));
+    box-shadow: 0 4px 12px rgba(22, 163, 74, 0.25);
+  }
+:root[data-theme="light"] .authFormShell {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+  }
+:root[data-theme="light"] .authFormRow label {
+    color: #374151;
+    font-weight: 700;
+  }
+:root[data-theme="light"] .authFormRow input {
+    border-color: #d1d5db;
+    background: transparent;
+    color: var(--text);
+    box-shadow: none;
+  }
+:root[data-theme="light"] .authFormRow input:focus {
+    border-color: #22c55e;
+    background: transparent;
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15);
+  }
+:root[data-theme="light"] .authStateCard {
+    background: #f9fafb;
+    border-color: #e5e7eb;
+  }
+:root[data-theme="light"] .authStateCard--error {
+    background: #fef2f2;
+    border-color: #fecaca;
+    color: #991b1b;
+  }
+:root[data-theme="light"] .authStateCard--success {
+    background: #f0fdf4;
+    border-color: #bbf7d0;
+    color: #166534;
+  }
+:root[data-theme="light"] .authSubmitBtn {
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(22, 163, 74, 0.25), 0 1px 3px rgba(0, 0, 0, 0.06);
+  }
+:root[data-theme="light"] .authTermsRow__text {
+    color: var(--text-soft, #475569);
+  }
+:root[data-theme="light"] .authTermsRow__link {
+    color: var(--primary);
+  }

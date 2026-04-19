@@ -1,0 +1,217 @@
+.eventDirectionsPage {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+}
+
+.eventDirectionsNav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.eventDirectionsBackBtn {
+  width: 42px;
+  height: 42px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  color: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.eventDirectionsNav__title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.eventDirectionsCard {
+  display: grid;
+  gap: 14px;
+}
+
+.eventDirectionsEvent,
+.eventDirectionsSearch {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  padding: 14px;
+}
+
+.eventDirectionsEvent__badge {
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.eventDirectionsEvent__title {
+  margin: 10px 0 6px;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.eventDirectionsEvent__location {
+  margin: 0;
+  opacity: 0.78;
+  line-height: 1.45;
+}
+
+.eventDirectionsSearch {
+  position: relative;
+}
+
+.eventDirectionsSearch__label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  opacity: 0.84;
+}
+
+.eventDirectionsSearch__row {
+  display: flex;
+  gap: 8px;
+}
+
+.eventDirectionsSearch__input {
+  flex: 1;
+  min-width: 0;
+  height: 46px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.18);
+  color: inherit;
+  padding: 0 14px;
+  outline: none;
+}
+
+.eventDirectionsSearch__geoBtn {
+  height: 46px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.08);
+  color: inherit;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.eventDirectionsSearch__results {
+  margin-top: 8px;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(10, 16, 28, 0.96);
+}
+
+.eventDirectionsSearch__result {
+  width: 100%;
+  text-align: left;
+  padding: 12px 14px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.eventDirectionsSearch__result + .eventDirectionsSearch__result {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.eventDirectionsSearch__result span {
+  font-size: 0.82rem;
+  opacity: 0.72;
+}
+
+.eventDirectionsSearch__hint,
+.eventDirectionsSearch__ready {
+  margin-top: 10px;
+  font-size: 0.84rem;
+  opacity: 0.74;
+}
+
+.eventDirectionsSearch__ready {
+  opacity: 1;
+  font-weight: 600;
+}
+
+.eventDirectionsMap {
+  width: 100%;
+  height: calc(100vh - 320px);
+  min-height: 420px;
+  border-radius: 22px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.eventDirectionsState {
+  min-height: 40vh;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  gap: 10px;
+}
+
+.eventDirectionsState--error {
+  padding: 24px;
+}
+
+.eventDirectionsPopup {
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.eventDirectionsMarker__pin {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: #ff4d67;
+  color: white;
+  border: 2px solid white;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
+  display: grid;
+  place-items: center;
+}
+
+.eventDirectionsMarker__pin svg {
+  width: 14px;
+  height: 14px;
+}
+
+.eventDirectionsMarker__pin--origin {
+  width: 24px;
+  height: 24px;
+  background: #0f172a;
+}
+
+.eventDirectionsMap .leaflet-routing-container {
+  max-width: min(320px, 78vw);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.24);
+}
+
+@media (max-width: 640px) {
+  .eventDirectionsSearch__row {
+    flex-direction: column;
+  }
+
+  .eventDirectionsMap {
+    height: calc(100vh - 380px);
+    min-height: 380px;
+  }
+}

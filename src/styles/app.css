@@ -1,0 +1,1780 @@
+:root {
+  color-scheme: dark;
+  font-family: "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+
+  /* ── Spacing (strict 4px grid) ── */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  /* ── Surfaces & backgrounds (OLED-friendly black) ──
+     Near-black instead of pure #000: preserves edge-subpixel rendering
+     and avoids the "smearing" blacks have on some OLED panels. Surfaces
+     are derived with warm-neutral transparency over the base. */
+  --bg: #0a0a0a;
+  --bg-elevated: #141414;
+  --bg-soft: rgba(255, 255, 255, 0.035);
+  --surface: #141414;
+  --surface-2: #1a1a1a;
+  --surface-3: rgba(255, 255, 255, 0.05);
+  --surface-glass: rgba(20, 20, 20, 0.72);
+  --surface-raised: #1f1f1f;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.14);
+  --border-subtle: rgba(255, 255, 255, 0.05);
+
+  /* ── Typography ──
+     Scale rationalised to 8 tiers with a clear role per tier. Line-height
+     ratio tightens as the size grows (Emil: big type needs less air, small
+     type needs more). Letter-spacing is a separate token family so any
+     heading can pull its tracking negative without redefining its size.
+
+     Do not introduce intermediate values. If a design needs something
+     between `lg` (18) and `xl` (22), you need a new role, not a new number.
+
+     text-faint is the lowest tier allowed for readable text — kept just
+     above WCAG AA large-text ratio on the dark surface. Never use it for
+     body copy smaller than 16px / 1rem. */
+  --text: #f0f2f8;
+  --text-soft: rgba(240, 242, 248, 0.72);
+  --text-muted: rgba(240, 242, 248, 0.52);
+  --text-faint: rgba(240, 242, 248, 0.42);
+
+  /* Size + line-height packed as value / line / unitless tokens for clarity.
+     Legacy aliases (--font-xs/sm/…) kept below for backward compatibility;
+     new code should use the role-named tokens on the left. */
+  --text-caption:  0.75rem;   /* 12px — hints, metadata, badges */
+  --text-sm:       0.8125rem; /* 13px */
+  --text-base:     0.9375rem; /* 15px — body default on mobile */
+  --text-md:       1rem;      /* 16px — inputs (iOS no auto-zoom), emphasis body */
+  --text-lg:       1.125rem;  /* 18px — section titles */
+  --text-xl:       1.375rem;  /* 22px — page H1 on mobile */
+  --text-2xl:      1.75rem;   /* 28px — hero card titles */
+  --text-display:  2.25rem;   /* 36px — splash / onboarding display */
+
+  /* Legacy aliases — do not use in new code. Values mapped onto the new
+     scale so existing components stay visually correct. */
+  --font-xs:   var(--text-caption);
+  --font-sm:   var(--text-sm);
+  --font-base: var(--text-base);
+  --font-md:   var(--text-md);
+  --font-lg:   var(--text-lg);
+  --font-xl:   var(--text-xl);
+  --font-2xl:  var(--text-2xl);
+
+  /* Line-heights, unitless so they scale with font-size. */
+  --leading-tight: 1.15;   /* display + 2xl */
+  --leading-snug:  1.35;   /* xl + lg */
+  --leading-base:  1.5;    /* md + base + sm */
+  --leading-loose: 1.65;   /* caption only, keeps it readable */
+
+  /* Letter-spacing. Emil: tight type wants negative tracking, small type
+     wants positive. Defaults hardcoded into tier usage below. */
+  --tracking-tight:   -0.02em;
+  --tracking-snug:    -0.01em;
+  --tracking-normal:   0;
+  --tracking-wide:     0.02em;
+
+  /* Font weights — strict 4-step scale. No 650/800 drift. */
+  --weight-regular:  400;
+  --weight-medium:   500;
+  --weight-semibold: 600;
+  --weight-bold:     700;
+
+  /* ── Brand palette ── */
+  --primary: #6ee7a0;
+  --primary-strong: #8df2b6;
+  --primary-soft: rgba(110, 231, 160, 0.14);
+  --primary-softer: rgba(110, 231, 160, 0.07);
+  --accent: #7dd3fc;
+  --accent-soft: rgba(125, 211, 252, 0.12);
+  --success: #34d399;
+  --warning: #fbbf24;
+  --danger: #f87171;
+  --danger-soft: rgba(248, 113, 113, 0.12);
+
+  /* ── Radius (tightened — Emil: smaller radii feel crafted). Seven tokens
+     remain for backward compatibility, but the canonical tiers are four:
+     sm (chips, badges), md (buttons, cards — the default), lg (hero cards,
+     bottom sheets), pill (avatars, pills). The xs / xl / 2xl values snap
+     to the nearest canonical tier so the product stays coherent. */
+  --radius-xs:   6px;    /* badges, inline dots */
+  --radius-sm:  10px;    /* chips, small inputs */
+  --radius-md:  14px;    /* CANONICAL default — buttons, cards */
+  --radius-lg:  18px;    /* large cards */
+  --radius-xl:  22px;    /* hero cards, bottom sheets */
+  --radius-2xl: 26px;    /* very large surfaces; avoid unless justified */
+  --radius-pill: 999px;
+
+  /* ── Elevation (layered depth) ── */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.2), 0 2px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 20px 48px rgba(0, 0, 0, 0.32), 0 4px 12px rgba(0, 0, 0, 0.14);
+  --shadow-glow: 0 0 20px rgba(110, 231, 160, 0.15);
+  --shadow-glow-strong: 0 0 32px rgba(110, 231, 160, 0.25), 0 0 8px rgba(110, 231, 160, 0.1);
+
+  /* Primary accent tint. Replaces the 42 scattered `rgba(110, 231, 160, …)`
+     literals sprinkled across components. Use by role, not by opacity. */
+  --primary-glow-soft:   rgba(110, 231, 160, 0.08);  /* subtle background wash */
+  --primary-glow-mid:    rgba(110, 231, 160, 0.18);  /* active state, selected chip */
+  --primary-glow-strong: rgba(110, 231, 160, 0.32);  /* pressed CTA, strong emphasis */
+
+  /* ── Motion ──
+     Custom cubic-bezier curves (Emil Kowalski). Built-in `ease-out` is too
+     weak — it lacks the punch that makes UI feel intentional. The curves
+     below are stronger and give immediate feedback on enter/exit. */
+  --ease-out:    cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);   /* iOS-like drawer curve */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1); /* kept for back-compat */
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+  /* Durations. Keep UI animations under 300ms — dropdowns 180, modals 240,
+     press feedback ≤160. Anything longer feels sluggish on mobile. */
+  --transition-fast: 120ms var(--ease-out);
+  --transition-base: 180ms var(--ease-out);
+  --transition-slow: 240ms var(--ease-out);
+  --transition-spring: 360ms var(--ease-spring);
+  --transition-press: 140ms var(--ease-out);
+
+  /* ── Layout ──
+     RunVibe is mobile-only (max shell width ~430px). The design system
+     declares a single meaningful breakpoint for "extra-small phones":
+     `@media (max-width: 360px)`. Tablet and desktop breakpoints are not
+     supported. Any existing intermediate breakpoint (380/420/640) is
+     legacy and should be folded into the default or into the 360 bucket
+     as the code that owns it is refactored. Never introduce new tablet+
+     breakpoints. */
+  --page-width: 100%;
+  --safe-bottom: max(22px, env(safe-area-inset-bottom));
+  --safe-top: max(18px, env(safe-area-inset-top));
+
+  /* ── Interaction primitives ──
+     Every interactive element must honour these. Touch-min is the
+     minimum hitbox size (WCAG 2.5.5). Focus ring is the single source
+     of truth for keyboard-navigation feedback. Overlay-scrim is the
+     dim used behind modals and sheets. */
+  --tap-min: 44px;
+  --focus-ring-color: rgba(110, 231, 160, 0.55);
+  --focus-ring-width: 3px;
+  --focus-ring-offset: 2px;
+  --overlay-scrim: rgba(0, 0, 0, 0.55);
+}
+
+:root[data-theme="light"] {
+    color-scheme: light;
+
+    /* Pure white. Surfaces do not tint; they separate only via border or
+       small elevation. Keeps contrast punchy and the app feeling clean. */
+    --bg: #ffffff;
+    --bg-elevated: #ffffff;
+    --bg-soft: rgba(0, 0, 0, 0.025);
+    --surface: #ffffff;
+    --surface-2: #ffffff;
+    --surface-3: rgba(0, 0, 0, 0.035);
+    --surface-glass: rgba(255, 255, 255, 0.85);
+    --surface-raised: #ffffff;
+    --border: rgba(0, 0, 0, 0.08);
+    --border-strong: rgba(0, 0, 0, 0.15);
+    --border-subtle: rgba(0, 0, 0, 0.04);
+
+    --text: #111827;
+    --text-soft: rgba(17, 24, 39, 0.68);
+    --text-muted: rgba(17, 24, 39, 0.56);
+    --text-faint: rgba(17, 24, 39, 0.48);
+
+    --primary: #16a34a;
+    --primary-strong: #15803d;
+    --primary-soft: rgba(22, 163, 74, 0.1);
+    --primary-softer: rgba(22, 163, 74, 0.05);
+    --accent: #2563eb;
+    --accent-soft: rgba(37, 99, 235, 0.08);
+    --success: #16a34a;
+    --warning: #d97706;
+    --danger: #dc2626;
+    --danger-soft: rgba(220, 38, 38, 0.08);
+
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.03);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.06), 0 2px 4px rgba(0, 0, 0, 0.04);
+    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.08), 0 4px 8px rgba(0, 0, 0, 0.04);
+    --shadow-glow: 0 0 16px rgba(22, 163, 74, 0.12);
+    --shadow-glow-strong: 0 0 24px rgba(22, 163, 74, 0.2), 0 0 6px rgba(22, 163, 74, 0.08);
+
+    --primary-glow-soft:   rgba(22, 163, 74, 0.06);
+    --primary-glow-mid:    rgba(22, 163, 74, 0.14);
+    --primary-glow-strong: rgba(22, 163, 74, 0.24);
+
+    --focus-ring-color: rgba(22, 163, 74, 0.42);
+    --overlay-scrim: rgba(17, 24, 39, 0.48);
+  }
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+  width: 100%;
+  max-width: 100%;
+}
+
+/* ── Global interaction primitives ──
+   Applied once at the document root so every interactive element gets
+   them by default, without having to decorate each component. */
+html {
+  /* Kill the legacy 300ms tap delay on iOS / older Android, and stop
+     double-tap from triggering zoom on random buttons. */
+  touch-action: manipulation;
+  /* Prevent rubber-band/pull-to-refresh from firing from arbitrary
+     scroll containers bubbling up to the document. Per-list scrollers
+     still opt out with overscroll-behavior: contain locally. */
+  overscroll-behavior-y: contain;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  /* Native-feeling taps: remove the default blue/grey highlight but
+     keep our own :active / :focus-visible feedback. */
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Keyboard-only focus. Pointer focus stays silent so the UI doesn't
+   flash rings on click. This is the single source of truth for the
+   focus visual; no component should redefine the ring.
+   `!important` is used deliberately — the global accessibility invariant
+   must beat any legacy `outline: none` sprinkled across component CSS. */
+:where(a, button, [role="button"], input, textarea, select, summary, [tabindex]):focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color) !important;
+  outline-offset: var(--focus-ring-offset) !important;
+}
+
+/* NOTE: 44×44 hitbox enforcement lives in the new Button / IconButton
+   components (Phase B). We intentionally do NOT apply it globally here
+   because many legacy components ship their own tighter visuals (day
+   cells, inline chips). Migration to the shared components is what
+   guarantees WCAG 2.5.5. Fase A only lays the token + focus ring. */
+
+html {
+  overflow-x: clip;
+  scrollbar-gutter: stable;
+  background: #0a0a0a;
+  background-image: none;
+}
+
+html[data-theme="light"] {
+    background: #ffffff;
+    background-image: none;
+  }
+
+body {
+  margin: 0;
+  min-height: 100svh;
+  min-height: 100dvh;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: clip;
+  color: var(--text);
+  background: transparent;
+  overscroll-behavior-y: none;
+  line-height: 1.5;
+  letter-spacing: -0.011em;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.01), transparent 16%);
+}
+
+:root[data-theme="light"] body::before {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.4), transparent 18%);
+  }
+:root[data-theme="light"] ::selection {
+    background: rgba(22, 163, 74, 0.18);
+    color: #111827;
+  }
+:root[data-theme="light"] ::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.12);
+  }
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+select,
+textarea {
+  max-width: 100%;
+  font: inherit;
+}
+
+button {
+  color: inherit;
+  cursor: pointer;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+/* Global smooth focus ring */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-xs);
+}
+
+img,
+video,
+canvas {
+  display: block;
+  max-width: 100%;
+}
+
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+::selection {
+  background: rgba(124, 233, 155, 0.24);
+  color: #fff;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+}
+
+#root {
+  width: 100%;
+  overflow-x: clip;
+}
+
+.page,
+.page__columns,
+.page__header,
+.page__sidebar,
+.app-stack,
+.app-list,
+.eventList,
+.settingsList,
+.feedList,
+.notificationsList {
+  display: grid;
+  gap: 14px;
+  width: 100%;
+}
+
+.page__sidebar {
+  display: none;
+}
+
+/* Floating layout (mobile-only): contents sit directly on the page bg.
+   No per-section "cards" with their own bg/border/shadow. Visual
+   separation comes from spacing + typography hierarchy alone.
+   Exceptions: chatComposer (still needs its own solid anchor), chatBubble
+   (rendered as a bubble by definition), stateCard (empty/error visual). */
+.heroPanel,
+.sectionBlock,
+.app-card,
+.settingsCard,
+.feedCard,
+.profileHeroCard,
+.userRow,
+.messageCard,
+.notificationCard,
+.authCard {
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  padding: 0;
+  border-radius: 0;
+  transition: none;
+}
+
+/* stateCard still shows visual framing — it's an empty/error state that
+   needs to read as a standalone block, not dissolved into the page. */
+.stateCard {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: var(--radius-md);
+  padding: 16px;
+}
+
+/* Chat composer: anchored at the bottom, keeps its own surface + border
+   so the input area reads as a distinct zone above the home indicator. */
+.chatComposer {
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+}
+
+.heroPanel {
+  gap: 10px;
+}
+
+.heroPanel__top,
+.sectionHead,
+.page__header,
+.profileHeroCard__top,
+.app-section-header,
+.notificationCard__head,
+.messageCard__head,
+.notificationCard__user,
+.messageCard__user {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.sectionHead,
+.page__header,
+.app-section-header {
+  margin-bottom: 2px;
+}
+
+.sectionHead__copy {
+  min-width: 0;
+}
+
+.heroPanel__title,
+.page__title,
+.sectionTitle,
+.profileHeroName {
+  margin: 0;
+  font-size: 1.16rem;
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+  font-weight: 800;
+}
+
+.heroPanel__text,
+.page__subtitle,
+.sectionLead,
+.stateCard__text,
+.app-text-soft,
+.profileHeroMeta,
+.profileHeroBio,
+.chatThreadPage__subtitle {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.91rem;
+  line-height: 1.55;
+}
+
+.page__eyebrow,
+.sectionEyebrow,
+.app-kicker,
+.heroPanel__badge,
+.appTopbar__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.page__eyebrow,
+.sectionEyebrow,
+.app-kicker,
+.appTopbar__eyebrow {
+  color: var(--text-muted);
+}
+
+.heroPanel__badge,
+.app-badge,
+.badge,
+.messagesSimple__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(255, 107, 87, 0.16);
+  background: var(--primary-soft);
+  color: #fff;
+  font-size: 0.74rem;
+  font-weight: 800;
+}
+
+.badge,
+.app-badge {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.07);
+  color: var(--text-soft);
+}
+
+.badge--primary,
+.app-badge--primary {
+  background: var(--primary-soft);
+  border-color: rgba(255, 107, 87, 0.18);
+  color: #fff;
+}
+
+.app-badge--success {
+  background: rgba(55, 201, 154, 0.16);
+  border-color: rgba(55, 201, 154, 0.2);
+  color: #dcfff5;
+}
+
+.app-badge--warning {
+  background: rgba(247, 185, 85, 0.16);
+  border-color: rgba(247, 185, 85, 0.2);
+  color: #fff1d5;
+}
+
+.stateCard {
+  display: grid;
+  gap: 10px;
+}
+
+.stateCard__title {
+  margin: 0;
+  font-size: 0.98rem;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  font-weight: 800;
+}
+
+.feedCard__action,
+.app-linkButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0 14px;
+  border-radius: 15px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 800;
+  transition:
+    transform 160ms ease,
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease;
+}
+
+.feedCard__action:hover,
+.app-linkButton:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.feedCard__action--primary {
+  color: #fff;
+  background: linear-gradient(180deg, var(--primary-strong), var(--primary));
+  border-color: transparent;
+  box-shadow: 0 14px 28px rgba(255, 107, 87, 0.2);
+}
+
+.feedCard__actions,
+.profileActionRow {
+  display: grid;
+  gap: 10px;
+}
+
+.app-card__header,
+.app-card__body,
+.app-card__footer {
+  display: grid;
+  gap: 12px;
+}
+
+.app-card__header {
+  padding-bottom: 2px;
+}
+
+.app-section-header__title {
+  margin: 0;
+  color: var(--text);
+  font-size: 0.98rem;
+  line-height: 1.2;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.app-section-header__subtitle {
+  margin-top: 4px;
+  color: var(--text-muted);
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
+.compactList,
+.card {
+  display: grid;
+  gap: 10px;
+}
+
+.compactListItem,
+.userRow,
+.messageCard,
+.notificationCard,
+.settingsCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.compactListItem {
+  justify-content: space-between;
+}
+
+.compactListItem__icon {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text);
+  font-weight: 800;
+}
+
+.compactListItem__copy,
+.userRow__meta,
+.messageCard__body,
+.notificationCard__body,
+.settingsCard__content {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.compactListItem__title,
+.userRow__name,
+.messageCard__name,
+.notificationCard__name,
+.settingsCard__title,
+.cardTitle {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.compactListItem__text,
+.userRow__handle,
+.messageCard__meta,
+.notificationCard__meta,
+.settingsCard__description,
+.cardSubtitle,
+.messageCard__text,
+.notificationCard__text {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
+.compactListItem__aside {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.userRow__avatar,
+.messageCard__avatar,
+.notificationCard__avatar,
+.messagesSimple__avatar,
+.chatThreadPage__avatar {
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text);
+}
+
+.messagesSimple__avatar,
+.chatThreadPage__avatar {
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+}
+
+.notificationDot {
+  flex: 0 0 auto;
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: var(--primary);
+  box-shadow: 0 0 0 6px rgba(255, 107, 87, 0.12);
+}
+
+.tabBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 4px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.tabBar__item {
+  min-height: 36px;
+  padding: 0 13px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.tabBar__item--active {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text);
+}
+
+.profileMiniSummary,
+.discoverFilterRow,
+.messagesSimple__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.profileMiniSummary__item,
+.discoverStatCard,
+.calendarMini__stat,
+.eventMetaItem,
+.profileStat {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.profileMiniSummary__label,
+.discoverStatCard__label,
+.calendarMini__statLabel,
+.eventMetaItem__label,
+.profileStat__label {
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.profileMiniSummary__value,
+.discoverStatCard__value,
+.calendarMini__statValue,
+.eventMetaItem__value,
+.profileStat__value {
+  color: var(--text);
+  font-size: 1.08rem;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  font-weight: 800;
+}
+
+.eventCard,
+.profileEventCard,
+.discoverEventCard {
+  display: grid;
+  gap: 12px;
+  padding: 15px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow: var(--shadow-sm);
+}
+
+.eventCard__head,
+.eventCard__meta,
+.eventMetaGrid,
+.discoverEventCard__head,
+.discoverEventCard__meta {
+  display: grid;
+  gap: 10px;
+}
+
+.eventMetaGrid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.eventCard__title,
+.discoverEventCard__title,
+.calendarMini__itemTitle {
+  margin: 0;
+  font-size: 0.98rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.eventCard__subtitle,
+.discoverEventCard__subtitle,
+.calendarMini__itemMeta {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.app-empty,
+.messagesSimple__emptyBody {
+  display: grid;
+  gap: 10px;
+}
+
+.app-empty {
+  padding: 16px;
+  border-radius: 20px;
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.messagesSimple__emptyBody strong {
+  font-size: 0.96rem;
+  letter-spacing: -0.02em;
+}
+
+.messagesSimple__emptyBody p {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+
+.page,
+.page__columns,
+.page__header,
+.page__sidebar,
+.app-stack,
+.app-list,
+.eventList,
+.settingsList,
+.feedList,
+.notificationsList,
+.heroPanel,
+.sectionBlock,
+.stateCard,
+.app-card,
+.settingsCard,
+.feedCard,
+.profileHeroCard,
+.userRow,
+.messageCard,
+.notificationCard,
+.chatComposer,
+.chatBubble,
+.authCard,
+.formCard,
+.formRow,
+.formActions,
+.discoverSection,
+.discoverCalendarCard,
+.discoverSelectedDay,
+.discoverEventCard,
+.calendarMini,
+.profileStats,
+.profileMiniSummary,
+.activitySummaryGrid,
+.discoverStatsGrid {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.page__title,
+.sectionTitle,
+.profileHeroName,
+.cardTitle,
+.eventCard__title,
+.discoverEventCard__title,
+.calendarMini__itemTitle,
+.profileHero__name,
+.settingsRow__title,
+.authIntro__title,
+.authIntro__subtitle,
+.messageCard__text,
+.notificationCard__text,
+.stateCard__text {
+  overflow-wrap: anywhere;
+}
+
+.app-loader-screen {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 32px;
+}
+
+.app-loader-screen__inner {
+  display: grid;
+  gap: 14px;
+  justify-items: center;
+  padding: 24px;
+}
+
+.app-loader-screen__spinner {
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  border: 3px solid rgba(255, 255, 255, 0.08);
+  border-top-color: var(--primary);
+  animation: spin 0.8s linear infinite;
+}
+
+.app-loader-screen__label {
+  color: var(--text-soft);
+  font-size: 0.94rem;
+}
+
+/* --- Error Boundary --------------------------------------- */
+
+.app-error-boundary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100dvh;
+  padding: 24px;
+  background: var(--bg-base, #111);
+  color: var(--text-primary, #fff);
+}
+
+.app-error-boundary__inner {
+  max-width: 400px;
+  text-align: center;
+  display: grid;
+  gap: 16px;
+}
+
+.app-error-boundary__title {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.app-error-boundary__text {
+  font-size: 0.9rem;
+  color: var(--text-muted, #aaa);
+  line-height: 1.5;
+}
+
+.app-error-boundary__actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.app-error-boundary__details {
+  margin-top: 12px;
+  text-align: left;
+  font-size: 0.75rem;
+  color: var(--text-muted, #888);
+}
+
+.app-error-boundary__details pre {
+  margin-top: 8px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* --- Toast Stack ------------------------------------------ */
+
+.toast-stack {
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  bottom: calc(90px + var(--safe-bottom));
+  z-index: 90;
+  display: grid;
+  gap: 10px;
+}
+
+.toast {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: rgba(8, 15, 25, 0.96);
+  box-shadow: var(--shadow-md);
+}
+
+.toast__body {
+  display: flex;
+  gap: 12px;
+  min-width: 0;
+}
+
+.toast__icon {
+  width: 22px;
+  height: 22px;
+  color: var(--text);
+}
+
+.toast__content {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.toast__title {
+  font-size: 0.92rem;
+}
+
+.toast__message {
+  margin: 0;
+  font-size: 0.84rem;
+  color: var(--text-soft);
+}
+
+.toast__close {
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.toast--success {
+  border-color: rgba(55, 201, 154, 0.22);
+}
+
+.toast--error {
+  border-color: rgba(255, 122, 122, 0.24);
+}
+
+.toast--warning {
+  border-color: rgba(247, 185, 85, 0.24);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+.authBrandCard {
+  padding: 20px 16px;
+}
+
+.authBrandCard__row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.authBrandCard__icon {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  flex: 0 0 auto;
+}
+
+.authBrandCard__logo {
+  width: min(210px, 100%);
+  height: auto;
+  object-fit: contain;
+}
+
+/* ============================================================
+   LIGHT THEME OVERRIDES
+   Replaces hardcoded rgba(255,255,255,…) dark-mode overlays
+   with appropriate light-mode equivalents.
+============================================================ */
+
+/* Floating layout applies in both themes — the light overrides for these
+   containers are gone. Only `.stateCard` keeps a visible surface. */
+:root[data-theme="light"] .stateCard {
+    background: var(--surface);
+    border-color: var(--border);
+  }
+:root[data-theme="light"] .chatComposer {
+    background: var(--bg);
+    border-top-color: var(--border);
+  }
+:root[data-theme="light"] .badge, :root[data-theme="light"] .app-badge {
+    background: rgba(0, 0, 0, 0.04);
+    border-color: rgba(0, 0, 0, 0.06);
+  }
+:root[data-theme="light"] .badge--primary, :root[data-theme="light"] .app-badge--primary {
+    background: var(--primary-soft);
+    border-color: rgba(29, 158, 78, 0.18);
+    color: var(--primary-strong);
+  }
+:root[data-theme="light"] .app-badge--success {
+    background: rgba(22, 163, 74, 0.1);
+    border-color: rgba(22, 163, 74, 0.16);
+    color: #15803d;
+  }
+:root[data-theme="light"] .app-badge--warning {
+    background: rgba(217, 119, 6, 0.1);
+    border-color: rgba(217, 119, 6, 0.16);
+    color: #92400e;
+  }
+:root[data-theme="light"] .feedCard__action, :root[data-theme="light"] .app-linkButton {
+    background: rgba(0, 0, 0, 0.03);
+    border-color: var(--border);
+  }
+:root[data-theme="light"] .feedCard__action:hover, :root[data-theme="light"] .app-linkButton:hover {
+    background: rgba(0, 0, 0, 0.06);
+  }
+:root[data-theme="light"] .feedCard__action--primary {
+    color: #fff;
+    background: linear-gradient(180deg, var(--primary), var(--primary-strong));
+    box-shadow: 0 8px 20px rgba(29, 158, 78, 0.18);
+  }
+:root[data-theme="light"] .compactListItem, :root[data-theme="light"] .userRow, :root[data-theme="light"] .messageCard, :root[data-theme="light"] .notificationCard, :root[data-theme="light"] .settingsCard {
+    background: rgba(0, 0, 0, 0.02);
+    border-color: var(--border);
+  }
+:root[data-theme="light"] .compactListItem__icon {
+    background: rgba(0, 0, 0, 0.06);
+  }
+:root[data-theme="light"] .tabBar {
+    background: rgba(0, 0, 0, 0.03);
+    border-color: var(--border);
+  }
+:root[data-theme="light"] .tabBar__item--active {
+    background: #fff;
+    color: var(--text);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  }
+:root[data-theme="light"] .profileMiniSummary__item, :root[data-theme="light"] .discoverStatCard, :root[data-theme="light"] .calendarMini__stat, :root[data-theme="light"] .eventMetaItem, :root[data-theme="light"] .profileStat {
+    background: rgba(0, 0, 0, 0.02);
+    border-color: var(--border);
+  }
+:root[data-theme="light"] .eventCard, :root[data-theme="light"] .profileEventCard, :root[data-theme="light"] .discoverEventCard {
+    background: rgba(0, 0, 0, 0.02);
+    border-color: var(--border);
+  }
+:root[data-theme="light"] .app-empty {
+    border-color: rgba(0, 0, 0, 0.1);
+    background: rgba(0, 0, 0, 0.02);
+  }
+:root[data-theme="light"] .notificationDot {
+    box-shadow: 0 0 0 6px rgba(29, 158, 78, 0.1);
+  }
+:root[data-theme="light"] .app-loader-screen__spinner {
+    border-color: rgba(0, 0, 0, 0.08);
+    border-top-color: var(--primary);
+  }
+:root[data-theme="light"] .app-error-boundary {
+    background: var(--bg);
+    color: var(--text);
+  }
+:root[data-theme="light"] .app-error-boundary__details pre {
+    background: rgba(0, 0, 0, 0.04);
+  }
+:root[data-theme="light"] .toast {
+    background: rgba(255, 255, 255, 0.97);
+    border-color: var(--border);
+    box-shadow: var(--shadow-md);
+  }
+:root[data-theme="light"] .toast--success {
+    border-color: rgba(22, 163, 74, 0.24);
+  }
+:root[data-theme="light"] .toast--error {
+    border-color: rgba(220, 38, 38, 0.24);
+  }
+:root[data-theme="light"] .toast--warning {
+    border-color: rgba(217, 119, 6, 0.24);
+  }
+:root[data-theme="light"] .messagesSimple__avatar {
+    background: rgba(0, 0, 0, 0.06);
+  }
+
+/* ============================================================
+   RESPONSIVE BREAKPOINTS — MOBILE-FIRST
+   Ensures every element adapts gracefully to all phone sizes.
+============================================================ */
+
+/* --- Extra-small phones (≤ 320px, e.g. iPhone SE 1st gen) --- */
+@media (max-width: 320px) {
+  :root {
+    --app-shell-side-pad: 10px;
+    --radius-sm: 12px;
+    --radius-md: 16px;
+    --radius-lg: 20px;
+  }
+
+  .heroPanel,
+  .sectionBlock,
+  .stateCard,
+  .app-card,
+  .settingsCard,
+  .feedCard,
+  .profileHeroCard,
+  .authCard {
+    padding: 12px;
+    border-radius: 18px;
+  }
+
+  .heroPanel__title,
+  .page__title,
+  .sectionTitle,
+  .profileHeroName {
+    font-size: 1.05rem;
+  }
+
+  .heroPanel__text,
+  .page__subtitle,
+  .sectionLead,
+  .stateCard__text {
+    font-size: 0.84rem;
+  }
+
+  .eventMetaGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .tabBar {
+    gap: 4px;
+    padding: 3px;
+  }
+
+  .tabBar__item {
+    padding: 0 10px;
+    font-size: 0.78rem;
+  }
+}
+
+/* --- Small phones (321–375px, e.g. iPhone SE 2/3, iPhone 12 mini) --- */
+@media (min-width: 321px) and (max-width: 375px) {
+  :root {
+    --app-shell-side-pad: 12px;
+  }
+}
+
+/* --- Medium phones (376–414px, most iPhones, Pixel) --- */
+@media (min-width: 376px) and (max-width: 414px) {
+  :root {
+    --app-shell-side-pad: 14px;
+  }
+}
+
+/* --- Large phones (415px+, iPhone Pro Max, Galaxy Ultra) --- */
+@media (min-width: 415px) {
+  :root {
+    --app-shell-side-pad: 16px;
+  }
+
+  .heroPanel__title,
+  .page__title,
+  .sectionTitle {
+    font-size: 1.22rem;
+  }
+}
+
+/* --- Very tall phones (notch/dynamic island safe areas) --- */
+@supports (padding-top: env(safe-area-inset-top)) {
+  .appTopbar {
+    padding-top: env(safe-area-inset-top);
+  }
+  .bottomNav {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* --- Touch-optimized: ensure minimum tap targets --- */
+@media (pointer: coarse) {
+  button,
+  a,
+  [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .tabBar__item {
+    min-height: 40px;
+  }
+}
+
+/* --- Reduced motion preference ---
+   Honors OS/browser setting. Zeroes out animations, transitions
+   and smooth scroll for users who prefer reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  html {
+    scroll-behavior: auto !important;
+  }
+}
+
+/* --- Landscape orientation for phones --- */
+@media (max-height: 500px) and (orientation: landscape) {
+  :root {
+    --app-topbar-inner-height: 36px;
+    --app-bottom-nav-height: 44px;
+  }
+}
+
+
+.notificationCard--static {
+  cursor: default;
+}
+
+.notificationCard--static:hover,
+.notificationCard--static:active {
+  transform: none;
+  box-shadow: var(--shadow-sm);
+}
+
+/* ═══════════════════════════════════════════════════
+   MICRO-INTERACTION SYSTEM (Layer 2)
+   Premium feel: press, hover, enter, skeleton, fade
+   ═══════════════════════════════════════════════════ */
+
+/* ── Press feedback (iOS-style scale) ── */
+.pressable {
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 180ms var(--ease-spring), opacity 120ms var(--ease-out);
+  will-change: transform;
+  cursor: pointer;
+}
+
+.pressable:active {
+  transform: scale(0.97);
+}
+
+.pressable--subtle:active {
+  transform: scale(0.985);
+}
+
+.pressable--strong:active {
+  transform: scale(0.94);
+}
+
+/* ── Hover lift (desktop) ── */
+@media (hover: hover) {
+  .hoverable {
+    transition: transform 200ms var(--ease-out), box-shadow 200ms var(--ease-out), border-color 200ms var(--ease-out);
+  }
+
+  .hoverable:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .hoverable--subtle:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+  }
+}
+
+/* ── Fade-in on mount ── */
+.fade-in {
+  animation: fadeIn 300ms var(--ease-out) both;
+}
+
+.fade-in-up {
+  animation: fadeInUp 400ms var(--ease-out) both;
+}
+
+.fade-in-scale {
+  animation: fadeInScale 300ms var(--ease-spring) both;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInScale {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* ── Stagger children (add to parent) ── */
+.stagger-children > * {
+  animation: fadeInUp 400ms var(--ease-out) both;
+}
+
+.stagger-children > *:nth-child(1) { animation-delay: 0ms; }
+.stagger-children > *:nth-child(2) { animation-delay: 50ms; }
+.stagger-children > *:nth-child(3) { animation-delay: 100ms; }
+.stagger-children > *:nth-child(4) { animation-delay: 150ms; }
+.stagger-children > *:nth-child(5) { animation-delay: 200ms; }
+.stagger-children > *:nth-child(6) { animation-delay: 250ms; }
+.stagger-children > *:nth-child(n+7) { animation-delay: 300ms; }
+
+/* ── Skeleton loading ── */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.04) 25%,
+    rgba(255, 255, 255, 0.08) 50%,
+    rgba(255, 255, 255, 0.04) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeletonPulse 1.8s ease infinite;
+  border-radius: var(--radius-sm);
+  border: none;
+}
+
+@keyframes skeletonPulse {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.skeleton--circle {
+  border-radius: 999px;
+}
+
+.skeleton--text {
+  height: 14px;
+  border-radius: 6px;
+}
+
+.skeleton--text-lg {
+  height: 20px;
+  border-radius: 8px;
+}
+
+/* ── Slide-up sheet ── */
+.slide-up-enter {
+  animation: slideUpEnter 400ms var(--ease-spring) both;
+}
+
+@keyframes slideUpEnter {
+  from { opacity: 0; transform: translateY(100%); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Number counter (for stats) ── */
+.counter-pop {
+  animation: counterPop 500ms var(--ease-spring) both;
+}
+
+@keyframes counterPop {
+  0% { transform: scale(0.5); opacity: 0; }
+  60% { transform: scale(1.12); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* ── Page transition wrapper ── */
+.page-enter {
+  animation: pageEnter 350ms var(--ease-out) both;
+}
+
+@keyframes pageEnter {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Avatar stack ── */
+.avatar-stack {
+  display: flex;
+  align-items: center;
+}
+
+.avatar-stack > * {
+  margin-left: -8px;
+  border: 2px solid var(--bg);
+  border-radius: 999px;
+  position: relative;
+}
+
+.avatar-stack > *:first-child {
+  margin-left: 0;
+}
+
+.avatar-stack__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  margin-left: -8px;
+  padding: 0 6px;
+  border-radius: 999px;
+  border: 2px solid var(--bg);
+  background: var(--surface-raised);
+  color: var(--text-soft);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  position: relative;
+  z-index: 0;
+}
+
+/* ── Urgency badge ── */
+.urgency-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.urgency-badge--hot {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.urgency-badge--warm {
+  background: rgba(251, 191, 36, 0.12);
+  color: var(--warning);
+}
+
+.urgency-badge--open {
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+:root[data-theme="light"] .skeleton {
+    background: linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.04) 25%,
+      rgba(0, 0, 0, 0.07) 50%,
+      rgba(0, 0, 0, 0.04) 75%
+    );
+    background-size: 200% 100%;
+    animation: skeletonPulse 1.8s ease infinite;
+  }
+:root[data-theme="light"] .avatar-stack > * {
+    border-color: var(--bg);
+  }
+:root[data-theme="light"] .avatar-stack__count {
+    border-color: var(--bg);
+  }
+
+html,
+body,
+#root {
+  touch-action: manipulation;
+}
+
+.discoverMapView,
+.discoverMapView *,
+.createEventMapPicker__map,
+.createEventMapPicker__map * {
+  touch-action: auto;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   FLOATING LAYOUT — sweep over legacy page-specific "card" classes.
+   The global rule higher up handles .sectionBlock and friends. This
+   block handles the per-page classes that were styled as cards with
+   their own bg/border/shadow/backdrop-filter. Stripping them here
+   preserves the content structure while removing visual containers.
+   Add the class name to this list instead of restyling on each page.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.challengesPage .challengeStatCard,
+.challengesPage .challengeCard,
+.achievementCard,
+.settingsRow,
+.settingsHeroCard,
+.settingsCard,
+.activitySummaryCard,
+.discoverStatCard,
+.followCard,
+.eventsPage .discoverCalendarCard,
+.profilePage .discoverCalendarCard,
+.eventsPage .discoverSection,
+.profilePage .discoverSection,
+.eventsPage .discoverHero,
+.eventsPage .discoverFiltersSection,
+.eventsPage .discoverEventCard,
+.eventsPage .discoverModalCard,
+.eventsPage .discoverIntroCard,
+.eventsPage .discoverEmptyState,
+.eventsPage .dayEventCard,
+.eventsPage .gridEventCard,
+.eventsPage .dayEventCard__imageWrap,
+.eventsPage .gridEventCard__imageWrap,
+.eventsPage .dayEventCard__body,
+.eventsPage .gridEventCard__body,
+.eventDetailCreatorCard,
+.eventDetailHero,
+.eventDetailDirectionsBtn,
+.eventDetailDirectionsCard,
+.eventDetailHeroPanel,
+.eventDetailHeroOrganizer,
+.eventDetailNotes,
+.eventDetailLinks,
+.eventDetailLinkItem,
+.eventDetailStatus,
+.eventDetailJoinedBadge {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.challengesPage .challengeStatCard,
+.challengesPage .challengeCard,
+.achievementCard,
+.settingsRow,
+.settingsHeroCard,
+.settingsCard,
+.activitySummaryCard,
+.discoverStatCard,
+.followCard,
+.eventsPage .discoverHero,
+.eventsPage .discoverFiltersSection,
+.eventsPage .discoverEventCard,
+.eventsPage .discoverModalCard,
+.eventsPage .discoverIntroCard,
+.eventsPage .discoverEmptyState,
+.eventDetailCreatorCard,
+.eventDetailHero,
+.eventDetailDirectionsBtn,
+.eventDetailDirectionsCard,
+.eventDetailHeroPanel,
+.eventDetailHeroOrganizer,
+.eventDetailNotes,
+.eventDetailLinks,
+.eventDetailLinkItem,
+.eventDetailStatus,
+.eventDetailJoinedBadge {
+  padding: 0 !important;
+  border-radius: 0 !important;
+}
+
+/* Keep the hero image itself — that's photo content, not chrome. */
+.eventDetailHero--image {
+  border-radius: var(--radius-lg, 20px) !important;
+  overflow: hidden !important;
+}
+
+/* Stat chips stay as pill tags; they're informational, not chrome. */
+.eventDetailStatChip {
+  padding: 6px 10px !important;
+}
+
+/* Event cards keep their image radius so photos have soft corners. */
+.eventsPage .dayEventCard,
+.eventsPage .gridEventCard {
+  padding: 0 !important;
+  border-radius: var(--radius-lg, 20px) !important;
+  overflow: hidden !important;
+}
+.eventsPage .dayEventCard__body,
+.eventsPage .gridEventCard__body {
+  padding: var(--space-2, 8px) 0 0 !important;
+}
+.eventsPage .dayEventCard__imageWrap,
+.eventsPage .gridEventCard__imageWrap {
+  border-radius: var(--radius-md, 16px) !important;
+  overflow: hidden !important;
+}
+
+/* View toggle + chips: drop the fake-pill wrapper, let buttons be buttons. */
+.discoverViewToggle {
+  background: transparent !important;
+  padding: 0 !important;
+}
+.discoverFilterChip {
+  background: transparent !important;
+  border: 1px solid var(--border-subtle) !important;
+}
+.discoverFilterChip.is-active {
+  background: var(--primary-glow-soft) !important;
+  border-color: var(--primary) !important;
+}
+
+/* Month nav buttons: ghost by default, no surface/blur. Applies on both
+   the events calendar and the profile calendar so they render identically. */
+:is(.eventsPage, .profilePage) .discoverMonthBtn {
+  background: transparent !important;
+  border: 1px solid var(--border-subtle) !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+/* Inside the calendar header, the filter button sits inside its own
+   single-cell .discoverViewToggle pill so it mirrors the view toggle
+   on the other side. Drop the standalone border and let the pill do
+   the framing. Active state matches .discoverViewBtn.is-active — a
+   subtle surface tint + primary-tinted icon, no border flash. */
+:is(.eventsPage, .profilePage) .discoverViewToggle .discoverFilterBtn {
+  border: none !important;
+  background: transparent !important;
+  border-radius: 6px !important;
+  color: var(--text-muted) !important;
+}
+:is(.eventsPage, .profilePage) .discoverViewToggle .discoverFilterBtn.has-filters {
+  background: var(--surface-3) !important;
+  color: var(--primary) !important;
+}
+
+/* Row dividers: for rows that used to be enclosed cards, a single bottom
+   border reads as a list separator without creating a box. Applied only
+   to the ones where rows-as-list makes sense. */
+.settingsRow + .settingsRow,
+.followCard + .followCard,
+.achievementCard + .achievementCard {
+  border-top: 1px solid var(--border-subtle) !important;
+  padding-top: var(--space-3, 12px) !important;
+  margin-top: var(--space-3, 12px) !important;
+}
+
+/* The calendar grid itself still needs a hairline so day cells don't
+   bleed into surrounding text. We just drop the surface, not the frame. */
+.profilePage .discoverCalendarCard,
+.eventsPage .discoverCalendarCard {
+  padding: 0 !important;
+}
