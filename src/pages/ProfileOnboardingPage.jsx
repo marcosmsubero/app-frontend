@@ -2,6 +2,12 @@ import { useEffect, useMemo, useState } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { isOnboardingComplete } from "../lib/userContract";
+import {
+  PREFERENCE_FIELDS,
+  CORE_ONBOARDING_FIELDS,
+} from "../lib/preferencesContract";
+import { useUserPreferences } from "../hooks/useUserPreferences";
+import PreferenceField from "../components/ui/PreferenceField";
 import { apiUpdateProfile } from "../services/api";
 import { getCurrentPosition, reverseGeocode } from "../utils/location";
 
@@ -51,6 +57,18 @@ export default function ProfileOnboardingPage() {
   const [verifyingLocation, setVerifyingLocation] = useState(false);
   const [msg, setMsg] = useState({ type: "", text: "" });
   const [locationVerifiedDraft, setLocationVerifiedDraft] = useState(false);
+
+  const {
+    preferences,
+    setField: setPreferenceField,
+    saving: savingPreferences,
+  } = useUserPreferences();
+
+  const corePreferenceFields = useMemo(
+    () =>
+      PREFERENCE_FIELDS.filter((f) => CORE_ONBOARDING_FIELDS.includes(f.id)),
+    []
+  );
 
   const initialEmail = useMemo(() => {
     return location.state?.registeredEmail || me?.email || "";
@@ -294,6 +312,24 @@ export default function ProfileOnboardingPage() {
               placeholder="Cuéntanos algo sobre ti como runner"
             />
             <p className="formHint">{form.bio.length}/280</p>
+          </div>
+
+          <div className="formRow">
+            <label>Preferencias de matcheo</label>
+            <p className="formHint">
+              Rellena lo que quieras. Puedes completarlo después en Ajustes.
+            </p>
+            <div style={{ display: "grid", gap: "12px", marginTop: "8px" }}>
+              {corePreferenceFields.map((field) => (
+                <PreferenceField
+                  key={field.id}
+                  field={field}
+                  entry={preferences[field.id]}
+                  onChange={(entry) => setPreferenceField(field.id, entry)}
+                  disabled={savingPreferences}
+                />
+              ))}
+            </div>
           </div>
 
           {msg.text ? (
