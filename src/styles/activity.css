@@ -311,28 +311,11 @@
   white-space: pre-wrap;
 }
 
-.chatComposer {
-  gap: 10px;
-  padding: 12px;
-  border-radius: 20px;
-  border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.04);
-}
-
-.chatComposer__row {
-  align-items: end;
-  gap: 10px;
-  grid-template-columns: 1fr auto;
-}
-
-.chatComposer textarea {
-  min-height: 48px;
-  max-height: 140px;
-}
-
-.chatComposer__submit {
-  min-width: 92px;
-}
+/* Legacy .chatComposer / __row / textarea / __submit rules removed —
+   the composer is styled by chat.css, and the old selectors (__row,
+   __submit) no longer exist in the JSX. Leaving them here was making
+   `.chatComposer textarea` (specificity 0,1,1) win over
+   `.chatComposer__input` (0,1,0), forcing a 48px min-height. */
 
 .chatThreadHeader__main,
 .chatThreadHeader__actions,
