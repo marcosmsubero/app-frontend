@@ -50,7 +50,6 @@ export default function EventCard({ event, variant = "day" }) {
   const distance = event?.distance_km ? `${event.distance_km} km` : "";
   const elev = event?.elevation_m ? `${event.elevation_m} D+` : "";
   const pace = formatPace(event?.pace_min, event?.pace_max);
-  const techLine = [training, distance, elev, pace].filter(Boolean).join(" · ");
 
   const date = new Date(event.starts_at);
   const showDateBadge = variant === "grid";
@@ -84,8 +83,20 @@ export default function EventCard({ event, variant = "day" }) {
           {event.meeting_point || "Sin ubicación"}
         </p>
 
-        {techLine ? (
-          <p className="eventCard__meta eventCard__meta--tech">{techLine}</p>
+        {training ? (
+          <p className="eventCard__meta eventCard__meta--tech">{training}</p>
+        ) : null}
+
+        {distance ? (
+          <p className="eventCard__meta eventCard__meta--tech">{distance}</p>
+        ) : null}
+
+        {elev ? (
+          <p className="eventCard__meta eventCard__meta--tech">{elev}</p>
+        ) : null}
+
+        {pace ? (
+          <p className="eventCard__meta eventCard__meta--tech">{pace}</p>
         ) : null}
       </div>
     </Link>
