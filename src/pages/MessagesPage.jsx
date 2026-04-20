@@ -59,20 +59,50 @@ function getUnreadCount(thread) {
   return 0;
 }
 
-function MessageRow({ thread, onOpen }) {
+function getThreadProfileTarget(thread) {
+  if (!thread) return null;
+  const handle =
+    thread.other_handle ||
+    thread.peer_handle ||
+    thread.participant_handle ||
+    thread.user_handle;
+  if (handle) return { kind: "handle", value: String(handle) };
+  const id =
+    thread.other_user_id ??
+    thread.peer_user_id ??
+    thread.participant_user_id ??
+    thread.user_id;
+  if (id != null) return { kind: "id", value: String(id) };
+  return null;
+}
+
+function MessageRow({ thread, onOpen, onAvatar }) {
   const unreadCount = getUnreadCount(thread);
   const name = getThreadName(thread);
   const preview = getThreadPreview(thread);
   const time = timeAgoLabel(thread?.updated_at);
+  const canVisitProfile = Boolean(getThreadProfileTarget(thread));
 
   const leading = (
-    <div className="messagesSimple__avatar">
+    <button
+      type="button"
+      className="messagesSimple__avatar messagesSimple__avatar--button"
+      onClick={(e) => {
+        // Stop propagation so ListItem's row onClick doesn't fire as
+        // well (the row would open the thread and the avatar would
+        // open the profile simultaneously).
+        e.stopPropagation();
+        if (canVisitProfile) onAvatar?.(thread);
+      }}
+      disabled={!canVisitProfile}
+      aria-label={canVisitProfile ? `Ver perfil de ${name}` : undefined}
+    >
       {thread?.avatar_url ? (
         <img src={thread.avatar_url} alt={name} />
       ) : (
         <span>{initialsFromNameOrEmail(name)}</span>
       )}
-    </div>
+    </button>
   );
 
   const trailing = unreadCount > 0 ? (
@@ -173,6 +203,16 @@ export default function MessagesPage() {
     nav(`/mensajes/${thread.id}`, { state: { threadIds } });
   }
 
+  function openProfile(thread) {
+    const target = getThreadProfileTarget(thread);
+    if (!target) return;
+    if (target.kind === "handle") {
+      nav(`/perfil/handle/${target.value}`);
+    } else {
+      nav(`/perfil/${target.value}`);
+    }
+  }
+
   return (
     <section className="page">
       <section className="sectionBlock">
@@ -258,7 +298,12 @@ export default function MessagesPage() {
         ) : (
           <div className="messagesSimple__list">
             {list.map((thread) => (
-              <MessageRow key={thread.id} thread={thread} onOpen={openThread} />
+              <MessageRow
+                key={thread.id}
+                thread={thread}
+                onOpen={openThread}
+                onAvatar={openProfile}
+              />
             ))}
           </div>
         )}
