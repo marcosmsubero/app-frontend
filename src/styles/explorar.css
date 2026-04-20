@@ -432,13 +432,14 @@
    Filter bottom sheet (opens from the sliders button)
    ═══════════════════════════════════════════════════════════════════ */
 
-/* The filter sheet has sparse content; let the panel size to content
-   and cap it well below the default 85vh so the Apply footer stays in
-   the thumb zone. Also dim + blur the scrim so the sticky top bar
-   behind doesn't bleed through and read as a second search field. */
+/* The filter sheet has sparse content (one input + two small chip
+   groups at most). Cap the panel to roughly half the viewport so the
+   sheet lives in the lower half of the screen and the Apply footer
+   lands firmly in the thumb zone. Also dim + blur the scrim so the
+   sticky top bar behind doesn't read as a second search field. */
 .filterSheet.ui-sheet__panel,
 .filterSheet {
-  max-height: min(60vh, 520px);
+  max-height: min(52vh, 440px);
 }
 
 .ui-sheet__overlay:has(> .filterSheet) {
@@ -447,22 +448,35 @@
   -webkit-backdrop-filter: blur(6px);
 }
 
+.filterSheet .ui-sheet__header {
+  padding: 2px 20px 6px;
+}
+
+.filterSheet .ui-sheet__title {
+  font-size: 0.95rem;
+}
+
 .filterSheet .ui-sheet__body {
   display: flex;
   flex-direction: column;
-  gap: 18px;
-  padding-bottom: 12px;
+  gap: 12px;
+  padding-top: 4px;
+  padding-bottom: 8px;
+}
+
+.filterSheet .ui-sheet__footer {
+  padding: 8px 16px calc(env(safe-area-inset-bottom, 8px) + 8px);
 }
 
 .filterSheet__group {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   min-width: 0;
 }
 
 .filterSheet__label {
-  font-size: 0.7rem;
+  font-size: 0.66rem;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -474,7 +488,7 @@
   align-items: center;
   gap: 10px;
   padding: 0 12px;
-  height: 44px;
+  height: 40px;
   border-radius: 12px;
   background: var(--surface-3, rgba(255, 255, 255, 0.06));
   transition:
@@ -534,13 +548,13 @@
 
 .filterSheet__chip {
   appearance: none;
-  padding: 6px 12px;
+  padding: 5px 10px;
   border: 1px solid transparent;
   border-radius: 999px;
   background: var(--surface-3, rgba(255, 255, 255, 0.06));
   color: var(--text-soft, rgba(245, 247, 251, 0.76));
   font: inherit;
-  font-size: 0.8rem;
+  font-size: 0.76rem;
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;

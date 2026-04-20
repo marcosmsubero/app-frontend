@@ -20,7 +20,6 @@ import finishlineImage from "../assets/finishline.png";
 import partyImage from "../assets/party.png";
 import "../styles/event-detail.css";
 import ImageViewer from "../components/ui/ImageViewer";
-import IconButton from "../components/ui/IconButton";
 import BottomSheet from "../components/ui/BottomSheet";
 import haptic from "../utils/haptic";
 
@@ -66,24 +65,6 @@ function initialsFromName(name = "") {
   const first = parts[0]?.[0] || "U";
   const second = parts[1]?.[0] || "";
   return `${first}${second}`.toUpperCase();
-}
-
-function BackIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-      style={{ width: 20, height: 20 }}
-    >
-      <path d="M19 12H5" />
-      <path d="m12 19-7-7 7-7" />
-    </svg>
-  );
 }
 
 function MapPinIcon() {
@@ -627,34 +608,28 @@ export default function EventDetailPage() {
           onClose={() => setImageViewerOpen(false)}
         />
       ) : null}
-      <div className="eventDetailNav">
-        <IconButton
-          variant="solid"
-          onClick={() => navigate(-1)}
-          aria-label="Volver"
+      <div className="eventDetailNav eventDetailNav--shareOnly">
+        <button
+          type="button"
+          className="eventDetailShareBtn"
+          onClick={handleOpenShare}
+          aria-label="Compartir"
         >
-          <BackIcon />
-        </IconButton>
-        <div className="eventDetailNav__right">
-          <IconButton
-            variant="ghost"
-            onClick={handleOpenShare}
-            aria-label="Compartir"
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            width="22"
+            height="22"
           >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
-              <polyline points="16 6 12 2 8 6" />
-              <line x1="12" x2="12" y1="2" y2="15" />
-            </svg>
-          </IconButton>
-        </div>
+            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+            <polyline points="16 6 12 2 8 6" />
+            <line x1="12" x2="12" y1="2" y2="15" />
+          </svg>
+        </button>
       </div>
 
       <ShareEventSheet
@@ -912,27 +887,22 @@ export default function EventDetailPage() {
 
         <div className="eventDetailActions">
           {isCreator ? (
-            <>
-              <span className="eventDetailJoinedBadge eventDetailJoinedBadge--creator">
-                Eres el organizador
-              </span>
-              <div className="eventDetailOwnerActions">
-                <button
-                  type="button"
-                  className="app-button app-button--secondary eventDetailActionBtn"
-                  onClick={handleEdit}
-                >
-                  Editar evento
-                </button>
-                <button
-                  type="button"
-                  className="app-button app-button--danger eventDetailActionBtn"
-                  onClick={handleDelete}
-                >
-                  Eliminar evento
-                </button>
-              </div>
-            </>
+            <div className="eventDetailOwnerActions">
+              <button
+                type="button"
+                className="app-button app-button--secondary eventDetailActionBtn"
+                onClick={handleEdit}
+              >
+                Editar
+              </button>
+              <button
+                type="button"
+                className="app-button app-button--danger eventDetailActionBtn"
+                onClick={handleDelete}
+              >
+                Eliminar
+              </button>
+            </div>
           ) : (
             <>
               {isJoined ? (
