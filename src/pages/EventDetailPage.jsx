@@ -637,7 +637,7 @@ export default function EventDetailPage() {
         </IconButton>
         <div className="eventDetailNav__right">
           <IconButton
-            variant="solid"
+            variant="ghost"
             onClick={handleOpenShare}
             aria-label="Compartir"
           >

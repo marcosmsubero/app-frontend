@@ -432,6 +432,21 @@
    Filter bottom sheet (opens from the sliders button)
    ═══════════════════════════════════════════════════════════════════ */
 
+/* The filter sheet has sparse content; let the panel size to content
+   and cap it well below the default 85vh so the Apply footer stays in
+   the thumb zone. Also dim + blur the scrim so the sticky top bar
+   behind doesn't bleed through and read as a second search field. */
+.filterSheet.ui-sheet__panel,
+.filterSheet {
+  max-height: min(60vh, 520px);
+}
+
+.ui-sheet__overlay:has(> .filterSheet) {
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
 .filterSheet .ui-sheet__body {
   display: flex;
   flex-direction: column;
@@ -494,6 +509,15 @@
   font-weight: 500;
   outline: none;
   font-family: inherit;
+  /* Kill iOS Safari's native form chrome so the pill container is the
+     only visible form. Without these, iOS paints its own rounded
+     background behind the input, reading as a second nested form. */
+  -webkit-appearance: none;
+  appearance: none;
+  box-shadow: none;
+  padding: 0;
+  margin: 0;
+  line-height: 1.2;
 }
 
 .filterSheet__locationInput::placeholder {

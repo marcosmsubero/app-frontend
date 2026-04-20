@@ -37,10 +37,11 @@ export default function AvatarStack({
     <div className={`avatar-stack ${className}`.trim()}>
       {visible.map((user, i) => {
         const key = user.id || user.user_id || i;
-        const alt = user.display_name || "User";
+        const name = user.display_name || user.full_name || user.handle || "";
+        const alt = name || "User";
         const dims = { width: size, height: size };
 
-        const userInitials = initials(user.display_name);
+        const userInitials = initials(name);
 
         return user.avatar_url ? (
           <img
