@@ -335,9 +335,7 @@
 .chatComposer {
   flex: 0 0 auto;
   flex-shrink: 0;
-  display: flex;
-  align-items: flex-end;
-  gap: 8px;
+  display: block;
   /* Keep the composer above the iOS home indicator / Android gesture bar
      while still reserving a visible gap on notchless devices. */
   padding: 6px 10px max(10px, env(safe-area-inset-bottom, 0px));
@@ -352,15 +350,17 @@
 .chatComposer__inputWrap {
   flex: 1;
   min-width: 0;
+  position: relative; /* anchor for the absolutely-positioned send button */
 }
 
 .chatComposer__input {
   width: 100%;
   /* WhatsApp-sized composer: tight padding + smaller min-height so the
-     input hugs the chip at rest, grows only as the user types. */
+     input hugs the chip at rest, grows only as the user types.
+     Right padding reserved for the embedded send button. */
   min-height: 32px;
   max-height: 100px;
-  padding: 6px 12px;
+  padding: 6px 38px 6px 14px;
   border: 1px solid var(--border-subtle);
   border-radius: 18px;
   background: var(--surface-2);
@@ -392,10 +392,14 @@
 }
 
 .chatComposer__send {
-  /* Matches composer input height (~32-36px) so the send button sits
-     flush with the text field, WhatsApp-style. */
-  width: 34px;
-  height: 34px;
+  /* Embedded inside the input pill, right edge. Bottom-anchored so it
+     stays at the baseline when the textarea grows multi-line. This
+     removes the send button's contribution to the composer's height. */
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+  width: 28px;
+  height: 28px;
   flex-shrink: 0;
   border: none;
   border-radius: 999px;
@@ -405,17 +409,15 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(110, 231, 160, 0.2);
   transition:
     opacity 200ms ease,
-    transform 200ms var(--ease-spring, ease),
-    box-shadow 200ms ease;
+    transform 200ms var(--ease-spring, ease);
   -webkit-tap-highlight-color: transparent;
 }
 
 .chatComposer__send svg {
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
 }
 
 .chatComposer__send:disabled {

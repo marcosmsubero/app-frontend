@@ -652,20 +652,19 @@ export default function ChatThreadPage() {
             inputMode="text"
             enterKeyHint="send"
           />
+          <button
+            type="button"
+            className="chatComposer__send"
+            onClick={send}
+            disabled={sending || !text.trim() || !!error}
+            aria-label="Enviar"
+            title="Enviar"
+          >
+            <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+            </svg>
+          </button>
         </div>
-
-        <button
-          type="button"
-          className="chatComposer__send"
-          onClick={send}
-          disabled={sending || !text.trim() || !!error}
-          aria-label="Enviar"
-          title="Enviar"
-        >
-          <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
-            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
-          </svg>
-        </button>
       </div>
     </section>
   );
