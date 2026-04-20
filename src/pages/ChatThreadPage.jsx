@@ -659,15 +659,24 @@ export default function ChatThreadPage() {
         />
         <button
           type="button"
-          className="chatComposer__send"
+          className={`chatComposer__send${text.trim() ? " is-active" : ""}`}
           onClick={send}
           disabled={sending || !text.trim() || !!error}
-          aria-label="Enviar"
-          title="Enviar"
+          aria-label={text.trim() ? "Enviar" : "Micrófono"}
+          title={text.trim() ? "Enviar" : "Micrófono"}
         >
-          <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
-            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
-          </svg>
+          {text.trim() ? (
+            // Send arrow (shown when input has text)
+            <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+            </svg>
+          ) : (
+            // Mic icon (WhatsApp-style placeholder; send morphs in when typing)
+            <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+              <path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v5a3 3 0 0 0 3 3z" />
+              <path d="M19 11a1 1 0 1 0-2 0 5 5 0 0 1-10 0 1 1 0 1 0-2 0 7 7 0 0 0 6 6.93V21a1 1 0 1 0 2 0v-3.07A7 7 0 0 0 19 11z" />
+            </svg>
+          )}
         </button>
       </div>
     </section>

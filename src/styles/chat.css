@@ -23,6 +23,13 @@
   bottom: 0;
 }
 
+/* WhatsApp-style chat background — subtle cream tint in light mode so
+   bubbles read distinctly without full contrast, preserving the neutral
+   dark bg in dark mode. */
+:root[data-theme="light"] .chatPage {
+  background: #efeae2;
+}
+
 
 /* ═══════════════════════════════════════════════════════════════════════════
    HEADER
@@ -393,10 +400,11 @@
 
 .chatComposer__send {
   /* Sits beside the input pill, aligned to its bottom so when the
-     textarea grows multi-line the button stays on the baseline. */
+     textarea grows multi-line the button stays on the baseline.
+     Size matches WhatsApp's send/mic FAB: ~36px circle. */
   flex-shrink: 0;
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   border: none;
   border-radius: 999px;
   background: var(--primary, #6ee7a0);
@@ -416,10 +424,34 @@
   height: 16px;
 }
 
+/* When empty (mic state), the FAB reads as "idle" — use a muted tone
+   so only the morph-to-send state feels emphatic. */
+.chatComposer__send:not(.is-active) {
+  background: var(--surface-3);
+  color: var(--text-muted);
+}
+
+.chatComposer__send.is-active {
+  background: var(--primary);
+  color: #0a1628;
+}
+
+:root[data-theme="light"] .chatComposer__send.is-active {
+  color: #ffffff;
+}
+
 .chatComposer__send:disabled {
-  opacity: 0.35;
   cursor: default;
-  box-shadow: none;
+}
+
+/* Specifically for mic state, disabled opacity should still look like
+   "idle affordance" not "broken". */
+.chatComposer__send:not(.is-active):disabled {
+  opacity: 1;
+}
+
+.chatComposer__send.is-active:disabled {
+  opacity: 0.35;
 }
 
 .chatComposer__send:active:not(:disabled) {
