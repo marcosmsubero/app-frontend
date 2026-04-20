@@ -3,6 +3,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { useToast } from "../hooks/useToast";
 import { apiDMMessages, apiDMSend, apiDMThreads } from "../services/api";
+import { uploadAudioBlobToSupabase } from "../services/storage";
 import { useRealtimeChat } from "../hooks/useRealtimeChat";
 import { useI18n } from "../i18n/index.jsx";
 import { AnalyticsEvents } from "../services/analytics";
@@ -135,6 +136,14 @@ export default function ChatThreadPage() {
     if (typeof window === "undefined") return null;
     return window.visualViewport?.height || window.innerHeight || null;
   });
+
+  const [recording, setRecording] = useState(false);
+  const [recordingElapsedMs, setRecordingElapsedMs] = useState(0);
+  const mediaRecorderRef = useRef(null);
+  const recordedChunksRef = useRef([]);
+  const recordingStartRef = useRef(0);
+  const recordingIntervalRef = useRef(0);
+  const recordingCancelledRef = useRef(false);
 
   const endRef = useRef(null);
   const composerRef = useRef(null);
@@ -476,6 +485,110 @@ export default function ChatThreadPage() {
     }
   }
 
+  async function sendAudio(audioUrl, durationMs) {
+    if (!audioUrl || !token || !threadId) return;
+
+    const tempId = `tmp_${Date.now()}`;
+    const nowIso = new Date().toISOString();
+    const placeholder = `🎤 Audio (${Math.max(1, Math.round(durationMs / 1000))}s)`;
+
+    const optimistic = {
+      id: tempId,
+      from: "me",
+      sender_id: me?.id ?? null,
+      text: placeholder,
+      audio_url: audioUrl,
+      created_at: nowIso,
+      status: "sending",
+    };
+
+    setMessages((prev) => [...prev, optimistic]);
+    stickToBottom(false);
+
+    try {
+      await apiDMSend(threadId, placeholder, token, audioUrl);
+      haptic.tick();
+      setMessages((prev) =>
+        prev.map((m) => (m.id === tempId ? { ...m, status: "delivered" } : m)),
+      );
+      await loadMessages({ silent: true });
+      stickToBottom(false);
+    } catch (e) {
+      haptic.warn();
+      setMessages((prev) => prev.filter((m) => m.id !== tempId));
+      toast?.error?.(e?.message || "No se pudo enviar el audio");
+    }
+  }
+
+  async function startRecording() {
+    if (recording || sending || !token) return;
+    if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) {
+      toast?.error?.("Tu navegador no soporta grabación de audio.");
+      return;
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mimeCandidates = [
+        "audio/webm;codecs=opus",
+        "audio/webm",
+        "audio/mp4",
+        "audio/ogg",
+      ];
+      const mime = mimeCandidates.find((m) => MediaRecorder.isTypeSupported?.(m)) || "";
+      const rec = mime ? new MediaRecorder(stream, { mimeType: mime }) : new MediaRecorder(stream);
+      recordedChunksRef.current = [];
+      recordingCancelledRef.current = false;
+      rec.ondataavailable = (ev) => {
+        if (ev.data && ev.data.size > 0) recordedChunksRef.current.push(ev.data);
+      };
+      rec.onstop = async () => {
+        stream.getTracks().forEach((t) => t.stop());
+        const durationMs = Date.now() - recordingStartRef.current;
+        if (recordingCancelledRef.current || durationMs < 400) {
+          return; // too short or cancelled, ignore
+        }
+        const blob = new Blob(recordedChunksRef.current, {
+          type: rec.mimeType || "audio/webm",
+        });
+        try {
+          const url = await uploadAudioBlobToSupabase(blob, me?.id);
+          await sendAudio(url, durationMs);
+        } catch (err) {
+          toast?.error?.(err?.message || "No se pudo subir el audio");
+        }
+      };
+      mediaRecorderRef.current = rec;
+      recordingStartRef.current = Date.now();
+      setRecordingElapsedMs(0);
+      setRecording(true);
+      recordingIntervalRef.current = window.setInterval(() => {
+        setRecordingElapsedMs(Date.now() - recordingStartRef.current);
+      }, 200);
+      rec.start();
+      haptic.tick();
+    } catch (err) {
+      toast?.error?.(err?.message || "No se pudo acceder al micrófono");
+    }
+  }
+
+  function stopRecording(cancel = false) {
+    const rec = mediaRecorderRef.current;
+    if (!rec) return;
+    recordingCancelledRef.current = !!cancel;
+    if (recordingIntervalRef.current) {
+      window.clearInterval(recordingIntervalRef.current);
+      recordingIntervalRef.current = 0;
+    }
+    setRecording(false);
+    setRecordingElapsedMs(0);
+    try {
+      if (rec.state !== "inactive") rec.stop();
+    } catch {
+      /* ignore */
+    }
+    mediaRecorderRef.current = null;
+  }
+
   function onKeyDown(e) {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -621,10 +734,19 @@ export default function ChatThreadPage() {
                 <div
                   className={`chatBubble${
                     mine && m.status ? ` chatBubble--${m.status}` : ""
-                  }`}
+                  }${m.audio_url ? " chatBubble--audio" : ""}`}
                   data-status={mine ? m.status || "" : undefined}
                 >
-                  <span className="chatBubble__text">{m.text}</span>
+                  {m.audio_url ? (
+                    <audio
+                      src={m.audio_url}
+                      controls
+                      preload="metadata"
+                      className="chatBubble__audio"
+                    />
+                  ) : (
+                    <span className="chatBubble__text">{m.text}</span>
+                  )}
                   <span className="chatBubble__meta">
                     {timeTiny(m.created_at)}
                     {mine && m.status ? ` ${statusGlyph(m.status)}` : ""}
@@ -664,11 +786,29 @@ export default function ChatThreadPage() {
         />
         <button
           type="button"
-          className={`chatComposer__send${text.trim() ? " is-active" : ""}`}
-          onClick={send}
-          disabled={sending || !text.trim() || !!error}
-          aria-label={text.trim() ? "Enviar" : "Micrófono"}
-          title={text.trim() ? "Enviar" : "Micrófono"}
+          className={`chatComposer__send${text.trim() ? " is-active" : ""}${recording ? " is-recording" : ""}`}
+          // Tapping always fires send IF there is text; mic is press-and-hold.
+          onClick={() => {
+            if (text.trim()) send();
+          }}
+          onPointerDown={(e) => {
+            if (text.trim()) return;
+            // Press-and-hold on mic → start recording.
+            e.preventDefault();
+            startRecording();
+          }}
+          onPointerUp={() => {
+            if (recording) stopRecording(false);
+          }}
+          onPointerLeave={() => {
+            if (recording) stopRecording(false);
+          }}
+          onPointerCancel={() => {
+            if (recording) stopRecording(true);
+          }}
+          disabled={sending || (!text.trim() && !recording && !!error)}
+          aria-label={text.trim() ? "Enviar" : recording ? "Soltar para enviar audio" : "Mantener pulsado para grabar audio"}
+          title={text.trim() ? "Enviar" : "Mantén pulsado para grabar"}
         >
           {text.trim() ? (
             // Send arrow (shown when input has text)
@@ -676,7 +816,7 @@ export default function ChatThreadPage() {
               <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
             </svg>
           ) : (
-            // Mic icon (WhatsApp-style placeholder; send morphs in when typing)
+            // Mic icon (press-and-hold to record)
             <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
               <path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v5a3 3 0 0 0 3 3z" />
               <path d="M19 11a1 1 0 1 0-2 0 5 5 0 0 1-10 0 1 1 0 1 0-2 0 7 7 0 0 0 6 6.93V21a1 1 0 1 0 2 0v-3.07A7 7 0 0 0 19 11z" />
@@ -684,6 +824,17 @@ export default function ChatThreadPage() {
           )}
         </button>
       </div>
+
+      {/* Recording indicator overlay — shows elapsed time while mic
+          button is held. Released → recording stops + uploads. */}
+      {recording ? (
+        <div className="chatComposer__recordingBar" aria-live="polite">
+          <span className="chatComposer__recordingDot" aria-hidden="true" />
+          <span className="chatComposer__recordingLabel">
+            Grabando {Math.floor(recordingElapsedMs / 1000)}s — suelta para enviar
+          </span>
+        </div>
+      ) : null}
     </section>
   );
 }

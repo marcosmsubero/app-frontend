@@ -212,6 +212,54 @@ export async function uploadAvatarToSupabase(file, userId) {
   });
 }
 
+/**
+ * Upload a raw audio Blob (e.g. from MediaRecorder) to the events bucket
+ * and return the public URL. Bypasses the image-compression pipeline —
+ * audio is stored as-is.
+ */
+export async function uploadAudioBlobToSupabase(blob, userId) {
+  const cleanUserId = String(userId || "").trim();
+  if (!cleanUserId) {
+    throw new Error("No hay usuario autenticado para subir el audio.");
+  }
+
+  const supa = ensureSupabaseStorage();
+  const bucket = getBucket(
+    DEFAULT_EVENT_BUCKET || DEFAULT_AVATAR_BUCKET,
+    "audios",
+  );
+
+  // Pick an extension from the blob's mime type; default to webm which
+  // MediaRecorder produces on most browsers.
+  let ext = "webm";
+  const mime = (blob?.type || "").toLowerCase();
+  if (mime.includes("mp4")) ext = "m4a";
+  else if (mime.includes("mpeg")) ext = "mp3";
+  else if (mime.includes("wav")) ext = "wav";
+  else if (mime.includes("ogg")) ext = "ogg";
+
+  const filename = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+  const path = `${cleanUserId}/audio/${filename}`;
+
+  const { error } = await supa.storage
+    .from(bucket)
+    .upload(path, blob, {
+      contentType: blob.type || `audio/${ext}`,
+      upsert: false,
+    });
+
+  if (error) {
+    throw new Error(error.message || "No se pudo subir el audio.");
+  }
+
+  const { data } = supa.storage.from(bucket).getPublicUrl(path);
+  if (!data?.publicUrl) {
+    throw new Error("La URL pública del audio no está disponible.");
+  }
+
+  return data.publicUrl;
+}
+
 export async function uploadEventImageToSupabase(file, ownerId, eventId = "draft") {
   const cleanOwnerId = String(ownerId || "").trim();
 

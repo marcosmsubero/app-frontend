@@ -225,11 +225,11 @@ export const apiDMThreads = (q = "", token) =>
 export const apiDMMessages = (threadId, token) =>
   api(`/dm/threads/${threadId}/messages`, { token });
 
-export const apiDMSend = (threadId, text, token) =>
+export const apiDMSend = (threadId, text, token, audioUrl = null) =>
   api(`/dm/threads/${threadId}/messages`, {
     method: "POST",
     token,
-    body: { text },
+    body: audioUrl ? { text, audio_url: audioUrl } : { text },
   });
 
 /* ============================================================================
