@@ -216,11 +216,17 @@ export default function ChatThreadPage() {
   function scheduleKeyboardSafeScroll() {
     clearFocusTimers();
 
+    // Force-stick to bottom while the keyboard is opening so every
+    // subsequent visualViewport resize keeps the last message in view,
+    // WhatsApp-style. Extra delayed scrolls catch late resize events
+    // on slower devices (Android keyboard animates ~250-300ms).
+    shouldStickToBottomRef.current = true;
     scrollToBottom(false);
 
     focusTimersRef.current.push(
       window.setTimeout(() => scrollToBottom(false), 80),
-      window.setTimeout(() => scrollToBottom(false), 180)
+      window.setTimeout(() => scrollToBottom(false), 180),
+      window.setTimeout(() => scrollToBottom(false), 320),
     );
   }
 
