@@ -214,15 +214,21 @@ export default function ChatThreadPage() {
   }
 
   function scheduleKeyboardSafeScroll() {
-    clearFocusTimers();
+    // Only auto-scroll when the user was already near the bottom.
+    // If they'd scrolled up to read older messages, respect that —
+    // WhatsApp keeps the user's scroll position when the keyboard
+    // opens so they can keep reading while typing. The user can tap
+    // the jump-to-bottom affordance or send a message to snap back.
+    if (!isNearBottomRef.current) {
+      return;
+    }
 
-    // Force-stick to bottom while the keyboard is opening so every
-    // subsequent visualViewport resize keeps the last message in view,
-    // WhatsApp-style. Extra delayed scrolls catch late resize events
-    // on slower devices (Android keyboard animates ~250-300ms).
-    shouldStickToBottomRef.current = true;
+    clearFocusTimers();
     scrollToBottom(false);
 
+    // Extra delayed scrolls catch the keyboard animation frames so the
+    // last message settles above the keyboard on slow-animating
+    // Android keyboards (~250-300ms).
     focusTimersRef.current.push(
       window.setTimeout(() => scrollToBottom(false), 80),
       window.setTimeout(() => scrollToBottom(false), 180),
@@ -647,7 +653,6 @@ export default function ChatThreadPage() {
           onChange={handleTextChange}
           onKeyDown={onKeyDown}
           onFocus={scheduleKeyboardSafeScroll}
-          onClick={scheduleKeyboardSafeScroll}
           disabled={!!error || sending}
           className="chatComposer__input"
           autoComplete="off"
