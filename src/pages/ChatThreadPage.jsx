@@ -86,6 +86,26 @@ function getThreadAvatar(thread) {
   return thread?.avatar_url || null;
 }
 
+/** Return the profile identifier of the other participant in a 1:1
+ * thread. Prefers the handle (so URLs read nicely), falls back to the
+ * numeric user id. Returns null if we can't infer one (group threads). */
+function getThreadOtherProfileTarget(thread) {
+  if (!thread) return null;
+  const handle =
+    thread.other_handle ||
+    thread.peer_handle ||
+    thread.participant_handle ||
+    thread.user_handle;
+  if (handle) return { kind: "handle", value: String(handle) };
+  const id =
+    thread.other_user_id ??
+    thread.peer_user_id ??
+    thread.participant_user_id ??
+    thread.user_id;
+  if (id != null) return { kind: "id", value: String(id) };
+  return null;
+}
+
 function groupByDate(messages) {
   const groups = [];
   let currentDate = null;
@@ -157,6 +177,19 @@ export default function ChatThreadPage() {
   const shouldStickToBottomRef = useRef(true);
 
   const displayName = useMemo(() => getThreadDisplayName(thread), [thread]);
+  const otherProfileTarget = useMemo(
+    () => getThreadOtherProfileTarget(thread),
+    [thread],
+  );
+
+  function goToOtherProfile() {
+    if (!otherProfileTarget) return;
+    if (otherProfileTarget.kind === "handle") {
+      nav(`/perfil/handle/${otherProfileTarget.value}`);
+    } else {
+      nav(`/perfil/${otherProfileTarget.value}`);
+    }
+  }
   const avatarUrl = useMemo(() => getThreadAvatar(thread), [thread]);
   const grouped = useMemo(() => groupByDate(messages), [messages]);
 
@@ -522,6 +555,21 @@ export default function ChatThreadPage() {
 
   async function startRecording() {
     if (recording || sending || !token) return;
+
+    // getUserMedia needs a secure context (HTTPS or localhost). Over a
+    // plain-HTTP LAN URL (common in dev on phone) the API is absent and
+    // we tell the user rather than silently doing nothing.
+    const isSecure = window.isSecureContext === true ||
+      window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1";
+
+    if (!isSecure) {
+      toast?.error?.(
+        "La grabación necesita HTTPS. En móvil abre la app con una URL https://, no http://."
+      );
+      return;
+    }
+
     if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) {
       toast?.error?.("Tu navegador no soporta grabación de audio.");
       return;
@@ -663,19 +711,27 @@ export default function ChatThreadPage() {
           </svg>
         </button>
 
-        {avatarUrl ? (
-          <img src={avatarUrl} alt={displayName} className="chatHeader__avatar" />
-        ) : (
-          <div className="chatHeader__avatar chatHeader__avatar--fallback">
-            {initials(displayName)}
-          </div>
-        )}
+        <button
+          type="button"
+          className="chatHeader__identity"
+          onClick={goToOtherProfile}
+          disabled={!otherProfileTarget}
+          aria-label={`Ver perfil de ${displayName}`}
+        >
+          {avatarUrl ? (
+            <img src={avatarUrl} alt={displayName} className="chatHeader__avatar" />
+          ) : (
+            <div className="chatHeader__avatar chatHeader__avatar--fallback">
+              {initials(displayName)}
+            </div>
+          )}
 
-        <div className="chatHeader__info">
-          <h2 className="chatHeader__name">
-            {loadingThread ? t("chat.loading") : displayName}
-          </h2>
-        </div>
+          <div className="chatHeader__info">
+            <h2 className="chatHeader__name">
+              {loadingThread ? t("chat.loading") : displayName}
+            </h2>
+          </div>
+        </button>
       </div>
 
       <div
@@ -784,16 +840,11 @@ export default function ChatThreadPage() {
           inputMode="text"
           enterKeyHint="send"
         />
+        {/* Mic button — always visible. Press-and-hold to record. */}
         <button
           type="button"
-          className={`chatComposer__send${text.trim() ? " is-active" : ""}${recording ? " is-recording" : ""}`}
-          // Tapping always fires send IF there is text; mic is press-and-hold.
-          onClick={() => {
-            if (text.trim()) send();
-          }}
+          className={`chatComposer__mic${recording ? " is-recording" : ""}`}
           onPointerDown={(e) => {
-            if (text.trim()) return;
-            // Press-and-hold on mic → start recording.
             e.preventDefault();
             startRecording();
           }}
@@ -806,22 +857,28 @@ export default function ChatThreadPage() {
           onPointerCancel={() => {
             if (recording) stopRecording(true);
           }}
-          disabled={sending || (!text.trim() && !recording && !!error)}
-          aria-label={text.trim() ? "Enviar" : recording ? "Soltar para enviar audio" : "Mantener pulsado para grabar audio"}
-          title={text.trim() ? "Enviar" : "Mantén pulsado para grabar"}
+          disabled={sending || !!error}
+          aria-label={recording ? "Soltar para enviar audio" : "Mantener pulsado para grabar audio"}
+          title="Mantén pulsado para grabar"
         >
-          {text.trim() ? (
-            // Send arrow (shown when input has text)
-            <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
-              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
-            </svg>
-          ) : (
-            // Mic icon (press-and-hold to record)
-            <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
-              <path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v5a3 3 0 0 0 3 3z" />
-              <path d="M19 11a1 1 0 1 0-2 0 5 5 0 0 1-10 0 1 1 0 1 0-2 0 7 7 0 0 0 6 6.93V21a1 1 0 1 0 2 0v-3.07A7 7 0 0 0 19 11z" />
-            </svg>
-          )}
+          <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+            <path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v5a3 3 0 0 0 3 3z" />
+            <path d="M19 11a1 1 0 1 0-2 0 5 5 0 0 1-10 0 1 1 0 1 0-2 0 7 7 0 0 0 6 6.93V21a1 1 0 1 0 2 0v-3.07A7 7 0 0 0 19 11z" />
+          </svg>
+        </button>
+
+        {/* Send button — always visible, disabled when input is empty. */}
+        <button
+          type="button"
+          className={`chatComposer__send${text.trim() ? " is-active" : ""}`}
+          onClick={send}
+          disabled={sending || !text.trim() || !!error}
+          aria-label="Enviar"
+          title="Enviar"
+        >
+          <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+          </svg>
         </button>
       </div>
 

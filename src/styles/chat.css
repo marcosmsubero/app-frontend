@@ -75,6 +75,34 @@
   height: 20px;
 }
 
+/* Identity area is a button (avatar + name) that navigates to the
+   other participant's profile on tap. Press-feedback via scale. */
+.chatHeader__identity {
+  appearance: none;
+  border: none;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  color: var(--text);
+  text-align: left;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 140ms var(--ease-out, ease);
+}
+
+.chatHeader__identity:active:not(:disabled) {
+  transform: scale(0.985);
+}
+
+.chatHeader__identity:disabled {
+  cursor: default;
+}
+
 .chatHeader__avatar {
   width: 36px;
   height: 36px;
@@ -398,13 +426,14 @@
   color: var(--text-muted);
 }
 
+.chatComposer__mic,
 .chatComposer__send {
-  /* Sits beside the input pill, aligned to its bottom so when the
-     textarea grows multi-line the button stays on the baseline.
-     Size matches WhatsApp's send/mic FAB: ~36px circle. */
+  /* Both buttons sit beside the input pill, aligned to the baseline so
+     they stay put when the textarea grows multi-line. 34px keeps both
+     fitting next to the input on narrow phones. */
   flex-shrink: 0;
-  width: 36px;
-  height: 36px;
+  width: 34px;
+  height: 34px;
   border: none;
   border-radius: 999px;
   background: var(--primary, #6ee7a0);
@@ -419,9 +448,16 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-.chatComposer__send svg {
+.chatComposer__send svg,
+.chatComposer__mic svg {
   width: 16px;
   height: 16px;
+}
+
+/* Mic idle: muted tone (does its own thing on press-and-hold). */
+.chatComposer__mic {
+  background: var(--surface-3);
+  color: var(--text-muted);
 }
 
 /* When empty (mic state), the FAB reads as "idle" — use a muted tone
@@ -455,7 +491,7 @@
 }
 
 /* Mic pulse while press-and-hold is recording. */
-.chatComposer__send.is-recording {
+.chatComposer__mic.is-recording {
   background: #ef4444;
   color: #ffffff;
   animation: chatMicPulse 900ms var(--ease-out, ease) infinite;
