@@ -156,7 +156,6 @@ export default function ChatThreadPage() {
     if (typeof window === "undefined") return null;
     return window.visualViewport?.height || window.innerHeight || null;
   });
-  const [viewportOffsetTop, setViewportOffsetTop] = useState(0);
 
   const [recording, setRecording] = useState(false);
   const [recordingElapsedMs, setRecordingElapsedMs] = useState(0);
@@ -398,7 +397,6 @@ export default function ChatThreadPage() {
     function handleViewportChange() {
       const nextHeight = vv.height || window.innerHeight;
       setViewportHeight(nextHeight);
-      setViewportOffsetTop(vv.offsetTop || 0);
 
       if (document.activeElement === composerRef.current) {
         scheduleKeyboardSafeScroll();
@@ -690,21 +688,13 @@ export default function ChatThreadPage() {
       className="chatPage"
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
-      /* Use visualViewport.height as the chat's explicit height AND
-         visualViewport.offsetTop as a translate compensator. iOS may
-         scroll the layout viewport to keep the focused input above the
-         keyboard; applying offsetTop via translate pulls the whole
-         fixed chat up so the messages remain visible (no blank area
-         above the keyboard). Falls back to CSS `height: 100dvh` on
-         browsers that don't expose visualViewport. */
-      style={
-        viewportHeight
-          ? {
-              height: `${viewportHeight}px`,
-              transform: `translateY(${viewportOffsetTop || 0}px)`,
-            }
-          : undefined
-      }
+      /* No inline height / transform. The chat's height is driven by
+         CSS `height: 100dvh`, and the meta viewport's
+         `interactive-widget=resizes-content` tells iOS 16.4+ / Chrome
+         to shrink the layout viewport when the keyboard opens — which
+         makes 100dvh track it automatically. Previous attempts that
+         mixed position:fixed + visualViewport.height + translate(offsetTop)
+         fought each other and produced the blank area the user saw. */
     >
       <div className="chatHeader">
         <button
