@@ -500,9 +500,6 @@ function ProfileAgenda({
                 key={event.id}
                 event={event}
                 variant="grid"
-                canManage={canCreate}
-                onEdit={onEditEvent}
-                onDelete={onDeleteEvent}
               />
             ))}
           </div>
@@ -573,9 +570,6 @@ function ProfileAgenda({
                       key={event.id}
                       event={event}
                       variant="day"
-                      canManage={canCreate}
-                      onEdit={onEditEvent}
-                      onDelete={onDeleteEvent}
                     />
                   ))}
                 </div>
