@@ -102,13 +102,15 @@
 /* ── Bio ── */
 
 .profilePage .profileHero__bio {
+  /* Bio now lives inside profileHeroCopy, right under the location line.
+     Left-aligned so the whole identity column reads as one block. */
   margin: 0;
+  margin-top: 2px;
   color: var(--text-soft);
-  font-size: var(--text-base, 0.9375rem);
-  line-height: 1.55;
+  font-size: var(--text-sm, 0.8125rem);
+  line-height: 1.45;
   white-space: normal;
   word-break: break-word;
-  text-align: center;
 }
 
 .profilePage .profileHero__bio--empty {

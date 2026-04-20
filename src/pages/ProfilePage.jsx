@@ -1212,6 +1212,16 @@ export default function ProfilePage() {
                 {profileData.location}
               </span>
             ) : null}
+
+            {/* Bio renders directly under location so the whole identity
+                column reads as one tight block. */}
+            {profileData.bio ? (
+              <p className="profileHero__bio">{profileData.bio}</p>
+            ) : !isPublicProfile ? (
+              <p className="profileHero__bio profileHero__bio--empty">
+                Añade una bio para que otros corredores te conozcan.
+              </p>
+            ) : null}
           </div>
 
           <input
@@ -1222,15 +1232,6 @@ export default function ProfilePage() {
             style={{ display: "none" }}
           />
         </div>
-
-        {/* ── Bio ── */}
-        {profileData.bio ? (
-          <p className="profileHero__bio">{profileData.bio}</p>
-        ) : !isPublicProfile ? (
-          <p className="profileHero__bio profileHero__bio--empty">
-            Añade una bio para que otros corredores te conozcan.
-          </p>
-        ) : null}
 
         {/* ── Stats row ── */}
         <div className="profileStatsRow">
