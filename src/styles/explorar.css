@@ -1,0 +1,367 @@
+/* ExplorarPage — matcheo-first discovery screen.
+   Tokens used below resolve to theme-appropriate values in both modes
+   via the shared :root[data-theme=...] variables in app.css. No theme-
+   specific overrides should be needed here. */
+
+.explorarPage {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Sticky search bar
+   ═══════════════════════════════════════════════════════════════════ */
+
+.explorarPage__searchBar {
+  position: sticky;
+  top: calc(var(--safe-top, 0px) + 8px);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  transition: border-color 160ms var(--ease-out, ease);
+}
+
+.explorarPage__searchBar:focus-within {
+  border-color: var(--primary);
+}
+
+.explorarPage__searchIcon {
+  display: inline-flex;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.explorarPage__searchInput {
+  flex: 1;
+  min-width: 0;
+  appearance: none;
+  border: none;
+  background: transparent;
+  font: inherit;
+  font-size: 0.92rem;
+  color: var(--text);
+  outline: none;
+}
+
+.explorarPage__searchInput::placeholder {
+  color: var(--text-muted);
+}
+
+.explorarPage__searchClear {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 4px 8px;
+  cursor: pointer;
+  border-radius: 999px;
+}
+
+.explorarPage__searchClear:hover {
+  color: var(--text);
+  background: var(--surface-2);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Login-gate + section scaffolding
+   ═══════════════════════════════════════════════════════════════════ */
+
+.explorarPage__loginCard {
+  margin: 40px 0;
+  padding: 24px;
+  border-radius: var(--radius-lg, 20px);
+  border: 1px solid var(--border-subtle);
+  background: var(--surface);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+}
+
+.explorarPage__loginCard h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.explorarPage__loginCard p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.explorarPage__section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.explorarPage__sectionHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.explorarPage__sectionTitle {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.explorarPage__sectionHint {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.explorarPage__emptyText {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Create-event CTA (first radar row)
+   ═══════════════════════════════════════════════════════════════════ */
+
+.radarCreateCta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: var(--radius-lg, 20px);
+  border: 1px solid var(--primary);
+  background: var(--primary-glow-soft);
+  color: var(--text);
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 140ms var(--ease-out, ease);
+}
+
+.radarCreateCta:active {
+  transform: scale(0.985);
+}
+
+.radarCreateCta__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  background: var(--primary);
+  color: #0a1628;
+  flex-shrink: 0;
+}
+
+.radarCreateCta__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.radarCreateCta__title {
+  font-size: 0.98rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.radarCreateCta__subtitle {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.radarCreateCta__arrow {
+  flex-shrink: 0;
+  font-size: 1.6rem;
+  color: var(--text-muted);
+  line-height: 1;
+}
+
+/* Light mode: the CTA ink on the green chip needs to be white for
+   contrast (primary becomes a darker green in light). */
+:root[data-theme="light"] .radarCreateCta__icon {
+  color: #ffffff;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Radar event list
+   ═══════════════════════════════════════════════════════════════════ */
+
+.explorarPage__radarList {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.radarEventCard {
+  display: grid;
+  grid-template-columns: 84px 1fr;
+  gap: 12px;
+  padding: 8px;
+  border-radius: var(--radius-lg, 20px);
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  color: var(--text);
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    transform 160ms var(--ease-out, ease),
+    border-color 160ms var(--ease-out, ease);
+}
+
+.radarEventCard:active {
+  transform: scale(0.99);
+}
+
+.radarEventCard:hover {
+  border-color: var(--border);
+}
+
+.radarEventCard__imageWrap {
+  width: 84px;
+  height: 84px;
+  border-radius: var(--radius-md, 14px);
+  overflow: hidden;
+  background: var(--surface-2);
+  flex-shrink: 0;
+}
+
+.radarEventCard__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.radarEventCard__body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  padding: 4px 2px;
+}
+
+.radarEventCard__title {
+  margin: 0;
+  font-size: 0.94rem;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.radarEventCard__meta {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.radarEventCard__tech {
+  margin: 0;
+  font-size: 0.76rem;
+  color: var(--text-soft);
+  font-weight: 600;
+}
+
+.radarEventCard__social {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Search-results rows (people + clubs)
+   ═══════════════════════════════════════════════════════════════════ */
+
+.explorarPage__list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.exploreSearchRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md, 14px);
+  color: var(--text);
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 160ms var(--ease-out, ease);
+}
+
+.exploreSearchRow:hover,
+.exploreSearchRow:active {
+  background: var(--surface-2);
+}
+
+.exploreSearchRow__avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: var(--surface-2);
+  color: var(--text);
+  font-weight: 800;
+  font-size: 0.98rem;
+}
+
+.exploreSearchRow__avatar--fallback {
+  background: var(--primary-glow-soft);
+  color: var(--primary);
+}
+
+.exploreSearchRow__body {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.exploreSearchRow__title {
+  font-size: 0.92rem;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.exploreSearchRow__subtitle {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

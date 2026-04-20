@@ -118,10 +118,12 @@ function buildNavItems(t) {
         p.startsWith("/evento/"),
     },
     {
-      to: "/retos",
+      to: "/explorar",
       label: t("nav.explore") || "Explorar",
       Icon: IconExplore,
       isActive: (p) =>
+        p === "/explorar" ||
+        p.startsWith("/explorar/") ||
         p === "/retos" ||
         p.startsWith("/retos/") ||
         p === "/clubs" ||

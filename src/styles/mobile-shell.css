@@ -195,6 +195,25 @@
   opacity: 0.65;
 }
 
+/* User name in the topbar — shown when viewing one's own profile. More
+   personal/friendly than the page title variant: lighter weight, no
+   underline, truncates if too long for the slot. */
+.appTopbar__userName {
+  margin: 0;
+  padding: 0;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  color: var(--text);
+  user-select: none;
+  max-width: min(60vw, 260px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* "Run" in the logo inherits currentColor from the topbar, so the
    per-theme override lives in the color token, not in this stylesheet. */
 .appTopbar {

@@ -59,8 +59,11 @@ export default function ProfileOnboardingPage() {
   const [locationVerifiedDraft, setLocationVerifiedDraft] = useState(false);
 
   const {
-    preferences,
+    // draft = local edits (matches the UI shown while user is onboarding).
+    // save() commits the whole draft in one PATCH when the main form submits.
+    draft: preferencesDraft,
     setField: setPreferenceField,
+    save: savePreferences,
     saving: savingPreferences,
   } = useUserPreferences();
 
@@ -172,6 +175,13 @@ export default function ProfileOnboardingPage() {
       };
 
       await apiUpdateProfile(payload, token);
+      // Persist any matching preferences the user edited during onboarding.
+      // Best-effort: a failure here shouldn't block profile completion.
+      try {
+        await savePreferences();
+      } catch {
+        /* user can retry from Settings › Preferencias de matcheo */
+      }
       const nextMe = await refreshMe(token);
 
       if (!nextMe?.onboarding_completed) {
@@ -324,7 +334,7 @@ export default function ProfileOnboardingPage() {
                 <PreferenceField
                   key={field.id}
                   field={field}
-                  entry={preferences[field.id]}
+                  entry={preferencesDraft[field.id]}
                   onChange={(entry) => setPreferenceField(field.id, entry)}
                   disabled={savingPreferences}
                 />

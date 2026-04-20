@@ -11,6 +11,7 @@ import ActivityPage from "./pages/ActivityPage";
 import AuthPage from "./pages/AuthPage";
 import EventsPage from "./pages/EventsPage";
 import ChallengesPage from "./pages/ChallengesPage";
+import ExplorarPage from "./pages/ExplorarPage";
 import ChatThreadPage from "./pages/ChatThreadPage";
 import ClubsPage from "./pages/ClubsPage";
 import CreateEventPage from "./pages/CreateEventPage";
@@ -273,6 +274,7 @@ export default function App() {
 
           <Route path="eliminar-cuenta" element={<DeleteAccountPage />} />
 
+          <Route path="explorar" element={<ExplorarPage />} />
           <Route path="retos" element={<ChallengesPage />} />
           <Route path="clubs" element={<ClubsPage />} />
           <Route path="clubs/:clubId" element={<ClubDetailPage />} />

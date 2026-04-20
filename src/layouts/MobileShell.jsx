@@ -1,5 +1,6 @@
 import { Link, Outlet, useLocation, matchPath } from "react-router-dom";
 import BottomNav from "../components/BottomNav";
+import { useAuth } from "../hooks/useAuth";
 import "../styles/mobile-shell.css";
 
 /* Inline SVG logo. One source, adapts to theme via `currentColor`:
@@ -87,10 +88,9 @@ function IconSettings() {
 }
 
 /* Routes where the topbar is rendered. Every other route hides the
-   header entirely — the page owns its full vertical space. Kept as a
-   short allow-list because it's the minority case; adding a route
-   here is an explicit opt-in. */
+   header entirely — the page owns its full vertical space. */
 const HEADER_VISIBLE_PATTERNS = [
+  "/eventos",
   "/perfil",
   "/perfil/:profileId",
   "/perfil/handle/:handle",
@@ -99,14 +99,41 @@ const HEADER_VISIBLE_PATTERNS = [
   "/perfil/visitas",
 ];
 
+/* Routes where the topbar brand slot shows the current user's name
+   instead of the logo. Only applies on the user's OWN profile pages
+   (not when viewing someone else's). */
+const USER_NAME_PATTERNS = ["/perfil"];
+
 function isHeaderVisible(pathname) {
   return HEADER_VISIBLE_PATTERNS.some((pattern) => matchPath(pattern, pathname));
 }
 
+function shouldShowUserName(pathname) {
+  return USER_NAME_PATTERNS.some((pattern) =>
+    matchPath({ path: pattern, end: true }, pathname),
+  );
+}
+
+function userDisplayName(me) {
+  if (!me) return null;
+  const candidate =
+    me.display_name ||
+    me.full_name ||
+    me.name ||
+    (me.handle ? `@${me.handle}` : null) ||
+    (me.email ? me.email.split("@")[0] : null);
+  return candidate ? String(candidate).trim() || null : null;
+}
+
 export default function MobileShell() {
   const location = useLocation();
+  const { me } = useAuth();
   const isChatThreadPage = Boolean(matchPath("/mensajes/:threadId", location.pathname));
   const headerVisible = isHeaderVisible(location.pathname) && !isChatThreadPage;
+
+  const topbarName = shouldShowUserName(location.pathname)
+    ? userDisplayName(me)
+    : null;
 
   const frameModifier = isChatThreadPage
     ? " appChrome__frame--chat"
@@ -125,7 +152,11 @@ export default function MobileShell() {
       {headerVisible && (
         <header className="appTopbar">
           <div className="appTopbar__inner">
-            <RunVibeLogo />
+            {topbarName ? (
+              <h1 className="appTopbar__userName">{topbarName}</h1>
+            ) : (
+              <RunVibeLogo />
+            )}
 
             <Link to="/ajustes" className="appTopbar__settings" aria-label="Ir a ajustes">
               <IconSettings />
