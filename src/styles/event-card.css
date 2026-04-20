@@ -122,6 +122,14 @@
   font-weight: 600;
 }
 
+.eventCard__social {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
 /* Unified grid container: shared between the selected-day panel and
    the grid view. 2 columns on phones ≥360px, 3 on wider. */
 .eventCardGrid {

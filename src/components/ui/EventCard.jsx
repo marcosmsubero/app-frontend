@@ -3,6 +3,8 @@ import { timeLabel } from "../../utils/dates";
 import shoesImage from "../../assets/shoes.png";
 import finishlineImage from "../../assets/finishline.png";
 import partyImage from "../../assets/party.png";
+import AvatarStack from "./AvatarStack";
+import UrgencyBadge from "./UrgencyBadge";
 
 function eventTitle(event) {
   return event?.title || event?.meeting_point || "Evento";
@@ -38,6 +40,17 @@ function formatPace(min, max) {
   return "";
 }
 
+function spotsInfo(event) {
+  const count = event?.participants_count ?? 0;
+  const cap = event?.max_participants || event?.capacity || 0;
+  if (!cap) return { label: `${count} inscrito${count !== 1 ? "s" : ""}`, variant: "open" };
+  const left = Math.max(0, cap - count);
+  if (left === 0) return { label: "Completo", variant: "hot" };
+  if (left <= 3) return { label: `${left} plaza${left !== 1 ? "s" : ""} libre${left !== 1 ? "s" : ""}`, variant: "hot" };
+  if (left <= 6) return { label: `${left} plazas libres`, variant: "warm" };
+  return { label: `${count}/${cap} inscritos`, variant: "open" };
+}
+
 /* Minimalist card: image + technical info only. No surrounding
    container (no border, no background), no event-type badge, no
    description, no social or management controls — the grid relies
@@ -50,6 +63,9 @@ export default function EventCard({ event, variant = "day" }) {
   const distance = event?.distance_km ? `${event.distance_km} km` : "";
   const elev = event?.elevation_m ? `${event.elevation_m} D+` : "";
   const pace = formatPace(event?.pace_min, event?.pace_max);
+
+  const participants = event?.participants || [];
+  const spots = typeof event?.participants_count === "number" ? spotsInfo(event) : null;
 
   const date = new Date(event.starts_at);
   const showDateBadge = variant === "grid";
@@ -97,6 +113,17 @@ export default function EventCard({ event, variant = "day" }) {
 
         {pace ? (
           <p className="eventCard__meta eventCard__meta--tech">{pace}</p>
+        ) : null}
+
+        {(participants.length > 0 || spots) ? (
+          <div className="eventCard__social">
+            {participants.length > 0 ? (
+              <AvatarStack users={participants} max={3} size={22} />
+            ) : null}
+            {spots ? (
+              <UrgencyBadge variant={spots.variant}>{spots.label}</UrgencyBadge>
+            ) : null}
+          </div>
         ) : null}
       </div>
     </Link>

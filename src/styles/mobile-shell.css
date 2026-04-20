@@ -36,29 +36,47 @@
   outline-offset: 2px;
 }
 
-/* ── App chrome (root wrapper) ── */
+/* ── App chrome (root wrapper) ──
+   Flex-column layout pins the topbar + bottom nav outside the scroll
+   context. Only .appChrome__frame scrolls — the nav can never drift
+   with iOS Safari's URL bar auto-hide, and pull-to-refresh can't chain
+   into the document. */
+
+html,
+body,
+#root {
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
 
 .appChrome {
-  min-height: 100svh;
-  min-height: 100dvh;
+  height: 100svh;
+  height: 100dvh;
   width: 100%;
   max-width: 100%;
-  overflow-x: clip;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   background: var(--bg, #080f1a);
   color: var(--text, #f0f2f8);
   isolation: isolate;
 }
 
 .appChrome__frame {
+  flex: 1 1 auto;
+  min-height: 0;
   width: min(100%, var(--app-shell-max-width));
   max-width: 100%;
   margin: 0 auto;
-  min-height: 100svh;
-  min-height: 100dvh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
   padding:
-    calc(var(--safe-top, 0px) + var(--app-topbar-height) + 10px)
+    10px
     var(--app-shell-side-pad)
-    calc(var(--app-bottom-nav-height) + 14px + var(--safe-bottom, 0px));
+    14px;
 }
 
 .appChrome__main,
@@ -67,26 +85,21 @@
   gap: var(--space-4, 16px);
   min-width: 0;
   max-width: 100%;
-  /* Stop scroll chaining into the document when a list bottoms out,
-     so pull-to-refresh and rubber-band don't fire unexpectedly. */
-  overscroll-behavior-y: contain;
 }
 
-/* ── No-header mode: drop the topbar padding from the top edge while
-   keeping side + bottom spacing. Applied on all routes that don't
-   render the header (everything except profile). The safe-area top
-   inset still applies so content doesn't hide under the notch. */
+/* ── No-header mode: nothing to offset for anymore (topbar is a flex
+   item, not fixed). Kept as a no-op for backward compatibility with
+   any callers still depending on the class. */
 .appChrome__frame--noHeader {
-  padding-top: calc(var(--safe-top, 0px) + 10px);
+  padding-top: 10px;
 }
 
-/* ── Chat mode: remove shell spacing so chat can fill the screen ── */
+/* ── Chat mode: let chat fill the full scroll frame edge-to-edge ── */
 .appChrome__frame--chat {
+  padding: 0;
   width: 100%;
   max-width: 100%;
-  min-height: 100svh;
-  min-height: 100dvh;
-  padding: 0;
+  overflow: hidden;
 }
 
 .appChrome__frame--chat .appChrome__main,
@@ -102,10 +115,9 @@
    ═══════════════════════════════════════════════════════════════════════════ */
 
 .appTopbar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
+  /* Normal flex-column flow item; no longer fixed. Being outside the
+     scroll container already pins it to the top of the viewport. */
+  flex-shrink: 0;
   z-index: 70;
   padding-top: var(--safe-top, 0px);
   overflow: clip;
@@ -273,13 +285,13 @@
    ═══════════════════════════════════════════════════════════════════════════ */
 
 .bottomNav {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 80;
+  /* Normal flex-column flow item; no longer fixed. Sits below the
+     scrollable frame, so scroll + iOS URL-bar toggles can't drift it. */
+  flex-shrink: 0;
+  width: 100%;
   padding-bottom: var(--safe-bottom, 0px);
   overflow: visible;
+  z-index: 80;
 }
 
 .bottomNav__glass {
