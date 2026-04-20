@@ -370,13 +370,14 @@
 .chatComposer {
   flex: 0 0 auto;
   flex-shrink: 0;
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  align-items: flex-end;
+  /* Grid with explicit column widths guarantees the textarea + the two
+     FABs stay on a single row; no risk of the buttons wrapping below
+     as they would under flex when something (e.g. a global textarea
+     width:100%) fights the flex basis. */
+  display: grid;
+  grid-template-columns: 1fr 34px 34px;
+  align-items: end;
   gap: 6px;
-  /* Keep the composer above the iOS home indicator / Android gesture bar
-     while reserving a visible gap on notchless devices. */
   padding: 6px 8px max(10px, env(safe-area-inset-bottom, 0px));
   background: var(--surface);
   border-top: 1px solid var(--border-subtle);
@@ -388,12 +389,11 @@
 }
 
 .chatComposer__input {
-  /* flex-basis 0 + grow so the textarea fills only what's left after
-     the send button reserves its 34px. min-width: 0 overrides the
-     textarea's default 20-col width so flex-shrink actually works. */
-  flex: 1 1 0;
+  /* In a grid, the textarea fills the "1fr" column automatically;
+     min-width: 0 still needed so the textarea's native 20-col default
+     doesn't push the grid wider than the viewport. */
+  width: 100%;
   min-width: 0;
-  width: auto;
   /* WhatsApp-sized composer: tight padding + smaller min-height so the
      input hugs the chip at rest, grows only as the user types. */
   min-height: 34px;

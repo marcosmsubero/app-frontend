@@ -156,6 +156,7 @@ export default function ChatThreadPage() {
     if (typeof window === "undefined") return null;
     return window.visualViewport?.height || window.innerHeight || null;
   });
+  const [viewportOffsetTop, setViewportOffsetTop] = useState(0);
 
   const [recording, setRecording] = useState(false);
   const [recordingElapsedMs, setRecordingElapsedMs] = useState(0);
@@ -397,6 +398,7 @@ export default function ChatThreadPage() {
     function handleViewportChange() {
       const nextHeight = vv.height || window.innerHeight;
       setViewportHeight(nextHeight);
+      setViewportOffsetTop(vv.offsetTop || 0);
 
       if (document.activeElement === composerRef.current) {
         scheduleKeyboardSafeScroll();
@@ -688,15 +690,21 @@ export default function ChatThreadPage() {
       className="chatPage"
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
-      /* Don't apply inline visualViewport height. Modern iOS + the
-         `interactive-widget=resizes-content` meta in index.html shrink
-         the layout viewport correctly when the keyboard opens, so the
-         CSS `height: 100dvh` already does the right thing. Forcing
-         `visualViewport.height` on a position:fixed element was making
-         the chat disappear on some devices because the fixed element
-         stays anchored to the old layout viewport while iOS scrolls
-         the window — the `scheduleKeyboardSafeScroll` effect below
-         keeps the last message visible inside the shrunk chat. */
+      /* Use visualViewport.height as the chat's explicit height AND
+         visualViewport.offsetTop as a translate compensator. iOS may
+         scroll the layout viewport to keep the focused input above the
+         keyboard; applying offsetTop via translate pulls the whole
+         fixed chat up so the messages remain visible (no blank area
+         above the keyboard). Falls back to CSS `height: 100dvh` on
+         browsers that don't expose visualViewport. */
+      style={
+        viewportHeight
+          ? {
+              height: `${viewportHeight}px`,
+              transform: `translateY(${viewportOffsetTop || 0}px)`,
+            }
+          : undefined
+      }
     >
       <div className="chatHeader">
         <button
