@@ -636,7 +636,8 @@ export default function ChatThreadPage() {
           <textarea
             ref={composerRef}
             rows={1}
-            placeholder={t("chat.typeMessage")}
+            placeholder=""
+            aria-label={t("chat.typeMessage")}
             value={text}
             onChange={handleTextChange}
             onKeyDown={onKeyDown}

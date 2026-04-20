@@ -340,7 +340,7 @@
   gap: 8px;
   /* Keep the composer above the iOS home indicator / Android gesture bar
      while still reserving a visible gap on notchless devices. */
-  padding: 8px 12px max(12px, env(safe-area-inset-bottom, 0px));
+  padding: 6px 10px max(10px, env(safe-area-inset-bottom, 0px));
   background: var(--surface);
   border-top: 1px solid var(--border-subtle);
   box-sizing: border-box;
@@ -356,16 +356,19 @@
 
 .chatComposer__input {
   width: 100%;
-  min-height: 38px;
-  max-height: 120px;
-  padding: 9px 14px;
+  /* WhatsApp-sized composer: tight padding + smaller min-height so the
+     input hugs the chip at rest, grows only as the user types. */
+  min-height: 32px;
+  max-height: 100px;
+  padding: 6px 12px;
   border: 1px solid var(--border-subtle);
-  border-radius: 22px;
+  border-radius: 18px;
   background: var(--surface-2);
   color: var(--text);
   font: inherit;
-  font-size: 16px;
-  line-height: 1.35;
+  /* 16px on focus to prevent iOS zoom, 0.92rem at rest for compactness. */
+  font-size: 0.92rem;
+  line-height: 1.3;
   resize: none;
   outline: none;
   box-sizing: border-box;
@@ -373,6 +376,10 @@
   -webkit-appearance: none;
   appearance: none;
   transition: border-color 200ms ease, background 200ms ease;
+}
+
+.chatComposer__input:focus {
+  font-size: 16px;
 }
 
 .chatComposer__input:focus {
@@ -385,8 +392,10 @@
 }
 
 .chatComposer__send {
-  width: 40px;
-  height: 40px;
+  /* Matches composer input height (~32-36px) so the send button sits
+     flush with the text field, WhatsApp-style. */
+  width: 34px;
+  height: 34px;
   flex-shrink: 0;
   border: none;
   border-radius: 999px;
