@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { useBlockedIds } from "../hooks/useBlockedIds";
 import { useMeetupSearch } from "../hooks/useMeetupSearch";
@@ -7,19 +7,14 @@ import {
   addMonths,
   buildCurrentMonthDays,
   localDayKey,
-  timeLabel,
 } from "../utils/dates";
-import { searchPlaces } from "../utils/location";
-import shoesImage from "../assets/shoes.png";
-import finishlineImage from "../assets/finishline.png";
-import partyImage from "../assets/party.png";
-import AvatarStack from "../components/ui/AvatarStack";
-import UrgencyBadge from "../components/ui/UrgencyBadge";
+import EventCard from "../components/ui/EventCard";
 import EventFilterSheet, {
   DEFAULT_FILTER_STATE,
   hasActiveFilters as computeHasActiveFilters,
 } from "../components/ui/EventFilterSheet";
 import "../styles/events-page.css";
+import "../styles/event-card.css";
 
 const WEEKDAYS = ["L", "M", "X", "J", "V", "S", "D"];
 
@@ -47,10 +42,6 @@ function groupByDay(meetups = []) {
   return map;
 }
 
-function eventTitle(event) {
-  return event?.title || event?.meeting_point || "Evento";
-}
-
 function formatMonthYear(date) {
   return date.toLocaleDateString("es-ES", { month: "long" });
 }
@@ -65,159 +56,8 @@ function formatSelectedDay(dayKey) {
   return `${weekday.charAt(0).toUpperCase() + weekday.slice(1)} ${formatted}`;
 }
 
-function IconPlus() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-      style={{ width: 16, height: 16 }}
-    >
-      <path d="M12 5v14" />
-      <path d="M5 12h14" />
-    </svg>
-  );
-}
-
 function isSameOrAfterToday(isoDate) {
   return new Date(isoDate).getTime() >= Date.now();
-}
-
-function eventImageSrc(event) {
-  const uploaded =
-    event?.image_url ||
-    event?.poster_url ||
-    event?.cover_url ||
-    event?.photo_url ||
-    event?.thumbnail_url ||
-    event?.banner_url;
-
-  if (uploaded) return uploaded;
-
-  const type = String(event?.event_type || "").trim().toLowerCase();
-  if (type === "carrera") return finishlineImage;
-  if (type === "vibe") return partyImage;
-  return shoesImage;
-}
-
-/* FilterPopup moved to ../components/ui/EventFilterSheet.jsx and is
-   shared between the Events and Profile calendars. */
-
-function spotsInfo(event) {
-  const count = event?.participants_count ?? 0;
-  const cap = event?.max_participants || event?.capacity || 0;
-  if (!cap) return { label: `${count} inscrito${count !== 1 ? "s" : ""}`, variant: "open" };
-  const left = Math.max(0, cap - count);
-  if (left === 0) return { label: "Completo", variant: "hot" };
-  if (left <= 3) return { label: `${left} plaza${left !== 1 ? "s" : ""} libre${left !== 1 ? "s" : ""}`, variant: "hot" };
-  if (left <= 6) return { label: `${left} plazas libres`, variant: "warm" };
-  return { label: `${count}/${cap} inscritos`, variant: "open" };
-}
-
-function DayEventCard({ event }) {
-  const imageSrc = eventImageSrc(event);
-  const participants = event?.participants || [];
-  const spots = typeof event?.participants_count === "number" ? spotsInfo(event) : null;
-
-  return (
-    <Link to={`/evento/${event.id}`} className="dayEventCard">
-      <div className="dayEventCard__imageWrap">
-        <img
-          src={imageSrc}
-          alt={eventTitle(event)}
-          className="dayEventCard__image"
-        />
-      </div>
-
-      <div className="dayEventCard__body">
-        <h3 className="dayEventCard__title">{eventTitle(event)}</h3>
-
-        <p className="dayEventCard__meta">
-          {timeLabel(event.starts_at)}
-        </p>
-
-        <p className="dayEventCard__meta">
-          {event.meeting_point || "Sin ubicación"}
-        </p>
-
-        {(event.distance_km || event.elevation_m || event.training_type) ? (
-          <p className="dayEventCard__meta dayEventCard__techLine">
-            {event.training_type === "series"
-              ? "Series"
-              : event.training_type === "carrera_continua"
-              ? "Carrera continua"
-              : ""}
-            {event.training_type && (event.distance_km || event.elevation_m) ? " · " : ""}
-            {event.distance_km ? `${event.distance_km} km` : ""}
-            {event.distance_km && event.elevation_m ? " · " : ""}
-            {event.elevation_m ? `${event.elevation_m} D+` : ""}
-          </p>
-        ) : null}
-
-        {/* Social proof row */}
-        <div className="dayEventCard__social">
-          {participants.length > 0 ? (
-            <AvatarStack users={participants} max={3} size={22} />
-          ) : null}
-
-          {spots ? (
-            <UrgencyBadge variant={spots.variant}>{spots.label}</UrgencyBadge>
-          ) : null}
-        </div>
-      </div>
-    </Link>
-  );
-}
-
-function GridEventCard({ event }) {
-  const imageSrc = eventImageSrc(event);
-  const date = new Date(event.starts_at);
-  const day = date.getDate();
-  const monthStr = date.toLocaleDateString("es-ES", { month: "short" }).toUpperCase();
-  const participants = event?.participants || [];
-  const spots = typeof event?.participants_count === "number" ? spotsInfo(event) : null;
-
-  return (
-    <Link to={`/evento/${event.id}`} className="gridEventCard">
-      <div className="gridEventCard__imageWrap">
-        <img src={imageSrc} alt={eventTitle(event)} className="gridEventCard__image" />
-        <div className="gridEventCard__dateBadge">
-          <span className="gridEventCard__dateDay">{day}</span>
-          <span className="gridEventCard__dateMonth">{monthStr}</span>
-        </div>
-      </div>
-      <div className="gridEventCard__body">
-        <h3 className="gridEventCard__title">{eventTitle(event)}</h3>
-        {(event.distance_km || event.elevation_m || event.training_type) ? (
-          <p className="gridEventCard__tech">
-            {event.training_type === "series" ? "Series"
-              : event.training_type === "carrera_continua" ? "Carrera continua" : ""}
-            {event.training_type && (event.distance_km || event.elevation_m) ? " · " : ""}
-            {event.distance_km ? `${event.distance_km} km` : ""}
-            {event.distance_km && event.elevation_m ? " · " : ""}
-            {event.elevation_m ? `${event.elevation_m} D+` : ""}
-          </p>
-        ) : null}
-        <p className="gridEventCard__meta">{event.meeting_point || "Sin ubicación"}</p>
-
-        {/* Social proof */}
-        {(participants.length > 0 || spots) ? (
-          <div className="gridEventCard__social">
-            {participants.length > 0 ? (
-              <AvatarStack users={participants} max={3} size={20} />
-            ) : null}
-            {spots ? (
-              <UrgencyBadge variant={spots.variant}>{spots.label}</UrgencyBadge>
-            ) : null}
-          </div>
-        ) : null}
-      </div>
-    </Link>
-  );
 }
 
 function MapView({ events, onSelectEvent }) {
@@ -469,9 +309,9 @@ export default function EventsPage() {
           upcomingItems.length === 0 ? (
             <div className="discoverEmptyText">No hay eventos próximos</div>
           ) : (
-            <div className="discoverGridView">
+            <div className="eventCardGrid">
               {upcomingItems.map((event) => (
-                <GridEventCard key={event.id} event={event} />
+                <EventCard key={event.id} event={event} variant="grid" />
               ))}
             </div>
           )
@@ -537,13 +377,9 @@ export default function EventsPage() {
                 {selectedEvents.length === 0 ? (
                   <div className="discoverEmptyText">No hay eventos este día</div>
                 ) : (
-                  <div
-                    className={`discoverEventList discoverEventList--day${
-                      selectedEvents.length > 1 ? " discoverEventList--dayGrid" : ""
-                    }`}
-                  >
+                  <div className="eventCardGrid">
                     {selectedEvents.map((event) => (
-                      <DayEventCard key={event.id} event={event} />
+                      <EventCard key={event.id} event={event} variant="day" />
                     ))}
                   </div>
                 )}

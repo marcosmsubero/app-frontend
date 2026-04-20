@@ -19,6 +19,7 @@ const BACKEND_ROUTES = [
   "/meetups_upcoming",
   "/notifications",
   "/posts",
+  "/profiles",
   "/favorites",
   "/challenges",
   "/clubs",

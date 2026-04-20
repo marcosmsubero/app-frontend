@@ -88,12 +88,13 @@ function IconSettings() {
 }
 
 /* Routes where the topbar is rendered. Every other route hides the
-   header entirely — the page owns its full vertical space. */
+   header entirely — the page owns its full vertical space.
+   Other users' profile pages (/perfil/:profileId, /perfil/handle/:handle)
+   intentionally omit the header so the visited profile takes the full
+   viewport, like native social apps. */
 const HEADER_VISIBLE_PATTERNS = [
   "/eventos",
   "/perfil",
-  "/perfil/:profileId",
-  "/perfil/handle/:handle",
   "/perfil/seguidores",
   "/perfil/seguidos",
   "/perfil/visitas",

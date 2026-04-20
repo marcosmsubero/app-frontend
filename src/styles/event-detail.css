@@ -654,3 +654,283 @@ button.eventDetailHero--image {
     max-height: 480px;
   }
 }
+
+/* ==========================================================================
+   Compact tweaks: tighter spacing + smaller hero so the detail page fits
+   more content above the fold.
+   ========================================================================== */
+
+.eventDetailPage {
+  padding-top: 10px;
+  padding-bottom: 28px;
+}
+
+.eventDetailHeroPanel {
+  margin-bottom: 12px;
+}
+
+.eventDetailHeroPanel__tabs {
+  padding: 3px;
+}
+
+.eventDetailHeroPanel__tab {
+  padding: 7px 10px;
+  font-size: 0.78rem;
+}
+
+.eventDetailBody {
+  padding: 0;
+}
+
+.eventDetailTitle {
+  font-size: 1.15rem;
+  margin-bottom: 6px;
+}
+
+@media (min-width: 415px) {
+  .eventDetailTitle {
+    font-size: 1.3rem;
+  }
+}
+
+.eventDetailMeta {
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.eventDetailMetaRow {
+  font-size: 0.82rem;
+}
+
+.eventDetailMetaLabel {
+  font-size: 0.78rem;
+}
+
+.eventDetailTechStats {
+  gap: 6px;
+}
+
+.eventDetailStatChip {
+  padding: 5px 10px;
+}
+
+.eventDetailStatChip__value {
+  font-size: 0.9rem;
+}
+
+.eventDetailNotes {
+  margin-bottom: 14px;
+}
+
+.eventDetailNotesText {
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+
+.eventDetailSectionTitle {
+  font-size: 0.85rem;
+  margin-bottom: 6px;
+}
+
+.eventDetailLinks {
+  margin-bottom: 14px;
+}
+
+.eventDetailActions {
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.eventDetailActionBtn {
+  padding: 10px 14px;
+  font-size: 0.9rem;
+}
+
+/* Constrain the organizer hero so we don't waste vertical space */
+.eventDetailHero--organizer {
+  padding: 12px 14px;
+}
+
+.eventDetailHeroOrganizer__avatar {
+  width: 48px;
+  height: 48px;
+}
+
+.eventDetailHeroOrganizer__name {
+  font-size: 0.95rem;
+}
+
+.eventDetailHeroOrganizer__handle {
+  font-size: 0.78rem;
+}
+
+/* --- Share sheet ------------------------------------------------------- */
+
+.shareSheet__options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.shareSheet__option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+  transition: background 160ms ease, transform 120ms ease;
+}
+
+.shareSheet__option:active {
+  transform: scale(0.98);
+}
+
+.shareSheet__option:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.shareSheet__optionIcon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(124, 233, 155, 0.12);
+  color: var(--primary, #7ce99b);
+  flex-shrink: 0;
+}
+
+.shareSheet__optionIcon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.shareSheet__optionBody {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.shareSheet__optionTitle {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.shareSheet__optionText {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  line-height: 1.35;
+}
+
+.shareSheet__optionArrow {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.shareSheet__searchRow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.shareSheet__searchRow .app-input {
+  flex: 1;
+  min-width: 0;
+}
+
+.shareSheet__list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+.shareSheet__row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 140ms ease;
+}
+
+.shareSheet__row:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.shareSheet__row:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.shareSheet__avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--surface-muted, rgba(255, 255, 255, 0.08));
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  flex-shrink: 0;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.shareSheet__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.shareSheet__info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.shareSheet__name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.shareSheet__handle {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.shareSheet__sectionLabel {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 10px 4px 4px;
+}
+
+.shareSheet__muted {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  padding: 12px 4px;
+}

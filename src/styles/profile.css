@@ -34,11 +34,11 @@
 }
 
 .profilePage .profileHero__avatar {
-  width: 68px;
-  height: 68px;
+  width: var(--profile-avatar-size, 60px);
+  height: var(--profile-avatar-size, 60px);
   border-radius: 50%;
   object-fit: cover;
-  border: 2.5px solid var(--border-strong);
+  border: 2px solid var(--border-strong);
   background: rgba(255, 255, 255, 0.06);
   box-shadow:
     0 4px 16px rgba(0, 0, 0, 0.2),
@@ -573,15 +573,8 @@
 }
 
 @media (max-width: 420px) {
-  .profilePage .profileHero__avatar {
-    width: 72px;
-    height: 72px;
-    border-radius: 50%;
-  }
-
   .profilePage .profileAvatarWrap {
-    width: 72px;
-    height: 72px;
+    --profile-avatar-size: 64px;
   }
 
   .profilePage .profileHero__name {
@@ -663,9 +656,10 @@
 /* --- Avatar wrap + change button --- */
 
 .profilePage .profileAvatarWrap {
+  --profile-avatar-size: 60px;
   position: relative;
-  width: 68px;
-  height: 68px;
+  width: var(--profile-avatar-size);
+  height: var(--profile-avatar-size);
   flex-shrink: 0;
 }
 
@@ -756,15 +750,8 @@
 
 /* --- Responsive: Extra-small --- */
 @media (max-width: 320px) {
-  .profilePage .profileHero__avatar {
-    width: 64px;
-    height: 64px;
-    border-radius: 50%;
-  }
-
   .profilePage .profileAvatarWrap {
-    width: 64px;
-    height: 64px;
+    --profile-avatar-size: 56px;
   }
 
   .profilePage .profileHero__name {
@@ -864,4 +851,163 @@
 :root[data-theme="light"] .avatarSheet__item:hover,
 :root[data-theme="light"] .avatarSheet__item:active {
   background: #f4f4f6;
+}
+
+/* ── Avatar action popover (own profile) ────────────────────────────────── */
+/* Anchored to .profileAvatarWrap (which is position:relative). Opens
+   below the avatar with the arrow over the avatar's centre and stays
+   clamped inside the viewport margins. */
+
+.avatarPopover {
+  position: absolute;
+  top: calc(100% + 10px);
+  /* Anchor to the avatar wrap's left edge and extend rightwards.
+     Centering on the avatar causes the popover to spill off-screen
+     on narrow viewports because the avatar sits near the edge. */
+  left: 0;
+  right: auto;
+  transform-origin: top left;
+  min-width: 160px;
+  /* Never exceed the viewport. The page has a standard 16px gutter,
+     so trim a little more than that to feel comfortable. */
+  max-width: calc(100vw - 32px);
+  padding: 4px;
+  border-radius: 14px;
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+  background: var(--surface, rgba(14, 22, 36, 0.98));
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  animation: avatarPopoverIn 160ms cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+
+@keyframes avatarPopoverIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Small arrow pointing up to the avatar centre. Avatar wrap width is
+   tracked by --profile-avatar-size so the arrow follows if the avatar
+   resizes. */
+.avatarPopover::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  left: calc(var(--profile-avatar-size, 60px) / 2 - 5px);
+  transform: rotate(45deg);
+  width: 10px;
+  height: 10px;
+  background: inherit;
+  border-top: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+  border-left: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+  border-radius: 2px;
+}
+
+.avatarPopover__item {
+  appearance: none;
+  border: none;
+  width: 100%;
+  padding: 9px 14px;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text, #f0f2f8);
+  font-size: 0.88rem;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: background 140ms ease;
+  white-space: nowrap;
+}
+
+.avatarPopover__item:hover,
+.avatarPopover__item:active {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+:root[data-theme="light"] .avatarPopover {
+  background: #fff;
+  border-color: rgba(10, 22, 40, 0.1);
+  box-shadow: 0 10px 30px rgba(10, 22, 40, 0.14);
+}
+
+:root[data-theme="light"] .avatarPopover__item:hover,
+:root[data-theme="light"] .avatarPopover__item:active {
+  background: rgba(10, 22, 40, 0.06);
+}
+
+/* ── Followers / Following list ─────────────────────────────────────── */
+/* Minimal row: round avatar + name. Whole row is a link, so tapping
+   the avatar opens the target profile just like tapping the name. */
+
+.followList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.followRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  text-decoration: none;
+  color: inherit;
+  transition: background 140ms ease, transform 120ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.followRow:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.followRow:active {
+  transform: scale(0.98);
+}
+
+.followRow__avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.08);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.followRow__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.followRow__name {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+:root[data-theme="light"] .followRow:hover {
+  background: rgba(10, 22, 40, 0.05);
+}
+
+:root[data-theme="light"] .followRow__avatar {
+  background: rgba(10, 22, 40, 0.06);
 }

@@ -1,15 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import "../styles/events-page.css";
+import "../styles/event-card.css";
 import "../styles/profile.css";
-import shoesImage from "../assets/shoes.png";
-import finishlineImage from "../assets/finishline.png";
-import partyImage from "../assets/party.png";
 import { useAuth } from "../hooks/useAuth";
 import { useMyMeetups } from "../hooks/useMyMeetups";
 import { useToast } from "../hooks/useToast";
 import ImageViewer from "../components/ui/ImageViewer";
-import BottomSheet from "../components/ui/BottomSheet";
+import EventCard from "../components/ui/EventCard";
 import EventFilterSheet, {
   DEFAULT_FILTER_STATE,
   hasActiveFilters as computeHasActiveFilters,
@@ -35,7 +33,6 @@ import {
   addMonths,
   buildCurrentMonthDays,
   localDayKey,
-  timeLabel,
 } from "../utils/dates";
 
 const WEEKDAYS = ["L", "M", "X", "J", "V", "S", "D"];
@@ -124,30 +121,6 @@ function isSameOrAfterToday(isoDate) {
   return new Date(isoDate).getTime() >= Date.now();
 }
 
-function eventTypeKey(event) {
-  return String(event?.event_type || event?.type || "")
-    .trim()
-    .toLowerCase();
-}
-
-function eventImageSrc(event) {
-  const uploadedImage =
-    event?.image_url ||
-    event?.poster_url ||
-    event?.cover_url ||
-    event?.photo_url ||
-    event?.thumbnail_url ||
-    event?.banner_url;
-
-  if (uploadedImage) return uploadedImage;
-
-  const type = eventTypeKey(event);
-
-  if (type === "carrera") return finishlineImage;
-  if (type === "vibe") return partyImage;
-  return shoesImage;
-}
-
 function eventTitle(event) {
   return event?.title || event?.meeting_point || "Evento";
 }
@@ -224,70 +197,8 @@ function IconVerified({ size = 13 }) {
   );
 }
 
-function DayEventCard({ event, canManage = false, onEdit, onDelete }) {
-  const imageSrc = eventImageSrc(event);
-
-  return (
-    <Link to={`/evento/${event.id}`} className="dayEventCard" style={{ display: "block", textDecoration: "none", color: "inherit" }}>
-      <div className="dayEventCard__imageWrap">
-        {imageSrc ? (
-          <img
-            src={imageSrc}
-            alt={eventTitle(event)}
-            className="dayEventCard__image"
-          />
-        ) : (
-          <div className="dayEventCard__imagePlaceholder">
-            <span className="dayEventCard__placeholderTitle">
-              {eventTitle(event)}
-            </span>
-          </div>
-        )}
-      </div>
-
-      <div className="dayEventCard__body">
-        <h3 className="dayEventCard__title">{eventTitle(event)}</h3>
-
-        <p className="dayEventCard__meta">
-          {timeLabel(event.starts_at)}
-        </p>
-
-        <p className="dayEventCard__meta">
-          {event.meeting_point || "Sin ubicación"}
-        </p>
-
-        {typeof event?.participants_count === "number" ? (
-          <p className="dayEventCard__meta">
-            {event.participants_count} inscrito{event.participants_count !== 1 ? "s" : ""}
-          </p>
-        ) : null}
-
-        {canManage ? (
-          <div className="dayEventCard__actions" onClick={(e) => e.preventDefault()}>
-            <button
-              type="button"
-              className="dayEventCard__iconBtn"
-              onClick={(e) => { e.preventDefault(); e.stopPropagation(); onEdit?.(event); }}
-              aria-label="Editar evento"
-              title="Editar"
-            >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5Z"/></svg>
-            </button>
-            <button
-              type="button"
-              className="dayEventCard__iconBtn dayEventCard__iconBtn--danger"
-              onClick={(e) => { e.preventDefault(); e.stopPropagation(); onDelete?.(event); }}
-              aria-label="Borrar evento"
-              title="Borrar"
-            >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
-            </button>
-          </div>
-        ) : null}
-      </div>
-    </Link>
-  );
-}
+/* DayEventCard and ProfileGridEventCard replaced by the shared EventCard
+ * component (see src/components/ui/EventCard.jsx). */
 
 function LinksBlock({ links = {} }) {
   const entries = Object.entries(links || {}).filter(([, value]) => !!value);
@@ -371,47 +282,6 @@ function MembersBlock({ members = [] }) {
 /* ProfileFilterPopup replaced by the shared EventFilterSheet so both
    calendars use the same chip-preset filters and sheet presentation. */
 
-function ProfileGridEventCard({ event, canManage, onEdit, onDelete }) {
-  const imageSrc = eventImageSrc(event);
-  const date = new Date(event.starts_at);
-  const day = date.getDate();
-  const monthStr = date.toLocaleDateString("es-ES", { month: "short" }).toUpperCase();
-
-  return (
-    <div className="gridEventCard">
-      <Link to={`/evento/${event.id}`} className="gridEventCard__imageWrap">
-        <img src={imageSrc} alt={eventTitle(event)} className="gridEventCard__image" />
-        <div className="gridEventCard__dateBadge">
-          <span className="gridEventCard__dateDay">{day}</span>
-          <span className="gridEventCard__dateMonth">{monthStr}</span>
-        </div>
-      </Link>
-      <div className="gridEventCard__body">
-        <Link to={`/evento/${event.id}`} style={{ textDecoration: "none", color: "inherit" }}>
-          <h3 className="gridEventCard__title">{eventTitle(event)}</h3>
-          {(event.distance_km || event.elevation_m) ? (
-            <p className="gridEventCard__tech">
-              {event.distance_km ? `${event.distance_km} km` : ""}
-              {event.distance_km && event.elevation_m ? " · " : ""}
-              {event.elevation_m ? `${event.elevation_m} D+` : ""}
-            </p>
-          ) : null}
-          <p className="gridEventCard__meta">{event.meeting_point || "Sin ubicación"}</p>
-        </Link>
-        {canManage ? (
-          <div className="dayEventCard__actions" style={{ marginTop: 6 }}>
-            <button type="button" className="dayEventCard__iconBtn" onClick={() => onEdit?.(event)} aria-label="Editar" title="Editar">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5Z"/></svg>
-            </button>
-            <button type="button" className="dayEventCard__iconBtn dayEventCard__iconBtn--danger" onClick={() => onDelete?.(event)} aria-label="Borrar" title="Borrar">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
-            </button>
-          </div>
-        ) : null}
-      </div>
-    </div>
-  );
-}
 
 function ProfileMapView({ events }) {
   const navigate = useNavigate();
@@ -624,11 +494,12 @@ function ProfileAgenda({
         upcomingItems.length === 0 ? (
           <div className="discoverEmptyText">No hay eventos próximos</div>
         ) : (
-          <div className="discoverGridView">
+          <div className="eventCardGrid">
             {upcomingItems.map((event) => (
-              <ProfileGridEventCard
+              <EventCard
                 key={event.id}
                 event={event}
+                variant="grid"
                 canManage={canCreate}
                 onEdit={onEditEvent}
                 onDelete={onDeleteEvent}
@@ -696,11 +567,12 @@ function ProfileAgenda({
                   <p>No hay eventos programados para este día.</p>
                 </div>
               ) : (
-                <div className="discoverSelectedDay__events">
+                <div className="eventCardGrid">
                   {selectedEvents.map((event) => (
-                    <DayEventCard
+                    <EventCard
                       key={event.id}
                       event={event}
+                      variant="day"
                       canManage={canCreate}
                       onEdit={onEditEvent}
                       onDelete={onDeleteEvent}
@@ -737,35 +609,68 @@ function AvatarViewer({ src, alt, onClose }) {
   );
 }
 
-/* Bottom sheet presented when the owner taps their own avatar. Offers
- * "Ver foto" (opens AvatarViewer) and "Cambiar foto" (triggers file input).
- * For public profiles we skip the sheet and go straight to the viewer. */
-function AvatarActionSheet({ open, hasPhoto, onView, onChange, onClose }) {
+/* Popover anchored to the avatar. Opens below the avatar and animates
+ * out of it (transform-origin: top center). Dismisses on outside click
+ * or Escape. For public profiles we skip straight to AvatarViewer
+ * (no popover). */
+function AvatarActionPopover({ open, hasPhoto, onView, onChange, onClose }) {
+  const panelRef = useRef(null);
+
+  useEffect(() => {
+    if (!open) return undefined;
+
+    function handlePointer(e) {
+      const node = panelRef.current;
+      if (!node) return;
+      if (node.contains(e.target)) return;
+      // Ignore clicks on the avatar itself (the avatar's own handler
+      // toggles the popover; letting the document listener fire here
+      // would cause an open→close→open flicker).
+      const avatarWrap = node.closest(".profileAvatarWrap");
+      if (avatarWrap && avatarWrap.contains(e.target)) return;
+      onClose?.();
+    }
+
+    function handleKey(e) {
+      if (e.key === "Escape") onClose?.();
+    }
+
+    document.addEventListener("pointerdown", handlePointer, true);
+    document.addEventListener("keydown", handleKey);
+    return () => {
+      document.removeEventListener("pointerdown", handlePointer, true);
+      document.removeEventListener("keydown", handleKey);
+    };
+  }, [open, onClose]);
+
+  if (!open) return null;
+
   return (
-    <BottomSheet
-      open={open}
-      onClose={onClose}
-      ariaLabel="Opciones de foto de perfil"
+    <div
+      ref={panelRef}
+      className="avatarPopover"
+      role="menu"
+      aria-label="Opciones de foto de perfil"
     >
-      <div className="avatarSheet__actions">
-        {hasPhoto ? (
-          <button
-            type="button"
-            className="avatarSheet__item"
-            onClick={onView}
-          >
-            Ver foto
-          </button>
-        ) : null}
+      {hasPhoto ? (
         <button
           type="button"
-          className="avatarSheet__item"
-          onClick={onChange}
+          role="menuitem"
+          className="avatarPopover__item"
+          onClick={onView}
         >
-          {hasPhoto ? "Cambiar foto" : "Subir foto"}
+          Ver foto
         </button>
-      </div>
-    </BottomSheet>
+      ) : null}
+      <button
+        type="button"
+        role="menuitem"
+        className="avatarPopover__item"
+        onClick={onChange}
+      >
+        {hasPhoto ? "Cambiar foto" : "Subir foto"}
+      </button>
+    </div>
   );
 }
 
@@ -1123,20 +1028,6 @@ export default function ProfilePage() {
         />
       ) : null}
 
-      <AvatarActionSheet
-        open={avatarSheetOpen}
-        hasPhoto={Boolean(avatarUrl)}
-        onView={() => {
-          setAvatarSheetOpen(false);
-          setViewingAvatar(true);
-        }}
-        onChange={() => {
-          setAvatarSheetOpen(false);
-          fileInputRef.current?.click();
-        }}
-        onClose={() => setAvatarSheetOpen(false)}
-      />
-
       <section className="sectionBlock profileHeroCard profileIdentityCard fade-in-up">
         {/* ── Centred hero top ── */}
         <div className="profileHeroTop">
@@ -1146,7 +1037,7 @@ export default function ProfilePage() {
                 if (isPublicProfile) {
                   if (avatarUrl) setViewingAvatar(true);
                 } else {
-                  setAvatarSheetOpen(true);
+                  setAvatarSheetOpen((prev) => !prev);
                 }
               };
               const commonProps = {
@@ -1180,6 +1071,22 @@ export default function ProfilePage() {
                 </div>
               );
             })()}
+
+            {!isPublicProfile ? (
+              <AvatarActionPopover
+                open={avatarSheetOpen}
+                hasPhoto={Boolean(avatarUrl)}
+                onView={() => {
+                  setAvatarSheetOpen(false);
+                  setViewingAvatar(true);
+                }}
+                onChange={() => {
+                  setAvatarSheetOpen(false);
+                  fileInputRef.current?.click();
+                }}
+                onClose={() => setAvatarSheetOpen(false)}
+              />
+            ) : null}
           </div>
 
           <div className="profileHeroCopy">

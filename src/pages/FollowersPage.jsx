@@ -17,33 +17,20 @@ function initials(name = "") {
 
 function FollowerRow({ item }) {
   const name = item?.display_name || item?.full_name || item?.handle || "Perfil";
-  const handle = item?.handle ? `@${String(item.handle).replace(/^@/, "")}` : "Sin usuario";
-  const location = item?.location || "Ubicación no indicada";
   const avatar = item?.avatar_url || null;
   const target = item?.profile_id ? `/perfil/${item.profile_id}` : "/perfil";
 
   return (
-    <Link to={target} className="compactListItem">
-      <div className="compactListItem__icon">
+    <Link to={target} className="followRow">
+      <div className="followRow__avatar">
         {avatar ? (
-          <img
-            src={avatar}
-            alt={name}
-            style={{ width: 40, height: 40, borderRadius: 14, objectFit: "cover" }}
-          />
+          <img src={avatar} alt={name} />
         ) : (
           <span>{initials(name)}</span>
         )}
       </div>
 
-      <div className="compactListItem__copy">
-        <h3 className="compactListItem__title">{name}</h3>
-        <p className="compactListItem__text">
-          {handle} · {location}
-        </p>
-      </div>
-
-      <div className="compactListItem__aside"></div>
+      <h3 className="followRow__name">{name}</h3>
     </Link>
   );
 }
@@ -118,7 +105,7 @@ export default function FollowersPage() {
           </p>
         </div>
       ) : (
-        <div className="compactList card">
+        <div className="followList">
           {visibleFollowers.map((item, index) => (
             <FollowerRow
               key={item?.profile_id || item?.user_id || item?.id || `follower-${index}`}

@@ -9,7 +9,9 @@ import {
   apiLeaveMeetup,
   apiDeleteMyMeetup,
   apiDMCreateThread,
-  api,
+  apiDMSend,
+  apiDMThreads,
+  apiSearchProfiles,
 } from "../services/api";
 import { AnalyticsEvents } from "../services/analytics";
 import { timeLabel, localDayKey } from "../utils/dates";
@@ -19,6 +21,7 @@ import partyImage from "../assets/party.png";
 import "../styles/event-detail.css";
 import ImageViewer from "../components/ui/ImageViewer";
 import IconButton from "../components/ui/IconButton";
+import BottomSheet from "../components/ui/BottomSheet";
 import haptic from "../utils/haptic";
 
 function eventTypeKey(event) {
@@ -141,6 +144,220 @@ function UsersIcon() {
   );
 }
 
+function ShareEventSheet({ open, onClose, token, onShareExternal, onShareToUser }) {
+  const [mode, setMode] = useState("root"); // "root" | "user"
+  const [threads, setThreads] = useState([]);
+  const [query, setQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [loadingThreads, setLoadingThreads] = useState(false);
+
+  useEffect(() => {
+    if (!open) {
+      setMode("root");
+      setQuery("");
+      setSearchResults([]);
+    }
+  }, [open]);
+
+  useEffect(() => {
+    if (mode !== "user" || !token) return;
+    let cancelled = false;
+    setLoadingThreads(true);
+    apiDMThreads("", token)
+      .then((res) => {
+        if (cancelled) return;
+        setThreads(Array.isArray(res) ? res : res?.items || []);
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelled) setLoadingThreads(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [mode, token]);
+
+  useEffect(() => {
+    if (mode !== "user" || !token) return;
+    const needle = query.trim();
+    if (needle.length < 2) {
+      setSearchResults([]);
+      return;
+    }
+    let cancelled = false;
+    const t = setTimeout(() => {
+      apiSearchProfiles(needle, token)
+        .then((res) => {
+          if (cancelled) return;
+          setSearchResults(Array.isArray(res) ? res : res?.items || []);
+        })
+        .catch(() => {});
+    }, 250);
+    return () => {
+      cancelled = true;
+      clearTimeout(t);
+    };
+  }, [query, mode, token]);
+
+  if (mode === "user") {
+    const normalizedQuery = query.trim().toLowerCase();
+    const filteredThreads = normalizedQuery
+      ? threads.filter((t) =>
+          String(t.name || "").toLowerCase().includes(normalizedQuery)
+        )
+      : threads;
+
+    return (
+      <BottomSheet
+        open={open}
+        onClose={onClose}
+        title="Enviar a usuario"
+        ariaLabel="Enviar a usuario"
+      >
+        <div className="shareSheet__searchRow">
+          <input
+            type="search"
+            className="app-input"
+            placeholder="Buscar contacto o usuario"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            autoFocus
+          />
+          <button
+            type="button"
+            className="app-button app-button--ghost app-button--sm"
+            onClick={() => setMode("root")}
+          >
+            Atrás
+          </button>
+        </div>
+
+        <div className="shareSheet__list">
+          {filteredThreads.map((t) => (
+            <button
+              key={`thread-${t.id}`}
+              type="button"
+              className="shareSheet__row"
+              onClick={() => onShareToUser(t.other_user_id)}
+              disabled={!t.other_user_id}
+            >
+              <div className="shareSheet__avatar">
+                {t.avatar_url ? (
+                  <img src={t.avatar_url} alt={t.name} />
+                ) : (
+                  <span>{(t.name || "U").slice(0, 1).toUpperCase()}</span>
+                )}
+              </div>
+              <div className="shareSheet__info">
+                <span className="shareSheet__name">{t.name}</span>
+                {t.other_handle ? (
+                  <span className="shareSheet__handle">@{t.other_handle}</span>
+                ) : null}
+              </div>
+            </button>
+          ))}
+
+          {loadingThreads && filteredThreads.length === 0 ? (
+            <p className="shareSheet__muted">Cargando…</p>
+          ) : null}
+
+          {!loadingThreads && filteredThreads.length === 0 && searchResults.length === 0 ? (
+            <p className="shareSheet__muted">
+              {query.trim().length >= 2
+                ? "Sin resultados"
+                : "Empieza a escribir para buscar usuarios"}
+            </p>
+          ) : null}
+
+          {searchResults.length > 0 ? (
+            <>
+              <div className="shareSheet__sectionLabel">Otros usuarios</div>
+              {searchResults.map((p) => (
+                <button
+                  key={`profile-${p.id}`}
+                  type="button"
+                  className="shareSheet__row"
+                  onClick={() => onShareToUser(p.user_id)}
+                  disabled={!p.user_id}
+                >
+                  <div className="shareSheet__avatar">
+                    {p.avatar_url ? (
+                      <img src={p.avatar_url} alt={p.display_name} />
+                    ) : (
+                      <span>
+                        {(p.display_name || p.handle || "U").slice(0, 1).toUpperCase()}
+                      </span>
+                    )}
+                  </div>
+                  <div className="shareSheet__info">
+                    <span className="shareSheet__name">
+                      {p.display_name || p.handle}
+                    </span>
+                    {p.handle ? (
+                      <span className="shareSheet__handle">@{p.handle}</span>
+                    ) : null}
+                  </div>
+                </button>
+              ))}
+            </>
+          ) : null}
+        </div>
+      </BottomSheet>
+    );
+  }
+
+  return (
+    <BottomSheet
+      open={open}
+      onClose={onClose}
+      title="Compartir evento"
+      ariaLabel="Opciones de compartir"
+    >
+      <div className="shareSheet__options">
+        <button
+          type="button"
+          className="shareSheet__option"
+          onClick={() => setMode("user")}
+        >
+          <span className="shareSheet__optionIcon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+            </svg>
+          </span>
+          <span className="shareSheet__optionBody">
+            <span className="shareSheet__optionTitle">Enviar a un usuario</span>
+            <span className="shareSheet__optionText">
+              Comparte el evento por chat dentro de la app.
+            </span>
+          </span>
+          <span className="shareSheet__optionArrow" aria-hidden="true">›</span>
+        </button>
+
+        <button
+          type="button"
+          className="shareSheet__option"
+          onClick={onShareExternal}
+        >
+          <span className="shareSheet__optionIcon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+              <polyline points="16 6 12 2 8 6" />
+              <line x1="12" x2="12" y1="2" y2="15" />
+            </svg>
+          </span>
+          <span className="shareSheet__optionBody">
+            <span className="shareSheet__optionTitle">Compartir enlace</span>
+            <span className="shareSheet__optionText">
+              Comparte fuera de la app o copia el enlace.
+            </span>
+          </span>
+          <span className="shareSheet__optionArrow" aria-hidden="true">›</span>
+        </button>
+      </div>
+    </BottomSheet>
+  );
+}
+
 export default function EventDetailPage() {
   const { eventId } = useParams();
   const navigate = useNavigate();
@@ -153,11 +370,10 @@ export default function EventDetailPage() {
   const [error, setError] = useState("");
   const [joining, setJoining] = useState(false);
   const [leaving, setLeaving] = useState(false);
-  const [favorited, setFavorited] = useState(false);
-  const [favLoading, setFavLoading] = useState(false);
   const [dmLoading, setDmLoading] = useState(false);
-  const [heroTab, setHeroTab] = useState("image"); // "image" | "organizer"
+  const [heroTab, setHeroTab] = useState("organizer"); // "image" | "organizer"
   const [imageViewerOpen, setImageViewerOpen] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -172,7 +388,6 @@ export default function EventDetailPage() {
         const data = await apiGetMeetup(eventId, token);
         if (!cancelled) {
           setEvent(data);
-          setFavorited(Boolean(data?.is_favorited));
           AnalyticsEvents.eventViewed?.(eventId);
         }
       } catch (err) {
@@ -245,35 +460,53 @@ export default function EventDetailPage() {
     );
   }
 
-  async function toggleFavorite() {
-    setFavLoading(true);
-    try {
-      if (favorited) {
-        await api(`/favorites/${eventId}`, { method: "DELETE", token });
-        setFavorited(false);
-      } else {
-        await api(`/favorites/${eventId}`, { method: "POST", token });
-        setFavorited(true);
-      }
-    } catch (err) {
-      toast?.error?.(err?.message || "Error al actualizar favorito.");
-    } finally {
-      setFavLoading(false);
-    }
+  function handleOpenShare() {
+    setShareOpen(true);
   }
 
-  function handleShare() {
+  function buildShareText() {
+    const title = event?.title || event?.meeting_point || "Evento RunVibe";
+    return `${title} — ${formatFullDate(event?.starts_at)} · ${timeLabel(
+      event?.starts_at
+    )}\n${window.location.href}`;
+  }
+
+  async function handleShareExternal() {
     const title = event?.title || event?.meeting_point || "Evento RunVibe";
     const text = `${title} — ${formatFullDate(event?.starts_at)} · ${timeLabel(
       event?.starts_at
     )}`;
     const url = window.location.href;
 
+    setShareOpen(false);
+
     if (navigator.share) {
-      navigator.share({ title, text, url }).catch(() => {});
-    } else {
-      navigator.clipboard?.writeText(url);
-      toast?.success?.("Enlace copiado al portapapeles.");
+      try {
+        await navigator.share({ title, text, url });
+      } catch {
+        /* user cancelled */
+      }
+    } else if (navigator.clipboard?.writeText) {
+      try {
+        await navigator.clipboard.writeText(url);
+        toast?.success?.("Enlace copiado al portapapeles.");
+      } catch {
+        toast?.error?.("No se pudo copiar el enlace.");
+      }
+    }
+  }
+
+  async function handleShareToUser(targetUserId) {
+    if (!targetUserId) return;
+    try {
+      const thread = await apiDMCreateThread(targetUserId, token);
+      if (!thread?.id) throw new Error("No se pudo abrir el chat.");
+      await apiDMSend(thread.id, buildShareText(), token);
+      setShareOpen(false);
+      toast?.success?.("Enviado");
+      navigate(`/mensajes/${thread.id}`);
+    } catch (err) {
+      toast?.error?.(err?.message || "No se pudo enviar.");
     }
   }
 
@@ -405,25 +638,7 @@ export default function EventDetailPage() {
         <div className="eventDetailNav__right">
           <IconButton
             variant="solid"
-            pressed={favorited}
-            disabled={favLoading}
-            onClick={toggleFavorite}
-            aria-label={favorited ? "Quitar de favoritos" : "Añadir a favoritos"}
-          >
-            <svg
-              viewBox="0 0 24 24"
-              fill={favorited ? "currentColor" : "none"}
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
-            </svg>
-          </IconButton>
-          <IconButton
-            variant="solid"
-            onClick={handleShare}
+            onClick={handleOpenShare}
             aria-label="Compartir"
           >
             <svg
@@ -442,6 +657,15 @@ export default function EventDetailPage() {
         </div>
       </div>
 
+      <ShareEventSheet
+        open={shareOpen}
+        onClose={() => setShareOpen(false)}
+        token={token}
+        onShareExternal={handleShareExternal}
+        onShareToUser={handleShareToUser}
+      />
+
+
       <div className="eventDetailHeroPanel">
         <div
           className="eventDetailHeroPanel__tabs"
@@ -451,43 +675,24 @@ export default function EventDetailPage() {
           <button
             type="button"
             role="tab"
-            aria-selected={heroTab === "image"}
-            className={`eventDetailHeroPanel__tab${heroTab === "image" ? " is-active" : ""}`}
-            onClick={() => setHeroTab("image")}
-          >
-            Imagen
-          </button>
-          <button
-            type="button"
-            role="tab"
             aria-selected={heroTab === "organizer"}
             className={`eventDetailHeroPanel__tab${heroTab === "organizer" ? " is-active" : ""}`}
             onClick={() => setHeroTab("organizer")}
           >
             Organizador
           </button>
-        </div>
-
-        {heroTab === "image" ? (
           <button
             type="button"
-            className="eventDetailHero eventDetailHero--image"
-            role="tabpanel"
-            onClick={() => setImageViewerOpen(true)}
-            aria-label="Ampliar imagen"
+            role="tab"
+            aria-selected={heroTab === "image"}
+            className={`eventDetailHeroPanel__tab${heroTab === "image" ? " is-active" : ""}`}
+            onClick={() => setHeroTab("image")}
           >
-            <img
-              src={imageSrc}
-              alt={event.title || event.meeting_point || "Evento"}
-              className="eventDetailHero__image"
-            />
-            <div className="eventDetailHero__overlay">
-              <span className="eventDetailHero__badge">
-                {eventTypeLabel(event)}
-              </span>
-            </div>
+            Imagen
           </button>
-        ) : (
+        </div>
+
+        {heroTab === "organizer" ? (
           <Link
             to={creatorId ? `/perfil/${creatorId}` : "#"}
             className="eventDetailHero eventDetailHero--organizer"
@@ -528,6 +733,25 @@ export default function EventDetailPage() {
               </span>
             </div>
           </Link>
+        ) : (
+          <button
+            type="button"
+            className="eventDetailHero eventDetailHero--image"
+            role="tabpanel"
+            onClick={() => setImageViewerOpen(true)}
+            aria-label="Ampliar imagen"
+          >
+            <img
+              src={imageSrc}
+              alt={event.title || event.meeting_point || "Evento"}
+              className="eventDetailHero__image"
+            />
+            <div className="eventDetailHero__overlay">
+              <span className="eventDetailHero__badge">
+                {eventTypeLabel(event)}
+              </span>
+            </div>
+          </button>
         )}
       </div>
 
@@ -589,10 +813,28 @@ export default function EventDetailPage() {
             </div>
           ) : null}
 
+          {event.pace_min || event.pace_max ? (
+            <div className="eventDetailMetaRow">
+              <span className="eventDetailMetaLabel">Ritmo:</span>
+              <span>
+                {event.pace_min && event.pace_max && event.pace_min !== event.pace_max
+                  ? `${event.pace_min}–${event.pace_max} min/km`
+                  : `${event.pace_min || event.pace_max} min/km`}
+              </span>
+            </div>
+          ) : null}
+
           {event.level_tag ? (
             <div className="eventDetailMetaRow">
               <span className="eventDetailMetaLabel">Nivel:</span>
               <span className="eventDetailLevelBadge">{event.level_tag}</span>
+            </div>
+          ) : null}
+
+          {event.event_type ? (
+            <div className="eventDetailMetaRow">
+              <span className="eventDetailMetaLabel">Tipo:</span>
+              <span className="eventDetailLevelBadge">{eventTypeLabel(event)}</span>
             </div>
           ) : null}
 
@@ -605,6 +847,26 @@ export default function EventDetailPage() {
                   : ""}
                 {event.capacity ? ` / ${event.capacity} plazas` : ""}
               </span>
+            </div>
+          ) : null}
+
+          {event.visibility && event.visibility !== "public" ? (
+            <div className="eventDetailMetaRow">
+              <span className="eventDetailMetaLabel">Visibilidad:</span>
+              <span>
+                {event.visibility === "private"
+                  ? "Privado"
+                  : event.visibility === "followers"
+                  ? "Solo seguidores"
+                  : event.visibility}
+              </span>
+            </div>
+          ) : null}
+
+          {event.requires_approval ? (
+            <div className="eventDetailMetaRow">
+              <span className="eventDetailMetaLabel">Aprobación:</span>
+              <span>Requiere aprobación del organizador</span>
             </div>
           ) : null}
 
