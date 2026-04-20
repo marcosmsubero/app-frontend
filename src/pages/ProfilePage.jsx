@@ -1183,43 +1183,28 @@ export default function ProfilePage() {
           </div>
 
           <div className="profileHeroCopy">
-            {/* On the user's OWN profile the display name is rendered in
-                the mobile-shell topbar — no need to repeat it in the hero
-                card. Public profiles (viewing someone else) still show
-                name + handle here. */}
-            {isPublicProfile ? (
-              <>
-                <div className="profileHero__nameRow">
-                  <h1 className="profileHero__name">{displayName}</h1>
+            <div className="profileHero__nameRow">
+              <h1 className="profileHero__name">{displayName}</h1>
 
-                  {profileData.location_verified ? (
-                    <span
-                      className="profileVerifiedBadge"
-                      title="Perfil verificado"
-                      aria-label="Perfil verificado"
-                    >
-                      <IconVerified size={14} />
-                    </span>
-                  ) : null}
-                </div>
-
-                <span className="profileHero__handle">
-                  {formatHandle(profileData.handle)}
-                </span>
-              </>
-            ) : (
-              // Keep the verified badge discoverable on own profile even
-              // without the name row (small inline chip).
-              profileData.location_verified ? (
+              {profileData.location_verified ? (
                 <span
-                  className="profileVerifiedBadge profileHero__ownVerified"
+                  className="profileVerifiedBadge"
                   title="Perfil verificado"
                   aria-label="Perfil verificado"
                 >
                   <IconVerified size={14} />
                 </span>
-              ) : null
-            )}
+              ) : null}
+            </div>
+
+            {/* On the user's OWN profile the @handle is rendered in the
+                mobile-shell topbar — no need to repeat it here. Public
+                profiles (viewing someone else) still show their handle. */}
+            {isPublicProfile ? (
+              <span className="profileHero__handle">
+                {formatHandle(profileData.handle)}
+              </span>
+            ) : null}
 
             {profileData.location ? (
               <span className="profileHero__location">

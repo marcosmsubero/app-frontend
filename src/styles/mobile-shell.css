@@ -195,16 +195,16 @@
   opacity: 0.65;
 }
 
-/* User name in the topbar — shown when viewing one's own profile. More
-   personal/friendly than the page title variant: lighter weight, no
-   underline, truncates if too long for the slot. */
+/* User handle in the topbar — shown when viewing one's own profile.
+   Reads as a handle (@marcosmsubero): mono-ish weight, slightly muted
+   color, truncated to fit next to the settings icon. */
 .appTopbar__userName {
   margin: 0;
   padding: 0;
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
-  font-size: 1.1rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
   line-height: 1.1;
   color: var(--text);
   user-select: none;

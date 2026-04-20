@@ -114,15 +114,14 @@ function shouldShowUserName(pathname) {
   );
 }
 
-function userDisplayName(me) {
+function userHandleLabel(me) {
   if (!me) return null;
-  const candidate =
-    me.display_name ||
-    me.full_name ||
-    me.name ||
-    (me.handle ? `@${me.handle}` : null) ||
-    (me.email ? me.email.split("@")[0] : null);
-  return candidate ? String(candidate).trim() || null : null;
+  const handle = me.handle ? String(me.handle).trim() : "";
+  if (handle) return `@${handle}`;
+  // Fallback: email local-part prefixed with @ so the slot is never empty
+  // on an account with no handle yet.
+  if (me.email) return `@${me.email.split("@")[0]}`;
+  return null;
 }
 
 export default function MobileShell() {
@@ -132,7 +131,7 @@ export default function MobileShell() {
   const headerVisible = isHeaderVisible(location.pathname) && !isChatThreadPage;
 
   const topbarName = shouldShowUserName(location.pathname)
-    ? userDisplayName(me)
+    ? userHandleLabel(me)
     : null;
 
   const frameModifier = isChatThreadPage
