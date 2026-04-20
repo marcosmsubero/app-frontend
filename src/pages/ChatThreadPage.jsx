@@ -521,15 +521,15 @@ export default function ChatThreadPage() {
       className="chatPage"
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
-      style={
-        viewportHeight
-          ? {
-              height: `${viewportHeight}px`,
-              maxHeight: `${viewportHeight}px`,
-              overflow: "hidden",
-            }
-          : { overflow: "hidden" }
-      }
+      /* Don't apply inline visualViewport height. Modern iOS + the
+         `interactive-widget=resizes-content` meta in index.html shrink
+         the layout viewport correctly when the keyboard opens, so the
+         CSS `height: 100dvh` already does the right thing. Forcing
+         `visualViewport.height` on a position:fixed element was making
+         the chat disappear on some devices because the fixed element
+         stays anchored to the old layout viewport while iOS scrolls
+         the window — the `scheduleKeyboardSafeScroll` effect below
+         keeps the last message visible inside the shrunk chat. */
     >
       <div className="chatHeader">
         <button
@@ -638,39 +638,37 @@ export default function ChatThreadPage() {
           flexShrink: 0,
         }}
       >
-        <div className="chatComposer__inputWrap">
-          <textarea
-            ref={composerRef}
-            rows={1}
-            placeholder=""
-            aria-label={t("chat.typeMessage")}
-            value={text}
-            onChange={handleTextChange}
-            onKeyDown={onKeyDown}
-            onFocus={scheduleKeyboardSafeScroll}
-            onClick={scheduleKeyboardSafeScroll}
-            disabled={!!error || sending}
-            className="chatComposer__input"
-            autoComplete="off"
-            autoCorrect="on"
-            autoCapitalize="sentences"
-            spellCheck
-            inputMode="text"
-            enterKeyHint="send"
-          />
-          <button
-            type="button"
-            className="chatComposer__send"
-            onClick={send}
-            disabled={sending || !text.trim() || !!error}
-            aria-label="Enviar"
-            title="Enviar"
-          >
-            <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
-              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
-            </svg>
-          </button>
-        </div>
+        <textarea
+          ref={composerRef}
+          rows={1}
+          placeholder=""
+          aria-label={t("chat.typeMessage")}
+          value={text}
+          onChange={handleTextChange}
+          onKeyDown={onKeyDown}
+          onFocus={scheduleKeyboardSafeScroll}
+          onClick={scheduleKeyboardSafeScroll}
+          disabled={!!error || sending}
+          className="chatComposer__input"
+          autoComplete="off"
+          autoCorrect="on"
+          autoCapitalize="sentences"
+          spellCheck
+          inputMode="text"
+          enterKeyHint="send"
+        />
+        <button
+          type="button"
+          className="chatComposer__send"
+          onClick={send}
+          disabled={sending || !text.trim() || !!error}
+          aria-label="Enviar"
+          title="Enviar"
+        >
+          <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+          </svg>
+        </button>
       </div>
     </section>
   );

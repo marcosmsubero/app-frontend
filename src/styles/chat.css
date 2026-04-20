@@ -335,11 +335,12 @@
 .chatComposer {
   flex: 0 0 auto;
   flex-shrink: 0;
-  display: block;
-  /* Minimal side padding so the input pill spans full width; keep the
-     composer above the iOS home indicator / Android gesture bar while
-     reserving a visible gap on notchless devices. */
-  padding: 6px 6px max(10px, env(safe-area-inset-bottom, 0px));
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  /* Keep the composer above the iOS home indicator / Android gesture bar
+     while reserving a visible gap on notchless devices. */
+  padding: 6px 8px max(10px, env(safe-area-inset-bottom, 0px));
   background: var(--surface);
   border-top: 1px solid var(--border-subtle);
   box-sizing: border-box;
@@ -348,26 +349,20 @@
   z-index: 10;
 }
 
-.chatComposer__inputWrap {
+.chatComposer__input {
   flex: 1;
   min-width: 0;
-  position: relative; /* anchor for the absolutely-positioned send button */
-}
-
-.chatComposer__input {
-  width: 100%;
   /* WhatsApp-sized composer: tight padding + smaller min-height so the
-     input hugs the chip at rest, grows only as the user types.
-     Right padding reserved for the embedded send button. */
-  min-height: 32px;
+     input hugs the chip at rest, grows only as the user types. */
+  min-height: 34px;
   max-height: 100px;
-  padding: 6px 34px 6px 14px;
+  padding: 7px 14px;
   border: 1px solid var(--border-subtle);
   border-radius: 18px;
   background: var(--surface-2);
   color: var(--text);
   font: inherit;
-  /* 16px on focus to prevent iOS zoom, 0.92rem at rest for compactness. */
+  /* 16px on focus prevents iOS zoom; smaller at rest for compactness. */
   font-size: 0.92rem;
   line-height: 1.3;
   resize: none;
@@ -381,9 +376,6 @@
 
 .chatComposer__input:focus {
   font-size: 16px;
-}
-
-.chatComposer__input:focus {
   border-color: var(--primary);
   background: var(--surface-3);
 }
@@ -393,15 +385,11 @@
 }
 
 .chatComposer__send {
-  /* Embedded inside the input pill, right edge. Bottom-anchored so it
-     stays at the baseline when the textarea grows multi-line. This
-     removes the send button's contribution to the composer's height. */
-  position: absolute;
-  right: 3px;
-  bottom: 3px;
-  width: 24px;
-  height: 24px;
+  /* Sits beside the input pill, aligned to its bottom so when the
+     textarea grows multi-line the button stays on the baseline. */
   flex-shrink: 0;
+  width: 34px;
+  height: 34px;
   border: none;
   border-radius: 999px;
   background: var(--primary, #6ee7a0);
@@ -417,8 +405,8 @@
 }
 
 .chatComposer__send svg {
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
 }
 
 .chatComposer__send:disabled {
