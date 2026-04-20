@@ -53,7 +53,10 @@
   flex-direction: column;
   backdrop-filter: saturate(180%) blur(14px);
   -webkit-backdrop-filter: saturate(180%) blur(14px);
-  background: color-mix(in srgb, var(--bg-base, #0a1628) 85%, transparent);
+  /* Use the theme-aware --bg so light mode stays light without needing
+     an explicit override. Fallback only matters on browsers that ignore
+     color-mix (none we target). */
+  background: color-mix(in srgb, var(--bg) 85%, transparent);
 }
 
 /* --- Row 1: search + filter button ------------------------------------ */
@@ -467,7 +470,7 @@
 
 .filterSheet__locationRow:focus-within {
   background: var(--bg-elevated, rgba(255, 255, 255, 0.1));
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 35%, transparent);
+  box-shadow: 0 0 0 2px var(--focus-ring-color);
 }
 
 .filterSheet__locationIcon {
@@ -559,51 +562,18 @@
 
 /* ═══════════════════════════════════════════════════════════════════
    Light theme fine-tunes
+
+   Most surfaces already adapt via tokens (--surface-3, --text,
+   --border-subtle, --primary, --bg). We only override the few spots
+   where the contrast needs a touch more in light mode — avatars and
+   skeletons need a slightly warmer grey than --surface-3 (which is
+   almost invisible in light mode) so empty avatars don't disappear.
+   The app pattern uses rgba(0, 0, 0, X) tints (see profile.css,
+   event-detail.css) — we follow the same convention here.
    ═══════════════════════════════════════════════════════════════════ */
 
-:root[data-theme="light"] .exploreHeader {
-  background: color-mix(in srgb, #ffffff 88%, transparent);
-}
-
-:root[data-theme="light"] .exploreBar__search:focus-within {
-  background: rgba(10, 22, 40, 0.05);
-}
-
-:root[data-theme="light"] .exploreBar__filterBtn:hover,
-:root[data-theme="light"] .exploreBar__filterBtn:focus-visible {
-  background: rgba(10, 22, 40, 0.05);
-}
-
-:root[data-theme="light"] .exploreRow:hover,
-:root[data-theme="light"] .exploreRow:focus-visible {
-  background: rgba(10, 22, 40, 0.04);
-}
-
-:root[data-theme="light"] .exploreRow__avatar {
-  background: rgba(10, 22, 40, 0.06);
-}
-
+:root[data-theme="light"] .exploreRow__avatar,
 :root[data-theme="light"] .exploreSkeleton__avatar,
 :root[data-theme="light"] .exploreSkeleton__line {
-  background: rgba(10, 22, 40, 0.06);
-}
-
-:root[data-theme="light"] .filterSheet__locationRow {
-  background: rgba(10, 22, 40, 0.05);
-}
-
-:root[data-theme="light"] .filterSheet__locationRow:focus-within {
-  background: #fff;
-}
-
-:root[data-theme="light"] .filterSheet__chip {
-  background: rgba(10, 22, 40, 0.05);
-}
-
-:root[data-theme="light"] .filterSheet__chip:hover {
-  background: rgba(10, 22, 40, 0.09);
-}
-
-:root[data-theme="light"] .exploreRow:not(:last-child)::after {
-  background: rgba(10, 22, 40, 0.06);
+  background: rgba(0, 0, 0, 0.06);
 }
