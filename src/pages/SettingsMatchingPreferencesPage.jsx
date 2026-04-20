@@ -25,16 +25,16 @@ export default function SettingsMatchingPreferencesPage() {
     save,
     discard,
   } = useUserPreferences();
-  const { showToast } = useToast();
+  const toast = useToast();
   const sections = useMemo(() => fieldsBySection(), []);
 
   async function handleSave() {
     try {
       await save();
-      showToast("Preferencias guardadas", { variant: "success" });
+      toast?.success?.("Preferencias guardadas");
     } catch {
       // error state is already set by the hook; toast as fallback UX.
-      showToast("No se pudieron guardar las preferencias", { variant: "error" });
+      toast?.error?.("No se pudieron guardar las preferencias");
     }
   }
 
