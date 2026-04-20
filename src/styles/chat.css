@@ -448,10 +448,11 @@
     max-width: 88%;
   }
 
+  /* Keep the composer's side padding tight on small screens so the
+     input pill extends edge-to-edge (WhatsApp behavior). */
   .chatComposer {
-    gap: 6px;
-    padding-left: 10px;
-    padding-right: 10px;
+    padding-left: 6px;
+    padding-right: 6px;
   }
 
   .chatMessages {
