@@ -378,7 +378,9 @@
   grid-template-columns: 1fr 34px 34px;
   align-items: end;
   gap: 6px;
-  padding: 6px 8px max(10px, env(safe-area-inset-bottom, 0px));
+  /* Side padding gives the composer a bit of breathing room so the
+     input pill doesn't hug the screen edges on mobile. */
+  padding: 6px 14px max(10px, env(safe-area-inset-bottom, 0px));
   background: var(--surface);
   border-top: 1px solid var(--border-subtle);
   box-sizing: border-box;
@@ -566,11 +568,11 @@
     max-width: 88%;
   }
 
-  /* Keep the composer's side padding tight on small screens so the
-     input pill extends edge-to-edge (WhatsApp behavior). */
+  /* Match the base rule — keep a bit of side margin even on narrow
+     phones so the input pill doesn't touch the bezel. */
   .chatComposer {
-    padding-left: 6px;
-    padding-right: 6px;
+    padding-left: 12px;
+    padding-right: 12px;
   }
 
   .chatMessages {
