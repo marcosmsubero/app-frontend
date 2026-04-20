@@ -263,6 +263,45 @@
   clip-path: polygon(100% 0, 100% 100%, 0 100%);
 }
 
+/* Light-mode bubble differentiation.
+   The default --primary-soft in light mode is only 10% opacity green on
+   white, which reads as almost-white and blends with the --surface-2
+   used for received messages. Override with distinct tints so the two
+   sides are unambiguous at a glance (WhatsApp-style pale green for
+   sent, pure white with border for received). */
+:root[data-theme="light"] .chatBubbleRow--mine .chatBubble {
+  background: #d9fdd3;
+  color: #0a0a0a;
+  border: 1px solid rgba(22, 163, 74, 0.18);
+}
+
+:root[data-theme="light"] .chatBubbleRow--mine .chatBubble::after {
+  background: #d9fdd3;
+  border-right: 1px solid rgba(22, 163, 74, 0.18);
+  border-bottom: 1px solid rgba(22, 163, 74, 0.18);
+  clip-path: polygon(0 0, 100% 100%, 0 100%);
+}
+
+:root[data-theme="light"] .chatBubbleRow--theirs .chatBubble {
+  background: #ffffff;
+  color: #0a0a0a;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+:root[data-theme="light"] .chatBubbleRow--theirs .chatBubble::after {
+  background: #ffffff;
+  border-left: 1px solid rgba(0, 0, 0, 0.08);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+/* Meta (timestamp + status) color adjustments — low-contrast text on
+   these new light backgrounds would read as pure noise. */
+:root[data-theme="light"] .chatBubbleRow--mine .chatBubble__meta,
+:root[data-theme="light"] .chatBubbleRow--theirs .chatBubble__meta {
+  color: rgba(0, 0, 0, 0.45);
+}
+
 .chatBubble__text {
   display: inline;
 }
