@@ -14,7 +14,12 @@ function normalizeBaseUrl(rawValue, fallback) {
 }
 
 const envApiBase = import.meta.env.VITE_API_BASE;
-const defaultApiBase = import.meta.env.PROD ? DEFAULT_PROD_API : DEFAULT_LOCAL_API;
+// In dev we default to "" so API calls become relative (same-origin as
+// the Vite dev server) — Vite's proxy in vite.config.js forwards them
+// to the FastAPI backend on port 8000. This avoids the mixed-content
+// block when the frontend is served over HTTPS (required for the mic)
+// and the backend is still HTTP. In production we hit the deployed API.
+const defaultApiBase = import.meta.env.PROD ? DEFAULT_PROD_API : "";
 
 const API_BASE = normalizeBaseUrl(envApiBase, defaultApiBase);
 
