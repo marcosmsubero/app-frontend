@@ -157,9 +157,13 @@ export default function MobileShell() {
               <RunVibeLogo />
             )}
 
-            <Link to="/ajustes" className="appTopbar__settings" aria-label="Ir a ajustes">
-              <IconSettings />
-            </Link>
+            {/* Settings gear hidden on /eventos — that page owns its own
+                header controls and the gear is redundant there. */}
+            {!matchPath("/eventos", location.pathname) ? (
+              <Link to="/ajustes" className="appTopbar__settings" aria-label="Ir a ajustes">
+                <IconSettings />
+              </Link>
+            ) : null}
           </div>
         </header>
       )}
