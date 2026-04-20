@@ -322,6 +322,15 @@
   flex: 1;
 }
 
+/* Match the Explorar filter sheet compact buttons so all filter footers
+   look the same across the app. */
+.filterPopup__footer .app-button.app-button--sm {
+  min-height: 34px;
+  padding-inline: 14px;
+  font-size: 0.78rem;
+  border-radius: 10px;
+}
+
 /* FILTRO DE UBICACIÓN */
 
 .discoverLocationFilter {

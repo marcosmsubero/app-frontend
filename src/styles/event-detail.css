@@ -8,20 +8,29 @@
 
 /* --- Navigation bar ---------------------------------------- */
 
-.eventDetailNav {
+/* Deprecated — the nav row used to hold a back button + share icon.
+   Kept as an inert block so old markup doesn't break layout; the share
+   icon now lives inline with the title (see .eventDetailTitleRow). */
+.eventDetailNav,
+.eventDetailNav--shareOnly,
+.eventDetailNav__right {
+  display: none;
+}
+
+/* Title + share icon in a single row. The share sits on the right edge
+   and the title takes the remaining width, truncating to 2 lines. */
+.eventDetailTitleRow {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 4px 4px;
+  gap: 12px;
+  margin: 0 0 8px;
 }
 
-.eventDetailNav--shareOnly {
-  justify-content: flex-end;
-}
-
-.eventDetailNav__right {
-  display: flex;
-  gap: 6px;
+.eventDetailTitleRow .eventDetailTitle {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
 }
 
 /* Standalone share icon button. No container chrome — just the glyph,
@@ -34,11 +43,12 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   padding: 0;
   border-radius: 10px;
   cursor: pointer;
+  flex-shrink: 0;
   transition: background 140ms cubic-bezier(0.23, 1, 0.32, 1),
               transform 120ms cubic-bezier(0.23, 1, 0.32, 1);
   -webkit-tap-highlight-color: transparent;
@@ -567,6 +577,15 @@ button.eventDetailHero--image {
 .eventDetailOwnerActions .eventDetailActionBtn {
   flex: 1;
   width: auto;
+}
+
+/* Compact creator-action buttons — tighter than --sm so Edit/Delete
+   sit inline without dominating the page. */
+.eventDetailOwnerActions .app-button.app-button--sm.eventDetailActionBtn {
+  min-height: 34px;
+  padding-inline: 14px;
+  font-size: 0.78rem;
+  border-radius: 10px;
 }
 
 .eventDetailJoinedBadge {

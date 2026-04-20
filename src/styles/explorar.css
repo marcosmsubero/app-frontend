@@ -432,14 +432,13 @@
    Filter bottom sheet (opens from the sliders button)
    ═══════════════════════════════════════════════════════════════════ */
 
-/* The filter sheet has sparse content (one input + two small chip
-   groups at most). Cap the panel to roughly half the viewport so the
-   sheet lives in the lower half of the screen and the Apply footer
-   lands firmly in the thumb zone. Also dim + blur the scrim so the
-   sticky top bar behind doesn't read as a second search field. */
+/* Keep the filter panel small and anchored low. The sheet is always
+   a short overlay (one input + two compact chip groups at most), so
+   capping it aggressively leaves the upper half of the screen visible
+   and the Apply button sitting in the natural thumb reach. */
 .filterSheet.ui-sheet__panel,
 .filterSheet {
-  max-height: min(52vh, 440px);
+  max-height: min(44vh, 380px);
 }
 
 .ui-sheet__overlay:has(> .filterSheet) {
@@ -585,17 +584,18 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 8px;
   width: 100%;
 }
 
-.filterSheet__footer .app-button {
-  flex-shrink: 0;
-}
-
-.filterSheet__footer .app-button--primary {
-  margin-left: auto;
-  min-width: 120px;
+/* Compact footer buttons — tighter than --sm so two of them sit
+   neatly inside the sheet footer without dominating it. */
+.filterSheet__footer .app-button.app-button--sm {
+  min-height: 34px;
+  padding-inline: 14px;
+  font-size: 0.78rem;
+  border-radius: 10px;
+  flex: 1;
 }
 
 /* ═══════════════════════════════════════════════════════════════════

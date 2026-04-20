@@ -116,20 +116,17 @@ export default function ExploreFilterSheet({
       className="filterSheet"
       footer={
         <div className="filterSheet__footer">
-          {hasDraftFilters ? (
-            <button
-              type="button"
-              className="app-button app-button--ghost app-button--sm"
-              onClick={handleReset}
-            >
-              Resetear
-            </button>
-          ) : (
-            <span />
-          )}
           <button
             type="button"
-            className="app-button app-button--primary"
+            className="app-button app-button--ghost app-button--sm"
+            onClick={handleReset}
+            disabled={!hasDraftFilters}
+          >
+            Limpiar
+          </button>
+          <button
+            type="button"
+            className="app-button app-button--primary app-button--sm"
             onClick={handleApply}
           >
             Aplicar

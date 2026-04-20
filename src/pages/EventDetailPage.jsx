@@ -608,30 +608,6 @@ export default function EventDetailPage() {
           onClose={() => setImageViewerOpen(false)}
         />
       ) : null}
-      <div className="eventDetailNav eventDetailNav--shareOnly">
-        <button
-          type="button"
-          className="eventDetailShareBtn"
-          onClick={handleOpenShare}
-          aria-label="Compartir"
-        >
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            width="22"
-            height="22"
-          >
-            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
-            <polyline points="16 6 12 2 8 6" />
-            <line x1="12" x2="12" y1="2" y2="15" />
-          </svg>
-        </button>
-      </div>
-
       <ShareEventSheet
         open={shareOpen}
         onClose={() => setShareOpen(false)}
@@ -731,9 +707,32 @@ export default function EventDetailPage() {
       </div>
 
       <div className="eventDetailBody">
-        <h1 className="eventDetailTitle">
-          {event.title || event.meeting_point || "Evento"}
-        </h1>
+        <div className="eventDetailTitleRow">
+          <h1 className="eventDetailTitle">
+            {event.title || event.meeting_point || "Evento"}
+          </h1>
+          <button
+            type="button"
+            className="eventDetailShareBtn"
+            onClick={handleOpenShare}
+            aria-label="Compartir"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              width="20"
+              height="20"
+            >
+              <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+              <polyline points="16 6 12 2 8 6" />
+              <line x1="12" x2="12" y1="2" y2="15" />
+            </svg>
+          </button>
+        </div>
 
         {event.status && event.status !== "open" ? (
           <div className={`eventDetailStatus eventDetailStatus--${event.status}`}>
@@ -890,14 +889,14 @@ export default function EventDetailPage() {
             <div className="eventDetailOwnerActions">
               <button
                 type="button"
-                className="app-button app-button--secondary eventDetailActionBtn"
+                className="app-button app-button--secondary app-button--sm eventDetailActionBtn"
                 onClick={handleEdit}
               >
                 Editar
               </button>
               <button
                 type="button"
-                className="app-button app-button--danger eventDetailActionBtn"
+                className="app-button app-button--danger app-button--sm eventDetailActionBtn"
                 onClick={handleDelete}
               >
                 Eliminar
